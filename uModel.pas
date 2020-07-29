@@ -53,7 +53,7 @@ end;
 
 procedure TForm3.Button3Click(Sender: TObject);
 begin
-    Script.Exec('PlayerAttack(); CreatureAttack(); CheckStatus();');
+    Script.Exec('PlayerAttack();CreatureAttack();CheckStatus();');
 
     log(Script.Exec('GetCurrCreatureInfo()'));
     lPlayerInfo.Caption := Script.Exec('GetPlayerInfo()');

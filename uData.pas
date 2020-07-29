@@ -248,7 +248,7 @@ begin
         Inc(CurrCreature);
     end;
 
-    // проверка состояния текущего монстра
+    // проверка состояния игрока
     HP := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
 
     if HP <= 0 then

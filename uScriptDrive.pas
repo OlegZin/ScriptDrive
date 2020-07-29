@@ -36,6 +36,7 @@ var
     method: string;
     params: string;
     i : integer;
+    prs: TStringList;
 begin
     if not Assigned(T) then
     begin
@@ -43,9 +44,11 @@ begin
         exit;
     end;
 
+    prs := TStringList.Create;
+
     /// полученный набор команд разбиваем на строки и выполн€ем по отдельности
-    parser.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
-    for I := 0 to parser.Count-1 do
+    prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
+    for I := 0 to prs.Count-1 do
     begin
 
         // в строке команды ищутс€ вложенные функции и исполн€ютс€ раньше основной
@@ -63,8 +66,8 @@ begin
         // 3. обрабатываем и вставл€ем результат вместо нее в основную строку
         // 4. при отсутствии резултата поиска - расчет окончен
 
-        method := GetMethodName(parser[i]);
-        params := GetParams(parser[i]);
+        method := GetMethodName(prs[i]);
+        params := GetParams(prs[i]);
 
         for M in t.GetMethods do
             if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
@@ -75,6 +78,7 @@ begin
 
             end;
     end;
+    prs.Free;
 end;
 
 function TScriptDrive.GetMethodName(command: string): string;
