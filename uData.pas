@@ -353,6 +353,7 @@ begin
         Script.Exec( items[i].script );
 
     /// списываем единицу из инвентаря
+    parser.CommaText := player.Items;
     parser.Values[name] := IntToStr(count - 1);
 
     /// если все кончилось - убираем упоминание из инвентаря
