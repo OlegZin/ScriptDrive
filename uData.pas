@@ -20,42 +20,43 @@ type
         constructor Create;
         destructor Destroy;
 
-        procedure PlayerAttack(input: string = '');   // команда игроку атаковать текущую цель
-        procedure CreatureAttack(input: string = ''); // команда монстру атаковать
+        procedure PlayerAttack;   // команда игроку атаковать текущую цель
+        procedure CreatureAttack; // команда монстру атаковать
 
-        procedure DoDamageToCreature(input: string = ''); // нанесение урона текущему существу
-        procedure DoDamageToPlayer(input: string = ''); // нанесение урона игроку
+        procedure DoDamageToCreature(input: string); // нанесение урона текущему существу
+        procedure DoDamageToPlayer(input: string); // нанесение урона игроку
 
-        function GetCurrCreatureInfo(input: string = ''): string;
-        function GetPlayerInfo(input: string = ''): string;
-        function GetPlayerItems(input: string = ''): string;
+        function GetCurrCreatureInfo: string;
+        function GetPlayerInfo: string;
+        function GetPlayerItems: string;
 
-        procedure InitPlayer(input: string = '');
-        procedure InitCreatures(input: string = '');
+        procedure InitPlayer;
+        procedure InitCreatures;
 
-        function CurrentCreature(input: string = ''): string;
-        function CreaturesCount(input: string = ''): string;
+        function CurrentCreature: string;
+        function CreaturesCount: string;
 
-        procedure CheckStatus(input: string = '');  // проверка игрового сатауса и отыгрыш игровой логики
-        function CurrentLevel(input: string): string;
+        procedure CheckStatus;  // проверка игрового сатауса и отыгрыш игровой логики
+        procedure CurrentLevel(input: string);
+        function GetCurrentLevel: string;
 
-        function GetEvents(input: string = ''): string;
+        function GetEvents: string;
 
-        procedure LevelUpPlayer(input: string = '');
-        function AllowLevelUp(input: string = ''): string;
+        procedure LevelUpPlayer;
+        function AllowLevelUp: string;
         // проверка на достаточность текущего опыта для поднятия уровня
 
-        function NeedExp(input: string = ''): string;
+        function NeedExp: string;
         // возвращает количество опыта для поднятия уровня
 
         procedure ChangePlayerParam(name, delta: string);
         // метод изменения параметра игрока
 
+        procedure AddEvent(text: string);
+        procedure UseItem(name: string);
     private
         parser: TStringList;
         Script : TScriptDrive;
-
-        procedure AddEvent(text: string);
 
         function FillVars(creature: TCreature; scr: string): string;
 
@@ -111,36 +112,41 @@ var
 
 {PUBLIC // Script allow}
 
-function TData.GetCurrCreatureInfo(input: string): string;
+function TData.GetCurrCreatureInfo: string;
 begin
     if CurrCreature > Creatures.Count -1 then exit;
 
     result := Creatures[CurrCreature].Name + ' ' + Creatures[CurrCreature].Params;
 end;
 
-function TData.GetEvents(input: string): string;
+function TData.GetCurrentLevel: string;
+begin
+    result := IntToStr(CurrLevel);
+end;
+
+function TData.GetEvents: string;
 begin
     result := EventText;
     EventText := '';
 end;
 
-function TData.GetPlayerInfo(input: string): string;
+function TData.GetPlayerInfo: string;
 begin
     result := Player.Name + ' ' + Player.Params;
 end;
 
-function TData.GetPlayerItems(input: string): string;
+function TData.GetPlayerItems: string;
 begin
     result := Player.Items;
 end;
 
-procedure TData.InitCreatures(input: string);
+procedure TData.InitCreatures;
 // формирование пула
 var
     i, count: integer;
 begin
 
-    count := StrToIntDef(input, CurrLevel * 5);
+    count := CurrLevel * 5;
 
     Creatures.Clear;
     for I := 0 to count-1 do
@@ -168,6 +174,7 @@ begin
         begin
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
+            Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
 
             SetCreature(
                 Format('БОСС %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
@@ -184,13 +191,13 @@ begin
     CurrCreature := 0;
 end;
 
-procedure TData.InitPlayer(input: string);
+procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
     SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0');
 end;
 
-procedure TData.LevelUpPlayer(input: string);
+procedure TData.LevelUpPlayer;
 /// поднятие уровня игрока
 var
     CurrLvl: integer;
@@ -213,7 +220,7 @@ end;
 
 
 
-procedure TData.PlayerAttack(input: string);
+procedure TData.PlayerAttack;
 // команда персонажу атаковать текущую цель
 // выполняем скрипт OnAttack
 var
@@ -224,7 +231,7 @@ begin
     Script.Exec( scr );
 end;
 
-procedure TData.CreatureAttack(input: string);
+procedure TData.CreatureAttack;
 // команда монстру атаковать игрока
 // выполняем скрипт OnAttack
 var
@@ -278,25 +285,23 @@ begin
     SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
 end;
 
-function TData.CurrentCreature(input: string): string;
+function TData.CurrentCreature: string;
 // текущий активный
 begin
     result := IntToStr(CurrCreature+1);
 end;
 
-function TData.CreaturesCount(input: string): string;
+function TData.CreaturesCount: string;
 // общее количество монстров
 begin
     result := IntToStr(Creatures.Count);
 end;
 
-function TData.CurrentLevel(input: string): string;
+procedure TData.CurrentLevel(input: string);
 // текущий уровень показ/изменение
 begin
     // если задано значение - меняем, иначе остается текущий
     CurrLevel := StrToIntDef(input, CurrLevel);
-
-    result := IntToStr(CurrLevel);
 end;
 
 
@@ -325,6 +330,36 @@ begin
     Player.Items  := items;
 
     Player.OnAttack := 'DoDamageToCreature({ATK})';
+end;
+
+procedure TData.UseItem(name: string);
+var
+    count: integer;
+    i: integer;
+begin
+    /// берем инвентарь игрока
+    parser.CommaText := player.Items;
+
+    /// есть ли там искомый объект?
+    if pos(name, parser.CommaText) = 0 then exit;
+
+    /// есть ли хоть один, чтобы применить?
+    count := StrToIntDef(parser.Values[name], 0);
+    if count <= 0 then exit;
+
+    /// применяем (выполняем прописанный скрипт эффекта)
+    for I := 0 to High(items) do
+        if items[i].name = name then
+        Script.Exec( items[i].script );
+
+    /// списываем единицу из инвентаря
+    parser.Values[name] := IntToStr(count - 1);
+
+    /// если все кончилось - убираем упоминание из инвентаря
+    if parser.Values[name] = '0' then
+    parser.Delete( parser.IndexOfName(name) );
+
+    player.Items := parser.CommaText;
 end;
 
 function TData.FillVars(creature: TCreature; scr: string): string;
@@ -363,7 +398,7 @@ begin
     EventText := text + ifthen(EventText <> '', sLineBreak, '') + EventText;
 end;
 
-function TData.AllowLevelUp(input: string): string;
+function TData.AllowLevelUp: string;
 var
     exp : integer;
     need: integer;
@@ -373,7 +408,7 @@ begin
     result := ifthen( exp >= need, '!', '');
 end;
 
-function TData.NeedExp(input: string): string;
+function TData.NeedExp: string;
 var
     prev, cost, buff, // переменные для вычисления стоимости
     lvl,              // текущий уровень игрока
@@ -411,10 +446,10 @@ end;
 procedure TData.ChangePlayerParam(name, delta: string);
 // метод изменения параметра игрока из скриптов
 begin
-
+    ChangeParamValue(Player, name, StrToIntDef(delta, 0));
 end;
 
-procedure TData.CheckStatus(input: string);
+procedure TData.CheckStatus;
 // метод отработки состояния объектов игровой логики
 var
     HP: integer;

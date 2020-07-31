@@ -97,6 +97,7 @@ object Form3: TForm3
     Height = 25
     Caption = 'Use!'
     TabOrder = 5
+    OnClick = bItemUseClick
   end
   object cbSkill: TComboBox
     Left = 392

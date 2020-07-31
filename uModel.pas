@@ -32,6 +32,7 @@ type
     procedure UpdateInterface;
     procedure bLvlUpClick(Sender: TObject);
     procedure tAutoAttackTimer(Sender: TObject);
+    procedure bItemUseClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -47,6 +48,13 @@ implementation
 
 uses
     uData;
+
+procedure TForm3.bItemUseClick(Sender: TObject);
+begin
+    if cbItem.ItemIndex = -1 then exit;
+    Script.Exec('UseItem('+Copy(cbItem.Text, 0, Pos('=', cbItem.Text)-1)+')');
+    UpdateInterface;
+end;
 
 procedure TForm3.bLvlUpClick(Sender: TObject);
 begin
@@ -81,7 +89,7 @@ procedure TForm3.Restart;
 begin
     mLog.Lines.Clear;
 
-    Script.Exec('InitPlayer();CurrLevel(1);InitCreatures()');
+    Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures()');
     UpdateInterface;
 
     log('¬ходим в подземелье...');
@@ -94,7 +102,7 @@ end;
 
 procedure TForm3.UpdateInterface;
 begin
-    lStep.Caption := 'Lvl:' + Script.Exec('CurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
+    lStep.Caption := 'Lvl:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
     lCreatureInfo.Caption := Script.Exec('GetCurrCreatureInfo()');
     lPlayerInfo.Caption := Script.Exec('GetPlayerInfo()');
     lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
@@ -111,7 +119,7 @@ end;
 procedure TForm3.FormCreate(Sender: TObject);
 begin
     Script := TScriptDrive.Create;
-    Script.SetClass(TData);
+    Script.SetClass(TData, Data);
 end;
 
 end.

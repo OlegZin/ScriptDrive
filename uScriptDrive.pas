@@ -2,17 +2,17 @@ unit uScriptDrive;
 
 interface
 
-uses RTTI;
+uses RTTI,  Classes, SysUtils;
 
 type
 
     TScriptDrive = class
     private
         function GetMethodName(command: string): string;
-        function GetParams(command: string): string;
+        function GetParams(command: string): TStringList;
     public
         constructor Create;
-        procedure SetClass( cls: TClass );
+        procedure SetClass( cls: TClass; obj: TObject );
         function Exec(scrt:string): string;
     end;
 
@@ -21,8 +21,6 @@ var
 
 implementation
 
-uses
-   Classes, SysUtils, uData;
 
 var
    parser: TStringList;
@@ -30,11 +28,12 @@ var
    T : TRttiType;
    M : TRttiMethod;
    V : TValue;
+   _obj: TObject;
 
 function TScriptDrive.Exec(scrt:string): string;
 var
     method: string;
-    params: string;
+    params: TStringList;
     i : integer;
     prs: TStringList;
 begin
@@ -72,10 +71,19 @@ begin
         for M in t.GetMethods do
             if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
             begin
-                V := M.Invoke(Data,[params]);
+                if   params.Count = 0
+                then V := M.Invoke(_obj,[]);
+
+                if   params.Count = 1
+                then V := M.Invoke(_obj,[params.CommaText]);
+
+                if   params.Count = 2
+                then V := M.Invoke(_obj,[params[0], params[1]]);
+
+                if   params.Count = 3
+                then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
 
                 if not V.IsEmpty then result := V.AsString;
-
             end;
     end;
     prs.Free;
@@ -86,16 +94,20 @@ begin
     result := Trim(Copy(command, 0, Pos('(', command)-1));
 end;
 
-function TScriptDrive.GetParams(command: string): string;
+function TScriptDrive.GetParams(command: string): TStringList;
 var spos : integer;
 begin
+    result := TStringList.Create;
+    result.StrictDelimiter := true;
     spos := Pos('(', command);
-    result := Copy(command, spos+1, Pos(')', command)-1 - spos);
+    result.CommaText := Copy(command, spos+1, Pos(')', command)-1 - spos);
+
 end;
 
-procedure TScriptDrive.SetClass(cls: TClass);
+procedure TScriptDrive.SetClass(cls: TClass; obj: TObject);
 begin
     T := R.GetType(cls);
+    _obj := obj;
 end;
 
 constructor TScriptDrive.Create;

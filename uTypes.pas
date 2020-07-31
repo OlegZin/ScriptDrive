@@ -40,18 +40,43 @@ var
 
     // предметы-расходники. в механике имеют разные уровни силы
     items: array [0..11] of TItem = (
-        (name: 'Gold';      script: 'GetItem            (''rand, 1'')'  ) // золото
-       ,(name: 'Heal';      script: 'ChangePlayerParam  (''HP, 100'')'  ) // зелье лечения
-       ,(name: 'Mana';      script: 'ChangePlayerParam  (''MP, 20'')'   ) // зелье восстановления маны
-       ,(name: 'Explosion'; script: 'ChangeCreatureParam(''HP, -1000'')') // зелье взрыва
-       ,(name: 'RegHP';     script: 'SetPlayerAuto      (''HP, 1'')'    ) // зелье регенерации здоровья
-       ,(name: 'RegMP';     script: 'SetPlayerAuto      (''MP, 1'')'    ) // зелье регенерации маны
-       ,(name: 'AutoATK';   script: 'SetPlayerAuto      (''ATK, 1'')'   ) // зелье автоматической атаки
-       ,(name: 'ATK';       script: 'SetPlayerBuff      (''ATK, 100'')' ) // зелье временного повышения атаки
-       ,(name: 'DEF';       script: 'SetPlayerBuff      (''ATK, 100'')' ) // зелье временного повышения защиты
-       ,(name: 'PATK';      script: 'ChangePlayerParam  (''ATK, 1'')'   ) // зелье постоянного повышения атаки
-       ,(name: 'PDEF';      script: 'ChangePlayerParam  (''DEF, 1'')'   ) // зелье постоянного повышения защиты
-       ,(name: 'EXP';       script: 'SetPlayerBuff      (''EXP, 5'')'   ) // зелье временного прироста опыта
+        (name:   'Gold';
+         script: 'GetItem(rand, 1)'  ) // золото
+
+       ,(name:   'Heal_100';
+         script: 'ChangePlayerParam(HP,100);'+
+                 'AddEvent(Player +100 HP)'  ) // зелье лечения
+
+       ,(name:   'Mana';
+         script: 'ChangePlayerParam(MP,20);'+
+                 'AddEvent(Player +20 MP)'   ) // зелье восстановления маны
+
+       ,(name:   'Explosion';
+         script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
+
+       ,(name:   'RegHP';
+         script: 'SetPlayerAuto(HP,1)'    ) // зелье регенерации здоровья
+
+       ,(name:   'RegMP';
+         script: 'SetPlayerAuto(MP,1)'    ) // зелье регенерации маны
+
+       ,(name:   'AutoATK';
+         script: 'SetPlayerAuto(ATK,1)'   ) // зелье автоматической атаки
+
+       ,(name:   'ATK';
+         script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышения атаки
+
+       ,(name:   'DEF';
+         script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышения защиты
+
+       ,(name:   'PATK';
+         script: 'ChangePlayerParam(ATK,1)'   ) // зелье постоянного повышения атаки
+
+       ,(name:   'PDEF';
+         script: 'ChangePlayerParam(DEF,1)'   ) // зелье постоянного повышения защиты
+
+       ,(name:   'EXP';
+         script: 'SetPlayerBuff(EXP,5)'   ) // зелье временного прироста опыта
     );
 implementation
 
