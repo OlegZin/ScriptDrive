@@ -1,7 +1,7 @@
 object Form3: TForm3
   Left = 0
   Top = 0
-  Caption = 'Stupid roguelike: '#1041#1072#1096#1085#1103' '#1084#1091#1095#1077#1085#1080#1081' 1.0'
+  Caption = 'Stupid roguelike: Torture tower 1.0'
   ClientHeight = 202
   ClientWidth = 606
   Color = clBtnFace
@@ -63,8 +63,6 @@ object Form3: TForm3
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     TabOrder = 1
-    ExplicitWidth = 566
-    ExplicitHeight = 284
   end
   object Button2: TButton
     Left = 16

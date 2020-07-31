@@ -28,6 +28,7 @@ type
 
         function GetCurrCreatureInfo(input: string = ''): string;
         function GetPlayerInfo(input: string = ''): string;
+        function GetPlayerItems(input: string = ''): string;
 
         procedure InitPlayer(input: string = '');
         procedure InitCreatures(input: string = '');
@@ -94,7 +95,7 @@ type
         function GetItemCount(name: string): integer;
         // возвращает количество имеющихся предметов, 0 = отсутствуют
 
-        procedure Loot(items: string);
+        procedure Loot(lootInv: string);
         // получает строку инвентаря и добавляет все найденные предметы в "свой"
     end;
 
@@ -126,6 +127,11 @@ end;
 function TData.GetPlayerInfo(input: string): string;
 begin
     result := Player.Name + ' ' + Player.Params;
+end;
+
+function TData.GetPlayerItems(input: string): string;
+begin
+    result := Player.Items;
 end;
 
 procedure TData.InitCreatures(input: string);
@@ -449,8 +455,10 @@ begin
             // игрок получает опыт
             ChangeParamValue(Player, 'EXP', CurrLevel);
 
-            // игрок получает дроп
-
+            // игрок получает лут
+            Inventory.Fill( Player.Items );
+            Inventory.Loot( Creatures[CurrCreature].Items );
+            Player.Items := Inventory.Get;
 
             // проверяем на возможность левелапа
             if   AllowLevelUp <> ''
@@ -507,7 +515,7 @@ begin
     else has := 0;
 
     has := Max( 0, has + count ); // применяем изменение, но результат не ниже ноля
-    items.Values[name] := IntToStr(count);
+    items.Values[name] := IntToStr(has);
 
 end;
 
@@ -525,10 +533,24 @@ begin
     then result := StrToIntDef(items.Values[name], 0);
 end;
 
-procedure TInventory.Loot(items: string);
-
+procedure TInventory.Loot(lootInv: string);
+// добавление в текущий установленный инвентарь все, что есть в lootInv инвентаре
+var
+    loot: TStringList;
+    i: integer;
 begin
+    if Trim(lootInv) = '' then exit;
 
+    loot := TStringList.Create;
+    loot.CommaText := lootInv;
+
+    for I := 0 to loot.Count-1 do
+    begin
+        ChangeItemCount( loot.Names[i], StrToInt( loot.Values[ loot.Names[i] ]) );
+        Data.AddEvent('Получено: ' + loot.Values[ loot.Names[i] ] + ' '+ loot.Names[i]);
+    end;
+
+    loot.Free;
 end;
 
 procedure TInventory.RemoveItem(name: string);

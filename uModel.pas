@@ -98,6 +98,7 @@ begin
     lCreatureInfo.Caption := Script.Exec('GetCurrCreatureInfo()');
     lPlayerInfo.Caption := Script.Exec('GetPlayerInfo()');
     lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
+    cbItem.Items.CommaText := Script.Exec('GetPlayerItems()');
     log(Script.Exec('GetEvents()'));
 end;
 
