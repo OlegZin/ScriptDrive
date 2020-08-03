@@ -2,7 +2,7 @@ unit uScriptDrive;
 
 interface
 
-uses RTTI,  Classes, SysUtils;
+uses RTTI,  Classes, SysUtils, RegularExpressions;
 
 type
 
@@ -10,6 +10,7 @@ type
     private
         function GetMethodName(command: string): string;
         function GetParams(command: string): TStringList;
+        function CalcMath(command: string): string;
     public
         constructor Create;
         procedure SetClass( cls: TClass; obj: TObject );
@@ -32,10 +33,13 @@ var
 
 function TScriptDrive.Exec(scrt:string): string;
 var
-    method: string;
+    method, line: string;
     params: TStringList;
-    i : integer;
+    i, j : integer;
     prs: TStringList;
+
+    reg: TRegEx;
+    maches : TMatchCollection;
 begin
     if not Assigned(T) then
     begin
@@ -44,49 +48,78 @@ begin
     end;
 
     prs := TStringList.Create;
+    reg:=TRegEx.Create('\w+\s*\(\s*((\{(\d+\s*\D?\s*)*\}|\d+)\s*\,*\s*)*\)');
 
     /// полученный набор команд разбиваем на строки и выполняем по отдельности
     prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
     for I := 0 to prs.Count-1 do
     begin
 
+        line := prs[i];
         // в строке команды ищутся вложенные функции и исполняются раньше основной
-        // пример: functionA (a,b, functionB(b,c),functionC(functionD(a,{d})))
+        // пример: functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {3+functionF(7)} ))
         // где значение с {} - место для подстановки результата выполнения вложенной функции
 
-        // \w+\s*\(((\{\w+\}|\w+)\s*\,*)*\) - регулярка находит в строке функцию, которая
-        // \w+\s*\((\w+\s*\,*)*\)
+        // регулярка находит в строке функцию, которая
         // не содержит вложенных, т.е. для данного примера это:
-        // functionB(b,c) и functionD(a,{d})
+        // functionB( 3 ,4 )
+        // functionD(5, {6 + 54 + 3} )
+        // functionF(7)
 
         // алгоритм работы:
         // 1. в цикле производим поиск регуляркой
         // 2. при наличии непустого результата получаем чистую функцию для обработки
         // 3. обрабатываем и вставляем результат вместо нее в основную строку
         // 4. при отсутствии резултата поиска - расчет окончен
+        // 5. перед выдачей результата проверяем нет ли там кусков алгебры ({}) и вычисляем при необходимости
 
-        method := GetMethodName(prs[i]);
-        params := GetParams(prs[i]);
+        // прогоняем строку скрипта через регулярку, получаем массив распознанных элементов
+        repeat
 
-        for M in t.GetMethods do
-            if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
-            begin
-                if   params.Count = 0
-                then V := M.Invoke(_obj,[]);
+            maches := reg.Matches(line);
 
-                if   params.Count = 1
-                then V := M.Invoke(_obj,[params.CommaText]);
+            method := GetMethodName(prs[i]);
+            params := GetParams(prs[i]);
 
-                if   params.Count = 2
-                then V := M.Invoke(_obj,[params[0], params[1]]);
+            /// в данный момент у нас есть имя метода и все его параметры в виде отдельных строк
+            /// предполагается, что любой из параметров уже не является фенкцией, а ее результатом,
+            /// но может являться или содержать математическое выражение ( в {} скобках )
+            /// фигурные скобки добавлены для возможности математических вычислений в составе строки не являющейся функцией
+            /// например: "Добавлено вычисленное значение {5+8}, что иногда удобно."
+            for j := 0 to params.Count-1 do params[j] := CalcMath(params[j]);
 
-                if   params.Count = 3
-                then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
 
-                if not V.IsEmpty then result := V.AsString;
-            end;
+
+            for M in t.GetMethods do
+                if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
+                begin
+                    if   params.Count = 0
+                    then V := M.Invoke(_obj,[]);
+
+                    if   params.Count = 1
+                    then V := M.Invoke(_obj,[params.CommaText]);
+
+                    if   params.Count = 2
+                    then V := M.Invoke(_obj,[params[0], params[1]]);
+
+                    if   params.Count = 3
+                    then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
+
+                    if not V.IsEmpty then result := V.AsString;
+
+
+                end;
+
+            line := StringReplace(line, maches[0].Value, result, []);
+
+        until maches.Count > 0;
     end;
     prs.Free;
+
+    /// после всех обработок попробуем выполнить строку как матеамтическую формулу
+
+
+    result := trim(line);
 end;
 
 function TScriptDrive.GetMethodName(command: string): string;
@@ -108,6 +141,96 @@ procedure TScriptDrive.SetClass(cls: TClass; obj: TObject);
 begin
     T := R.GetType(cls);
     _obj := obj;
+end;
+
+function TScriptDrive.CalcMath(command: string): string;
+/// ищем и вычисляем математическое выражение в полученной стоке
+/// https://habr.com/ru/post/282379/ - обратная польская нотация
+///    1. преобразуем строку в массив операторов и операндов по польской нотации
+///    2. вычисляем по полученному массиву
+///
+/// все элементы строки разделяются пробелами, что облегчает разложение с помощю TStringList.
+/// использование различных скриптовых движков и компонент, не желательно
+var
+    mth, toCalc,
+    operandA, operandB, operation : string;
+    i : integer;
+    beg: integer;
+    parse: TStringList;
+    notation: TStringList;
+    digit, oper: TStringList;
+
+    HiPrior : string;
+    LowPrior : string;
+
+    reg: TRegEx;
+    match : TMatch;
+begin
+    result := command;
+
+    HiPrior := '()*/';
+    LowPrior := '+-';
+
+    /// ищем наличие математики
+    if Pos('{', command) = 0 then exit;
+
+    /// вырезаем арифметику в отдельную строку для обработки
+    beg := pos('{', command) + 1;
+    mth := copy(command, beg, pos('}', command)-1-beg);
+
+    // убираем избыточные пробелы для исключения пустых строк при разбиении через TStringList
+    while Pos('  ', mth) > 0 do
+        mth := StringReplace(mth, '  ', ' ', [rfReplaceAll]);
+
+    // создаем парсер
+    parse := TStringList.Create;
+{    notation := TStringList.Create;  // нотация для дальнейшего вычисления
+    digit := TStringList.Create;     // стек чисел при разборе parse
+    oper := TStringList.Create;      // стек операндов при разборе parse
+
+    // запихиваем формулу в парсер. она автоматом разбивается на отдельные строки по запятым и пробелам
+    parse.CommaText := mth;
+
+    // перебираем элементы формулы и формируем массив польской нотации
+    for I := 0 to Length(parse) do
+    begin
+        if Trim(parse[i]) = '' then continue;
+
+    end;
+}
+
+    /// в данный момент у нас есть строка без лишних пробелов, без функций, с числами, арифметическими операндами и скобками.
+    /// в первую очередь требуется избавиться от скобок, т.е. вычленять и вычислять группы между открывающей и закрывыающей скобкой,
+    /// в которой отсутствуют вложенные группы (скобки).
+    /// таким образом, задача сводится к вычислению групп без скобок, а просто с учетом веса операторов
+    /// регулярка: \((\s*\d*\s*[\+\-\*\/]?)*\)
+    /// пример: (10 + (3 * 6) + (3 * 5 + 3))
+    /// находит: (3 * 6) и (3 * 5 + 3)
+
+    // ищем подстроку в скобках и без вложенных скобок
+    reg := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
+    repeat
+        match := reg.Match(mth);
+
+        // получаем выражение без скобок
+        toCalc := copy(match.Value, 1, Length(match.Value)-2);
+
+        // разбиваем на отдельные оепраторы и операнды
+        parse.CommaText := toCalc;
+
+        // чистим каждый из них от лишних пробелов
+        for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
+
+        // пробегаем по набору строк и ижем сначала операторы с высшим приоритетом ( умножение, деление)
+        for I := 0 to parse.Count-1 do
+        if pos(parse[i], HiPrior) > 0 then
+        begin
+//            if i > 0 then
+
+        end;
+
+
+    until reg.Match(mth).Value <> '';
 end;
 
 constructor TScriptDrive.Create;

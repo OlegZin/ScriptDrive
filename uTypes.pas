@@ -43,39 +43,40 @@ var
         (name:   'Gold';
          script: 'GetItem(rand, 1)'  ) // золото
 
-       ,(name:   'Heal_100';
-         script: 'ChangePlayerParam(HP,100);'+
-                 'AddEvent(Player +100 HP)'  ) // зелье лечения
+       ,(name:   'RestoreHeal';
+         script: 'SetVar(IncHP,Rand({PlayerLevel() * 100)}); '+
+                 'ChangePlayerParam(HP,GetVar(IncHP));           '+
+                 'AddEvent(Player +GetVar(IncHP) HP)'            ) // зелье лечения
 
-       ,(name:   'Mana';
+       ,(name:   'RestoreMana';
          script: 'ChangePlayerParam(MP,20);'+
                  'AddEvent(Player +20 MP)'   ) // зелье восстановления маны
 
        ,(name:   'Explosion';
          script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
 
-       ,(name:   'RegHP';
+       ,(name:   'RegenHP';
          script: 'SetPlayerAuto(HP,1)'    ) // зелье регенерации здоровья
 
-       ,(name:   'RegMP';
+       ,(name:   'RegenMP';
          script: 'SetPlayerAuto(MP,1)'    ) // зелье регенерации маны
 
        ,(name:   'AutoATK';
          script: 'SetPlayerAuto(ATK,1)'   ) // зелье автоматической атаки
 
-       ,(name:   'ATK';
+       ,(name:   'BuffATK';
          script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышения атаки
 
-       ,(name:   'DEF';
+       ,(name:   'BuffDEF';
          script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышения защиты
 
-       ,(name:   'PATK';
+       ,(name:   'PermanentATK';
          script: 'ChangePlayerParam(ATK,1)'   ) // зелье постоянного повышения атаки
 
-       ,(name:   'PDEF';
+       ,(name:   'PermanentDEF';
          script: 'ChangePlayerParam(DEF,1)'   ) // зелье постоянного повышения защиты
 
-       ,(name:   'EXP';
+       ,(name:   'BuffEXP';
          script: 'SetPlayerBuff(EXP,5)'   ) // зелье временного прироста опыта
     );
 implementation
