@@ -358,12 +358,12 @@ end;
 
 procedure TData.SetVar(name, value: string);
 begin
-    Variables[name] := value;
+    Variables.AddOrSetValue(name, value);
 end;
 
 function TData.GetVar(name: string): string;
 begin
-    result := Variables[name];
+    Variables.TryGetValue(name, result);
 end;
 
 procedure TData.UseItem(name: string);

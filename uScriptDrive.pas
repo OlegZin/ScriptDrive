@@ -24,12 +24,14 @@ implementation
 
 
 var
-   parser: TStringList;
-   R : TRttiContext;
-   T : TRttiType;
-   M : TRttiMethod;
-   V : TValue;
-   _obj: TObject;
+    parser: TStringList;
+    R : TRttiContext;
+    T : TRttiType;
+    M : TRttiMethod;
+    V : TValue;
+    _obj: TObject;
+    regFunction: TRegEx;
+    regMath: TRegEx;
 
 function TScriptDrive.Exec(scrt:string): string;
 var
@@ -38,7 +40,6 @@ var
     i, j : integer;
     prs: TStringList;
 
-    reg: TRegEx;
     match : TMatch;
 begin
     if not Assigned(T) then
@@ -48,7 +49,6 @@ begin
     end;
 
     prs := TStringList.Create;
-    reg:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\d+|\w+))\s*\,*\s*)*\)');
 
     /// полученный набор команд разбиваем на строки и выполняем по отдельности
     prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
@@ -77,7 +77,7 @@ begin
         // прогоняем строку скрипта через регулярку, получаем массив распознанных элементов
         repeat
 
-            match := reg.Match(line);
+            match := regFunction.Match(line);
 
             method := GetMethodName(match.Value);
             params := GetParams(match.Value);
@@ -116,9 +116,6 @@ begin
         until match.Value = '';
     end;
     prs.Free;
-
-    /// после всех обработок попробуем выполнить строку как матеамтическую формулу
-
 
     result := trim(line);
 end;
@@ -166,7 +163,6 @@ var
     HiPrior : string;
     LowPrior : string;
 
-    reg: TRegEx;
     match : TMatch;
 begin
     result := command;
@@ -213,9 +209,8 @@ begin
     /// находит: (3 * 6) и (3 * 5 + 3)
 
     // ищем подстроку в скобках и без вложенных скобок
-    reg := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
     repeat
-        match := reg.Match(mth);
+        match := regMath.Match(mth);
 
         // получаем выражение без скобок
         toCalc := copy(match.Value, 2, Length(match.Value)-2);
@@ -246,17 +241,20 @@ begin
               break;
           end;
 
-          /// вычисляем, сохраняя результат на мете первого операнда
-          if operation = '*' then
-          operandA := operandA * operandB;
+          if operation <> '' then
+          begin
+              /// вычисляем, сохраняя результат на мете первого операнда
+              if operation = '*' then
+              operandA := operandA * operandB;
 
-          if operation = '/' then
-          operandA := Round(operandA / operandB);
+              if operation = '/' then
+              operandA := Round(operandA / operandB);
 
-          // оператор и второй операнд - чистим
-          parse[i-1] := IntToStr(operandA);
-          parse[i] := '';
-          parse[i+1] := '';
+              // оператор и второй операнд - чистим
+              parse[i-1] := IntToStr(operandA);
+              parse[i] := '';
+              parse[i+1] := '';
+          end;
 
           /// собираем получившееся обратно в строку для повторной проверки
           /// при этом, на следующем цикле пустые места операнда и второго оператора будут
@@ -291,17 +289,20 @@ begin
               break;
           end;
 
-          /// вычисляем, сохраняя результат на мете первого операнда
-          if operation = '+' then
-          operandA := operandA + operandB;
+          if operation <> '' then
+          begin
+              /// вычисляем, сохраняя результат на мете первого операнда
+              if operation = '+' then
+              operandA := operandA + operandB;
 
-          if operation = '-' then
-          operandA := operandA - operandB;
+              if operation = '-' then
+              operandA := operandA - operandB;
 
-          // оператор и второй операнд - чистим
-          parse[i-1] := IntToStr(operandA);
-          parse[i] := '';
-          parse[i+1] := '';
+              // оператор и второй операнд - чистим
+              parse[i-1] := IntToStr(operandA);
+              parse[i] := '';
+              parse[i+1] := '';
+          end;
 
           /// собираем получившееся обратно в строку для повторной проверки
           /// при этом, на следующем цикле пустые места операнда и второго оператора будут
@@ -310,7 +311,7 @@ begin
 
         until not found;
 
-    until reg.Match(mth).Value <> '';
+    until regMath.Match(mth).Value <> '';
 
     result := toCalc;
 end;
@@ -319,6 +320,10 @@ constructor TScriptDrive.Create;
 begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
+
+    regFunction:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\w+|[\+\-\*\/]))\s*\,*\s*)*\)');
+    regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
+
 end;
 
 end.

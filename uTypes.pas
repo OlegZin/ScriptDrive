@@ -46,12 +46,14 @@ var
        ,(name:   'RestoreHeal';
          script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
-                 'AddEvent(Player +GetVar(IncHP) HP)'
+                 'AddEvent(Player restore GetVar(IncHP) HP)'
         ) // зелье лечения
 
        ,(name:   'RestoreMana';
-         script: 'ChangePlayerParam(MP,20);'+
-                 'AddEvent(Player +20 MP)'   ) // зелье восстановления маны
+         script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
+                 'ChangePlayerParam(MP,GetVar(IncMP));'+
+                 'AddEvent(Player restore GetVar(IncMP) MP)'
+         ) // зелье восстановления маны
 
        ,(name:   'Explosion';
          script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
