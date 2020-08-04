@@ -23,11 +23,13 @@ type
         Name     : string;  // уникальное им€
         Params   : string;
         Items    : string;
+        Loot     : string;
         OnAttack : string;
     end;
 
     TItem = record
         name: string;
+        cost: integer;
         script: string;
     end;
 var
@@ -38,48 +40,77 @@ var
     name3 : array [0..9] of string = (
         'ѕоликлиники','јда','»ных миров','ѕодземелий','Ћесов','Ѕезуми€','“айн','Ѕезнадежности','√ероизма',' оварства');
 
+    loot: array [0..64] of string = (
+        ('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),            // 10
+        ('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),  // 10
+        ('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),   // 9
+        ('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),                      // 8
+        ('meat'),('meat'),('meat'),('meat'),('meat'),('meat'),                                                // 6
+        ('blood'),('blood'),('blood'),('blood'),('blood'),                                                    // 5
+        ('bone'),('bone'),('bone'),('bone'),                                                                  // 5
+        ('skin'),('skin'),('skin'),('skin'),('skin'),                                                         // 5
+        ('ore'),('ore'),('ore'),('ore'),('ore'),                                                              // 5
+        ('essence'),('essence'),('essence')                                                                   // 3
+    );
+
     // предметы-расходники. в механике имеют разные уровни силы
     items: array [0..11] of TItem = (
         (name:   'Gold';
+         cost:   MaxInt;
          script: 'GetItem(rand, 1)'  ) // золото
 
-       ,(name:   'RestoreHeal';
+       ,(name:   'RestoreHealth';
+         cost:   1000;
          script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
                  'AddEvent(Player restore GetVar(IncHP) HP)'
         ) // зелье лечени€
 
        ,(name:   'RestoreMana';
+         cost:   1000;
          script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
                  'ChangePlayerParam(MP,GetVar(IncMP));'+
                  'AddEvent(Player restore GetVar(IncMP) MP)'
          ) // зелье восстановлени€ маны
 
        ,(name:   'Explosion';
+         cost:   10000;
          script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
 
        ,(name:   'RegenHP';
+         cost:   500;
          script: 'SetPlayerAuto(HP,1)'    ) // зелье регенерации здоровь€
 
        ,(name:   'RegenMP';
+         cost:   500;
          script: 'SetPlayerAuto(MP,1)'    ) // зелье регенерации маны
 
        ,(name:   'AutoATK';
-         script: 'SetPlayerAuto(ATK,1)'   ) // зелье автоматической атаки
+         cost:   10000;
+         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 100}))'   ) // зелье автоматической атаки
 
        ,(name:   'BuffATK';
+         cost:   5000;
          script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышени€ атаки
 
        ,(name:   'BuffDEF';
+         cost:   5000;
          script: 'SetPlayerBuff(ATK,100)' ) // зелье временного повышени€ защиты
 
        ,(name:   'PermanentATK';
-         script: 'ChangePlayerParam(ATK,1)'   ) // зелье посто€нного повышени€ атаки
+         cost:   10000;
+         script: 'ChangePlayerParam(ATK,1);'+
+                 'AddEvent(Player get +1 ATK permanently!)'
+        ) // зелье посто€нного повышени€ атаки
 
        ,(name:   'PermanentDEF';
-         script: 'ChangePlayerParam(DEF,1)'   ) // зелье посто€нного повышени€ защиты
+         cost:   10000;
+         script: 'ChangePlayerParam(DEF,1);'+
+                 'AddEvent(Player get +1 DEF permanently!)'
+        ) // зелье посто€нного повышени€ защиты
 
        ,(name:   'BuffEXP';
+         cost:   3000;
          script: 'SetPlayerBuff(EXP,5)'   ) // зелье временного прироста опыта
     );
 implementation

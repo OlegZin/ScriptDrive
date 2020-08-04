@@ -9,7 +9,7 @@ uses
 type
 
     TData = class
-    public
+    private
         Player : TCreature;
         Creatures: TList<TCreature>;
         Variables: TDictionary<String,String>;
@@ -18,8 +18,16 @@ type
         CurrLevel: integer;
         EventText: string;
 
+        AutoATKCount: integer;
+    public
+
+
         constructor Create;
         destructor Destroy;
+
+        function GetAutoATK: string;
+        procedure SetAutoATK(count: variant);
+        procedure ChangeAutoATK(delta: variant);
 
         procedure PlayerAttack;   // команда игроку атаковать текущую цель
         procedure CreatureAttack; // команда монстру атаковать
@@ -30,6 +38,7 @@ type
         function GetCurrCreatureInfo: string;
         function GetPlayerInfo: string;
         function GetPlayerItems: string;
+        function GetPlayerLoot: string;
         function GetPlayerAttr(name: string): string;
 
         procedure InitPlayer;
@@ -71,8 +80,8 @@ type
         procedure SetParamValue(creature: TCreature; param, value: string);
         procedure ChangeParamValue(creature: TCreature; param: string; delta: integer);
 
-        procedure SetCreature(name, params: string; items: string = '');
-        procedure SetPlayer(name, params: string; items: string = '');  // подставляем в текст скрипта значения параметры существа/игрока
+        procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
+        procedure SetPlayer(name, params: string; items: string = ''; loot: string = '');  // подставляем в текст скрипта значения параметры существа/игрока
     end;
 
     /// класс-менеджер для манипуляций с содержимым инвентаря
@@ -119,6 +128,11 @@ var
 
 {PUBLIC // Script allow}
 
+function TData.GetAutoATK: string;
+begin
+    result := IntToStr(AutoATKCount);
+end;
+
 function TData.GetCurrCreatureInfo: string;
 begin
     if CurrCreature > Creatures.Count -1 then exit;
@@ -159,10 +173,16 @@ begin
     result := Player.Items;
 end;
 
+function TData.GetPlayerLoot: string;
+begin
+    result := Player.Loot;
+end;
+
 procedure TData.InitCreatures;
 // формирование пула
 var
     i, count: integer;
+    itm, lt: string;
 begin
 
     count := CurrLevel * 5;
@@ -175,6 +195,11 @@ begin
         begin
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*3 ) + CurrLevel );
+            itm := Inventory.Get;
+
+            Inventory.Clear;
+            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
+            lt := Inventory.Get;
 
             SetCreature(
                 Format('%s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
@@ -183,7 +208,8 @@ begin
                     Random( CurrLevel*5 )  + CurrLevel*2,
                     Random( Min( CurrLevel*2, 95) )
                 ]),
-                Inventory.Get
+                itm,
+                lt
             );
 
         end;
@@ -194,6 +220,12 @@ begin
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
             Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
+            itm := Inventory.Get;
+
+            Inventory.Clear;
+            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel*2 ) + 1 );
+            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel*2 ) + 1 );
+            lt := Inventory.Get;
 
             SetCreature(
                 Format('БОСС %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
@@ -202,7 +234,8 @@ begin
                     Random( CurrLevel*5 )  + CurrLevel*5,
                     Random( Min( CurrLevel*6, 95 ) )
                 ]),
-                Inventory.Get
+                itm,
+                lt
             );
         end;
     end;
@@ -213,7 +246,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'RestoreHeal=1');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'RestoreHealth=10,AutoATK=5');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -225,16 +258,14 @@ begin
     CurrLvl := StrToIntDef( GetParamValue( Player, 'LVL' ), 1);
     DEF := StrToIntDef( GetParamValue( Player, 'DEF' ), 1);
 
-    if DEF < 75 then
-    ChangeParamValue( Player, 'DEF', 1 );
-
     ChangeParamValue( Player,  'HP', CurrLvl * 100);
     ChangeParamValue( Player,  'MP', CurrLvl * 20);
     ChangeParamValue( Player, 'ATK', CurrLvl );
+    ChangeParamValue( Player, 'DEF', 1 );
     ChangeParamValue( Player, 'EXP', -StrToIntDef( NeedExp, 0));
     ChangeParamValue( Player, 'LVL', 1);
 
-    AddEvent('-> Игрок получил новый уровень!');
+    AddEvent('-> Player is level up!');
 end;
 
 
@@ -282,6 +313,8 @@ begin
     CreatureHP  := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'HP'), 0 );
     CreatureDEF := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'DEF'), 0 );
 
+//    CreatureDEF := Min(99, CreatureDEF);  // всегда проходит 1% урона
+
     DMG := Round(PlayerATK - PlayerATK * (CreatureDEF / 100));
 
     CreatureHP  := CreatureHP - DMG;
@@ -301,6 +334,8 @@ begin
     CreatureATK   := StrToIntDef(input, 0);
     PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
     PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 );
+
+//    PlayerDEF := Min(99, PlayerDEF);  // всегда проходит 1% урона
 
     DMG := Round(CreatureATK - CreatureATK * (PlayerDEF / 100));
 
@@ -331,7 +366,12 @@ end;
 
 {PRIVATE}
 
-procedure TData.SetCreature(name, params: string; items: string = '');
+procedure TData.SetAutoATK(count: variant);
+begin
+    AutoATKCount := count;
+end;
+
+procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');
 var creature : TCreature;
 begin
     creature := TCreature.Create;
@@ -339,19 +379,21 @@ begin
     creature.Params := params;
     creature.Name   := name;
     creature.Items  := items;
+    creature.Loot   := loot;
 
     creature.OnAttack := 'DoDamageToPlayer({ATK})';
 
     Creatures.Add( creature );
 end;
 
-procedure TData.SetPlayer(name, params: string; items: string = '');
+procedure TData.SetPlayer(name, params: string; items: string = ''; loot: string = '');
 begin
     if not assigned(Player) then Player := TCreature.Create;
 
     Player.params := params;
     Player.Name   := name;
     Player.Items  := items;
+    Player.Loot   := loot;
 
     Player.OnAttack := 'DoDamageToCreature({ATK})';
 end;
@@ -466,6 +508,11 @@ begin
     result := IntToStr(cost);
 end;
 
+procedure TData.ChangeAutoATK(delta: variant);
+begin
+    AutoATKCount := AutoATKCount + delta;
+end;
+
 procedure TData.ChangeParamValue(creature: TCreature; param: string; delta: integer);
 var
     val: integer;
@@ -499,8 +546,8 @@ begin
 
         if HP <= 0 then
         begin
-            AddEvent('Игрок повержен монстром '+ Creatures[CurrCreature].Name +'!');
-            AddEvent('Входим в подземелье...');
+            AddEvent('Player killed by '+ Creatures[CurrCreature].Name +'!');
+            AddEvent('Enter into Dungeon...');
 
             // возвращаемся на первый уровень
             CurrLevel := 1;
@@ -520,15 +567,19 @@ begin
 
         if HP <= 0 then
         begin
-            AddEvent('Монстр '+ Creatures[CurrCreature].Name +' повержен! Получено ' + IntToStr(CurrLevel) + ' опыта.');
+            AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' exp');
 
             // игрок получает опыт
             ChangeParamValue(Player, 'EXP', CurrLevel);
 
-            // игрок получает лут
+            // игрок получает предметы и лут
             Inventory.Fill( Player.Items );
             Inventory.Loot( Creatures[CurrCreature].Items );
             Player.Items := Inventory.Get;
+
+            Inventory.Fill( Player.Loot );
+            Inventory.Loot( Creatures[CurrCreature].Loot );
+            Player.Loot := Inventory.Get;
 
             // проверяем на возможность левелапа
             if   AllowLevelUp <> ''
@@ -549,7 +600,7 @@ begin
         // генерим новую пачку монстров
         InitCreatures();
         CurrCreature := 0;
-        AddEvent('Переходим на '+ IntToStr(CurrLevel) +' уровень подземелья...');
+        AddEvent('Go up '+ IntToStr(CurrLevel) +' Dungeon level...');
     end;
 end;
 
@@ -619,7 +670,7 @@ begin
     for I := 0 to loot.Count-1 do
     begin
         ChangeItemCount( loot.Names[i], StrToInt( loot.Values[ loot.Names[i] ]) );
-        Data.AddEvent('Получено: ' + loot.Values[ loot.Names[i] ] + ' '+ loot.Names[i]);
+        Data.AddEvent('Get ' + loot.Values[ loot.Names[i] ] + ' '+ loot.Names[i]);
     end;
 
     loot.Free;

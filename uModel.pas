@@ -4,13 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils;
 
 type
   TForm3 = class(TForm)
     Button1: TButton;
     mLog: TMemo;
-    Button2: TButton;
     bAttack: TButton;
     lPlayerInfo: TLabel;
     lStep: TLabel;
@@ -22,6 +21,8 @@ type
     lNeedExp: TLabel;
     cbAutoAttack: TCheckBox;
     tAutoAttack: TTimer;
+    lAutoCount: TLabel;
+    lbLoot: TListBox;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
@@ -89,31 +90,58 @@ procedure TForm3.Restart;
 begin
     mLog.Lines.Clear;
 
-    Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures()');
+    Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
     UpdateInterface;
 
-    log('¬ходим в подземелье...');
+    log('Enter into Dungeon...');
 end;
 
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
-    if cbAutoAttack.Checked then bAttack.Click;
+    if cbAutoAttack.Checked then
+    begin
+        Script.Exec('ChangeAutoATK(-1)');
+        bAttack.Click;
+    end;
 end;
 
 procedure TForm3.UpdateInterface;
+var
+    item: integer;
+    AutoCount: integer;
 begin
+    item := cbItem.ItemIndex;
     lStep.Caption := 'Lvl:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
-    lCreatureInfo.Caption := Script.Exec('GetCurrCreatureInfo()');
-    lPlayerInfo.Caption := Script.Exec('GetPlayerInfo()');
+    lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
+    lPlayerInfo.Caption := ReplaceStr( Script.Exec('GetPlayerInfo()'), ',', '  ' );
     lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
     cbItem.Items.CommaText := Script.Exec('GetPlayerItems()');
+    lbLoot.Items.CommaText := Script.Exec('GetPlayerLoot()');
+
+    AutoCount := StrToIntDef(Script.Exec('GetAutoATK()'), 0);
+    lAutoCount.Caption := 'Auto: ' + IntToStr(AutoCount);
+
+
+    if AutoCount <= 0 then
+    begin
+        cbAutoAttack.Checked := false;
+        cbAutoAttack.Enabled := false;
+    end else
+        cbAutoAttack.Enabled := true;
+
+
     log(Script.Exec('GetEvents()'));
+
+    if   cbItem.Items.Count-1 >= item
+    then cbItem.ItemIndex := item;
+
 end;
 
 procedure TForm3.log(text: string);
 begin
     if text <> '' then
     mLog.Text := text + sLineBreak + mLog.Text;
+    mLog.Text := Copy(mLog.Text, 0, 1000);
 end;
 
 procedure TForm3.FormCreate(Sender: TObject);

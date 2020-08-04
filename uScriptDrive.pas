@@ -321,7 +321,7 @@ begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
 
-    regFunction:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\w+|[\+\-\*\/]))\s*\,*\s*)*\)');
+    regFunction:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
 
 end;

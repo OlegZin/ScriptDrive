@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 1.0'
-  ClientHeight = 202
-  ClientWidth = 606
+  ClientHeight = 233
+  ClientWidth = 744
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,72 +14,72 @@ object Form3: TForm3
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
-    606
-    202)
+    744
+    233)
   PixelsPerInch = 96
   TextHeight = 13
   object lPlayerInfo: TLabel
-    Left = 95
-    Top = 45
+    Left = 119
+    Top = 61
     Width = 52
     Height = 13
     Caption = 'lPlayerInfo'
   end
   object lStep: TLabel
     Left = 18
-    Top = 64
+    Top = 80
     Width = 24
     Height = 13
     Caption = 'lStep'
   end
   object lCreatureInfo: TLabel
-    Left = 95
-    Top = 64
+    Left = 119
+    Top = 80
     Width = 52
     Height = 13
     Caption = 'lPlayerInfo'
   end
   object lNeedExp: TLabel
     Left = 18
-    Top = 45
+    Top = 61
     Width = 24
     Height = 13
     Caption = 'lStep'
   end
+  object lAutoCount: TLabel
+    Left = 80
+    Top = 34
+    Width = 90
+    Height = 15
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'lAutoCount'
+  end
   object Button1: TButton
-    Left = 48
+    Left = 18
     Top = 8
-    Width = 41
+    Width = 63
     Height = 25
-    Caption = 'NewG'
+    Caption = 'NewGame'
     TabOrder = 0
     OnClick = Button1Click
   end
   object mLog: TMemo
     Left = 16
-    Top = 96
-    Width = 572
-    Height = 88
+    Top = 112
+    Width = 576
+    Height = 103
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     TabOrder = 1
   end
-  object Button2: TButton
-    Left = 16
-    Top = 8
-    Width = 26
-    Height = 25
-    Caption = 'X'
-    TabOrder = 2
-    OnClick = Button2Click
-  end
   object bAttack: TButton
-    Left = 107
+    Left = 99
     Top = 8
     Width = 54
     Height = 25
     Caption = '      ATK  '
-    TabOrder = 3
+    TabOrder = 2
     OnClick = bAttackClick
   end
   object cbItem: TComboBox
@@ -88,7 +88,7 @@ object Form3: TForm3
     Width = 177
     Height = 21
     Style = csDropDownList
-    TabOrder = 4
+    TabOrder = 3
   end
   object bItemUse: TButton
     Left = 353
@@ -96,7 +96,7 @@ object Form3: TForm3
     Width = 33
     Height = 25
     Caption = 'Use!'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = bItemUseClick
   end
   object cbSkill: TComboBox
@@ -105,7 +105,7 @@ object Form3: TForm3
     Width = 167
     Height = 21
     Style = csDropDownList
-    TabOrder = 6
+    TabOrder = 5
   end
   object bSkillUse: TButton
     Left = 559
@@ -113,13 +113,21 @@ object Form3: TForm3
     Width = 33
     Height = 25
     Caption = 'Use!'
-    TabOrder = 7
+    TabOrder = 6
   end
   object cbAutoAttack: TCheckBox
-    Left = 110
+    Left = 103
     Top = 13
     Width = 13
     Height = 15
+    TabOrder = 7
+  end
+  object lbLoot: TListBox
+    Left = 598
+    Top = 8
+    Width = 138
+    Height = 207
+    ItemHeight = 13
     TabOrder = 8
   end
   object tAutoAttack: TTimer
