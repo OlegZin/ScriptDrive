@@ -57,7 +57,11 @@ var
     items: array [0..11] of TItem = (
         (name:   'Gold';
          cost:   MaxInt;
-         script: 'GetItem(rand, 1)'  ) // золото
+         script: 'SetVar(iName, GetRandItemName());'+
+                 'ChangePlayerItemCount(GetVar(iName), 1);'+
+                 'ChangePlayerItemCount(Gold, -9999);'+
+                 'AddEvent(Player get GetVar(iName)!);'
+        ) // золото
 
        ,(name:   'RestoreHealth';
          cost:   1000;

@@ -70,6 +70,9 @@ type
         function GetVar(name: string): string;
 
         function Rand(max: string): string;
+        procedure ChangePlayerItemCount(name, delta: variant);
+
+        function GetRandItemName: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -178,6 +181,11 @@ begin
     result := Player.Loot;
 end;
 
+function TData.GetRandItemName: string;
+begin
+    result := items[Random(Length(items))].name;
+end;
+
 procedure TData.InitCreatures;
 // формирование пула
 var
@@ -246,7 +254,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'RestoreHealth=10,AutoATK=5');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=100000,RestoreHealth=10,AutoATK=5');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -400,7 +408,7 @@ end;
 
 procedure TData.SetVar(name, value: string);
 begin
-    Variables.AddOrSetValue(name, value);
+    Variables.AddOrSetValue(Trim(name), Trim(value));
 end;
 
 function TData.GetVar(name: string): string;
@@ -428,13 +436,27 @@ begin
         if items[i].name = name then
         Script.Exec( items[i].script );
 
+    ChangePlayerItemCount(name, -1);
+end;
+
+procedure TData.ChangePlayerItemCount(name, delta: variant);
+var
+    curr: integer;
+begin
+
     /// списываем единицу из инвентаря
     parser.CommaText := player.Items;
-    parser.Values[name] := IntToStr(count - 1);
+
+    if parser.IndexOfName(name) <> -1 then
+    begin
+        curr := StrToInt(parser.Values[name]);
+        curr := curr + delta
+    end else
+        curr := delta;
 
     /// если все кончилось - убираем упоминание из инвентаря
-    if parser.Values[name] = '0' then
-    parser.Delete( parser.IndexOfName(name) );
+    if (curr <= 0) and (parser.IndexOfName(name) <> -1) then parser.Delete( parser.IndexOfName(name) );
+    if (curr > 0) then parser.Values[name] := IntToStr(curr);
 
     player.Items := parser.CommaText;
 end;
