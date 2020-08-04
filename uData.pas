@@ -12,6 +12,7 @@ type
     public
         Player : TCreature;
         Creatures: TList<TCreature>;
+        Variables: TDictionary<String,String>;
 
         CurrCreature: integer;
         CurrLevel: integer;
@@ -29,6 +30,7 @@ type
         function GetCurrCreatureInfo: string;
         function GetPlayerInfo: string;
         function GetPlayerItems: string;
+        function GetPlayerAttr(name: string): string;
 
         procedure InitPlayer;
         procedure InitCreatures;
@@ -54,6 +56,11 @@ type
 
         procedure AddEvent(text: string);
         procedure UseItem(name: string);
+
+        procedure SetVar(name, value: string);
+        function GetVar(name: string): string;
+
+        function Rand(max: string): string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -130,6 +137,18 @@ begin
     EventText := '';
 end;
 
+function TData.GetPlayerAttr(name: string): string;
+var
+    param: TStringList;
+begin
+    param := TStringList.Create;
+    param.CommaText := Player.Params;
+
+    result := param.Values[name];
+
+    param.Free;
+end;
+
 function TData.GetPlayerInfo: string;
 begin
     result := Player.Name + ' ' + Player.Params;
@@ -194,7 +213,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'RestoreHeal=1');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -229,6 +248,11 @@ begin
     scr := Player.OnAttack;
     scr := FillVars(Player, scr);
     Script.Exec( scr );
+end;
+
+function TData.Rand(max: string): string;
+begin
+    result := IntToStr(Random(StrToIntDef(max, 0)));
 end;
 
 procedure TData.CreatureAttack;
@@ -330,6 +354,16 @@ begin
     Player.Items  := items;
 
     Player.OnAttack := 'DoDamageToCreature({ATK})';
+end;
+
+procedure TData.SetVar(name, value: string);
+begin
+    Variables[name] := value;
+end;
+
+function TData.GetVar(name: string): string;
+begin
+    result := Variables[name];
 end;
 
 procedure TData.UseItem(name: string);
@@ -527,10 +561,12 @@ begin
    Creatures := TList<TCreature>.Create();
    Script := TScriptDrive.Create;
    parser := TStringList.Create;
+   Variables := TDictionary<String,String>.Create();
 end;
 
 destructor TData.Destroy;
 begin
+    Variables.Free;
     parser.Free;
     Script.Free;
     Creatures.Free;
@@ -626,6 +662,7 @@ end;
 initialization
    Data := TData.Create;
    Inventory := TInventory.Create;
+
 
 finalization
    Data.Free;

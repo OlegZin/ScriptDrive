@@ -44,9 +44,10 @@ var
          script: 'GetItem(rand, 1)'  ) // золото
 
        ,(name:   'RestoreHeal';
-         script: 'SetVar(IncHP,Rand({PlayerLevel() * 100)}); '+
-                 'ChangePlayerParam(HP,GetVar(IncHP));           '+
-                 'AddEvent(Player +GetVar(IncHP) HP)'            ) // зелье лечения
+         script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
+                 'ChangePlayerParam(HP,GetVar(IncHP));'+
+                 'AddEvent(Player +GetVar(IncHP) HP)'
+        ) // зелье лечения
 
        ,(name:   'RestoreMana';
          script: 'ChangePlayerParam(MP,20);'+

@@ -39,7 +39,7 @@ var
     prs: TStringList;
 
     reg: TRegEx;
-    maches : TMatchCollection;
+    match : TMatch;
 begin
     if not Assigned(T) then
     begin
@@ -48,7 +48,7 @@ begin
     end;
 
     prs := TStringList.Create;
-    reg:=TRegEx.Create('\w+\s*\(\s*((\{(\d+\s*\D?\s*)*\}|\d+)\s*\,*\s*)*\)');
+    reg:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\d+|\w+))\s*\,*\s*)*\)');
 
     /// полученный набор команд разбиваем на строки и выполняем по отдельности
     prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
@@ -57,14 +57,15 @@ begin
 
         line := prs[i];
         // в строке команды ищутся вложенные функции и исполняются раньше основной
-        // пример: functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {3+functionF(7)} ))
-        // где значение с {} - место для подстановки результата выполнения вложенной функции
+        // пример: functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {jgj+functionF(7)} ))+UseItem(RestoreHeal)
+        // где значение с {} -
 
         // регулярка находит в строке функцию, которая
         // не содержит вложенных, т.е. для данного примера это:
         // functionB( 3 ,4 )
         // functionD(5, {6 + 54 + 3} )
         // functionF(7)
+        // UseItem(RestoreHeal)
 
         // алгоритм работы:
         // 1. в цикле производим поиск регуляркой
@@ -76,10 +77,10 @@ begin
         // прогоняем строку скрипта через регулярку, получаем массив распознанных элементов
         repeat
 
-            maches := reg.Matches(line);
+            match := reg.Match(line);
 
-            method := GetMethodName(prs[i]);
-            params := GetParams(prs[i]);
+            method := GetMethodName(match.Value);
+            params := GetParams(match.Value);
 
             /// в данный момент у нас есть имя метода и все его параметры в виде отдельных строк
             /// предполагается, что любой из параметров уже не является фенкцией, а ее результатом,
@@ -110,9 +111,9 @@ begin
 
                 end;
 
-            line := StringReplace(line, maches[0].Value, result, []);
+            line := StringReplace(line, match.Value, result, []);
 
-        until maches.Count > 0;
+        until match.Value = '';
     end;
     prs.Free;
 
@@ -153,12 +154,14 @@ function TScriptDrive.CalcMath(command: string): string;
 /// использование различных скриптовых движков и компонент, не желательно
 var
     mth, toCalc,
-    operandA, operandB, operation : string;
+    operation : string;
+    operandA, operandB: integer;
     i : integer;
     beg: integer;
     parse: TStringList;
     notation: TStringList;
     digit, oper: TStringList;
+    found: boolean;
 
     HiPrior : string;
     LowPrior : string;
@@ -176,7 +179,9 @@ begin
 
     /// вырезаем арифметику в отдельную строку для обработки
     beg := pos('{', command) + 1;
-    mth := copy(command, beg, pos('}', command)-1-beg);
+    mth := copy(command, beg, pos('}', command)-beg);
+
+    mth := '('+mth+')';
 
     // убираем избыточные пробелы для исключения пустых строк при разбиении через TStringList
     while Pos('  ', mth) > 0 do
@@ -213,24 +218,101 @@ begin
         match := reg.Match(mth);
 
         // получаем выражение без скобок
-        toCalc := copy(match.Value, 1, Length(match.Value)-2);
+        toCalc := copy(match.Value, 2, Length(match.Value)-2);
 
-        // разбиваем на отдельные оепраторы и операнды
-        parse.CommaText := toCalc;
+        repeat
 
-        // чистим каждый из них от лишних пробелов
-        for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
+          found := false;
+          operation := '';
 
-        // пробегаем по набору строк и ижем сначала операторы с высшим приоритетом ( умножение, деление)
-        for I := 0 to parse.Count-1 do
-        if pos(parse[i], HiPrior) > 0 then
-        begin
-//            if i > 0 then
+          // разбиваем на отдельные операторы и операнды
+          parse.CommaText := toCalc;
 
-        end;
+          // если это не первый цикл вычислений - образуются пустые строки, которые нужно вычистить
+          for I := parse.Count-1 downto 0 do
+          if parse[i] = '' then parse.Delete(i);
 
+          // чистим каждый из них от лишних пробелов
+//          for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
+
+          // пробегаем по набору строк и ищем сначала операторы с высшим приоритетом ( умножение, деление)
+          for I := 0 to parse.Count-1 do
+          if pos(parse[i], HiPrior) > 0 then
+          begin
+              found := true;
+              operandA := StrToInt(parse[i-1]);
+              operation := parse[i];
+              operandB := StrToInt(parse[i+1]);
+              break;
+          end;
+
+          /// вычисляем, сохраняя результат на мете первого операнда
+          if operation = '*' then
+          operandA := operandA * operandB;
+
+          if operation = '/' then
+          operandA := Round(operandA / operandB);
+
+          // оператор и второй операнд - чистим
+          parse[i-1] := IntToStr(operandA);
+          parse[i] := '';
+          parse[i+1] := '';
+
+          /// собираем получившееся обратно в строку для повторной проверки
+          /// при этом, на следующем цикле пустые места операнда и второго оператора будут
+          ///  предвирительно вычищены, что сократит список
+          toCalc := parse.CommaText;
+
+        until not found;
+
+        repeat
+
+          found := false;
+          operation := '';
+
+        // разбиваем на отдельные операторы и операнды
+          parse.CommaText := toCalc;
+
+          // если это не первый цикл вычислений - образуются пустые строки, которые нужно вычистить
+          for I := parse.Count-1 downto 0 do
+          if parse[i] = '' then parse.Delete(i);
+
+          // чистим каждый из них от лишних пробелов
+//          for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
+
+          // пробегаем по набору строк и ищем сначала операторы с высшим приоритетом ( умножение, деление)
+          for I := 0 to parse.Count-1 do
+          if pos(parse[i], LowPrior) > 0 then
+          begin
+              found := true;
+              operandA := StrToInt(parse[i-1]);
+              operation := parse[i];
+              operandB := StrToInt(parse[i+1]);
+              break;
+          end;
+
+          /// вычисляем, сохраняя результат на мете первого операнда
+          if operation = '+' then
+          operandA := operandA + operandB;
+
+          if operation = '-' then
+          operandA := operandA - operandB;
+
+          // оператор и второй операнд - чистим
+          parse[i-1] := IntToStr(operandA);
+          parse[i] := '';
+          parse[i+1] := '';
+
+          /// собираем получившееся обратно в строку для повторной проверки
+          /// при этом, на следующем цикле пустые места операнда и второго оператора будут
+          ///  предвирительно вычищены, что сократит список
+          toCalc := parse.CommaText;
+
+        until not found;
 
     until reg.Match(mth).Value <> '';
+
+    result := toCalc;
 end;
 
 constructor TScriptDrive.Create;
