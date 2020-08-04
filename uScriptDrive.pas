@@ -90,6 +90,11 @@ begin
             for j := 0 to params.Count-1 do params[j] := CalcMath(params[j]);
 
 
+            /// проверка, не является ли текущая функция сервисной.
+            /// например, цикл, логическая проверка и т.п.
+            /// данные функции реализуются самим скриптовым движком и отсутствуют в управляемом классе
+
+
 
             for M in t.GetMethods do
                 if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then

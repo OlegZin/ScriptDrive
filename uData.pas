@@ -70,7 +70,9 @@ type
         function GetVar(name: string): string;
 
         function Rand(max: string): string;
+
         procedure ChangePlayerItemCount(name, delta: variant);
+        function GetPlayerItemCount(name: variant):string;
 
         function GetRandItemName: string;
     private
@@ -169,6 +171,15 @@ end;
 function TData.GetPlayerInfo: string;
 begin
     result := Player.Name + ' ' + Player.Params;
+end;
+
+function TData.GetPlayerItemCount(name: variant): string;
+begin
+    result := '0';
+
+    parser.CommaText := Player.Items;
+    if   parser.IndexOfName(name) <> -1
+    then result := parser.Values[name];
 end;
 
 function TData.GetPlayerItems: string;

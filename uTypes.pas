@@ -57,7 +57,10 @@ var
     items: array [0..11] of TItem = (
         (name:   'Gold';
          cost:   MaxInt;
-         script: 'SetVar(iName, GetRandItemName());'+
+         script: 'If({GetPlayerItemCount(Gold) > 9998}, 4);'+ // 1 золото отнимается за использование
+                                                              // если золота достаточно, выполняем следующие 4 строки скрипта,
+                                                              // иначе они будут пропущены
+                 'SetVar(iName, GetRandItemName());'+
                  'ChangePlayerItemCount(GetVar(iName), 1);'+
                  'ChangePlayerItemCount(Gold, -9999);'+
                  'AddEvent(Player get GetVar(iName)!);'
