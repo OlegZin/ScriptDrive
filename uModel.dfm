@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 1.0'
-  ClientHeight = 294
-  ClientWidth = 732
+  ClientHeight = 206
+  ClientWidth = 686
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,20 +18,20 @@ object Form3: TForm3
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 732
-    Height = 294
+    Width = 686
+    Height = 206
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 747
-    ExplicitHeight = 288
+    ExplicitWidth = 732
+    ExplicitHeight = 294
     object TabSheet1: TTabSheet
       Caption = 'Tower'
-      ExplicitWidth = 285
-      ExplicitHeight = 121
+      ExplicitWidth = 724
+      ExplicitHeight = 266
       DesignSize = (
-        724
-        266)
+        678
+        178)
       object lAutoCount: TLabel
         Left = 97
         Top = 34
@@ -80,18 +80,18 @@ object Form3: TForm3
       end
       object bUseItem: TButton
         Left = 377
-        Top = 8
+        Top = 9
         Width = 33
-        Height = 25
+        Height = 23
         Caption = 'Use!'
         TabOrder = 1
         OnClick = bUseItemClick
       end
       object bSkillUse: TButton
         Left = 583
-        Top = 8
+        Top = 9
         Width = 33
-        Height = 25
+        Height = 23
         Caption = 'Use!'
         TabOrder = 2
       end
@@ -130,23 +130,31 @@ object Form3: TForm3
       object mLog: TMemo
         Left = 16
         Top = 112
-        Width = 690
-        Height = 143
+        Width = 644
+        Height = 55
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         TabOrder = 7
-        ExplicitWidth = 705
-        ExplicitHeight = 137
+        ExplicitWidth = 690
+        ExplicitHeight = 143
+      end
+      object Button2: TButton
+        Left = 415
+        Top = 31
+        Width = 201
+        Height = 22
+        Caption = 'Up! (0 EXP)'
+        TabOrder = 8
       end
     end
     object Craft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitWidth = 739
-      ExplicitHeight = 260
+      ExplicitWidth = 724
+      ExplicitHeight = 266
       DesignSize = (
-        724
-        266)
+        678
+        178)
       object Label1: TLabel
         Left = 6
         Top = 7
@@ -158,17 +166,18 @@ object Form3: TForm3
         Left = 3
         Top = 22
         Width = 134
-        Height = 239
+        Height = 151
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
+        ExplicitHeight = 239
       end
     end
   end
   object tAutoAttack: TTimer
     Interval = 100
     OnTimer = tAutoAttackTimer
-    Left = 632
-    Top = 72
+    Left = 200
+    Top = 64
   end
 end

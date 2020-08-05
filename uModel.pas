@@ -28,6 +28,7 @@ type
     Craft: TTabSheet;
     lbLoot: TListBox;
     Label1: TLabel;
+    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);

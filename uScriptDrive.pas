@@ -29,7 +29,7 @@ var
     parser: TStringList;
     R : TRttiContext;
     T : TRttiType;
-    M : TRttiMethod;
+    M, _M : TRttiMethod;
     V : TValue;
     _obj: TObject;
     regFunction: TRegEx;
@@ -43,7 +43,11 @@ var
     prs: TStringList;
 
     match : TMatch;
-    found : boolean;
+    found,
+    scriptCommand  // признак того, что в данный момент обрабатывается управляющая команда движка
+            : boolean;
+    passCount      // сколько еще команд скрипта нужно пропустить
+            : integer;
 begin
     if not Assigned(T) then
     begin
@@ -78,6 +82,7 @@ begin
         // 5. перед выдачей результата проверяем нет ли там кусков алгебры ({}) и вычисляем при необходимости
 
         // прогоняем строку скрипта через регулярку, получаем массив распознанных элементов
+        if (passCount <= 0)  then
         repeat
 
             match := regFunction.Match(line);
@@ -96,40 +101,87 @@ begin
             /// проверка, не является ли текущая функция сервисной.
             /// например, цикл, логическая проверка и т.п.
             /// данные функции реализуются самим скриптовым движком и отсутствуют в управляемом классе
+            scriptCommand := false;
 
 
-            M := nil;
-            fCash.TryGetValue(method, M);
+            /// команда проверки условия вида:
+            ///    IF(check, lines);
+            ///    где
+            ///    check - текст 'true'/'false', который можно получить с помощью
+            ///            математического выражения с использованием операторов '>' '<' '=',
+            ///    lines - количество команд, которые будут пропущены, если check = 'false'
+            ///
+            ///    пример использования:
+            ///
+            ///    If({GetPlayerItemCount(Gold) > 9999}, 4);
+            ///    SetVar(iName, GetRandItemName());
+            ///    ChangePlayerItemCount(GetVar(iName), 1);
+            ///    ChangePlayerItemCount(Gold, -9999);
+            ///    AddEvent(Player get GetVar(iName)!);
+            ///
+            ///    здесь все 4 последующие команды будут выполнены, если у игрока
+            ///    в наличии больше 9999 золота, иначе 4 команды будут пропущены
+            ///    и предмет не будет получен (не хватило денег)
 
-
-            if not Assigned(M) and (method <> '') then
-            for M in t.GetMethods do
-            if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
+            if AnsiUpperCase(method) = 'IF' then
             begin
-                fCash.Add(method, M);
-                break;
+                scriptCommand := true;
+                if params.Count = 2 then
+                begin
+                    if params[0] <> 'true'
+                    then passCount := StrToIntDef(params[1], 0) + 1; // +1 = учитываем и текущую команду
+                    result := '';
+                end;
             end;
 
-            if Assigned(M) then
+
+
+
+
+            if not scriptCommand and (passCount <= 0) then
             begin
-                if   params.Count = 0
-                then V := M.Invoke(_obj,[]);
+                M := nil;
+                fCash.TryGetValue(method, M);
 
-                if   params.Count = 1
-                then V := M.Invoke(_obj,[params.CommaText]);
+                if not Assigned(M) and (method <> '') then
+                for _M in t.GetMethods do
+                if (_M.Parent = t) and (AnsiUpperCase(_M.Name) = AnsiUpperCase(method))then
+                begin
+                    M := _M;
+                    fCash.Add(method, _M);
+                    break;
+                end;
 
-                if   params.Count = 2
-                then V := M.Invoke(_obj,[params[0], params[1]]);
+                if Assigned(M) then
+                begin
+                    if   params.Count = 0
+                    then V := M.Invoke(_obj,[]);
 
-                if   params.Count = 3
-                then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
+                    if   params.Count = 1
+                    then V := M.Invoke(_obj,[params.CommaText]);
 
-                if not V.IsEmpty then result := V.AsString;
+                    if   params.Count = 2
+                    then V := M.Invoke(_obj,[params[0], params[1]]);
+
+                    if   params.Count = 3
+                    then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
+
+                    if not V.IsEmpty then result := V.AsString;
+                end;
             end;
 
             line := StringReplace(line, match.Value, result, []);
 
+
+
+            match := regFunction.Match(line)
+
         until match.Value = '';
+
+        /// если идет отсчет пропускаемых команд - уменьшаем счетчик
+        if passCount > 0
+        then Dec(PassCount);
+
     end;
     prs.Free;
 
@@ -178,6 +230,8 @@ var
 
     HiPrior : string;
     LowPrior : string;
+    ComparePrior : string;
+    logicResult : string;
 
     match : TMatch;
 begin
@@ -185,6 +239,7 @@ begin
 
     HiPrior := '()*/';
     LowPrior := '+-';
+    ComparePrior := '><=';
 
     /// ищем наличие математики
     if Pos('{', command) = 0 then exit;
@@ -243,9 +298,6 @@ begin
           for I := parse.Count-1 downto 0 do
           if parse[i] = '' then parse.Delete(i);
 
-          // чистим каждый из них от лишних пробелов
-//          for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
-
           // пробегаем по набору строк и ищем сначала операторы с высшим приоритетом ( умножение, деление)
           for I := 0 to parse.Count-1 do
           if pos(parse[i], HiPrior) > 0 then
@@ -279,6 +331,9 @@ begin
 
         until not found;
 
+
+
+
         repeat
 
           found := false;
@@ -290,9 +345,6 @@ begin
           // если это не первый цикл вычислений - образуются пустые строки, которые нужно вычистить
           for I := parse.Count-1 downto 0 do
           if parse[i] = '' then parse.Delete(i);
-
-          // чистим каждый из них от лишних пробелов
-//          for I := 0 to parse.Count-1 do parse[i] := Trim(parse[i]);
 
           // пробегаем по набору строк и ищем сначала операторы с высшим приоритетом ( умножение, деление)
           for I := 0 to parse.Count-1 do
@@ -327,6 +379,64 @@ begin
 
         until not found;
 
+
+
+
+        repeat
+
+          found := false;
+          operation := '';
+          logicResult := '';
+
+        // разбиваем на отдельные операторы и операнды
+          parse.CommaText := toCalc;
+
+          // если это не первый цикл вычислений - образуются пустые строки, которые нужно вычистить
+          for I := parse.Count-1 downto 0 do
+          if parse[i] = '' then parse.Delete(i);
+
+          // пробегаем по набору строк и ищем операторы сравнения
+          for I := 0 to parse.Count-1 do
+          if pos(parse[i], ComparePrior) > 0 then
+          begin
+              found := true;
+              operandA := StrToInt(parse[i-1]);
+              operation := parse[i];
+              operandB := StrToInt(parse[i+1]);
+              break;
+          end;
+
+          if operation <> '' then
+          begin
+              /// вычисляем, сохраняя результат на мете первого операнда
+              if operation = '<' then
+                  if operandA < operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if operation = '>' then
+                  if operandA > operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if operation = '=' then
+                  if operandA = operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              // оператор и второй операнд - чистим
+              parse[i-1] := logicResult;
+              parse[i] := '';
+              parse[i+1] := '';
+          end;
+
+          /// собираем получившееся обратно в строку для повторной проверки
+          /// при этом, на следующем цикле пустые места операнда и второго оператора будут
+          ///  предвирительно вычищены, что сократит список
+          toCalc := parse.CommaText;
+
+        until not found;
+
     until regMath.Match(mth).Value <> '';
 
     result := toCalc;
@@ -337,8 +447,8 @@ begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
 
-    regFunction:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.]))\s*\,*\s*)*\)');
-    regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
+    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d+|\w+)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.\]\[]))\s*\,*\s*)*\)');
+    regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/\>\<\=]?)*\)');
 
     fCash := TDictionary<String,TRttiMethod>.Create();
 end;

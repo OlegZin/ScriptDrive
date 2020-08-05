@@ -265,7 +265,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=100000,RestoreHealth=10,AutoATK=5');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=10000,RestoreHealth=10,AutoATK=5');
 end;
 
 procedure TData.LevelUpPlayer;
