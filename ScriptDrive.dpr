@@ -5,7 +5,8 @@ uses
   uModel in 'uModel.pas' {Form3},
   uScriptDrive in 'uScriptDrive.pas',
   uData in 'uData.pas',
-  uTypes in 'uTypes.pas';
+  uTypes in 'uTypes.pas',
+  uDoc in 'uDoc.pas';
 
 {$R *.res}
 
