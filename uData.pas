@@ -41,6 +41,8 @@ type
         function GetPlayerLoot: string;
         function GetPlayerAttr(name: string): string;
 
+        procedure SetPlayerBuff(name, count: variant);
+
         procedure InitPlayer;
         procedure InitCreatures;
 
@@ -73,6 +75,8 @@ type
 
         procedure ChangePlayerItemCount(name, delta: variant);
         function GetPlayerItemCount(name: variant):string;
+        function GetItemCount(list, name: string): string;
+        /// получение количества в указанном списке
 
         function GetRandItemName: string;
     private
@@ -100,6 +104,8 @@ type
         procedure Fill(inv: string);
         procedure Clear;
         function Get: string;
+        function Draw(name, count: variant): integer;
+        /// возвращает текущее значение указанного элемента и списывает с него count
 
         procedure SetItemCount(name: string; count: integer);
         // задает указанное количество пердметов в инвентаре
@@ -169,8 +175,34 @@ begin
 end;
 
 function TData.GetPlayerInfo: string;
+var
+    count: string;
+    i: integer;
+    resultList: string;
+    parser: TStringList;
 begin
-    result := Player.Name + ' ' + Player.Params;
+    resultList := '';
+
+    parser := TStringList.Create;
+    parser.CommaText := Player.Params;
+
+    for i := 0 to parser.Count-1 do
+    begin
+        count := GetItemCount( Player.Buffs, parser.Names[i]);
+        if count <> '0'
+        then resultList := resultList + parser[i] + ' [' + count + '],'
+        else resultList := resultList + parser[i] + ',';
+    end;
+
+    parser.Free;
+
+    result := Player.Name + ' ' + resultList;
+
+{
+    if Player.Buffs <> ''
+    then result := Player.Name + ' ' + Player.Params + ' : ' + Player.Buffs
+    else result := Player.Name + ' ' + Player.Params;
+}
 end;
 
 function TData.GetPlayerItemCount(name: variant): string;
@@ -178,6 +210,15 @@ begin
     result := '0';
 
     parser.CommaText := Player.Items;
+    if   parser.IndexOfName(name) <> -1
+    then result := parser.Values[name];
+end;
+
+function TData.GetItemCount(list, name: string): string;
+begin
+    result := '0';
+
+    parser.CommaText := list;
     if   parser.IndexOfName(name) <> -1
     then result := parser.Values[name];
 end;
@@ -265,7 +306,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=10000,RestoreHealth=10,AutoATK=5');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=10000,AutoATK=5,BuffATK=10');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -415,6 +456,13 @@ begin
     Player.Loot   := loot;
 
     Player.OnAttack := 'DoDamageToCreature({ATK})';
+end;
+
+procedure TData.SetPlayerBuff(name, count: variant);
+begin
+    Inventory.Fill(Player.Buffs);
+    Inventory.ChangeItemCount(name, count);
+    Player.Buffs := Inventory.Get;
 end;
 
 procedure TData.SetVar(name, value: string);
@@ -741,7 +789,17 @@ begin
     inherited;
 end;
 
+function TInventory.Draw(name, count: variant): integer;
+begin
+    result := 0;
+    if items.IndexOfName(name) = -1 then exit;
 
+    result := StrToIntDef( items.Values[name], 0 );
+
+    if (result + count) > 0
+    then items.Values[name] := IntToStr(result + count)
+    else items.Delete( items.IndexOfName(name) );
+end;
 
 initialization
    Data := TData.Create;

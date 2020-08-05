@@ -112,11 +112,15 @@ procedure TForm3.UpdateInterface;
 var
     item: integer;
     AutoCount: integer;
+    tmp: string;
 begin
     item := cbItem.ItemIndex;
     lStep.Caption := 'Lvl:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
-    lPlayerInfo.Caption := ReplaceStr( Script.Exec('GetPlayerInfo()'), ',', '  ' );
+
+    tmp := Script.Exec('GetPlayerInfo()');
+    lPlayerInfo.Caption := ReplaceStr( tmp, ',', '  ' );
+
     lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
     cbItem.Items.CommaText := Script.Exec('GetPlayerItems()');
     lbLoot.Items.CommaText := Script.Exec('GetPlayerLoot()');
@@ -135,6 +139,7 @@ begin
 
     log(Script.Exec('GetEvents()'));
 
+    /// восстанавливаем элемент в списке
     if   cbItem.Items.Count-1 >= item
     then cbItem.ItemIndex := item;
 
