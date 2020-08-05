@@ -2,7 +2,7 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 1.0'
-  ClientHeight = 206
+  ClientHeight = 219
   ClientWidth = 686
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,19 +19,17 @@ object Form3: TForm3
     Left = 0
     Top = 0
     Width = 686
-    Height = 206
+    Height = 219
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 732
-    ExplicitHeight = 294
+    ExplicitHeight = 206
     object TabSheet1: TTabSheet
       Caption = 'Tower'
-      ExplicitWidth = 724
-      ExplicitHeight = 266
+      ExplicitHeight = 178
       DesignSize = (
         678
-        178)
+        191)
       object lAutoCount: TLabel
         Left = 97
         Top = 34
@@ -128,15 +126,13 @@ object Form3: TForm3
         TabOrder = 6
       end
       object mLog: TMemo
-        Left = 16
-        Top = 112
+        Left = 18
+        Top = 120
         Width = 644
-        Height = 55
+        Height = 68
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         TabOrder = 7
-        ExplicitWidth = 690
-        ExplicitHeight = 143
       end
       object Button2: TButton
         Left = 415
@@ -150,11 +146,10 @@ object Form3: TForm3
     object Craft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitWidth = 724
-      ExplicitHeight = 266
+      ExplicitHeight = 178
       DesignSize = (
         678
-        178)
+        191)
       object Label1: TLabel
         Left = 6
         Top = 7
@@ -166,11 +161,11 @@ object Form3: TForm3
         Left = 3
         Top = 22
         Width = 134
-        Height = 151
+        Height = 164
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 239
+        ExplicitHeight = 151
       end
     end
   end

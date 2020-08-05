@@ -32,7 +32,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
-    procedure Button2Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure bAttackClick(Sender: TObject);
     procedure UpdateInterface;
@@ -54,6 +53,11 @@ implementation
 
 uses
     uData;
+
+var
+    oldPlayerItems
+   ,oldPlayerLoot
+            : string;
 
 procedure TForm3.bUseItemClick(Sender: TObject);
 begin
@@ -78,11 +82,6 @@ begin
 end;
 
 
-procedure TForm3.Button2Click(Sender: TObject);
-begin
-    mLog.Lines.Clear;
-end;
-
 procedure TForm3.bAttackClick(Sender: TObject);
 begin
     Script.Exec('PlayerAttack();CreatureAttack();CheckStatus();');
@@ -101,11 +100,17 @@ end;
 
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
+
+    if   Script.Exec('ProcessAuto()') <> ''
+    then UpdateInterface;
+
     if cbAutoAttack.Checked then
     begin
         Script.Exec('ChangeAutoATK(-1)');
         bAttack.Click;
     end;
+
+
 end;
 
 procedure TForm3.UpdateInterface;
@@ -115,6 +120,7 @@ var
     tmp: string;
 begin
     item := cbItem.ItemIndex;
+
     lStep.Caption := 'Lvl:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
 
@@ -122,8 +128,20 @@ begin
     lPlayerInfo.Caption := ReplaceStr( tmp, ',', '  ' );
 
     lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
-    cbItem.Items.CommaText := Script.Exec('GetPlayerItems()');
-    lbLoot.Items.CommaText := Script.Exec('GetPlayerLoot()');
+
+    tmp := Script.Exec('GetPlayerItems()');
+    if (tmp <> oldPlayerItems) or (oldPlayerItems = '') then
+    begin
+        cbItem.Items.CommaText := tmp;
+        oldPlayerItems := tmp;
+    end;
+
+    tmp := Script.Exec('GetPlayerLoot()');
+    if (tmp <> oldPlayerLoot) or (oldPlayerLoot = '') then
+    begin
+        lbLoot.Items.CommaText := tmp;
+        oldPlayerLoot := tmp;
+    end;
 
     AutoCount := StrToIntDef(Script.Exec('GetAutoATK()'), 0);
     lAutoCount.Caption := 'Auto: ' + IntToStr(AutoCount);

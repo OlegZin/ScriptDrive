@@ -42,6 +42,10 @@ type
         function GetPlayerAttr(name: string): string;
 
         procedure SetPlayerBuff(name, count: variant);
+        // добавление бонуса в Player.Buffs
+
+        procedure SetPlayerAutoBuff(name, count: variant);
+        // добавление бонуса в Player.Buffs
 
         procedure InitPlayer;
         procedure InitCreatures;
@@ -79,6 +83,9 @@ type
         /// получение количества в указанном списке
 
         function GetRandItemName: string;
+
+        function ProcessAuto: string;
+        // вызывается для процессинга автоэффектов, например автобонусов
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -90,7 +97,8 @@ type
         procedure ChangeParamValue(creature: TCreature; param: string; delta: integer);
 
         procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
-        procedure SetPlayer(name, params: string; items: string = ''; loot: string = '');  // подставляем в текст скрипта значения параметры существа/игрока
+        procedure SetPlayer(name, params: string; items: string = ''; loot: string = '');
+    procedure SetPlayerAuto(name, count: variant);  // подставляем в текст скрипта значения параметры существа/игрока
     end;
 
     /// класс-менеджер для манипуляций с содержимым инвентаря
@@ -196,7 +204,9 @@ begin
 
     parser.Free;
 
-    result := Player.Name + ' ' + resultList;
+    if   Player.AutoBuffs = ''
+    then result := Player.Name + ' ' + resultList
+    else result := Player.Name + ' ' + resultList + ' Auto: ' + Player.AutoBuffs;
 
 {
     if Player.Buffs <> ''
@@ -266,7 +276,7 @@ begin
                 Format('HP=%d, ATK=%d, DEF=%d', [
                     Random( CurrLevel*10 ) + CurrLevel*5,
                     Random( CurrLevel*5 )  + CurrLevel*2,
-                    Random( Min( CurrLevel*2, 95) )
+                    Random( CurrLevel*2 )
                 ]),
                 itm,
                 lt
@@ -290,9 +300,9 @@ begin
             SetCreature(
                 Format('БОСС %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
                 Format('HP=%d, ATK=%d, DEF=%d', [
-                    Random( CurrLevel*20 ) + CurrLevel*10,
-                    Random( CurrLevel*5 )  + CurrLevel*5,
-                    Random( Min( CurrLevel*6, 95 ) )
+                    Random( CurrLevel*50 ) + CurrLevel*30,
+                    Random( CurrLevel*25 )  + CurrLevel*10,
+                    Random( CurrLevel*6 )
                 ]),
                 itm,
                 lt
@@ -306,7 +316,7 @@ end;
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', 'Gold=10000,AutoATK=5,BuffATK=10');
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', '');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -341,6 +351,33 @@ begin
     Script.Exec( scr );
 end;
 
+function TData.ProcessAuto: string;
+var
+    i, count : integer;
+    prs: TStringList;
+begin
+    result := '';
+
+    prs := TStringList.Create;
+    prs.CommaText := Player.AutoBuffs;
+
+    Inventory.Fill( Player.AutoBuffs );
+
+    for I := 0 to prs.Count-1 do
+    begin
+        count := Inventory.Draw( prs.Names[i], 1 );
+        if count <> 0 then
+        begin
+            ChangeParamValue( Player, prs.Names[i], 1 );
+            result := '+';
+        end;
+    end;
+
+    Player.AutoBuffs := Inventory.Get;
+
+    prs.Free;
+end;
+
 function TData.Rand(max: string): string;
 begin
     result := IntToStr(Random(StrToIntDef(max, 0)));
@@ -366,10 +403,15 @@ var
     CreatureDEF: integer;
     PlayerATK: integer;
     DMG : integer;
+    ATKbuff: integer;
 begin
     if CurrCreature > Creatures.Count -1 then exit;
 
-    PlayerATK   := StrToIntDef(input, 0);
+    Inventory.Fill( Player.Buffs );
+    ATKbuff := Inventory.Draw( 'ATK', 1 );
+    Player.Buffs := Inventory.Get;
+
+    PlayerATK   := StrToIntDef(input, 0) + ATKbuff;
     CreatureHP  := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'HP'), 0 );
     CreatureDEF := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'DEF'), 0 );
 
@@ -389,11 +431,16 @@ var
     PlayerDEF: integer;
     CreatureATK: integer;
     DMG : integer;
+    DEFbuff: integer;
 begin
+
+    Inventory.Fill( Player.Buffs );
+    DEFbuff := Inventory.Draw( 'DEF', 1 );
+    Player.Buffs := Inventory.Get;
 
     CreatureATK   := StrToIntDef(input, 0);
     PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
-    PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 );
+    PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 ) + DEFbuff;
 
 //    PlayerDEF := Min(99, PlayerDEF);  // всегда проходит 1% урона
 
@@ -456,6 +503,17 @@ begin
     Player.Loot   := loot;
 
     Player.OnAttack := 'DoDamageToCreature({ATK})';
+end;
+
+procedure TData.SetPlayerAuto(name, count: variant);
+begin
+end;
+
+procedure TData.SetPlayerAutoBuff(name, count: variant);
+begin
+    Inventory.Fill(Player.AutoBuffs);
+    Inventory.ChangeItemCount(name, count);
+    Player.AutoBuffs := Inventory.Get;
 end;
 
 procedure TData.SetPlayerBuff(name, count: variant);
@@ -615,7 +673,7 @@ end;
 procedure TData.CheckStatus;
 // метод отработки состояния объектов игровой логики
 var
-    HP: integer;
+    HP, EXPbuff: integer;
     playerLVL : integer;
 begin
     // аварийная проверка
@@ -648,10 +706,17 @@ begin
 
         if HP <= 0 then
         begin
-            AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' exp');
 
             // игрок получает опыт
-            ChangeParamValue(Player, 'EXP', CurrLevel);
+            Inventory.Fill( Player.Buffs );
+            EXPbuff := Inventory.Draw( 'EXP', 1 );
+            Player.Buffs := Inventory.Get;
+
+            ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
+
+            if EXPbuff = 0
+            then AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' exp')
+            else AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+'] exp');
 
             // игрок получает предметы и лут
             Inventory.Fill( Player.Items );
@@ -796,8 +861,8 @@ begin
 
     result := StrToIntDef( items.Values[name], 0 );
 
-    if (result + count) > 0
-    then items.Values[name] := IntToStr(result + count)
+    if (result - count) > 0
+    then items.Values[name] := IntToStr(result - count)
     else items.Delete( items.IndexOfName(name) );
 end;
 

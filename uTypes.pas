@@ -23,6 +23,7 @@ type
         Name     : string;  // уникальное имя
         Params   : string;  // базовые параметры: уровень, здоровье, мана, атака и т.п.
         Buffs    : string;  // баффы к чему угодно имя_бафа=количество_использований
+        AutoBuffs: string;  // автобаффы к чему угодно имя_бафа=количество_использований
         Items    : string;  // расходные предметы для использования
         Loot     : string;  // расходные материалы для крафта
         OnAttack : string;  // скрипт на атаку по монстру
@@ -106,7 +107,7 @@ var
 
        ,(name:   'EXP';
          cost:    1000;
-         script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 10}));'+
+         script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
                  'AddEvent(Player get +GetVar(EXP) EXP!)'
         ) // зелье разового получения опыта
@@ -115,12 +116,12 @@ var
 
        ,(name:   'RegenHP';
          cost:    500;
-         script: 'SetPlayerAuto(HP,Rand({GetPlayerAttr(LVL) * 10}))'
+         script: 'SetPlayerAutoBuff(HP,Rand({GetPlayerAttr(LVL) * 500}))'
         ) // зелье регенерации здоровья
 
        ,(name:   'RegenMP';
          cost:    500;
-         script: 'SetPlayerAuto(MP,Rand({GetPlayerAttr(LVL) * 10}))'
+         script: 'SetPlayerAutoBuff(MP,Rand({GetPlayerAttr(LVL) * 50}))'
         ) // зелье регенерации маны
 
 
@@ -149,7 +150,7 @@ var
 
        ,(name:   'AutoATK';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 100}))'
+         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 500}))'
         ) // зелье автоматической атаки
     );
 
