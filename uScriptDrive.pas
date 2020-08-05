@@ -2,17 +2,19 @@ unit uScriptDrive;
 
 interface
 
-uses RTTI,  Classes, SysUtils, RegularExpressions;
+uses RTTI,  Classes, SysUtils, RegularExpressions, Generics.Collections;
 
 type
 
     TScriptDrive = class
     private
+        fCash : TDictionary<String,TRttiMethod>;
         function GetMethodName(command: string): string;
         function GetParams(command: string): TStringList;
         function CalcMath(command: string): string;
     public
         constructor Create;
+        destructor Destroy;
         procedure SetClass( cls: TClass; obj: TObject );
         function Exec(scrt:string): string;
     end;
@@ -41,6 +43,7 @@ var
     prs: TStringList;
 
     match : TMatch;
+    found : boolean;
 begin
     if not Assigned(T) then
     begin
@@ -95,26 +98,34 @@ begin
             /// данные функции реализуются самим скриптовым движком и отсутствуют в управляемом классе
 
 
+            M := nil;
+            fCash.TryGetValue(method, M);
 
+
+            if not Assigned(M) and (method <> '') then
             for M in t.GetMethods do
-                if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
-                begin
-                    if   params.Count = 0
-                    then V := M.Invoke(_obj,[]);
+            if (m.Parent = t) and (AnsiUpperCase(m.Name) = AnsiUpperCase(method))then
+            begin
+                fCash.Add(method, M);
+                break;
+            end;
 
-                    if   params.Count = 1
-                    then V := M.Invoke(_obj,[params.CommaText]);
+            if Assigned(M) then
+            begin
+                if   params.Count = 0
+                then V := M.Invoke(_obj,[]);
 
-                    if   params.Count = 2
-                    then V := M.Invoke(_obj,[params[0], params[1]]);
+                if   params.Count = 1
+                then V := M.Invoke(_obj,[params.CommaText]);
 
-                    if   params.Count = 3
-                    then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
+                if   params.Count = 2
+                then V := M.Invoke(_obj,[params[0], params[1]]);
 
-                    if not V.IsEmpty then result := V.AsString;
+                if   params.Count = 3
+                then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
 
-
-                end;
+                if not V.IsEmpty then result := V.AsString;
+            end;
 
             line := StringReplace(line, match.Value, result, []);
 
@@ -329,6 +340,13 @@ begin
     regFunction:=TRegEx.Create('\w+\s*\(\s*((\{((\d+|\w+)\s*[\+\-\*\/]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/]?)*\)');
 
+    fCash := TDictionary<String,TRttiMethod>.Create();
+end;
+
+destructor TScriptDrive.Destroy;
+begin
+    fCash.Free;
+    parser.Free;
 end;
 
 end.

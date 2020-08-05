@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
+  Vcl.ComCtrls;
 
 type
   TForm3 = class(TForm)
@@ -15,25 +16,28 @@ type
     lStep: TLabel;
     lCreatureInfo: TLabel;
     cbItem: TComboBox;
-    bItemUse: TButton;
+    bUseItem: TButton;
     cbSkill: TComboBox;
     bSkillUse: TButton;
     lNeedExp: TLabel;
     cbAutoAttack: TCheckBox;
     tAutoAttack: TTimer;
     lAutoCount: TLabel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Craft: TTabSheet;
     lbLoot: TListBox;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
     procedure Button2Click(Sender: TObject);
-    procedure Restart;
     procedure FormShow(Sender: TObject);
     procedure bAttackClick(Sender: TObject);
     procedure UpdateInterface;
     procedure bLvlUpClick(Sender: TObject);
     procedure tAutoAttackTimer(Sender: TObject);
-    procedure bItemUseClick(Sender: TObject);
+    procedure bUseItemClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -50,7 +54,7 @@ implementation
 uses
     uData;
 
-procedure TForm3.bItemUseClick(Sender: TObject);
+procedure TForm3.bUseItemClick(Sender: TObject);
 begin
     if cbItem.ItemIndex = -1 then exit;
     Script.Exec('UseItem('+Copy(cbItem.Text, 0, Pos('=', cbItem.Text)-1)+')');
@@ -66,7 +70,10 @@ end;
 procedure TForm3.Button1Click(Sender: TObject);
 var i: integer;
 begin
-    Restart;
+    Script.Exec('CurrentLevel(1);');
+    UpdateInterface;
+
+    log('Enter into Dungeon...');
 end;
 
 
@@ -82,11 +89,6 @@ begin
 end;
 
 procedure TForm3.FormShow(Sender: TObject);
-begin
-    Restart;
-end;
-
-procedure TForm3.Restart;
 begin
     mLog.Lines.Clear;
 

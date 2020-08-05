@@ -40,17 +40,17 @@ var
     name3 : array [0..9] of string = (
         'Поликлиники','Ада','Иных миров','Подземелий','Лесов','Безумия','Тайн','Безнадежности','Героизма','Коварства');
 
-    loot: array [0..64] of string = (
+    loot: array [0..49] of string = (
         ('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),            // 10
         ('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),  // 10
-        ('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),   // 9
-        ('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),                      // 8
-        ('meat'),('meat'),('meat'),('meat'),('meat'),('meat'),                                                // 6
-        ('blood'),('blood'),('blood'),('blood'),('blood'),                                                    // 5
-        ('bone'),('bone'),('bone'),('bone'),                                                                  // 5
-        ('skin'),('skin'),('skin'),('skin'),('skin'),                                                         // 5
-        ('ore'),('ore'),('ore'),('ore'),('ore'),                                                              // 5
-        ('essence'),('essence'),('essence')                                                                   // 3
+        ('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),              // 8
+        ('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),                                          // 6
+        ('meat'),('meat'),('meat'),('meat'),                                                                  // 4
+        ('blood'),('blood'),('blood'),                                                                        // 3
+        ('bone'),('bone'),('bone'),                                                                           // 3
+        ('skin'),('skin'),('skin'),                                                                           // 3
+        ('ore'),('ore'),                                                                                      // 2
+        ('essence')                                                                                           // 1
     );
 
     // предметы-расходники. в механике имеют разные уровни силы

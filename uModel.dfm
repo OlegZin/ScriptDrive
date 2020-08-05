@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 1.0'
-  ClientHeight = 233
-  ClientWidth = 744
+  ClientHeight = 294
+  ClientWidth = 732
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,127 +13,162 @@ object Form3: TForm3
   OldCreateOrder = False
   OnCreate = FormCreate
   OnShow = FormShow
-  DesignSize = (
-    744
-    233)
   PixelsPerInch = 96
   TextHeight = 13
-  object lPlayerInfo: TLabel
-    Left = 119
-    Top = 61
-    Width = 52
-    Height = 13
-    Caption = 'lPlayerInfo'
-  end
-  object lStep: TLabel
-    Left = 18
-    Top = 80
-    Width = 24
-    Height = 13
-    Caption = 'lStep'
-  end
-  object lCreatureInfo: TLabel
-    Left = 119
-    Top = 80
-    Width = 52
-    Height = 13
-    Caption = 'lPlayerInfo'
-  end
-  object lNeedExp: TLabel
-    Left = 18
-    Top = 61
-    Width = 24
-    Height = 13
-    Caption = 'lStep'
-  end
-  object lAutoCount: TLabel
-    Left = 80
-    Top = 34
-    Width = 90
-    Height = 15
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'lAutoCount'
-  end
-  object Button1: TButton
-    Left = 18
-    Top = 8
-    Width = 63
-    Height = 25
-    Caption = 'NewGame'
+  object PageControl1: TPageControl
+    Left = 0
+    Top = 0
+    Width = 732
+    Height = 294
+    ActivePage = TabSheet1
+    Align = alClient
     TabOrder = 0
-    OnClick = Button1Click
-  end
-  object mLog: TMemo
-    Left = 16
-    Top = 112
-    Width = 576
-    Height = 103
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    ReadOnly = True
-    TabOrder = 1
-  end
-  object bAttack: TButton
-    Left = 99
-    Top = 8
-    Width = 54
-    Height = 25
-    Caption = '      ATK  '
-    TabOrder = 2
-    OnClick = bAttackClick
-  end
-  object cbItem: TComboBox
-    Left = 176
-    Top = 10
-    Width = 177
-    Height = 21
-    Style = csDropDownList
-    TabOrder = 3
-  end
-  object bItemUse: TButton
-    Left = 353
-    Top = 8
-    Width = 33
-    Height = 25
-    Caption = 'Use!'
-    TabOrder = 4
-    OnClick = bItemUseClick
-  end
-  object cbSkill: TComboBox
-    Left = 392
-    Top = 10
-    Width = 167
-    Height = 21
-    Style = csDropDownList
-    TabOrder = 5
-  end
-  object bSkillUse: TButton
-    Left = 559
-    Top = 8
-    Width = 33
-    Height = 25
-    Caption = 'Use!'
-    TabOrder = 6
-  end
-  object cbAutoAttack: TCheckBox
-    Left = 103
-    Top = 13
-    Width = 13
-    Height = 15
-    TabOrder = 7
-  end
-  object lbLoot: TListBox
-    Left = 598
-    Top = 8
-    Width = 138
-    Height = 207
-    ItemHeight = 13
-    TabOrder = 8
+    ExplicitWidth = 747
+    ExplicitHeight = 288
+    object TabSheet1: TTabSheet
+      Caption = 'Tower'
+      ExplicitWidth = 285
+      ExplicitHeight = 121
+      DesignSize = (
+        724
+        266)
+      object lAutoCount: TLabel
+        Left = 97
+        Top = 34
+        Width = 90
+        Height = 15
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'lAutoCount'
+      end
+      object lCreatureInfo: TLabel
+        Left = 119
+        Top = 80
+        Width = 52
+        Height = 13
+        Caption = 'lPlayerInfo'
+      end
+      object lNeedExp: TLabel
+        Left = 18
+        Top = 61
+        Width = 24
+        Height = 13
+        Caption = 'lStep'
+      end
+      object lPlayerInfo: TLabel
+        Left = 119
+        Top = 61
+        Width = 52
+        Height = 13
+        Caption = 'lPlayerInfo'
+      end
+      object lStep: TLabel
+        Left = 18
+        Top = 80
+        Width = 24
+        Height = 13
+        Caption = 'lStep'
+      end
+      object bAttack: TButton
+        Left = 116
+        Top = 8
+        Width = 54
+        Height = 25
+        Caption = '      ATK  '
+        TabOrder = 0
+        OnClick = bAttackClick
+      end
+      object bUseItem: TButton
+        Left = 377
+        Top = 8
+        Width = 33
+        Height = 25
+        Caption = 'Use!'
+        TabOrder = 1
+        OnClick = bUseItemClick
+      end
+      object bSkillUse: TButton
+        Left = 583
+        Top = 8
+        Width = 33
+        Height = 25
+        Caption = 'Use!'
+        TabOrder = 2
+      end
+      object Button1: TButton
+        Left = 18
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Reset Tower'
+        TabOrder = 3
+        OnClick = Button1Click
+      end
+      object cbAutoAttack: TCheckBox
+        Left = 120
+        Top = 13
+        Width = 13
+        Height = 15
+        TabOrder = 4
+      end
+      object cbItem: TComboBox
+        Left = 200
+        Top = 10
+        Width = 177
+        Height = 21
+        Style = csDropDownList
+        TabOrder = 5
+      end
+      object cbSkill: TComboBox
+        Left = 416
+        Top = 10
+        Width = 167
+        Height = 21
+        Style = csDropDownList
+        TabOrder = 6
+      end
+      object mLog: TMemo
+        Left = 16
+        Top = 112
+        Width = 690
+        Height = 143
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        ReadOnly = True
+        TabOrder = 7
+        ExplicitWidth = 705
+        ExplicitHeight = 137
+      end
+    end
+    object Craft: TTabSheet
+      Caption = 'Craft'
+      ImageIndex = 1
+      ExplicitWidth = 739
+      ExplicitHeight = 260
+      DesignSize = (
+        724
+        266)
+      object Label1: TLabel
+        Left = 6
+        Top = 7
+        Width = 50
+        Height = 13
+        Caption = 'Resources'
+      end
+      object lbLoot: TListBox
+        Left = 3
+        Top = 22
+        Width = 134
+        Height = 239
+        Anchors = [akLeft, akTop, akBottom]
+        ItemHeight = 13
+        TabOrder = 0
+      end
+    end
   end
   object tAutoAttack: TTimer
     Interval = 100
     OnTimer = tAutoAttackTimer
-    Left = 560
-    Top = 40
+    Left = 632
+    Top = 72
   end
 end

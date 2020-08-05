@@ -213,11 +213,11 @@ begin
         if i <> count-1 then
         begin
             Inventory.Clear;
-            Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*3 ) + CurrLevel );
+            Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*2 ) + CurrLevel );
             itm := Inventory.Get;
 
             Inventory.Clear;
-            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
+            Inventory.SetItemCount( loot[Random(Length(loot))], 1 );
             lt := Inventory.Get;
 
             SetCreature(
@@ -242,8 +242,8 @@ begin
             itm := Inventory.Get;
 
             Inventory.Clear;
-            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel*2 ) + 1 );
-            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel*2 ) + 1 );
+            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
+            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
             lt := Inventory.Get;
 
             SetCreature(
@@ -334,7 +334,7 @@ begin
 
 //    CreatureDEF := Min(99, CreatureDEF);  // всегда проходит 1% урона
 
-    DMG := Round(PlayerATK - PlayerATK * (CreatureDEF / 100));
+    DMG := Round(PlayerATK - PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
 
     CreatureHP  := CreatureHP - DMG;
 
@@ -356,7 +356,7 @@ begin
 
 //    PlayerDEF := Min(99, PlayerDEF);  // всегда проходит 1% урона
 
-    DMG := Round(CreatureATK - CreatureATK * (PlayerDEF / 100));
+    DMG := Round(CreatureATK - CreatureATK * (( PlayerDEF/10 ) / 100));  // 1 DEF = -0.1% dmg
 
     PlayerHP  := PlayerHP - DMG;
 
