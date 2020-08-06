@@ -166,6 +166,9 @@ begin
                     if   params.Count = 3
                     then V := M.Invoke(_obj,[params[0], params[1], params[2]]);
 
+                    if   params.Count = 4
+                    then V := M.Invoke(_obj,[params[0], params[1], params[2], params[3]]);
+
                     if not V.IsEmpty then result := V.AsString;
                 end;
             end;
@@ -200,7 +203,6 @@ begin
     result.StrictDelimiter := true;
     spos := Pos('(', command);
     result.CommaText := Copy(command, spos+1, Pos(')', command)-1 - spos);
-
 end;
 
 procedure TScriptDrive.SetClass(cls: TClass; obj: TObject);
@@ -447,7 +449,7 @@ begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
 
-    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d+|\w+)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.\]\[]))\s*\,*\s*)*\)');
+    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d+|\w+)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.\]\[\=]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/\>\<\=]?)*\)');
 
     fCash := TDictionary<String,TRttiMethod>.Create();

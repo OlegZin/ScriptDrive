@@ -63,14 +63,34 @@ var
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..1] of TTarget = (
-        (level: 6;
+    targets: array [0..3] of TTarget = (
+        (level: 1;
          script:
-            'AddEvent(!!! Allow item crafting now !!!);'+
-            'AddEvent(!!! User reached game target !!!);'+
-            'AllowMode(Craft, 1);'
+             'AddEvent(Good job! Keep going!);'+
+             'AddEvent(Player get 5 AutoATK items);'+
+             'ChangePlayerItemCount(AutoATK, 5);'
         )
-       ,(level: maxint; script: '')
+       ,(level: 2;
+         script:
+             'AddEvent(!!! Allow item crafting now !!!);'+
+             'AllowMode(Craft, 1);'
+        )
+       ,(level: 3;
+         script:
+             'AddEvent( );' +
+             'AddEvent(Use Reset Tower button to avoid enemy);' +
+             'AddEvent( );' +
+             'AddEvent(YOU WILL NOT PASS !!!);' +
+             'AddEvent(What are you doing in my Tower insignificance!?);' +
+             'DropCreatures();'+
+             'SetCreature(DARK MASTER,HP=999999999 ATK=1,,spirit=1)'
+        )
+       ,(level: maxint;
+         script:
+             'AddEvent(!!!    INCREDIBLE    !!!);' +
+             'AddEvent(!!! YOU WIN THE GAME !!!);' +
+             'CurrentLevel(1);InitCreatures();'
+        )
     );
 
     // предметы-расходники. в механике имеют разные уровни силы
@@ -167,7 +187,7 @@ var
 
        ,(name:   'AutoATK';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 100}))'
+         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 1000)))'
         ) // зелье автоматической атаки
     );
 

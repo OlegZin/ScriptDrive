@@ -46,9 +46,9 @@ object Form3: TForm3
       object lCreatureInfo: TLabel
         Left = 166
         Top = 68
-        Width = 52
+        Width = 65
         Height = 13
-        Caption = 'lPlayerInfo'
+        Caption = 'lCreatureInfo'
       end
       object lNeedExp: TLabel
         Left = 166
@@ -84,6 +84,13 @@ object Form3: TForm3
         Width = 34
         Height = 13
         Caption = 'lTarget'
+      end
+      object lBuffs: TLabel
+        Left = 390
+        Top = 37
+        Width = 27
+        Height = 13
+        Caption = 'lBuffs'
       end
       object bAttack: TButton
         Left = 92

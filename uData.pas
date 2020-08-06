@@ -46,6 +46,7 @@ type
 
         function GetCurrCreatureInfo: string;
         function GetPlayerInfo: string;
+        function GetPlayerBuffs: string;
         function GetPlayerItems: string;
         function GetPlayerLoot: string;
         function GetPlayerAttr(name: string): string;
@@ -88,6 +89,7 @@ type
         function GetVar(name: string): string;
 
         function Rand(max: string): string;
+        function Min(first, second: variant): string;
 
         procedure ChangePlayerItemCount(name, delta: variant);
         function GetPlayerItemCount(name: variant):string;
@@ -103,6 +105,8 @@ type
         procedure AllowMode(name, value: variant);
         // добавляет в массив доступных игроку возможностей новую
 
+        procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
+        procedure DropCreatures;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -113,7 +117,6 @@ type
         procedure SetParamValue(creature: TCreature; param, value: string);
         procedure ChangeParamValue(creature: TCreature; param: string; delta: integer);
 
-        procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
         procedure SetPlayer(name, params: string; items: string = ''; loot: string = '');
     procedure SetPlayerAuto(name, count: variant);  // подставляем в текст скрипта значения параметры существа/игрока
     end;
@@ -178,7 +181,7 @@ function TData.GetCurrCreatureInfo: string;
 begin
     if CurrCreature > Creatures.Count -1 then exit;
 
-    result := Creatures[CurrCreature].Name + ' ' + Creatures[CurrCreature].Params;
+    result := Creatures[CurrCreature].Name + ': ' + Creatures[CurrCreature].Params;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -209,6 +212,11 @@ begin
     param.Free;
 end;
 
+function TData.GetPlayerBuffs: string;
+begin
+    result := Player.AutoBuffs;
+end;
+
 function TData.GetPlayerInfo: string;
 var
     count: string;
@@ -231,9 +239,7 @@ begin
 
     parser.Free;
 
-    if   Player.AutoBuffs = ''
-    then result := Player.Name + ' ' + resultList
-    else result := Player.Name + ' ' + resultList + ' Regen: ' + Player.AutoBuffs;
+    result := Player.Name + ' ' + resultList;
 
 end;
 
@@ -362,6 +368,13 @@ end;
 
 
 
+function TData.Min(first, second: variant): string;
+begin
+    first := StrToIntDef(first, 0);
+    second := StrToIntDef(second, 0);
+    result := Min(first, second);
+end;
+
 procedure TData.PlayerAttack;
 // команда персонажу атаковать текущую цель
 // выполняем скрипт OnAttack
@@ -471,6 +484,11 @@ begin
     PlayerHP  := PlayerHP - DMG;
 
     SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
+end;
+
+procedure TData.DropCreatures;
+begin
+    Creatures.Clear;
 end;
 
 function TData.CurrentCreature: string;
@@ -792,7 +810,7 @@ begin
         Script.Exec( targets[CurrTargetIndex].script );
 
         /// переходим к следующей, если есть
-        if CurrTargetIndex < High(targets)-1
+        if CurrTargetIndex < High(targets)
         then Inc(CurrTargetIndex);
     end;
 end;

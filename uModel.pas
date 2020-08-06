@@ -31,6 +31,7 @@ type
     Button2: TButton;
     lTopStep: TLabel;
     lTarget: TLabel;
+    lBuffs: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
@@ -128,8 +129,9 @@ var
     pars: TstringList;
 begin
     pars := TStringList.Create;
-
     item := cbItem.ItemIndex;
+
+
 
     // получение текущих доступных режимов
     AllowModes := Script.Exec('GetAllowModes()');
@@ -137,6 +139,8 @@ begin
     pars.CommaText := AllowModes;
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
+
+
 
     // инфа по текущему / топовому этажу
     floor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
@@ -147,10 +151,11 @@ begin
     lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('CreaturesCount()');
     ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
-    lTarget.Caption := 'Targrt: ' + Script.Exec('GetCurrTarget()');
+    lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
 
     // инфа попротивнику
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
+
 
 
     // инфа по игроку
@@ -166,8 +171,10 @@ begin
     lPlayerInfo.Caption := ReplaceStr( pars.CommaText, ',', '  ' );
 
     // инфа по текущему опыту игрока
-    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp()');
+    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp()') + ' EXP';
 
+    // текущие наложенные бафы
+    lBuffs.Caption := 'Regen: ' + Script.Exec('GetPlayerBuffs()');
 
     // список предметов
     tmp := Script.Exec('GetPlayerItems()');
