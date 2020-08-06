@@ -254,17 +254,28 @@ var
     phrases: array [0..9,0..1] of string = (
     (('-> Player is level up!'),
      ('-> Игрок получиль новый уровень!')),
+
     (('Player killed by '),
      ('Игрок убит монстром ')),
+
     (('Enter into Tower...'),
      ('Входим в башню...')),
+
     (('Monster %s is killed! Get %s exp'),
      ('Монстр %s убит! Получено %s exp')),
+
     (('Go up %d Dungeon level...'),
      ('Поднимаемся на %d этаж Башни...')),
-    ((''),('')),
-    ((''),('')),
-    ((''),('')),
+
+    (('Using of %s is cost %d MP!'),
+     ('Использование %s стоит %d MP!')),
+
+    (('Skill %s is up to %d level!'),
+     ('Умение %s улучшено до %d уровня!')),
+
+    (('Level up skill %s is cost %d exp!'),
+     ('Улучшение навыка %s стоит %d exp')),
+
     ((''),('')),
     ((''),(''))
     );
@@ -274,6 +285,9 @@ const
     PHRASE_DUNGEON_ENTER  = 2;
     PHRASE_MONSTER_KILLED = 3;
     PHRASE_TO_NEXT_FLOOR  = 4;
+    PHRASE_SKILL_OVERCOST = 5;
+    PHRASE_SKILL_UP       = 6;
+    PHRASE_SKILL_OVERUP   = 7;
 implementation
 
 end.

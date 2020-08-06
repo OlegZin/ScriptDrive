@@ -78,7 +78,7 @@ type
         function AllowLevelUp: string;
         // проверка на достаточность текущего опыта для поднятия уровня
 
-        function NeedExp: string;
+        function NeedExp(lvl: variant): string;
         // возвращает количество опыта для поднятия уровня
 
         procedure ChangePlayerParam(name, delta: variant);
@@ -88,6 +88,7 @@ type
         procedure AddEvent(text: string);
         procedure UseItem(name: string);
         procedure UseSkill(name: string);
+        procedure UpSkill(name: string);
 
         procedure SetVar(name, value: string);
         function GetVar(name: string): string;
@@ -381,7 +382,7 @@ begin
     comma := '';
     for I := 0 to High(skills) do
     begin
-          s := s + comma + skills[i].name + '=1';
+          s := s + comma + skills[i].name + '=0';
           comma := ' ';
     end;
 
@@ -401,7 +402,7 @@ begin
     ChangeParamValue( Player,  'MP', CurrLvl * 20);
     ChangeParamValue( Player, 'ATK', CurrLvl );
     ChangeParamValue( Player, 'DEF', 1 );
-    ChangeParamValue( Player, 'EXP', -StrToIntDef( NeedExp, 0));
+    ChangeParamValue( Player, 'EXP', -StrToIntDef( NeedExp(CurrLvl), 0));
     ChangeParamValue( Player, 'LVL', 1);
 
     AddEvent(phrases[PHRASE_LEVEL_UP][CurrLang]);
@@ -631,6 +632,34 @@ begin
     Variables.TryGetValue(name, result);
 end;
 
+procedure TData.UpSkill(name: string);
+var
+    i: integer;
+    lvl, cost: integer;
+begin
+    for I := 0 to High(skills) do
+    if skills[i].name = name then
+    begin
+        // получаем текущий уровень скила и помножаем на стоимость скила
+        lvl := StrToIntDef(GetSkillLvl(name), 0);
+        cost := StrToInt(NeedExp(lvl));
+
+        // если у игрока хватает маны - выполняем
+        if StrToIntDef( GetPlayerAttr('EXP'), 0) >= cost then
+        begin
+
+            Inventory.Fill(Player.Skills);
+            Inventory.ChangeItemCount(name, 1);
+            Player.Skills := Inventory.Get;
+
+            ChangePlayerParam('EXP', IntToStr(-cost));
+
+            AddEvent(Format(phrases[PHRASE_SKILL_UP][CurrLang], [name, lvl+1]));
+        end else
+            AddEvent(Format(phrases[PHRASE_SKILL_OVERUP][CurrLang], [name, cost]));
+    end;
+end;
+
 procedure TData.UseItem(name: string);
 var
     count: integer;
@@ -671,7 +700,8 @@ begin
         begin
             Script.Exec( skills[i].script );
             ChangePlayerParam('MP', IntToStr(-cost));
-        end;
+        end else
+            AddEvent(Format(phrases[PHRASE_SKILL_OVERCOST][CurrLang], [name, cost]));
     end;
 end;
 
@@ -739,7 +769,7 @@ var
     need: integer;
 begin
     exp := StrToIntDef( GetParamValue( Player, 'EXP' ), 1);
-    need := StrToIntDef( NeedExp, 99999);
+    need := StrToIntDef( NeedExp(GetParamValue( Player, 'LVL' )), 99999);
     result := ifthen( exp >= need, '!', '');
 end;
 
@@ -750,14 +780,13 @@ begin
     AllowModes := Inventory.Get;
 end;
 
-function TData.NeedExp: string;
+function TData.NeedExp(lvl: variant): string;
 var
     prev, cost, buff, // переменные для вычисления стоимости
-    lvl,              // текущий уровень игрока
     i: integer;
 begin
 
-    lvl := StrToIntDef( GetParamValue( Player, 'LVL' ), 1);
+//    lvl := StrToIntDef( GetParamValue( Player, 'LVL' ), 1);
 
     prev := 0;
     cost := 10;

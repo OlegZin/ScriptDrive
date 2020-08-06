@@ -28,7 +28,7 @@ type
     pCraft: TTabSheet;
     lbLoot: TListBox;
     Label1: TLabel;
-    Button2: TButton;
+    bUpSkill: TButton;
     lTopStep: TLabel;
     lTarget: TLabel;
     lBuffs: TLabel;
@@ -48,6 +48,7 @@ type
     procedure mmiEngClick(Sender: TObject);
     procedure mmiRusClick(Sender: TObject);
     procedure bSkillUseClick(Sender: TObject);
+    procedure bUpSkillClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -74,6 +75,13 @@ var
             : string;
     topFloor: integer;
 
+procedure TForm3.bUpSkillClick(Sender: TObject);
+begin
+    if cbSkills.ItemIndex = -1 then exit;
+    Script.Exec('UpSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+')');
+    UpdateInterface;
+end;
+
 procedure TForm3.bUseItemClick(Sender: TObject);
 begin
     if cbItem.ItemIndex = -1 then exit;
@@ -90,7 +98,7 @@ end;
 procedure TForm3.bSkillUseClick(Sender: TObject);
 begin
     if cbSkills.ItemIndex = -1 then exit;
-    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+')');
+    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');CheckStatus();');
     UpdateInterface;
 end;
 
@@ -137,14 +145,15 @@ end;
 
 procedure TForm3.UpdateInterface;
 var
-    item: integer;
+    itemItem, itemSkill: integer;
     AutoCount: integer;
     tmp, exp, lvl: string;
     floor, step: integer;
     pars: TstringList;
 begin
     pars := TStringList.Create;
-    item := cbItem.ItemIndex;
+    itemItem := cbItem.ItemIndex;
+    itemSkill := cbSkills.ItemIndex;
 
 
 
@@ -186,7 +195,7 @@ begin
     lPlayerInfo.Caption := ReplaceStr( pars.CommaText, ',', '  ' );
 
     // инфа по текущему опыту игрока
-    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp()') + ' EXP';
+    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
 
     // текущие наложенные бафы
     lBuffs.Caption := 'Regen: ' + Script.Exec('GetPlayerBuffs()');
@@ -236,8 +245,11 @@ begin
     log(Script.Exec('GetEvents()'));
 
     /// восстанавливаем элемент в списке
-    if   cbItem.Items.Count-1 >= item
-    then cbItem.ItemIndex := item;
+    if   cbItem.Items.Count-1 >= itemItem
+    then cbItem.ItemIndex := itemItem;
+
+    if   cbSkills.Items.Count-1 >= itemSkill
+    then cbSkills.ItemIndex := itemSkill;
 
     pars.Free;
 end;

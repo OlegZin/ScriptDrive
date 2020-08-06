@@ -163,13 +163,14 @@ object Form3: TForm3
         ReadOnly = True
         TabOrder = 7
       end
-      object Button2: TButton
+      object bUpSkill: TButton
         Left = 553
         Top = 9
         Width = 33
         Height = 23
         Caption = 'Up!'
         TabOrder = 8
+        OnClick = bUpSkillClick
       end
     end
     object pCraft: TTabSheet
