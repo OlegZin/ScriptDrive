@@ -24,14 +24,8 @@ object Form3: TForm3
     ActivePage = pTower
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 686
-    ExplicitHeight = 219
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitLeft = 8
-      ExplicitTop = 28
-      ExplicitWidth = 610
-      ExplicitHeight = 191
       DesignSize = (
         589
         158)
@@ -176,8 +170,6 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitWidth = 678
-      ExplicitHeight = 191
       DesignSize = (
         589
         158)
@@ -196,7 +188,6 @@ object Form3: TForm3
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 164
       end
     end
   end

@@ -411,10 +411,12 @@ end;
 
 
 function TData.Min(first, second: variant): string;
+var
+    a, b: integer;
 begin
-    first := StrToIntDef(first, 0);
-    second := StrToIntDef(second, 0);
-    result := Min(first, second);
+    a := StrToIntDef(first, 0);
+    b := StrToIntDef(second, 0);
+    result := IntToStr(Math.Min(a, b));
 end;
 
 procedure TData.PlayerAttack;
