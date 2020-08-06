@@ -17,7 +17,7 @@ type
     lCreatureInfo: TLabel;
     cbItem: TComboBox;
     bUseItem: TButton;
-    cbSkill: TComboBox;
+    cbSkills: TComboBox;
     bSkillUse: TButton;
     lNeedExp: TLabel;
     cbAutoAttack: TCheckBox;
@@ -47,6 +47,7 @@ type
     procedure bUseItemClick(Sender: TObject);
     procedure mmiEngClick(Sender: TObject);
     procedure mmiRusClick(Sender: TObject);
+    procedure bSkillUseClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -68,6 +69,7 @@ uses
 var
     oldPlayerItems
    ,oldPlayerLoot
+   ,oldPlayerSkills
    ,AllowModes
             : string;
     topFloor: integer;
@@ -85,13 +87,18 @@ begin
     UpdateInterface;
 end;
 
+procedure TForm3.bSkillUseClick(Sender: TObject);
+begin
+    if cbSkills.ItemIndex = -1 then exit;
+    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+')');
+    UpdateInterface;
+end;
+
 procedure TForm3.Button1Click(Sender: TObject);
 var i: integer;
 begin
     Script.Exec('CurrentLevel(1);InitCreatures();');
     UpdateInterface;
-
-    log('Enter into Dungeon...');
 end;
 
 
@@ -111,8 +118,6 @@ begin
     UpdateInterface;
 
     SetLang( Script.Exec('GetLang()') );
-
-    log('Enter into Dungeon...');
 end;
 
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
@@ -186,12 +191,22 @@ begin
     // текущие наложенные бафы
     lBuffs.Caption := 'Regen: ' + Script.Exec('GetPlayerBuffs()');
 
+
     // список предметов
     tmp := Script.Exec('GetPlayerItems()');
     if (tmp <> oldPlayerItems) or (oldPlayerItems = '') then
     begin
         cbItem.Items.CommaText := tmp;
         oldPlayerItems := tmp;
+    end;
+
+
+    // список заклинаний
+    tmp := Script.Exec('GetPlayerSkills()');
+    if (tmp <> oldPlayerSkills) or (oldPlayerSkills = '') then
+    begin
+        cbSkills.Items.CommaText := tmp;
+        oldPlayerSkills := tmp;
     end;
 
 
@@ -260,7 +275,6 @@ begin
 
         mmiRus.Caption := 'Рус.';
         mmiRus.Checked := true;
-
 
     end;
 

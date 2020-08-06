@@ -26,6 +26,7 @@ type
         AutoBuffs: string;  // автобаффы к чему угодно имя_бафа=количество_использований
         Items    : string;  // расходные предметы для использования
         Loot     : string;  // расходные материалы для крафта
+        Skills   : string;  // активируемые за ману скилы/заклинания
         OnAttack : string;  // скрипт на атаку по монстру
     end;
 
@@ -230,17 +231,24 @@ var
         ) // зелье автоматической атаки
     );
 
+
+    /// активируемые способности монстра/игрока
+    /// при этом cost - стоимость за один уровень скила. если скил 7 уровня, то и cost*7
     skills : array [0..1] of TItem = (
         (name:   'Healing';
-         cost:    50;
-         script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 200}));'+
+         cost:    10;
+         script: 'SetVar(IncHP,Rand({GetSkillLvl(Healing) * 50}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
                  'AddEvent(Player restore GetVar(IncHP) HP)'
         )
 
        ,(name:   'Explosion';
-         cost:    10000;
-         script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
+         cost:    50;
+         script:
+                 'SetVar(Expl,Rand({GetSkillLvl(Explosion) * 100}));'+
+                 'AddEvent(Monster take GetVar(Expl) damage from Explosion!);'+
+                 'ChangeCreatureParam(HP,-GetVar(Expl));'
+        ) // зелье взрыва
     );
 
     phrases: array [0..9,0..1] of string = (

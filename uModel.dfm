@@ -118,6 +118,7 @@ object Form3: TForm3
         Height = 23
         Caption = 'Use!'
         TabOrder = 2
+        OnClick = bSkillUseClick
       end
       object Button1: TButton
         Left = 2
@@ -144,7 +145,7 @@ object Form3: TForm3
         Sorted = True
         TabOrder = 5
       end
-      object cbSkill: TComboBox
+      object cbSkills: TComboBox
         Left = 390
         Top = 10
         Width = 131

@@ -69,7 +69,7 @@ type
         function CreaturesCount: string;
 
         procedure CheckStatus;  // проверка игрового сатауса и отыгрыш игровой логики
-        procedure CurrentLevel(input: string);
+        procedure CurrentLevel(input: variant);
         function GetCurrentLevel: string;
 
         function GetEvents: string;
@@ -81,11 +81,13 @@ type
         function NeedExp: string;
         // возвращает количество опыта для поднятия уровня
 
-        procedure ChangePlayerParam(name, delta: string);
+        procedure ChangePlayerParam(name, delta: variant);
         // метод изменения параметра игрока
+        procedure ChangeCreatureParam(name, delta: variant);
 
         procedure AddEvent(text: string);
         procedure UseItem(name: string);
+        procedure UseSkill(name: string);
 
         procedure SetVar(name, value: string);
         function GetVar(name: string): string;
@@ -112,6 +114,9 @@ type
 
         procedure SetLang(lang: string);
         function GetLang: string;
+
+        function GetSkillLvl(name: string): string;
+        function GetPlayerSkills: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -122,7 +127,7 @@ type
         procedure SetParamValue(creature: TCreature; param, value: string);
         procedure ChangeParamValue(creature: TCreature; param: string; delta: integer);
 
-        procedure SetPlayer(name, params: string; items: string = ''; loot: string = '');
+        procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
     procedure SetPlayerAuto(name, count: variant);  // подставляем в текст скрипта значения параметры существа/игрока
     end;
 
@@ -284,9 +289,22 @@ begin
     result := Player.Loot;
 end;
 
+function TData.GetPlayerSkills: string;
+begin
+    result := Player.Skills;
+end;
+
 function TData.GetRandItemName: string;
 begin
     result := items[Random(Length(items))].name;
+end;
+
+function TData.GetSkillLvl(name: string): string;
+begin
+    result := '0';
+    parser.CommaText := Player.Skills;
+    if parser.IndexOfName(name) <> -1 then
+       result := parser.Values[name];
 end;
 
 procedure TData.InitCreatures;
@@ -339,7 +357,7 @@ begin
             lt := Inventory.Get;
 
             SetCreature(
-                Format('!!! %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
+                Format('[BOSS] %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
                 Format('HP=%d, ATK=%d, DEF=%d', [
                     Random( CurrLevel*50 ) + CurrLevel*30,
                     Random( CurrLevel*25 )  + CurrLevel*10,
@@ -356,8 +374,18 @@ end;
 
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
+var
+    i: integer;
+    s, comma: string;
 begin
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', '');
+    comma := '';
+    for I := 0 to High(skills) do
+    begin
+          s := s + comma + skills[i].name + '=1';
+          comma := ' ';
+    end;
+
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', s);
 end;
 
 procedure TData.LevelUpPlayer;
@@ -516,11 +544,12 @@ begin
     result := IntToStr(Creatures.Count);
 end;
 
-procedure TData.CurrentLevel(input: string);
+procedure TData.CurrentLevel(input: variant);
 // текущий уровень показ/изменение
 begin
     // если задано значение - меняем, иначе остается текущий
     CurrLevel := StrToIntDef(input, CurrLevel);
+    AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
 end;
 
 
@@ -561,11 +590,12 @@ begin
     if UpperCase(lang) = 'RU' then CurrLang := 1;
 end;
 
-procedure TData.SetPlayer(name, params: string; items: string = ''; loot: string = '');
+procedure TData.SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
 begin
     if not assigned(Player) then Player := TCreature.Create;
 
     Player.params := params;
+    Player.Skills := skills;
     Player.Name   := name;
     Player.Items  := items;
     Player.Loot   := loot;
@@ -622,6 +652,27 @@ begin
         Script.Exec( items[i].script );
 
     ChangePlayerItemCount(name, -1);
+end;
+
+procedure TData.UseSkill(name: string);
+var
+    i: integer;
+    lvl, cost: integer;
+begin
+    for I := 0 to High(skills) do
+    if skills[i].name = name then
+    begin
+        // получаем текущий уровень скила и помножаем на стоимость скила
+        lvl := StrToIntDef(GetSkillLvl(name), 0);
+        cost := skills[i].cost * lvl;
+
+        // если у игрока хватает маны - выполняем
+        if StrToIntDef( GetPlayerAttr('MP'), 0) >= cost then
+        begin
+            Script.Exec( skills[i].script );
+            ChangePlayerParam('MP', IntToStr(-cost));
+        end;
+    end;
 end;
 
 procedure TData.ChangePlayerItemCount(name, delta: variant);
@@ -727,6 +778,11 @@ begin
     AutoATKCount := AutoATKCount + delta;
 end;
 
+procedure TData.ChangeCreatureParam(name, delta: variant);
+begin
+    ChangeParamValue(Creatures[CurrCreature], name, delta);
+end;
+
 procedure TData.ChangeParamValue(creature: TCreature; param: string; delta: integer);
 var
     val: integer;
@@ -739,10 +795,10 @@ begin
 end;
 
 
-procedure TData.ChangePlayerParam(name, delta: string);
+procedure TData.ChangePlayerParam(name, delta: variant);
 // метод изменения параметра игрока из скриптов
 begin
-    ChangeParamValue(Player, name, StrToIntDef(delta, 0));
+    ChangeParamValue(Player, name, delta);
 end;
 
 procedure TData.CheckStatus;
@@ -761,10 +817,9 @@ begin
         if HP <= 0 then
         begin
             AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creatures[CurrCreature].Name +'!');
-            AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
 
             // возвращаемся на первый уровень
-            CurrLevel := 1;
+            CurrentLevel(1);
             // генерим монстров
             InitCreatures();
             CurrCreature := 0;
@@ -821,7 +876,7 @@ begin
         // генерим новую пачку монстров
         InitCreatures();
         CurrCreature := 0;
-        AddEvent(phrases[PHRASE_TO_NEXT_FLOOR][CurrLang]);
+        AddEvent(Format(phrases[PHRASE_TO_NEXT_FLOOR][CurrLang], [CurrLevel]));
     end;
 
     // проверка на достижение цели
