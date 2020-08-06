@@ -19,6 +19,8 @@ type
 
         CurrTargetIndex: integer;  // актуальный элемент массива целей
 
+        CurrLang: integer;         // текущий язык
+
         EventText: string;
 
         AllowModes: string;
@@ -107,6 +109,9 @@ type
 
         procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
         procedure DropCreatures;
+
+        procedure SetLang(lang: string);
+        function GetLang: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -191,7 +196,7 @@ end;
 
 function TData.GetCurrTarget: string;
 begin
-    result := IntToStr(targets[CurrTargetIndex].level);
+    result := IntToStr(targets[CurrTargetIndex][0].level);
 end;
 
 function TData.GetEvents: string;
@@ -261,6 +266,14 @@ begin
     then result := parser.Values[name];
 end;
 
+function TData.GetLang: string;
+begin
+    result := 'ENG';
+
+    if CurrLang = 0 then result := 'ENG';
+    if CurrLang = 1 then result := 'RU';
+end;
+
 function TData.GetPlayerItems: string;
 begin
     result := Player.Items;
@@ -326,7 +339,7 @@ begin
             lt := Inventory.Get;
 
             SetCreature(
-                Format('БОСС %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
+                Format('!!! %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
                 Format('HP=%d, ATK=%d, DEF=%d', [
                     Random( CurrLevel*50 ) + CurrLevel*30,
                     Random( CurrLevel*25 )  + CurrLevel*10,
@@ -363,7 +376,7 @@ begin
     ChangeParamValue( Player, 'EXP', -StrToIntDef( NeedExp, 0));
     ChangeParamValue( Player, 'LVL', 1);
 
-    AddEvent('-> Player is level up!');
+    AddEvent(phrases[PHRASE_LEVEL_UP][CurrLang]);
 end;
 
 
@@ -538,6 +551,14 @@ begin
     if (value < 0) or (value > High(targets)) then exit;
 
     CurrTargetIndex := value;
+end;
+
+procedure TData.SetLang(lang: string);
+begin
+    CurrLang := 0;
+
+    if UpperCase(lang) = 'ENG' then CurrLang := 0;
+    if UpperCase(lang) = 'RU' then CurrLang := 1;
 end;
 
 procedure TData.SetPlayer(name, params: string; items: string = ''; loot: string = '');
@@ -739,8 +760,8 @@ begin
 
         if HP <= 0 then
         begin
-            AddEvent('Player killed by '+ Creatures[CurrCreature].Name +'!');
-            AddEvent('Enter into Dungeon...');
+            AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creatures[CurrCreature].Name +'!');
+            AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
 
             // возвращаемся на первый уровень
             CurrLevel := 1;
@@ -769,8 +790,8 @@ begin
             ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
 
             if EXPbuff = 0
-            then AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' exp')
-            else AddEvent('Monster '+ Creatures[CurrCreature].Name +' is killed! Get ' + IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+'] exp');
+            then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creatures[CurrCreature].Name, IntToStr(CurrLevel)]))
+            else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creatures[CurrCreature].Name, IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
 
             // игрок получает предметы и лут
             Inventory.Fill( Player.Items );
@@ -800,14 +821,14 @@ begin
         // генерим новую пачку монстров
         InitCreatures();
         CurrCreature := 0;
-        AddEvent('Go up '+ IntToStr(CurrLevel) +' Dungeon level...');
+        AddEvent(phrases[PHRASE_TO_NEXT_FLOOR][CurrLang]);
     end;
 
     // проверка на достижение цели
-    if CurrLevel >= targets[CurrTargetIndex].level then
+    if CurrLevel >= targets[CurrTargetIndex][0].level then
     begin
         /// выполняем скрипт достижения цели
-        Script.Exec( targets[CurrTargetIndex].script );
+        Script.Exec( targets[CurrTargetIndex][CurrLang].script );
 
         /// переходим к следующей, если есть
         if CurrTargetIndex < High(targets)
@@ -826,6 +847,7 @@ begin
    Variables := TDictionary<String,String>.Create();
 
    CurrTargetIndex := 0;
+   CurrLang := 1;
 end;
 
 destructor TData.Destroy;

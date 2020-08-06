@@ -10,6 +10,7 @@ object Form3: TForm3
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  Menu = MainMenu1
   OldCreateOrder = False
   OnCreate = FormCreate
   OnShow = FormShow
@@ -200,7 +201,25 @@ object Form3: TForm3
   object tAutoAttack: TTimer
     Interval = 100
     OnTimer = tAutoAttackTimer
-    Left = 32
-    Top = 168
+    Left = 16
+    Top = 120
+  end
+  object MainMenu1: TMainMenu
+    Left = 76
+    Top = 120
+    object mmiLang: TMenuItem
+      Caption = 'Lang'
+      object mmiEng: TMenuItem
+        Caption = 'Eng'
+        Checked = True
+        RadioItem = True
+        OnClick = mmiEngClick
+      end
+      object mmiRus: TMenuItem
+        Caption = 'Rus'
+        RadioItem = True
+        OnClick = mmiRusClick
+      end
+    end
   end
 end

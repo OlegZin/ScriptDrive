@@ -63,34 +63,73 @@ var
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..3] of TTarget = (
-        (level: 1;
+    targets: array [0..3,0..1] of TTarget = (
+        ((level: 2;
          script:
-             'AddEvent(Good job! Keep going!);'+
+             'AddEvent(.);'+
              'AddEvent(Player get 5 AutoATK items);'+
+             'AddEvent(Good job! Keep going!);'+
+             'AddEvent(.);'+
              'ChangePlayerItemCount(AutoATK, 5);'
-        )
-       ,(level: 2;
+        ),
+        (level: 2;
          script:
+             'AddEvent(.);'+
+             'AddEvent(Игрок получил 5 зелий AutoATK);'+
+             'AddEvent(- Отличная работа! Держи `краба`!);'+
+             'AddEvent(.);'+
+             'ChangePlayerItemCount(AutoATK, 5);'
+        ))
+
+       ,((level: 6;
+         script:
+             'AddEvent(.);'+
              'AddEvent(!!! Allow item crafting now !!!);'+
+             'AddEvent(.);'+
              'AllowMode(Craft, 1);'
         )
-       ,(level: 3;
+       ,(level: 6;
          script:
-             'AddEvent( );' +
-             'AddEvent(Use Reset Tower button to avoid enemy);' +
-             'AddEvent( );' +
+             'AddEvent(.);'+
+             'AddEvent(!!! Доступен режим крафта предметов !!!);'+
+             'AddEvent(.);'+
+             'AllowMode(Craft, 1);'
+        ))
+
+       ,((level: 11;
+         script:
+             'AddEvent(.);'+
+             'AddEvent(Use `Reset Tower` button to avoid enemy);' +
+             'AddEvent(.);'+
              'AddEvent(YOU WILL NOT PASS !!!);' +
              'AddEvent(What are you doing in my Tower insignificance!?);' +
+             'AddEvent(.);'+
              'DropCreatures();'+
              'SetCreature(DARK MASTER,HP=999999999 ATK=1,,spirit=1)'
         )
-       ,(level: maxint;
+       ,(level: 11;
          script:
-             'AddEvent(!!!    INCREDIBLE    !!!);' +
+             'AddEvent(.);'+
+             'AddEvent(-> Используйте кнопку `Reset Tower` чтобы избежать врага);' +
+             'AddEvent(.);'+
+             'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
+             'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
+             'DropCreatures();'+
+             'SetCreature(DARK MASTER,HP=999999999 ATK=1,,spirit=1)'
+        ))
+
+       ,((level: maxint;
+         script:
+             'AddEvent(!!! INCREDIBLE !!!);' +
              'AddEvent(!!! YOU WIN THE GAME !!!);' +
              'CurrentLevel(1);InitCreatures();'
         )
+       ,(level: maxint;
+         script:
+             'AddEvent(!!! НЕВЕРОЯТНО !!!);' +
+             'AddEvent(!!! ТЫ ПРОШЕЛ ИГРУ !!!);' +
+             'CurrentLevel(1);InitCreatures();'
+        ))
     );
 
     // предметы-расходники. в механике имеют разные уровни силы
@@ -203,6 +242,30 @@ var
          cost:    10000;
          script: 'ChangeCreatureParam(HP,-1000)') // зелье взрыва
     );
+
+    phrases: array [0..9,0..1] of string = (
+    (('-> Player is level up!'),
+     ('-> Игрок получиль новый уровень!')),
+    (('Player killed by '),
+     ('Игрок убит монстром ')),
+    (('Enter into Tower...'),
+     ('Входим в башню...')),
+    (('Monster %s is killed! Get %s exp'),
+     ('Монстр %s убит! Получено %s exp')),
+    (('Go up %d Dungeon level...'),
+     ('Поднимаемся на %d этаж Башни...')),
+    ((''),('')),
+    ((''),('')),
+    ((''),('')),
+    ((''),('')),
+    ((''),(''))
+    );
+const
+    PHRASE_LEVEL_UP       = 0;
+    PHRASE_KILLED_BY      = 1;
+    PHRASE_DUNGEON_ENTER  = 2;
+    PHRASE_MONSTER_KILLED = 3;
+    PHRASE_TO_NEXT_FLOOR  = 4;
 implementation
 
 end.

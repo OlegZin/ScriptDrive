@@ -449,7 +449,7 @@ begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
 
-    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d+|\w+)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w+|[\+\-\*\/\!\?\.\]\[\=]))\s*\,*\s*)*\)');
+    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d+|\w+)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w+|[à-ÿÀ-ß]|[\+\-\*\/\!\?\.\]\[\=\<\>\`]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/\>\<\=]?)*\)');
 
     fCash := TDictionary<String,TRttiMethod>.Create();

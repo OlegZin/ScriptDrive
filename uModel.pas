@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls;
+  Vcl.ComCtrls, Vcl.Menus;
 
 type
   TForm3 = class(TForm)
@@ -32,6 +32,10 @@ type
     lTopStep: TLabel;
     lTarget: TLabel;
     lBuffs: TLabel;
+    MainMenu1: TMainMenu;
+    mmiLang: TMenuItem;
+    mmiEng: TMenuItem;
+    mmiRus: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
@@ -41,10 +45,14 @@ type
     procedure bLvlUpClick(Sender: TObject);
     procedure tAutoAttackTimer(Sender: TObject);
     procedure bUseItemClick(Sender: TObject);
+    procedure mmiEngClick(Sender: TObject);
+    procedure mmiRusClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
+    CurrLang: string;
+    procedure SetLang(lang: string);
   end;
 
 var
@@ -101,6 +109,8 @@ begin
 
     Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
     UpdateInterface;
+
+    SetLang( Script.Exec('GetLang()') );
 
     log('Enter into Dungeon...');
 end;
@@ -222,6 +232,50 @@ begin
     if text <> '' then
     mLog.Text := text + sLineBreak + mLog.Text;
     mLog.Text := Copy(mLog.Text, 0, 1000);
+end;
+
+procedure TForm3.mmiEngClick(Sender: TObject);
+begin
+    Script.Exec('SetLang(ENG)');
+    SetLang('ENG');
+end;
+
+procedure TForm3.mmiRusClick(Sender: TObject);
+begin
+    Script.Exec('SetLang(RU)');
+    SetLang('RU');
+end;
+
+procedure TForm3.SetLang(lang: string);
+begin
+    if CurrLang = lang
+    then exit
+    else CurrLang := lang;
+
+    if CurrLang = 'RU' then
+    begin
+        mmiLang.Caption := 'язык';
+
+        mmiEng.Caption := 'јнгл.';
+
+        mmiRus.Caption := '–ус.';
+        mmiRus.Checked := true;
+
+
+    end;
+
+    if CurrLang = 'ENG' then
+    begin
+        mmiLang.Caption := 'Lang.';
+
+        mmiEng.Caption := 'Eng.';
+        mmiEng.Checked := true;
+
+        mmiRus.Caption := 'Rus.';
+
+
+    end;
+
 end;
 
 procedure TForm3.FormCreate(Sender: TObject);
