@@ -40,7 +40,7 @@ object Form3: TForm3
         Caption = 'lAutoCount'
       end
       object lCreatureInfo: TLabel
-        Left = 119
+        Left = 151
         Top = 80
         Width = 52
         Height = 13
@@ -54,7 +54,7 @@ object Form3: TForm3
         Caption = 'lStep'
       end
       object lPlayerInfo: TLabel
-        Left = 119
+        Left = 151
         Top = 61
         Width = 52
         Height = 13

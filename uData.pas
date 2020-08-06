@@ -206,13 +206,8 @@ begin
 
     if   Player.AutoBuffs = ''
     then result := Player.Name + ' ' + resultList
-    else result := Player.Name + ' ' + resultList + ' Auto: ' + Player.AutoBuffs;
+    else result := Player.Name + ' ' + resultList + ' Regen: ' + Player.AutoBuffs;
 
-{
-    if Player.Buffs <> ''
-    then result := Player.Name + ' ' + Player.Params + ' : ' + Player.Buffs
-    else result := Player.Name + ' ' + Player.Params;
-}
 end;
 
 function TData.GetPlayerItemCount(name: variant): string;

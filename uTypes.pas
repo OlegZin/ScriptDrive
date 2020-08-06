@@ -150,7 +150,7 @@ var
 
        ,(name:   'AutoATK';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 500}))'
+         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 50}))'
         ) // зелье автоматической атаки
     );
 

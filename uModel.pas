@@ -121,7 +121,7 @@ var
 begin
     item := cbItem.ItemIndex;
 
-    lStep.Caption := 'Lvl:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
+    lStep.Caption := 'Floor:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
 
     tmp := Script.Exec('GetPlayerInfo()');
