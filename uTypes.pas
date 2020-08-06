@@ -116,7 +116,7 @@ var
              'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
              'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
              'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=999999999 ATK=1,,spirit=1)'
+             'SetCreature(DARK MASTER,HP=99999 ATK=1,,spirit=1)'
         ))
 
        ,((level: maxint;
@@ -134,7 +134,7 @@ var
     );
 
     // предметы-расходники. в механике имеют разные уровни силы
-    items: array [0..13] of TItem = (
+    items: array [0..14] of TItem = (
         (name:   'Gold';
          cost:    MaxInt;
          script:
@@ -188,7 +188,13 @@ var
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
                  'AddEvent(Player get +GetVar(EXP) EXP!)'
         ) // зелье разового получения опыта
-
+{
+       ,(name:   'REG';
+         cost:    10000;
+         script: 'ChangePlayerParam(REG,1);'+
+                 'AddEvent(Player get +1 Regen permanently!)'
+        ) // зелье постоянного повышения магической защиты
+}
 
 
        ,(name:   'RegenHP';
@@ -223,6 +229,11 @@ var
          script: 'SetPlayerBuff(EXP,{Rand(GetPlayerAttr(LVL)) + 1})'
         ) // зелье временного прироста опыта
 
+       ,(name:   'BuffREG';
+         cost:    3000;
+         script: 'SetPlayerBuff(REG,{Rand(GetPlayerAttr(LVL)) + 1})'
+        ) // зелье временного прироста опыта
+
 
 
        ,(name:   'AutoATK';
@@ -234,7 +245,7 @@ var
 
     /// активируемые способности монстра/игрока
     /// при этом cost - стоимость за один уровень скила. если скил 7 уровня, то и cost*7
-    skills : array [0..1] of TItem = (
+    skills : array [0..8] of TItem = (
         (name:   'Healing';
          cost:    10;
          script: 'SetVar(IncHP,Rand({GetSkillLvl(Healing) * 50}));'+
@@ -245,10 +256,86 @@ var
        ,(name:   'Explosion';
          cost:    50;
          script:
-                 'SetVar(Expl,Rand({GetSkillLvl(Explosion) * 100}));'+
+                 'SetVar(Expl,Rand({GetSkillLvl(Explosion) * 300}));'+
                  'AddEvent(Monster take GetVar(Expl) damage from Explosion!);'+
                  'ChangeCreatureParam(HP,-GetVar(Expl));'
-        ) // зелье взрыва
+        )
+
+       ,(name:   'Heroism';
+         cost:    20;
+         script:
+                 'SetVar(value,Rand({GetSkillLvl(Heroism) * 10}));'+
+                 'AddEvent(Player gets all stats buff by GetVar(value)!);'+
+                 'SetPlayerBuff(ATK,GetVar(value));'+
+                 'SetPlayerBuff(DEF,GetVar(value));'+
+                 'SetPlayerBuff(MDEF,GetVar(value));'+
+                 'SetPlayerBuff(EXP,GetVar(value));'
+        )
+
+       ,(name:   'BreakDEF';
+         cost:    15;
+         script:
+                 'SetVar(value,Rand({GetSkillLvl(BreakDEF) * 10}));'+
+                 'AddEvent(Monsters defense is reduced by GetVar(value)!);'+
+                 'ChangeCreatureParam(DEF,-GetVar(value));'
+        )
+
+       ,(name:   'BreakMDEF';
+         cost:    15;
+         script:
+                 'SetVar(value,Rand({GetSkillLvl(BreakMDEF) * 10}));'+
+                 'AddEvent(Monsters magic defense is reduced by GetVar(value)!);'+
+                 'ChangeCreatureParam(MDEF,-GetVar(value));'
+        )
+
+       ,(name:   'BreakATK';
+         cost:    30;
+         script:
+                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 20}));'+
+                 'AddEvent(Monsters attack reduced by GetVar(value)!);'+
+                 'ChangeCreatureParam(ATK,-GetVar(value));'
+        )
+
+       ,(name:   'LeakMP';
+         cost:    10;
+         script:
+                 'SetVar(leak,Rand({GetSkillLvl(LeakMP) * 30}));'+  // сколько пытается забрать навык
+                 'SetVar(monsterMP,GetMonsterAttr(MP));'+           // сколько есть у монстра
+
+                 'IF(GetVar(leak) > GetVar(monsterMP), 4);'+        // если забираем больше, чем есть
+                 'IF(GetVar(leak) = GetVar(monsterMP), 3);'+        // или столько же
+                 'SetVar(leak, {GetVar(monsterMP) / 2});'+          // получаемое игроком = половина от возможного
+                 'ChangeCreatureParam(MP,-GetVar(monsterMP));'+     // забираем у монстра все
+                 'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает свое
+
+                 'IF(GetVar(leak) < GetVar(monsterMP), 4);'+        // если забираем меньше чем есть
+                 'SetVar(monsterMP, GetVar(leak));'+                // монстр будет терять в полном объеме
+                 'SetVar(leak, {GetVar(leak) / 2});'+               // игрок получит половину от требуемого
+                 'ChangeCreatureParam(MP,-GetVar(monsterMP));'+     // монстр теряет
+                 'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает
+
+                 'AddEvent(Monsters lost GetVar(monsterMP) MP);'+   // радуем игрока
+                 'AddEvent(Player gets GetVar(leak) MP!);'
+        )
+
+       ,(name:   'VampireStrike';
+         cost:    10;
+         script:
+                 'SetVar(value,Rand({GetSkillLvl(VampireStrike) * 20}));'+
+                 'ChangeCreatureParam(HP,-GetVar(value));'+
+                 'SetVar(value2, {GetVar(value) / 2});'+
+                 'ChangePlayerParam(HP,GetVar(value2));'+
+                 'AddEvent(Monster lost GetVar(value) HP);'+
+                 'AddEvent(Player gets GetVar(value2) HP);'
+        )
+
+       ,(name:   'Metabolism';
+         cost:    50;
+         script:
+                 'SetVar(value,{Rand(GetSkillLvl(Metabolism) * 5) + 10});'+
+                 'SetPlayerBuff(REG,GetVar(value));'+
+                 'AddEvent(Player speed up regen by GetVar(value)!);'
+        )
     );
 
     phrases: array [0..9,0..1] of string = (

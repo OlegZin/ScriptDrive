@@ -81,9 +81,9 @@ type
         function NeedExp(lvl: variant): string;
         // возвращает количество опыта для поднятия уровня
 
-        procedure ChangePlayerParam(name, delta: variant);
+        function ChangePlayerParam(name, delta: variant): string;
         // метод изменения параметра игрока
-        procedure ChangeCreatureParam(name, delta: variant);
+        function ChangeCreatureParam(name, delta: variant): string;
 
         procedure AddEvent(text: string);
         procedure UseItem(name: string);
@@ -126,7 +126,7 @@ type
 
         function GetParamValue(creature: TCreature; param: string): string;
         procedure SetParamValue(creature: TCreature; param, value: string);
-        procedure ChangeParamValue(creature: TCreature; param: string; delta: integer);
+        function ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
 
         procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
     procedure SetPlayerAuto(name, count: variant);  // подставляем в текст скрипта значения параметры существа/игрока
@@ -386,7 +386,7 @@ begin
           comma := ' ';
     end;
 
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, EXP=0', s);
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, REG=1, EXP=0', s);
 end;
 
 procedure TData.LevelUpPlayer;
@@ -432,22 +432,35 @@ end;
 
 function TData.ProcessAuto: string;
 var
-    i, count : integer;
+    i, count, regen : integer;
     prs: TStringList;
 begin
     result := '';
 
+    if Player.AutoBuffs = '' then exit;
+
+
     prs := TStringList.Create;
     prs.CommaText := Player.AutoBuffs;
 
+
+    // считаем силу регена
+    // базовый параметр
+    regen := StrToInt(GetPlayerAttr('REG'));
+    // бонусное значение
+    Inventory.Fill( Player.Buffs );
+    regen := regen + Inventory.Draw('REG', 1);
+    Player.Buffs := Inventory.Get;
+
+    /// берем запасы регенерируемых параметров
     Inventory.Fill( Player.AutoBuffs );
 
     for I := 0 to prs.Count-1 do
     begin
-        count := Inventory.Draw( prs.Names[i], 1 );
+        count := Inventory.Draw( prs.Names[i], regen );
         if count <> 0 then
         begin
-            ChangeParamValue( Player, prs.Names[i], 1 );
+            ChangeParamValue( Player, prs.Names[i], regen );
             result := '+';
         end;
     end;
@@ -809,27 +822,33 @@ begin
     AutoATKCount := AutoATKCount + delta;
 end;
 
-procedure TData.ChangeCreatureParam(name, delta: variant);
+function TData.ChangeCreatureParam(name, delta: variant): string;
 begin
-    ChangeParamValue(Creatures[CurrCreature], name, delta);
+    result := ChangeParamValue(Creatures[CurrCreature], name, delta);
 end;
 
-procedure TData.ChangeParamValue(creature: TCreature; param: string; delta: integer);
+function TData.ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
 var
     val: integer;
 begin
     parser.CommaText := creature.Params;
     val := StrToIntDef(parser.Values[param], 0);
     val := val + delta;
+
+    /// возвращаем величену фактического изменения
+    if val < 0
+    then result := IntToStr(delta + val)
+    else result := IntToStr(delta);
+
     parser.Values[param] := IntToStr(val);
     creature.Params := parser.CommaText;
 end;
 
 
-procedure TData.ChangePlayerParam(name, delta: variant);
+function TData.ChangePlayerParam(name, delta: variant): string;
 // метод изменения параметра игрока из скриптов
 begin
-    ChangeParamValue(Player, name, delta);
+    result := ChangeParamValue(Player, name, delta);
 end;
 
 procedure TData.CheckStatus;

@@ -1,7 +1,7 @@
 object Form3: TForm3
   Left = 0
   Top = 0
-  Caption = 'Stupid roguelike: Torture tower 1.0'
+  Caption = 'Stupid roguelike: Torture tower 0.1 (techno demo)'
   ClientHeight = 186
   ClientWidth = 597
   Color = clBtnFace
@@ -155,6 +155,7 @@ object Form3: TForm3
         Height = 68
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
+        ScrollBars = ssVertical
         TabOrder = 7
       end
       object bUpSkill: TButton

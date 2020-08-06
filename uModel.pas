@@ -131,8 +131,8 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-    if   Script.Exec('ProcessAuto()') <> ''
-    then UpdateInterface;
+//    if   Script.Exec('ProcessAuto()') <> ''
+//    then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin
@@ -281,23 +281,23 @@ begin
 
     if CurrLang = 'RU' then
     begin
-        mmiLang.Caption := 'язык';
+        mmiLang.Caption := 'Language';
 
-        mmiEng.Caption := 'јнгл.';
+        mmiEng.Caption := 'јнглийский';
 
-        mmiRus.Caption := '–ус.';
+        mmiRus.Caption := '–усский';
         mmiRus.Checked := true;
 
     end;
 
     if CurrLang = 'ENG' then
     begin
-        mmiLang.Caption := 'Lang.';
+        mmiLang.Caption := 'язык';
 
-        mmiEng.Caption := 'Eng.';
+        mmiEng.Caption := 'English';
         mmiEng.Checked := true;
 
-        mmiRus.Caption := 'Rus.';
+        mmiRus.Caption := 'Russian';
 
 
     end;
