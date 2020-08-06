@@ -23,12 +23,14 @@ type
     cbAutoAttack: TCheckBox;
     tAutoAttack: TTimer;
     lAutoCount: TLabel;
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    Craft: TTabSheet;
+    pcGame: TPageControl;
+    pTower: TTabSheet;
+    pCraft: TTabSheet;
     lbLoot: TListBox;
     Label1: TLabel;
     Button2: TButton;
+    lTopStep: TLabel;
+    lTarget: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure log(text: string);
@@ -57,7 +59,9 @@ uses
 var
     oldPlayerItems
    ,oldPlayerLoot
+   ,AllowModes
             : string;
+    topFloor: integer;
 
 procedure TForm3.bUseItemClick(Sender: TObject);
 begin
@@ -75,7 +79,7 @@ end;
 procedure TForm3.Button1Click(Sender: TObject);
 var i: integer;
 begin
-    Script.Exec('CurrentLevel(1);');
+    Script.Exec('CurrentLevel(1);InitCreatures();');
     UpdateInterface;
 
     log('Enter into Dungeon...');
@@ -91,6 +95,8 @@ end;
 procedure TForm3.FormShow(Sender: TObject);
 begin
     mLog.Lines.Clear;
+
+    pcGame.ActivePageIndex := pTower.TabIndex;
 
     Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
     UpdateInterface;
@@ -117,18 +123,53 @@ procedure TForm3.UpdateInterface;
 var
     item: integer;
     AutoCount: integer;
-    tmp: string;
+    tmp, exp, lvl: string;
+    floor, step: integer;
+    pars: TstringList;
 begin
+    pars := TStringList.Create;
+
     item := cbItem.ItemIndex;
 
-    lStep.Caption := 'Floor:' + Script.Exec('GetCurrentLevel()') + ', ' + Script.Exec('CurrentCreature()') + '/' + Script.Exec('CreaturesCount()');
+    // получение текущих доступных режимов
+    AllowModes := Script.Exec('GetAllowModes()');
+    // исходя из доступных модифицируем интерфейс
+    pars.CommaText := AllowModes;
+    // доступность крафта
+    pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
+
+    // инфа по текущему / топовому этажу
+    floor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
+    step := StrToIntDef(Script.Exec('CurrentCreature()'), 0);
+    if floor * 1000000 + step > topFloor then
+       topFloor := floor * 1000000 + step;
+
+    lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('CreaturesCount()');
+    ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
+
+    lTarget.Caption := 'Targrt: ' + Script.Exec('GetCurrTarget()');
+
+    // инфа попротивнику
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
 
+
+    // инфа по игроку
     tmp := Script.Exec('GetPlayerInfo()');
-    lPlayerInfo.Caption := ReplaceStr( tmp, ',', '  ' );
+    pars.CommaText := tmp;
 
-    lNeedExp.Caption := 'LvlUp: ' + Script.Exec('NeedExp()');
+    exp := pars.Values[ 'EXP' ];
+    pars.Delete( pars.IndexOfName('EXP') );
 
+    lvl := pars.Values[ 'LVL' ];
+    pars.Delete( pars.IndexOfName('LVL') );
+
+    lPlayerInfo.Caption := ReplaceStr( pars.CommaText, ',', '  ' );
+
+    // инфа по текущему опыту игрока
+    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp()');
+
+
+    // список предметов
     tmp := Script.Exec('GetPlayerItems()');
     if (tmp <> oldPlayerItems) or (oldPlayerItems = '') then
     begin
@@ -136,6 +177,8 @@ begin
         oldPlayerItems := tmp;
     end;
 
+
+    // список ресурсов
     tmp := Script.Exec('GetPlayerLoot()');
     if (tmp <> oldPlayerLoot) or (oldPlayerLoot = '') then
     begin
@@ -143,9 +186,11 @@ begin
         oldPlayerLoot := tmp;
     end;
 
+
+
+    /// количество автоатак
     AutoCount := StrToIntDef(Script.Exec('GetAutoATK()'), 0);
     lAutoCount.Caption := 'Auto: ' + IntToStr(AutoCount);
-
 
     if AutoCount <= 0 then
     begin
@@ -155,12 +200,14 @@ begin
         cbAutoAttack.Enabled := true;
 
 
+    /// отображение событий в логе
     log(Script.Exec('GetEvents()'));
 
     /// восстанавливаем элемент в списке
     if   cbItem.Items.Count-1 >= item
     then cbItem.ItemIndex := item;
 
+    pars.Free;
 end;
 
 procedure TForm3.log(text: string);

@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 1.0'
-  ClientHeight = 219
-  ClientWidth = 686
+  ClientHeight = 186
+  ClientWidth = 597
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,24 +15,28 @@ object Form3: TForm3
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object PageControl1: TPageControl
+  object pcGame: TPageControl
     Left = 0
     Top = 0
-    Width = 686
-    Height = 219
-    ActivePage = TabSheet1
+    Width = 597
+    Height = 186
+    ActivePage = pTower
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 206
-    object TabSheet1: TTabSheet
+    ExplicitWidth = 686
+    ExplicitHeight = 219
+    object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitHeight = 178
+      ExplicitLeft = 8
+      ExplicitTop = 28
+      ExplicitWidth = 610
+      ExplicitHeight = 191
       DesignSize = (
-        678
-        191)
+        589
+        158)
       object lAutoCount: TLabel
-        Left = 97
-        Top = 34
+        Left = 73
+        Top = 38
         Width = 90
         Height = 15
         Alignment = taCenter
@@ -40,35 +44,49 @@ object Form3: TForm3
         Caption = 'lAutoCount'
       end
       object lCreatureInfo: TLabel
-        Left = 151
-        Top = 80
+        Left = 166
+        Top = 68
         Width = 52
         Height = 13
         Caption = 'lPlayerInfo'
       end
       object lNeedExp: TLabel
-        Left = 18
-        Top = 61
-        Width = 24
+        Left = 166
+        Top = 37
+        Width = 18
         Height = 13
-        Caption = 'lStep'
+        Caption = 'lLVL'
       end
       object lPlayerInfo: TLabel
-        Left = 151
-        Top = 61
+        Left = 166
+        Top = 53
         Width = 52
         Height = 13
         Caption = 'lPlayerInfo'
       end
       object lStep: TLabel
-        Left = 18
-        Top = 80
+        Left = 3
+        Top = 38
         Width = 24
         Height = 13
         Caption = 'lStep'
       end
+      object lTopStep: TLabel
+        Left = 3
+        Top = 53
+        Width = 42
+        Height = 13
+        Caption = 'lTopStep'
+      end
+      object lTarget: TLabel
+        Left = 3
+        Top = 68
+        Width = 34
+        Height = 13
+        Caption = 'lTarget'
+      end
       object bAttack: TButton
-        Left = 116
+        Left = 92
         Top = 8
         Width = 54
         Height = 25
@@ -77,7 +95,7 @@ object Form3: TForm3
         OnClick = bAttackClick
       end
       object bUseItem: TButton
-        Left = 377
+        Left = 333
         Top = 9
         Width = 33
         Height = 23
@@ -86,7 +104,7 @@ object Form3: TForm3
         OnClick = bUseItemClick
       end
       object bSkillUse: TButton
-        Left = 583
+        Left = 521
         Top = 9
         Width = 33
         Height = 23
@@ -94,7 +112,7 @@ object Form3: TForm3
         TabOrder = 2
       end
       object Button1: TButton
-        Left = 18
+        Left = 2
         Top = 8
         Width = 75
         Height = 25
@@ -103,53 +121,56 @@ object Form3: TForm3
         OnClick = Button1Click
       end
       object cbAutoAttack: TCheckBox
-        Left = 120
+        Left = 96
         Top = 13
         Width = 13
         Height = 15
         TabOrder = 4
       end
       object cbItem: TComboBox
-        Left = 200
+        Left = 165
         Top = 10
-        Width = 177
+        Width = 168
         Height = 21
         Style = csDropDownList
+        Sorted = True
         TabOrder = 5
       end
       object cbSkill: TComboBox
-        Left = 416
+        Left = 390
         Top = 10
-        Width = 167
+        Width = 131
         Height = 21
         Style = csDropDownList
+        Sorted = True
         TabOrder = 6
       end
       object mLog: TMemo
-        Left = 18
-        Top = 120
-        Width = 644
+        Left = 2
+        Top = 87
+        Width = 582
         Height = 68
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         TabOrder = 7
       end
       object Button2: TButton
-        Left = 415
-        Top = 31
-        Width = 201
-        Height = 22
-        Caption = 'Up! (0 EXP)'
+        Left = 553
+        Top = 9
+        Width = 33
+        Height = 23
+        Caption = 'Up!'
         TabOrder = 8
       end
     end
-    object Craft: TTabSheet
+    object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitHeight = 178
+      ExplicitWidth = 678
+      ExplicitHeight = 191
       DesignSize = (
-        678
-        191)
+        589
+        158)
       object Label1: TLabel
         Left = 6
         Top = 7
@@ -161,18 +182,18 @@ object Form3: TForm3
         Left = 3
         Top = 22
         Width = 134
-        Height = 164
+        Height = 131
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 151
+        ExplicitHeight = 164
       end
     end
   end
   object tAutoAttack: TTimer
     Interval = 100
     OnTimer = tAutoAttackTimer
-    Left = 200
-    Top = 64
+    Left = 32
+    Top = 168
   end
 end

@@ -14,9 +14,18 @@ type
         Creatures: TList<TCreature>;
         Variables: TDictionary<String,String>;
 
-        CurrCreature: integer;
-        CurrLevel: integer;
+        CurrCreature: integer;     // текущий активный монстр из массива Creatures
+        CurrLevel: integer;        // текущий проходимый уровень
+
+        CurrTargetIndex: integer;  // актуальный элемент массива целей
+
         EventText: string;
+
+        AllowModes: string;
+        /// основной управляющий игрой массив с флагами доступных игроку игровых возможностей
+        /// используется повсеместно для определелния доступа к тем или иным возможностям.
+        /// перичем, каждая возможность имеет уровень развития, что может использоваться для
+        /// ее настройки. Например, количество и крутизна доступных рецептов в крафте.
 
         AutoATKCount: integer;
     public
@@ -40,6 +49,9 @@ type
         function GetPlayerItems: string;
         function GetPlayerLoot: string;
         function GetPlayerAttr(name: string): string;
+
+        function GetCurrTarget: string;
+        procedure SetCurrTargetIndex(value: variant);
 
         procedure SetPlayerBuff(name, count: variant);
         // добавление бонуса в Player.Buffs
@@ -86,6 +98,11 @@ type
 
         function ProcessAuto: string;
         // вызывается для процессинга автоэффектов, например автобонусов
+
+        function GetAllowModes: string;
+        procedure AllowMode(name, value: variant);
+        // добавляет в массив доступных игроку возможностей новую
+
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -147,6 +164,11 @@ var
 
 {PUBLIC // Script allow}
 
+function TData.GetAllowModes: string;
+begin
+    result := AllowModes;
+end;
+
 function TData.GetAutoATK: string;
 begin
     result := IntToStr(AutoATKCount);
@@ -162,6 +184,11 @@ end;
 function TData.GetCurrentLevel: string;
 begin
     result := IntToStr(CurrLevel);
+end;
+
+function TData.GetCurrTarget: string;
+begin
+    result := IntToStr(targets[CurrTargetIndex].level);
 end;
 
 function TData.GetEvents: string;
@@ -198,7 +225,7 @@ begin
     begin
         count := GetItemCount( Player.Buffs, parser.Names[i]);
         if count <> '0'
-        then resultList := resultList + parser[i] + ' [' + count + '],'
+        then resultList := resultList + parser[i] + '[' + count + '],'
         else resultList := resultList + parser[i] + ',';
     end;
 
@@ -488,6 +515,13 @@ begin
     Creatures.Add( creature );
 end;
 
+procedure TData.SetCurrTargetIndex(value: variant);
+begin
+    if (value < 0) or (value > High(targets)) then exit;
+
+    CurrTargetIndex := value;
+end;
+
 procedure TData.SetPlayer(name, params: string; items: string = ''; loot: string = '');
 begin
     if not assigned(Player) then Player := TCreature.Create;
@@ -619,6 +653,13 @@ begin
     result := ifthen( exp >= need, '!', '');
 end;
 
+procedure TData.AllowMode(name, value: variant);
+begin
+    Inventory.Fill( AllowModes );
+    Inventory.SetItemCount( name, value );
+    AllowModes := Inventory.Get;
+end;
+
 function TData.NeedExp: string;
 var
     prev, cost, buff, // переменные для вычисления стоимости
@@ -691,8 +732,8 @@ begin
 
             // лечим игрока
             playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
-            SetParamValue(Player, 'HP', IntToStr(playerLVL * 100));
-            SetParamValue(Player, 'MP', IntToStr(playerLVL * 20));
+            ChangeParamValue(Player, 'HP', playerLVL * 100);
+//            ChangeParamValue(Player, 'MP', playerLVL * 20);
             exit;
         end;
 
@@ -743,6 +784,17 @@ begin
         CurrCreature := 0;
         AddEvent('Go up '+ IntToStr(CurrLevel) +' Dungeon level...');
     end;
+
+    // проверка на достижение цели
+    if CurrLevel >= targets[CurrTargetIndex].level then
+    begin
+        /// выполняем скрипт достижения цели
+        Script.Exec( targets[CurrTargetIndex].script );
+
+        /// переходим к следующей, если есть
+        if CurrTargetIndex < High(targets)-1
+        then Inc(CurrTargetIndex);
+    end;
 end;
 
 constructor TData.Create;
@@ -754,6 +806,8 @@ begin
    Script := TScriptDrive.Create;
    parser := TStringList.Create;
    Variables := TDictionary<String,String>.Create();
+
+   CurrTargetIndex := 0;
 end;
 
 destructor TData.Destroy;

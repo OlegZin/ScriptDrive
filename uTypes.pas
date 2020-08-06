@@ -34,6 +34,11 @@ type
         cost: integer;
         script: string;
     end;
+
+    TTarget = record
+        level: integer;
+        script: string;
+    end;
 var
     name1 : array [0..9] of string = (
         'Упоротый','Отважный','Обреченный','Коварный','Смертоносный','Голодный','Сонный','Лысый','Красивый','Безобразный');
@@ -54,6 +59,18 @@ var
         ('skin'),('skin'),('skin'),                                                                           // 3
         ('ore'),('ore'),                                                                                      // 2
         ('essence')                                                                                           // 1
+    );
+
+    /// массив изменения состояний игры при достижения опредлеленных уровней.
+    /// сердце игры, ради которого мутилась фишка со скриптами
+    targets: array [0..1] of TTarget = (
+        (level: 6;
+         script:
+            'AddEvent(!!! Allow item crafting now !!!);'+
+            'AddEvent(!!! User reached game target !!!);'+
+            'AllowMode(Craft, 1);'
+        )
+       ,(level: maxint; script: '')
     );
 
     // предметы-расходники. в механике имеют разные уровни силы
@@ -150,7 +167,7 @@ var
 
        ,(name:   'AutoATK';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 50}))'
+         script: 'ChangeAutoATK(Rand({GetPlayerAttr(LVL) * 100}))'
         ) // зелье автоматической атаки
     );
 
