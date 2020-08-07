@@ -303,23 +303,20 @@ begin
     begin
         mmiLang.Caption := 'Language';
 
-        mmiEng.Caption := 'јнглийский';
+        mmiEng.Caption := 'English';
 
-        mmiRus.Caption := '–усский';
+        mmiRus.Caption := 'Russian';
         mmiRus.Checked := true;
-
     end;
 
     if CurrLang = 'ENG' then
     begin
         mmiLang.Caption := 'язык';
 
-        mmiEng.Caption := 'English';
+        mmiEng.Caption := 'јнглийский';
         mmiEng.Checked := true;
 
-        mmiRus.Caption := 'Russian';
-
-
+        mmiRus.Caption := '–усский';
     end;
 
 end;

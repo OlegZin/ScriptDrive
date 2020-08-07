@@ -295,7 +295,7 @@ var
 
        ,(name:   'BuffREG';
          cost:    3000;
-         script: 'SetPlayerBuff(REG,{Rand(GetPlayerAttr(LVL)) + 1})'
+         script: 'SetPlayerBuff(REG,{Rand({GetPlayerAttr(LVL) * 10}) + 10})'
         ) // зелье временного прироста опыта
 
 
@@ -358,7 +358,7 @@ var
        ,(name:   'BreakATK';
          cost:    30;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 20}));'+      /// столько хотим забрать
+                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 5}));'+      /// столько хотим забрать
                  'SetVar(monster, GetMonsterAttr(ATK));'+                  /// столько есть у монстра
                  'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters attack reduced by GetVar(value)!);'+
