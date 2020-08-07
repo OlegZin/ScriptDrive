@@ -268,8 +268,7 @@ var
                  'AddEvent(Player gets all stats buff by GetVar(value)!);'+
                  'SetPlayerBuff(ATK,GetVar(value));'+
                  'SetPlayerBuff(DEF,GetVar(value));'+
-                 'SetPlayerBuff(MDEF,GetVar(value));'+
-                 'SetPlayerBuff(EXP,GetVar(value));'
+                 'SetPlayerBuff(MDEF,GetVar(value));'
         )
 
        ,(name:   'BreakDEF';
@@ -302,8 +301,7 @@ var
                  'SetVar(leak,Rand({GetSkillLvl(LeakMP) * 30}));'+  // сколько пытается забрать навык
                  'SetVar(monsterMP,GetMonsterAttr(MP));'+           // сколько есть у монстра
 
-                 'IF(GetVar(leak) > GetVar(monsterMP), 4);'+        // если забираем больше, чем есть
-                 'IF(GetVar(leak) = GetVar(monsterMP), 3);'+        // или столько же
+                 'IF({GetVar(leak) >= GetVar(monsterMP)}, 3);'+        // если забираем больше, чем есть
                  'SetVar(leak, {GetVar(monsterMP) / 2});'+          // получаемое игроком = половина от возможного
                  'ChangeCreatureParam(MP,-GetVar(monsterMP));'+     // забираем у монстра все
                  'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает свое
@@ -321,12 +319,22 @@ var
        ,(name:   'VampireStrike';
          cost:    10;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(VampireStrike) * 20}));'+
-                 'ChangeCreatureParam(HP,-GetVar(value));'+
-                 'SetVar(value2, {GetVar(value) / 2});'+
-                 'ChangePlayerParam(HP,GetVar(value2));'+
-                 'AddEvent(Monster lost GetVar(value) HP);'+
-                 'AddEvent(Player gets GetVar(value2) HP);'
+                 'SetVar(leak,Rand({GetSkillLvl(VampireStrike) * 20}));'+  // сколько пытается забрать навык
+                 'SetVar(monsterHP,GetMonsterAttr(HP));'+           // сколько есть у монстра
+
+                 'IF({GetVar(leak) >= GetVar(monsterHP)}, 3);'+        // если забираем больше, чем есть
+                 'SetVar(leak, {GetVar(monsterHP) / 2});'+          // получаемое игроком = половина от возможного
+                 'ChangeCreatureParam(HP,-GetVar(monsterHP));'+     // забираем у монстра все
+                 'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает свое
+
+                 'IF(GetVar(leak) < GetVar(monsterHP), 4);'+        // если забираем меньше чем есть
+                 'SetVar(monsterHP, GetVar(leak));'+                // монстр будет терять в полном объеме
+                 'SetVar(leak, {GetVar(leak) / 2});'+               // игрок получит половину от требуемого
+                 'ChangeCreatureParam(HP,-GetVar(monsterHP));'+     // монстр теряет
+                 'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает
+
+                 'AddEvent(Monsters lost GetVar(monsterHP) HP);'+   // радуем игрока
+                 'AddEvent(Player gets GetVar(leak) HP!);'
         )
 
        ,(name:   'Metabolism';

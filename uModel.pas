@@ -78,14 +78,14 @@ var
 procedure TForm3.bUpSkillClick(Sender: TObject);
 begin
     if cbSkills.ItemIndex = -1 then exit;
-    Script.Exec('UpSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+')');
+    Script.Exec('UpSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+')CreatureAttack();CheckStatus();');
     UpdateInterface;
 end;
 
 procedure TForm3.bUseItemClick(Sender: TObject);
 begin
     if cbItem.ItemIndex = -1 then exit;
-    Script.Exec('UseItem('+Copy(cbItem.Text, 0, Pos('=', cbItem.Text)-1)+')');
+    Script.Exec('UseItem('+Copy(cbItem.Text, 0, Pos('=', cbItem.Text)-1)+');CreatureAttack();CheckStatus();');
     UpdateInterface;
 end;
 
@@ -98,7 +98,7 @@ end;
 procedure TForm3.bSkillUseClick(Sender: TObject);
 begin
     if cbSkills.ItemIndex = -1 then exit;
-    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');CheckStatus();');
+    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');CreatureAttack();CheckStatus();');
     UpdateInterface;
 end;
 
@@ -131,8 +131,8 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-//    if   Script.Exec('ProcessAuto()') <> ''
-//    then UpdateInterface;
+    if   Script.Exec('ProcessAuto()') <> ''
+    then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin
@@ -147,14 +147,24 @@ procedure TForm3.UpdateInterface;
 var
     itemItem, itemSkill: integer;
     AutoCount: integer;
-    tmp, exp, lvl: string;
+    tmp, exp, lvl, selItem, selSkill: string;
     floor, step: integer;
     pars: TstringList;
+  i: Integer;
 begin
     pars := TStringList.Create;
+
+    if cbItem.ItemIndex <> -1
+    then selItem := Copy(cbItem.Text,0,pos('=',cbItem.Text)-1)
+    else selItem := '';
+
+    if cbSkills.ItemIndex <> -1
+    then selSkill := Copy(cbSkills.Text,0,pos('=',cbSkills.Text)-1)
+    else selSkill := '';
+{
     itemItem := cbItem.ItemIndex;
     itemSkill := cbSkills.ItemIndex;
-
+}
 
 
     // получение текущих доступных режимов
@@ -245,11 +255,21 @@ begin
     log(Script.Exec('GetEvents()'));
 
     /// восстанавливаем элемент в списке
-    if   cbItem.Items.Count-1 >= itemItem
-    then cbItem.ItemIndex := itemItem;
+    if selItem <> '' then
+    for i := 0 to cbItem.Items.Count-1 do
+    if Pos(selItem, cbItem.Items[i]) > 0 then
+    begin
+        cbItem.ItemIndex := i;
+        break;
+    end;
 
-    if   cbSkills.Items.Count-1 >= itemSkill
-    then cbSkills.ItemIndex := itemSkill;
+    if selSkill <> '' then
+    for i := 0 to cbSkills.Items.Count-1 do
+    if Pos(selSkill, cbSkills.Items[i]) > 0 then
+    begin
+        cbSkills.ItemIndex := i;
+        break;
+    end;
 
     pars.Free;
 end;

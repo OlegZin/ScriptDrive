@@ -241,7 +241,7 @@ begin
 
     HiPrior := '()*/';
     LowPrior := '+-';
-    ComparePrior := '><=';
+    ComparePrior := '>=<=';
 
     /// ищем наличие математики
     if Pos('{', command) = 0 then exit;
