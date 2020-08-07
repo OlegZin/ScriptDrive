@@ -51,7 +51,10 @@ type
         function GetPlayerBuffs: string;
         function GetPlayerItems: string;
         function GetPlayerLoot: string;
+
         function GetPlayerAttr(name: string): string;
+        function GetMonsterAttr(name: string): string;
+        function GeAttr(creature: TCreature; name: string): string;
 
         function GetCurrTarget: string;
         procedure SetCurrTargetIndex(value: variant);
@@ -178,6 +181,21 @@ var
 
 {PUBLIC // Script allow}
 
+function TData.GeAttr(creature: TCreature; name: string): string;
+var
+    param: TStringList;
+begin
+
+    param := TStringList.Create;
+    param.CommaText := creature.Params;
+
+    if   param.IndexOfName(name) <> -1
+    then result := param.Values[name]
+    else result := '0';
+
+    param.Free;
+end;
+
 function TData.GetAllowModes: string;
 begin
     result := AllowModes;
@@ -212,15 +230,8 @@ begin
 end;
 
 function TData.GetPlayerAttr(name: string): string;
-var
-    param: TStringList;
 begin
-    param := TStringList.Create;
-    param.CommaText := Player.Params;
-
-    result := param.Values[name];
-
-    param.Free;
+    result := GeAttr(Player, name);
 end;
 
 function TData.GetPlayerBuffs: string;
@@ -278,6 +289,11 @@ begin
 
     if CurrLang = 0 then result := 'ENG';
     if CurrLang = 1 then result := 'RU';
+end;
+
+function TData.GetMonsterAttr(name: string): string;
+begin
+    result := GeAttr(Creatures[CurrCreature], name);
 end;
 
 function TData.GetPlayerItems: string;
@@ -386,7 +402,7 @@ begin
           comma := ' ';
     end;
 
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, REG=1, EXP=0', s);
+    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, REG=1, EXP=0', s, 'Gold=100000');
 end;
 
 procedure TData.LevelUpPlayer;
@@ -952,7 +968,7 @@ begin
    Variables := TDictionary<String,String>.Create();
 
    CurrTargetIndex := 0;
-   CurrLang := 1;
+   CurrLang := 0;
 end;
 
 destructor TData.Destroy;
