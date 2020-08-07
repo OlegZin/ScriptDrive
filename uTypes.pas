@@ -339,6 +339,8 @@ var
          cost:    15;
          script:
                  'SetVar(value,Rand({GetSkillLvl(BreakDEF) * 10}));'+
+                 'SetVar(monster, GetMonsterAttr(DEF));'+                  /// столько есть у монстра
+                 'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters defense is reduced by GetVar(value)!);'+
                  'ChangeCreatureParam(DEF,-GetVar(value));'
         )
@@ -347,6 +349,8 @@ var
          cost:    15;
          script:
                  'SetVar(value,Rand({GetSkillLvl(BreakMDEF) * 10}));'+
+                 'SetVar(monster, GetMonsterAttr(MDEF));'+                  /// столько есть у монстра
+                 'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters magic defense is reduced by GetVar(value)!);'+
                  'ChangeCreatureParam(MDEF,-GetVar(value));'
         )
@@ -354,7 +358,9 @@ var
        ,(name:   'BreakATK';
          cost:    30;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 20}));'+
+                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 20}));'+      /// столько хотим забрать
+                 'SetVar(monster, GetMonsterAttr(ATK));'+                  /// столько есть у монстра
+                 'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters attack reduced by GetVar(value)!);'+
                  'ChangeCreatureParam(ATK,-GetVar(value));'
         )
@@ -402,9 +408,9 @@ var
         )
 
        ,(name:   'Metabolism';
-         cost:    50;
+         cost:    10;
          script:
-                 'SetVar(value,{Rand(GetSkillLvl(Metabolism) * 5) + 10});'+
+                 'SetVar(value,{Rand({GetSkillLvl(Metabolism) * 5}) + 10});'+
                  'SetPlayerBuff(REG,GetVar(value));'+
                  'AddEvent(Player speed up regen by GetVar(value)!);'
         )

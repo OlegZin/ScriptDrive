@@ -573,7 +573,7 @@ begin
     CurrStep := 1;
     MaxStep := CurrLevel * 5;
 
-    AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
+    if CurrLevel = 1 then AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
 end;
 
 

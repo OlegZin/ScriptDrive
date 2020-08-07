@@ -257,7 +257,7 @@ begin
     /// восстанавливаем элемент в списке
     if selItem <> '' then
     for i := 0 to cbItem.Items.Count-1 do
-    if Pos(selItem, cbItem.Items[i]) > 0 then
+    if Pos(selItem, cbItem.Items[i]) = 1 then
     begin
         cbItem.ItemIndex := i;
         break;
@@ -265,7 +265,7 @@ begin
 
     if selSkill <> '' then
     for i := 0 to cbSkills.Items.Count-1 do
-    if Pos(selSkill, cbSkills.Items[i]) > 0 then
+    if Pos(selSkill, cbSkills.Items[i]) = 1 then
     begin
         cbSkills.ItemIndex := i;
         break;
