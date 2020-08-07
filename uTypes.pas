@@ -41,25 +41,90 @@ type
         script: string;
     end;
 var
-    name1 : array [0..9] of string = (
-        'Упоротый','Отважный','Обреченный','Коварный','Смертоносный','Голодный','Сонный','Лысый','Красивый','Безобразный');
-    name2 : array [0..9] of string = (
-        'Удод','Искатель','Крашер','Тюфяк','Скрудж','Полторун','Пептид','Отсекатель','НяшМяш','Крутыш');
-    name3 : array [0..9] of string = (
-        'Поликлиники','Ада','Иных миров','Подземелий','Лесов','Безумия','Тайн','Безнадежности','Героизма','Коварства');
+    name1 : array [0..39,0..1] of string = (
+        ('Stoned',      'Упоротый'),          ('Strong',     'Сильный'),
+        ('Brave',       'Отважный'),          ('Northern',   'Северный'),
+        ('Doomed',      'Обреченный'),        ('Local',      'Местный'),
+        ('Insidious',   'Коварный'),          ('Great',      'Великолепный'),
+        ('Deadly',      'Смертоносный'),      ('Accurate',   'Точный'),
+        ('Hungry',      'Голодный'),          ('Heavy',      'Тяжелый'),
+        ('Sleepy',      'Сонный'),            ('Holy',       'Святой'),
+        ('Bold',        'Лысый'),             ('Gas',        'Газовый'),
+        ('Beautiful',   'Красивый'),          ('Similar',    'Аналогичный'),
+        ('Ugly',        'Безобразный'),       ('Glassy',     'Стеклянный'),
+
+        ('Warm',        'Теплый'),            ('Modern',     'Современный'),
+        ('Narrow',      'Узкий'),             ('Unpleasant', 'Неприятный'),
+        ('Dead',        'Мертвый'),           ('Finite',     'Конечный'),
+        ('Main',        'Основной'),          ('Possible',   'Возможный'),
+        ('Evening',     'Вечерний'),          ('Physical',   'Материальный'),
+        ('Previous',    'Предыдущий'),        ('Cold',       'Холодный'),
+        ('Convenient',  'Удобный'),           ('Efficient',  'Эффективный'),
+        ('Genuine',     'Истинный'),          ('Good',       'Хороший'),
+        ('Monstrous',   'Чудовищный'),        ('Green',      'Зеленый'),
+        ('Any',         'Любой'),             ('Prominent',  'Видный')
+        );
+
+    name2 : array [0..39,0..1] of string = (
+        ('Freak',       'Урод'),              ('Major',      'Майор'),
+        ('Seeker',      'Искатель'),          ('Dweller',    'Житель'),
+        ('Crusher',     'Крашер'),            ('Wall',       'Барьер'),
+        ('Mattress',    'Тюфяк'),             ('Minister',   'Министр'),
+        ('Greedy',      'Жадина'),            ('Regiment',   'Полк'),
+        ('Drinker',     'Выпивоха'),          ('Result',     'Результат'),
+        ('Peptide',     'Пептид'),            ('Soldier',    'Солдат'),
+        ('Cutter',      'Отсекатель'),        ('Air',        'Воздух'),
+        ('Kawaii',      'НяшМяш'),            ('Bird',       'Птиц'),
+        ('Winner',      'Крутыш'),            ('Follower',   'Последователь'),
+
+        ('Tail',        'Хвост'),             ('Gift',       'Подарок'),
+        ('Bag',         'Чемодан'),           ('System',     'Закрыватель'),
+        ('Tank',        'Танк'),              ('Crisis',     'Кризис'),
+        ('Mass',        'Массив'),            ('Dream',      'Разжигатель'),
+        ('Future',      'Призрак'),           ('Fate',       'Фаталист'),
+        ('Suit',        'Костюм'),            ('Doom',       'Разрушитель'),
+        ('Word',        'Образ'),             ('Power',      'Властитель'),
+        ('Relative',    'Родственник'),       ('Machine',    'Аппарат'),
+        ('Brain',       'Мозг'),              ('Horror',     'Ужас'),
+        ('Smoke',       'Дым'),               ('Steel',      'Металл')
+        );
+
+    name3 : array [0..39,0..1] of string = (
+        ('of Hospital', 'Поликлиники'),       ('of Betrayal',         'Предательства'),
+        ('of Hell',     'Ада'),               ('of Bliss',            'Блаженства'),
+        ('of Worlds',   'Иных миров'),        ('of Misunderstanding', 'Недоразумения'),
+        ('of Dungeons', 'Подземелий'),        ('of Infinity',         'Бесконечности'),
+        ('of Forest',   'Лесов'),             ('of Wealth',           'Богатства'),
+        ('of Madness',  'Безумия'),           ('of Poverty',          'Нищеты'),
+        ('of Mistery',  'Тайн'),              ('of Holiday',          'Праздника'),
+        ('of Hopeless', 'Безнадежности'),     ('of Despondency',      'Уныния'),
+        ('of Heroism',  'Героизма'),          ('of Luck',             'Удачи'),
+        ('of Deceit',   'Коварства'),         ('of Replay',           'Повтора'),
+
+        ('of Agreement',  'Договора'),        ('of Weapon',    'Оружия'),
+        ('of Crisis',     'Кризиса'),         ('of Spring',    'Весны'),
+        ('of Heart',      'Сердца'),          ('of Body',      'Тела'),
+        ('of Girlfriend', 'Подруги'),         ('of Childhood', 'Детства'),
+        ('of Conscious',  'Сознания'),        ('of Memory',    'Воспоминаний'),
+        ('of Support',    'Поддержки'),       ('of Stars',     'Звезды'),
+        ('of Essence',    'Сути'),            ('of Scene',     'Сцены'),
+        ('of Doubt',      'Сомнений'),        ('of Risk',      'Риска'),
+        ('of Reality',    'Реальности'),      ('of Guard',     'Охраны'),
+        ('of Murders',    'Убийства'),        ('of Path',      'Пути')
+    );
 
     // расходники для крафта. количество упоминаний регулирует шанс выпадения
     loot: array [0..49] of string = (
-        ('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),('wood'),            // 10
-        ('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),('stone'),  // 10
-        ('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),('herbal'),              // 8
-        ('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),('wheat'),                                          // 6
-        ('meat'),('meat'),('meat'),('meat'),                                                                  // 4
-        ('blood'),('blood'),('blood'),                                                                        // 3
-        ('bone'),('bone'),('bone'),                                                                           // 3
-        ('skin'),('skin'),('skin'),                                                                           // 3
-        ('ore'),('ore'),                                                                                      // 2
-        ('essence')                                                                                           // 1
+        ('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),            // 10
+        ('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),  // 10
+        ('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),              // 8
+        ('Wheat'),('Wheat'),('Wheat'),('Wheat'),('Wheat'),('Wheat'),                                          // 6
+        ('Meat'),('Meat'),('Meat'),('Meat'),                                                                  // 4
+        ('Blood'),('Blood'),('Blood'),                                                                        // 3
+        ('Bone'),('Bone'),('Bone'),                                                                           // 3
+        ('Skin'),('Skin'),('Skin'),                                                                           // 3
+        ('Ore'),('Ore'),                                                                                      // 2
+        ('Essence')                                                                                           // 1
     );
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
@@ -100,13 +165,13 @@ var
        ,((level: 11;
          script:
              'AddEvent(.);'+
-             'AddEvent(Use `Reset Tower` button to avoid enemy);' +
+             'AddEvent(Use `Reset Tower` button to avoid enemy );' +
              'AddEvent(.);'+
              'AddEvent(YOU WILL NOT PASS !!!);' +
              'AddEvent(What are you doing in my Tower insignificance!?);' +
              'AddEvent(.);'+
              'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=999999999 ATK=1,,spirit=1)'
+             'SetCreature(DARK MASTER,HP=99999 ATK=100,,spirit=1)'
         )
        ,(level: 11;
          script:
@@ -116,7 +181,7 @@ var
              'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
              'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
              'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=99999 ATK=1,,spirit=1)'
+             'SetCreature(DARK MASTER,HP=99999 ATK=100,,spirit=1)'
         ))
 
        ,((level: maxint;

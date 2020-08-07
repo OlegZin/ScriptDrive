@@ -348,7 +348,11 @@ begin
             lt := Inventory.Get;
 
             SetCreature(
-                Format('%s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
+                Format('%s %s %s', [
+                    name1[Random(Length(name1))][CurrLang],
+                    name2[Random(Length(name2))][CurrLang],
+                    name3[Random(Length(name3))][CurrLang]
+                ]),
                 Format('HP=%d, ATK=%d, DEF=%d', [
                     Random( CurrLevel*10 ) + CurrLevel*5,
                     Random( CurrLevel*5 )  + CurrLevel*2,
@@ -374,7 +378,11 @@ begin
             lt := Inventory.Get;
 
             SetCreature(
-                Format('[BOSS] %s %s %s', [name1[Random(Length(name1))],name2[Random(Length(name2))],name3[Random(Length(name3))]]),
+                Format('[BOSS] %s %s %s', [
+                    name1[Random(Length(name1))][CurrLang],
+                    name2[Random(Length(name2))][CurrLang],
+                    name3[Random(Length(name3))][CurrLang]
+                ]),
                 Format('HP=%d, ATK=%d, DEF=%d', [
                     Random( CurrLevel*50 ) + CurrLevel*30,
                     Random( CurrLevel*25 )  + CurrLevel*10,
@@ -968,7 +976,7 @@ begin
    Variables := TDictionary<String,String>.Create();
 
    CurrTargetIndex := 0;
-   CurrLang := 0;
+   CurrLang := 1;
 end;
 
 destructor TData.Destroy;
