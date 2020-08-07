@@ -11,11 +11,12 @@ type
     TData = class
     private
         Player : TCreature;
-        Creatures: TList<TCreature>;
+        Creature: TCreature;
         Variables: TDictionary<String,String>;
 
-        CurrCreature: integer;     // текущий активный монстр из массива Creatures
         CurrLevel: integer;        // текущий проходимый уровень
+        CurrStep: integer;        // текущий проходимый шаг на уровень
+        MaxStep: integer;        // всего шагов на уровне уровень
 
         CurrTargetIndex: integer;  // актуальный элемент массива целей
 
@@ -68,8 +69,8 @@ type
         procedure InitPlayer;
         procedure InitCreatures;
 
-        function CurrentCreature: string;
-        function CreaturesCount: string;
+        function CurrentStep: string;
+        function StepCount: string;
 
         procedure CheckStatus;  // проверка игрового сатауса и отыгрыш игровой логики
         procedure CurrentLevel(input: variant);
@@ -114,7 +115,6 @@ type
         // добавляет в массив доступных игроку возможностей новую
 
         procedure SetCreature(name, params: string; items: string = ''; loot: string = '');
-        procedure DropCreatures;
 
         procedure SetLang(lang: string);
         function GetLang: string;
@@ -208,9 +208,7 @@ end;
 
 function TData.GetCurrCreatureInfo: string;
 begin
-    if CurrCreature > Creatures.Count -1 then exit;
-
-    result := Creatures[CurrCreature].Name + ': ' + Creatures[CurrCreature].Params;
+    result := Creature.Name + ': ' + Creature.Params;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -293,7 +291,7 @@ end;
 
 function TData.GetMonsterAttr(name: string): string;
 begin
-    result := GeAttr(Creatures[CurrCreature], name);
+    result := GeAttr(Creature, name);
 end;
 
 function TData.GetPlayerItems: string;
@@ -331,13 +329,7 @@ var
     itm, lt: string;
 begin
 
-    count := CurrLevel * 5;
-
-    Creatures.Clear;
-    for I := 0 to count-1 do
-    begin
-        /// рядовой монстр
-        if i <> count-1 then
+        if CurrStep < MaxStep then
         begin
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*2 ) + CurrLevel );
@@ -365,7 +357,7 @@ begin
         end;
 
         /// босс уровня!
-        if i = count-1 then
+        if CurrStep = MaxStep then
         begin
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
@@ -392,9 +384,7 @@ begin
                 lt
             );
         end;
-    end;
 
-    CurrCreature := 0;
 end;
 
 procedure TData.InitPlayer;
@@ -505,10 +495,8 @@ procedure TData.CreatureAttack;
 var
     scr: string; // текст скрипта
 begin
-    if CurrCreature > Creatures.Count -1 then exit;
-
-    scr := Creatures[CurrCreature].OnAttack;
-    scr := FillVars(Creatures[CurrCreature], scr);
+    scr := Creature.OnAttack;
+    scr := FillVars(Creature, scr);
     Script.Exec( scr );
 end;
 
@@ -521,15 +509,14 @@ var
     DMG : integer;
     ATKbuff: integer;
 begin
-    if CurrCreature > Creatures.Count -1 then exit;
 
     Inventory.Fill( Player.Buffs );
     ATKbuff := Inventory.Draw( 'ATK', 1 );
     Player.Buffs := Inventory.Get;
 
     PlayerATK   := StrToIntDef(input, 0) + ATKbuff;
-    CreatureHP  := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'HP'), 0 );
-    CreatureDEF := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'DEF'), 0 );
+    CreatureHP  := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
+    CreatureDEF := StrToIntDef( GetParamValue( Creature, 'DEF'), 0 );
 
 //    CreatureDEF := Min(99, CreatureDEF);  // всегда проходит 1% урона
 
@@ -537,7 +524,7 @@ begin
 
     CreatureHP  := CreatureHP - DMG;
 
-    SetParamValue( Creatures[CurrCreature], 'HP', IntToStr(CreatureHP) );
+    SetParamValue( Creature, 'HP', IntToStr(CreatureHP) );
 end;
 
 procedure TData.DoDamageToPlayer(input: string);
@@ -567,28 +554,25 @@ begin
     SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
 end;
 
-procedure TData.DropCreatures;
-begin
-    Creatures.Clear;
-end;
-
-function TData.CurrentCreature: string;
+function TData.CurrentStep: string;
 // текущий активный
 begin
-    result := IntToStr(CurrCreature+1);
+    result := IntToStr(CurrStep);
 end;
 
-function TData.CreaturesCount: string;
+function TData.StepCount: string;
 // общее количество монстров
 begin
-    result := IntToStr(Creatures.Count);
+    result := IntToStr(MaxStep);
 end;
 
 procedure TData.CurrentLevel(input: variant);
 // текущий уровень показ/изменение
 begin
-    // если задано значение - меняем, иначе остается текущий
-    CurrLevel := StrToIntDef(input, CurrLevel);
+    CurrLevel := input;
+    CurrStep := 1;
+    MaxStep := CurrLevel * 5;
+
     AddEvent(phrases[PHRASE_DUNGEON_ENTER][CurrLang]);
 end;
 
@@ -601,18 +585,13 @@ begin
 end;
 
 procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');
-var creature : TCreature;
 begin
-    creature := TCreature.Create;
+    Creature.Params := params;
+    Creature.Name   := name;
+    Creature.Items  := items;
+    Creature.Loot   := loot;
 
-    creature.Params := params;
-    creature.Name   := name;
-    creature.Items  := items;
-    creature.Loot   := loot;
-
-    creature.OnAttack := 'DoDamageToPlayer({ATK})';
-
-    Creatures.Add( creature );
+    Creature.OnAttack := 'DoDamageToPlayer({ATK})';
 end;
 
 procedure TData.SetCurrTargetIndex(value: variant);
@@ -825,8 +804,6 @@ var
     i: integer;
 begin
 
-//    lvl := StrToIntDef( GetParamValue( Player, 'LVL' ), 1);
-
     prev := 0;
     cost := 10;
 
@@ -848,7 +825,7 @@ end;
 
 function TData.ChangeCreatureParam(name, delta: variant): string;
 begin
-    result := ChangeParamValue(Creatures[CurrCreature], name, delta);
+    result := ChangeParamValue(Creature, name, delta);
 end;
 
 function TData.ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
@@ -881,75 +858,69 @@ var
     HP, EXPbuff: integer;
     playerLVL : integer;
 begin
-    // аварийная проверка
-    if CurrCreature <= Creatures.Count then
+
+    // проверка состояния игрока
+    HP := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
+
+    if HP <= 0 then
     begin
+        AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creature.Name +'!');
 
-        // проверка состояния игрока
-        HP := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
+        // возвращаемся на первый уровень
+        CurrentLevel(1);
+        // генерим монстров
+        InitCreatures();
 
-        if HP <= 0 then
-        begin
-            AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creatures[CurrCreature].Name +'!');
-
-            // возвращаемся на первый уровень
-            CurrentLevel(1);
-            // генерим монстров
-            InitCreatures();
-            CurrCreature := 0;
-
-            // лечим игрока
-            playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
-            ChangeParamValue(Player, 'HP', playerLVL * 100);
-//            ChangeParamValue(Player, 'MP', playerLVL * 20);
-            exit;
-        end;
-
-        // проверка состояния текущего монстра
-        HP := StrToIntDef( GetParamValue( Creatures[CurrCreature], 'HP'), 0 );
-
-        if HP <= 0 then
-        begin
-
-            // игрок получает опыт
-            Inventory.Fill( Player.Buffs );
-            EXPbuff := Inventory.Draw( 'EXP', 1 );
-            Player.Buffs := Inventory.Get;
-
-            ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
-
-            if EXPbuff = 0
-            then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creatures[CurrCreature].Name, IntToStr(CurrLevel)]))
-            else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creatures[CurrCreature].Name, IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
-
-            // игрок получает предметы и лут
-            Inventory.Fill( Player.Items );
-            Inventory.Loot( Creatures[CurrCreature].Items );
-            Player.Items := Inventory.Get;
-
-            Inventory.Fill( Player.Loot );
-            Inventory.Loot( Creatures[CurrCreature].Loot );
-            Player.Loot := Inventory.Get;
-
-            // проверяем на возможность левелапа
-            if   AllowLevelUp <> ''
-            then LevelUpPlayer;
-
-            // переходим к следующему монстру
-            Inc(CurrCreature);
-
-        end;
-
+        // лечим игрока
+        playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
+        ChangeParamValue(Player, 'HP', playerLVL * 100);
+        exit;
     end;
 
+    // проверка состояния текущего монстра
+    HP := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
+
+    if HP <= 0 then
+    begin
+
+        // игрок получает опыт
+        Inventory.Fill( Player.Buffs );
+        EXPbuff := Inventory.Draw( 'EXP', 1 );
+        Player.Buffs := Inventory.Get;
+
+        ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
+
+        if EXPbuff = 0
+        then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.Name, IntToStr(CurrLevel)]))
+        else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.Name, IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
+
+        // игрок получает предметы и лут
+        Inventory.Fill( Player.Items );
+        Inventory.Loot( Creature.Items );
+        Player.Items := Inventory.Get;
+
+        Inventory.Fill( Player.Loot );
+        Inventory.Loot( Creature.Loot );
+        Player.Loot := Inventory.Get;
+
+        // проверяем на возможность левелапа
+        if   AllowLevelUp <> ''
+        then LevelUpPlayer;
+
+        // переходим к следующему монстру
+        Inc(CurrStep);
+        InitCreatures();
+    end;
+
+
     // проверка на окончание уровня
-    if CurrCreature > Creatures.Count -1 then
+    if CurrStep > MaxStep then
     begin
         // переходим на новый уровень подземелья
         inc(CurrLevel);
+        CurrentLevel(CurrLevel);
         // генерим новую пачку монстров
         InitCreatures();
-        CurrCreature := 0;
         AddEvent(Format(phrases[PHRASE_TO_NEXT_FLOOR][CurrLang], [CurrLevel]));
     end;
 
@@ -968,9 +939,9 @@ end;
 constructor TData.Create;
 begin
    inherited;
-   CurrCreature := 0;
-   CurrLevel := 1;
-   Creatures := TList<TCreature>.Create();
+   CurrStep := 1;
+   CurrLevel := -1;
+   Creature := TCreature.Create;
    Script := TScriptDrive.Create;
    parser := TStringList.Create;
    Variables := TDictionary<String,String>.Create();
@@ -984,7 +955,7 @@ begin
     Variables.Free;
     parser.Free;
     Script.Free;
-    Creatures.Free;
+    Creature.Free;
     inherited;
 end;
 

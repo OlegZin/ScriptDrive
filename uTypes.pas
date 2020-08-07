@@ -171,7 +171,7 @@ var
              'AddEvent(What are you doing in my Tower insignificance!?);' +
              'AddEvent(.);'+
              'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=99999 ATK=100,,spirit=1)'
+             'SetCreature(DARK MASTER,HP=99999 ATK=100,,Spirit=1)'
         )
        ,(level: 11;
          script:
@@ -180,14 +180,13 @@ var
              'AddEvent(.);'+
              'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
              'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
-             'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=99999 ATK=100,,spirit=1)'
+             'SetCreature(DARK MASTER,HP=99999 ATK=100,,Spirit=1)'
         ))
 
        ,((level: maxint;
          script:
              'AddEvent(!!! INCREDIBLE !!!);' +
-             'AddEvent(!!! YOU WIN THE GAME !!!);' +
+             'AddEvent(!!! YOU PASS THE GAME !!!);' +
              'CurrentLevel(1);InitCreatures();'
         )
        ,(level: maxint;

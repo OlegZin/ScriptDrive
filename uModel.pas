@@ -178,11 +178,11 @@ begin
 
     // инфа по текущему / топовому этажу
     floor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
-    step := StrToIntDef(Script.Exec('CurrentCreature()'), 0);
+    step := StrToIntDef(Script.Exec('CurrentStep()'), 0);
     if floor * 1000000 + step > topFloor then
        topFloor := floor * 1000000 + step;
 
-    lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('CreaturesCount()');
+    lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
     ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
     lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
