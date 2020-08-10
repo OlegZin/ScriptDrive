@@ -134,7 +134,7 @@ var
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
     targets: array [0..3] of TTarget = (
-        (level: 1;
+        (level: 2;
          script:
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
@@ -152,7 +152,7 @@ var
              'ChangePlayerItemCount(AutoATK, 5);'
         )
 
-       ,(level: 2;
+       ,(level: 6;
          script:
              'SetBreak(Tower);'+
              'SetCreature(DARK MASTER,HP=99 ATK=0,,Spirit=1);'+
@@ -181,15 +181,19 @@ var
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
-             'IF({GetLang() = RU}, 1);'+
-             'AddEvent(!!! Доступен режим создания предметов !!!);'+
+             'IF({GetLang() = RU}, 3);'+
+             'AddEvent(!!! Доступен режим Раздумий);'+
+             'AddEvent(Вам следует как следует подумать об этом!);'+
+             'AddEvent(Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?);'+
 
-             'IF({GetLang() = ENG}, 1);'+
-             'AddEvent(!!! Allow item crafting now !!!);'+
+             'IF({GetLang() = ENG}, 3);'+
+             'AddEvent(!!! Доступен режим Раздумий);'+
+             'AddEvent(Вам следует как следует подумать об этом!);'+
+             'AddEvent(Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?);'+
 
              'AddEvent(..................);'+
 
-             'AllowMode(Craft, 1);'
+             'AllowMode(Think, 1);'
         )
 
        ,(level: maxint;
@@ -451,8 +455,11 @@ var
     (('Level up skill %s is cost %d exp!'),
      ('Улучшение навыка %s стоит %d exp')),
 
-    ((''),('')),
-    ((''),(''))
+    (('Player strike by %d DMG'),
+     ('Игрок нанес %d урона')),
+
+    (('Monster strike by %d DMG'),
+     ('Монстр нанес %d урона'))
     );
 const
     PHRASE_LEVEL_UP       = 0;
@@ -463,6 +470,9 @@ const
     PHRASE_SKILL_OVERCOST = 5;
     PHRASE_SKILL_UP       = 6;
     PHRASE_SKILL_OVERUP   = 7;
+    PHRASE_PLAYER_STRIKE  = 8;
+    PHRASE_MONSTER_STRIKE = 9;
+
 implementation
 
 end.

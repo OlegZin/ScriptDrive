@@ -547,6 +547,7 @@ begin
     CreatureHP  := CreatureHP - DMG;
 
     SetParamValue( Creature, 'HP', IntToStr(CreatureHP) );
+    AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]));
 end;
 
 procedure TData.DoDamageToPlayer(input: string);
@@ -574,6 +575,7 @@ begin
     PlayerHP  := PlayerHP - DMG;
 
     SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
+    AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE][CurrLang], [DMG]));
 end;
 
 function TData.CurrentStep: string;
