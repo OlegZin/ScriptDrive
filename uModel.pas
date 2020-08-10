@@ -172,10 +172,10 @@ procedure TForm3.UpdateInterface;
 var
     itemItem, itemSkill: integer;
     AutoCount: integer;
-    tmp, exp, lvl, selItem, selSkill, reg: string;
+    tmp, exp, lvl, selItem, selSkill, reg, breaks: string;
     floor, step: integer;
     pars: TstringList;
-  i: Integer;
+    i: Integer;
 begin
     pars := TStringList.Create;
 
@@ -201,6 +201,18 @@ begin
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
 
+
+    breaks := Script.Exec('GetBreaks()');
+    if pos('Tower', breaks) > 0 then
+    begin
+        mmiTowerAuto.Checked := false;
+        cbAutoAttack.Checked := false;
+    end;
+    if pos('Think', breaks) > 0 then
+    begin
+        mmiThinkAuto.Checked := false;
+        cbAutoThink.Checked := false;
+    end;
 
 
     // инфа по текущему / топовому этажу

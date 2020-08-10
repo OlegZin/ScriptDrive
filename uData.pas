@@ -23,6 +23,9 @@ type
         CurrLang: integer;         // текущий язык
 
         EventText: string;
+        Breaks: String;  /// набор флагов с именами режимов, для которых произошли события
+        ///    требкующие прерывания автодействий
+        ///    например, выставлен флаг Tower, поскольку достигнут целевой этаж
 
         AllowModes: string;
         /// основной управляющий игрой массив с флагами доступных игроку игровых возможностей
@@ -119,6 +122,9 @@ type
 
         function GetSkillLvl(name: string): string;
         function GetPlayerSkills: string;
+
+        procedure SetBreak(name: string);  // флаги события остановки автодействий для различных режимов
+        function GetBreaks: string; // получение списка флаго текущих прерываний и их очистка
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -204,6 +210,12 @@ end;
 function TData.GetAutoATK: string;
 begin
     result := IntToStr(AutoATKCount);
+end;
+
+function TData.GetBreaks: string;
+begin
+    result := Breaks;
+    Breaks := '';
 end;
 
 function TData.GetCurrCreatureInfo: string;
@@ -592,6 +604,16 @@ end;
 procedure TData.SetAutoATK(count: variant);
 begin
     AutoATKCount := count;
+end;
+
+procedure TData.SetBreak(name: string);
+begin
+    /// если флаг уже есть - выходи
+    if Pos(name, Breaks) <> 0 then exit;
+
+    if Length(Breaks) > 0
+    then Breaks := Breaks + ',' + name
+    else Breaks := name;
 end;
 
 procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');

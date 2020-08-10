@@ -136,6 +136,7 @@ var
     targets: array [0..3] of TTarget = (
         (level: 1;
          script:
+             'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
              'IF({GetLang() = RU}, 2);'+
@@ -153,6 +154,7 @@ var
 
        ,(level: 2;
          script:
+             'SetBreak(Tower);'+
              'SetCreature(DARK MASTER,HP=99 ATK=0,,Spirit=1);'+
 
              'AddEvent(..................);'+
@@ -176,6 +178,7 @@ var
 
        ,(level: 7;
          script:
+             'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
              'IF({GetLang() = RU}, 1);'+
@@ -191,6 +194,7 @@ var
 
        ,(level: maxint;
          script:
+             'SetBreak(Tower);'+
              'IF({GetLang() = ENG}, 2);'+
              'AddEvent(!!! INCREDIBLE !!!);' +
              'AddEvent(!!! YOU PASS THE GAME !!!);' +
