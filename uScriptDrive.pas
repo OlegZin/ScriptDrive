@@ -8,6 +8,7 @@ type
 
     TScriptDrive = class
     private
+        fVars: TDictionary<String,String>;
         fCash : TDictionary<String,TRttiMethod>;
         function GetMethodName(command: string): string;
         function GetParams(command: string): TStringList;
@@ -34,15 +35,18 @@ var
     _obj: TObject;
     regFunction: TRegEx;
     regMath: TRegEx;
+    regNotExec: TRegEx;
 
 function TScriptDrive.Exec(scrt:string): string;
 var
-    method, line: string;
+    method, line, varName: string;
     params: TStringList;
     i, j : integer;
     prs: TStringList;
 
     match : TMatch;
+    matches : TMatchCollection;
+
     found,
     scriptCommand  // признак того, что в данный момент обрабатывается управляющая команда движка
             : boolean;
@@ -56,6 +60,23 @@ begin
     end;
 
     prs := TStringList.Create;
+
+
+    /// в скриптах могут находиться куски в " кавычках, как неисполняемые параметры для функций
+    /// для их маскировки при поиске выполняемых кусков в текущей стрке, будем их вырезать и заменять
+    /// переменными, которые будут автоматом подставляться обратно методом CalcMath
+    repeat
+        match := regNotExec.Match(scrt);
+        if match.Value <> '' then
+        begin
+            /// добавляем невыполняемый скрипт в буффер
+            varName := 'Var'+IntToStr(fVars.Count);
+            fVars.Add( varName, copy(match.Value, 2, Length(match.Value)-2) );
+            /// подменяем строку именем переменной из кэша
+            scrt := StringReplace(scrt, match.Value, '{'+varName+'}', []);
+        end;
+    until match.Value = '';
+
 
     /// полученный набор команд разбиваем на строки и выполняем по отдельности
     prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
@@ -86,6 +107,8 @@ begin
         repeat
 
             match := regFunction.Match(line);
+            matches := regFunction.Matches(line);
+
 
             method := GetMethodName(match.Value);
             params := GetParams(match.Value);
@@ -209,6 +232,9 @@ begin
     prs.Free;
 
     result := trim(line);
+
+    // чистим кэш переменных
+    fVars.Clear;
 end;
 
 function TScriptDrive.GetMethodName(command: string): string;
@@ -243,7 +269,7 @@ var
     mth, toCalc,
     operation : string;
     operandA, operandB: integer;
-    operandAs, operandBs: string;
+    operandAs, operandBs, varValue: string;
     i : integer;
     beg: integer;
     parse: TStringList;
@@ -267,9 +293,24 @@ begin
     /// ищем наличие математики
     if Pos('{', command) = 0 then exit;
 
+
+
     /// вырезаем арифметику в отдельную строку для обработки
     beg := pos('{', command) + 1;
-    mth := copy(command, beg, pos('}', command)-beg);
+    mth := Trim( copy(command, beg, pos('}', command)-beg) );
+
+
+
+    /// смотрим, не является ли это выражение именем переменной из кэша
+    varValue := '';
+    if fVars.TryGetValue(mth, varValue) then
+    begin
+        /// возвращаем значение из кэша
+        result := varValue;
+        exit;
+    end;
+
+
 
     mth := '('+mth+')';
 
@@ -279,20 +320,6 @@ begin
 
     // создаем парсер
     parse := TStringList.Create;
-{    notation := TStringList.Create;  // нотация для дальнейшего вычисления
-    digit := TStringList.Create;     // стек чисел при разборе parse
-    oper := TStringList.Create;      // стек операндов при разборе parse
-
-    // запихиваем формулу в парсер. она автоматом разбивается на отдельные строки по запятым и пробелам
-    parse.CommaText := mth;
-
-    // перебираем элементы формулы и формируем массив польской нотации
-    for I := 0 to Length(parse) do
-    begin
-        if Trim(parse[i]) = '' then continue;
-
-    end;
-}
 
     /// в данный момент у нас есть строка без лишних пробелов, без функций, с числами, арифметическими операндами и скобками.
     /// в первую очередь требуется избавиться от скобок, т.е. вычленять и вычислять группы между открывающей и закрывыающей скобкой,
@@ -537,12 +564,15 @@ begin
     // functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {jgj+functionF(7)} ))+UseItem(RestoreHeal)
     regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w|[а-яА-Я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*(\d|\w)*\s*[\+\-\*\/\>\<\=]?)*\)');
+    regNotExec := TRegEx.Create('\".*\"');
 
     fCash := TDictionary<String,TRttiMethod>.Create();
+    fVars := TDictionary<String,String>.Create();
 end;
 
 destructor TScriptDrive.Destroy;
 begin
+    fVars.Free;
     fCash.Free;
     parser.Free;
 end;

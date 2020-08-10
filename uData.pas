@@ -58,8 +58,6 @@ type
         function GeAttr(creature: TCreature; name: string): string;
 
         function GetCurrTarget: string;
-        procedure SetCurrTargetIndex(value: variant);
-
         procedure SetPlayerBuff(name, count: variant);
         // добавление бонуса в Player.Buffs
 
@@ -401,6 +399,8 @@ begin
             );
         end;
 
+
+
 end;
 
 procedure TData.InitPlayer;
@@ -601,19 +601,13 @@ begin
     Creature.Items  := items;
     Creature.Loot   := loot;
 
+    Creature.Events := '';
     SetEventScript( Creature, 'OnAttack', 'DoDamageToPlayer(GetMonsterAttr(ATK));');
 end;
 
 procedure TData.SetCreatureScript(event, scr: string);
 begin
     SetEventScript(Creature, event, scr);
-end;
-
-procedure TData.SetCurrTargetIndex(value: variant);
-begin
-    if (value < 0) or (value > High(targets)) then exit;
-
-    CurrTargetIndex := value;
 end;
 
 procedure TData.SetEventScript(creature: TCreature; name, script: string);
@@ -910,6 +904,9 @@ begin
 
     if HP <= 0 then
     begin
+
+        // выполняем посмертный скрипт
+        Script.Exec( GetEventScript(Creature, 'OnDeath') );
 
         // игрок получает опыт
         Inventory.Fill( Player.Buffs );

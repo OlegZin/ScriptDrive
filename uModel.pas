@@ -144,9 +144,7 @@ begin
     Script.Exec('SetLang(RU)');
     SetLang('RU');
 
-//    SetLang( Script.Exec('GetLang()') );
-
-    Script.Exec('AllowMode(Think, 1)');
+//    Script.Exec('AllowMode(Think, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -159,15 +157,14 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-//    if   Script.Exec('ProcessAuto()') <> ''
-//    then UpdateInterface;
+    if   Script.Exec('ProcessAuto()') <> ''
+    then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin
         Script.Exec('ChangeAutoATK(-1)');
         bAttack.Click;
     end;
-
 
 end;
 
