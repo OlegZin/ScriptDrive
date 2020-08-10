@@ -22,7 +22,6 @@ type
     lNeedExp: TLabel;
     cbAutoAttack: TCheckBox;
     tAutoAttack: TTimer;
-    lAutoCount: TLabel;
     pcGame: TPageControl;
     pTower: TTabSheet;
     pCraft: TTabSheet;
@@ -176,7 +175,7 @@ procedure TForm3.UpdateInterface;
 var
     itemItem, itemSkill: integer;
     AutoCount: integer;
-    tmp, exp, lvl, selItem, selSkill: string;
+    tmp, exp, lvl, selItem, selSkill, reg: string;
     floor, step: integer;
     pars: TstringList;
   i: Integer;
@@ -224,7 +223,7 @@ begin
     if CurrLang = 'RU' then
     begin
       lStep.Caption    := 'Этаж: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
-      ltopStep.Caption := 'Лучш.: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
+      ltopStep.Caption := 'Лучший: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
       lTarget.Caption := 'Цель: ' + Script.Exec('GetCurrTarget()') + ' этаж';
     end;
@@ -247,10 +246,18 @@ begin
     lPlayerInfo.Caption := ReplaceStr( pars.CommaText, ',', '  ' );
 
     // инфа по текущему опыту игрока
-    lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
+    if CurrLang = 'ENG' then
+        lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
+
+    if CurrLang = 'RU' then
+        lNeedExp.Caption := 'Ур.: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
 
     // текущие наложенные бафы
-    lBuffs.Caption := 'Regen: ' + Script.Exec('GetPlayerBuffs()');
+    reg := Script.Exec('GetPlayerBuffs()');
+    if CurrLang = 'ENG' then
+        lBuffs.Caption := 'Regen: ' + reg;
+    if CurrLang = 'RU' then
+        lBuffs.Caption := 'Реген.: ' + reg;
 
 
     // список предметов
@@ -283,15 +290,22 @@ begin
 
     /// количество автоатак
     AutoCount := StrToIntDef(Script.Exec('GetAutoATK()'), 0);
-    lAutoCount.Caption := 'Auto: ' + IntToStr(AutoCount);
-    mmiAuto.Caption := 'Auto: ' + IntToStr(AutoCount);
 
     if AutoCount <= 0 then
     begin
         cbAutoAttack.Checked := false;
-        cbAutoAttack.Enabled := false;
-    end else
-        cbAutoAttack.Enabled := true;
+        mmiTowerAuto.Checked := false;
+        mmiThinkAuto.Checked := false;
+    end;
+    cbAutoAttack.Enabled := AutoCount > 0;
+    mmiTowerAuto.Enabled := AutoCount > 0;
+    mmiThinkAuto.Enabled := AutoCount > 0;
+
+    if CurrLang = 'ENG' then
+        mmiAuto.Caption := 'AutoAction: ' + IntToStr(AutoCount);
+    if CurrLang = 'RU' then
+        mmiAuto.Caption := 'Автодействия: ' + IntToStr(AutoCount);
+
 
 
     /// отображение событий в логе
@@ -387,10 +401,11 @@ begin
 
         mmiTowerAuto.Caption := 'Tower';
         mmiThinkAuto.Caption := 'Think';
+
         pTower.Caption := 'Tower';
         pThink.Caption := 'Think';
 
-        bResetTower.Caption := 'Restart Tower';
+        bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';
         bSkillUse.Caption := 'Use!';
         bUpSkill.Caption := 'Up!';

@@ -21,27 +21,14 @@ object Form3: TForm3
     Top = 0
     Width = 602
     Height = 223
-    ActivePage = pThink
+    ActivePage = pTower
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 597
-    ExplicitHeight = 186
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitWidth = 589
-      ExplicitHeight = 158
       DesignSize = (
         594
         195)
-      object lAutoCount: TLabel
-        Left = 73
-        Top = 38
-        Width = 90
-        Height = 15
-        Alignment = taCenter
-        AutoSize = False
-        Caption = 'lAutoCount'
-      end
       object lCreatureInfo: TLabel
         Left = 166
         Top = 68
@@ -162,8 +149,6 @@ object Form3: TForm3
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 7
-        ExplicitWidth = 582
-        ExplicitHeight = 68
       end
       object bUpSkill: TButton
         Left = 553
@@ -178,8 +163,6 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
-      ExplicitWidth = 589
-      ExplicitHeight = 158
       DesignSize = (
         594
         195)
@@ -207,7 +190,6 @@ object Form3: TForm3
         Anchors = [akLeft, akTop, akRight, akBottom]
         ScrollBars = ssVertical
         TabOrder = 2
-        ExplicitWidth = 360
       end
       object lbThinkList: TListBox
         Left = 3
@@ -222,8 +204,6 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitWidth = 589
-      ExplicitHeight = 158
       DesignSize = (
         594
         195)
@@ -242,7 +222,6 @@ object Form3: TForm3
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 131
       end
     end
   end

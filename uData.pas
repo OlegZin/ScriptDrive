@@ -100,9 +100,6 @@ type
         procedure SetVar(name, value: string);
         function GetVar(name: string): string;
 
-        function Rand(max: string): string;
-        function Min(first, second: variant): string;
-
         procedure ChangePlayerItemCount(name, delta: variant);
         function GetPlayerItemCount(name: variant):string;
         function GetItemCount(list, name: string): string;
@@ -128,14 +125,15 @@ type
         parser: TStringList;
         Script : TScriptDrive;
 
-        function FillVars(creature: TCreature; scr: string): string;
-
         function GetParamValue(creature: TCreature; param: string): string;
         procedure SetParamValue(creature: TCreature; param, value: string);
         function ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
 
         procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
-    procedure SetPlayerAuto(name, count: variant);  // подставл€ем в текст скрипта значени€ параметры существа/игрока
+
+        function GetEventScript(creature: TCreature; name: string): string;
+        procedure SetEventScript(creature: TCreature; name, script: string);
+        procedure RemoveEventScript(creature: TCreature; name, script: string);
     end;
 
     /// класс-менеджер дл€ манипул€ций с содержимым инвентар€
@@ -228,6 +226,20 @@ function TData.GetEvents: string;
 begin
     result := EventText;
     EventText := '';
+end;
+
+function TData.GetEventScript(creature: TCreature; name: string): string;
+var
+    pars: TStringList;
+begin
+    result := '';
+
+    pars := TStringList.Create;
+    pars.CommaText := creature.Events;
+    if pars.IndexOfName(name) <> -1 then
+        result := pars.Values[name];
+
+    pars.Free;
 end;
 
 function TData.GetPlayerAttr(name: string): string;
@@ -396,6 +408,8 @@ var
     i: integer;
     s, comma: string;
 begin
+
+    /// имена скилов берем из массива, поскольку, изначалоно все они у игрока есть
     comma := '';
     for I := 0 to High(skills) do
     begin
@@ -427,24 +441,15 @@ end;
 
 
 
-function TData.Min(first, second: variant): string;
-var
-    a, b: integer;
-begin
-    a := StrToIntDef(first, 0);
-    b := StrToIntDef(second, 0);
-    result := IntToStr(Math.Min(a, b));
-end;
-
 procedure TData.PlayerAttack;
 // команда персонажу атаковать текущую цель
 // выполн€ем скрипт OnAttack
 var
     scr: string; // текст скрипта
 begin
-    scr := Player.OnAttack;
-    scr := FillVars(Player, scr);
-    Script.Exec( scr );
+    scr := GetEventScript( Player, 'OnAttack' );
+    if scr <> '' then
+        Script.Exec( scr );
 end;
 
 function TData.ProcessAuto: string;
@@ -487,9 +492,11 @@ begin
     prs.Free;
 end;
 
-function TData.Rand(max: string): string;
+
+procedure TData.RemoveEventScript(creature: TCreature; name, script: string);
+/// удаление из скрипта указанного куска
 begin
-    result := IntToStr(Random(StrToIntDef(max, 0)));
+    creature.Events := StringReplace( creature.Events, script, '', [] );
 end;
 
 procedure TData.CreatureAttack;
@@ -498,9 +505,8 @@ procedure TData.CreatureAttack;
 var
     scr: string; // текст скрипта
 begin
-    scr := Creature.OnAttack;
-    scr := FillVars(Creature, scr);
-    Script.Exec( scr );
+    scr := GetEventScript( Creature, 'OnAttack' );
+    if scr <> '' then Script.Exec( scr );
 end;
 
 procedure TData.DoDamageToCreature(input: string);
@@ -594,7 +600,12 @@ begin
     Creature.Items  := items;
     Creature.Loot   := loot;
 
-    Creature.OnAttack := 'DoDamageToPlayer({ATK})';
+    SetEventScript( Creature, 'OnAttack', 'DoDamageToPlayer(GetMonsterAttr(ATK));');
+end;
+
+procedure TData.SetCreatureScript(event, scr: string);
+begin
+    SetEventScript(Creature, event, scr);
 end;
 
 procedure TData.SetCurrTargetIndex(value: variant);
@@ -602,6 +613,21 @@ begin
     if (value < 0) or (value > High(targets)) then exit;
 
     CurrTargetIndex := value;
+end;
+
+procedure TData.SetEventScript(creature: TCreature; name, script: string);
+var
+    pars: TStringList;
+begin
+    pars := TStringList.Create;
+    pars.CommaText := creature.Events;
+
+    /// поскольку на одно событие скрипт может собиратьс€ из различных источников (разовых временных и посто€нных эффектов)
+    /// то новый скрипт дописываем к текущей строке
+    pars.Values[name] := pars.Values[name] + script;
+    creature.Events := pars.CommaText;
+
+    pars.Free;
 end;
 
 procedure TData.SetLang(lang: string);
@@ -622,11 +648,7 @@ begin
     Player.Items  := items;
     Player.Loot   := loot;
 
-    Player.OnAttack := 'DoDamageToCreature({ATK})';
-end;
-
-procedure TData.SetPlayerAuto(name, count: variant);
-begin
+    SetEventScript(Player, 'OnAttack', 'DoDamageToCreature(GetPlayerAttr(ATK))')
 end;
 
 procedure TData.SetPlayerAutoBuff(name, count: variant);
@@ -641,6 +663,11 @@ begin
     Inventory.Fill(Player.Buffs);
     Inventory.ChangeItemCount(name, count);
     Player.Buffs := Inventory.Get;
+end;
+
+procedure TData.SetPlayerScript(event, scr: string);
+begin
+    SetEventScript(Player, event, scr);
 end;
 
 procedure TData.SetVar(name, value: string);
@@ -746,22 +773,6 @@ begin
     if (curr > 0) then parser.Values[name] := IntToStr(curr);
 
     player.Items := parser.CommaText;
-end;
-
-function TData.FillVars(creature: TCreature; scr: string): string;
-// подставл€ем в текст скрипта значени€ параметры существа/игрока
-var
-    i: integer;
-begin
-
-    result := scr;
-
-    parser.CommaText := creature.Params;
-    // после присвоени€, строка разбиваетс€ на несколько по зап€тым и теперь это
-    // список вида ключ=значение
-    // перебирем все ключи и замен€ем их упоминани€ значени€ми
-    for i := 0 to parser.Count-1 do
-        result := StringReplace(result, '{'+Trim(parser.Names[i])+'}', Trim(parser.Values[parser.Names[i]]), [rfReplaceAll, rfIgnoreCase]);
 end;
 
 function TData.GetParamValue(creature: TCreature; param: string): string;

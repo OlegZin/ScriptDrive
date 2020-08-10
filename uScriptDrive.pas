@@ -2,7 +2,7 @@ unit uScriptDrive;
 
 interface
 
-uses RTTI,  Classes, SysUtils, RegularExpressions, Generics.Collections;
+uses RTTI,  Classes, SysUtils, RegularExpressions, Generics.Collections, Math;
 
 type
 
@@ -134,6 +134,26 @@ begin
                 end;
             end;
 
+            if AnsiUpperCase(method) = 'RAND' then
+            begin
+                scriptCommand := true;
+                if params.Count = 1 then
+                    result := IntToStr(Random(StrToIntDef(params[0], 0)));
+            end;
+
+            if AnsiUpperCase(method) = 'MIN' then
+            begin
+                scriptCommand := true;
+                if params.Count = 2 then
+                    result := IntToStr(Min(StrToIntDef(params[0], 0), StrToIntDef(params[1], 0)));
+            end;
+
+            if AnsiUpperCase(method) = 'MAX' then
+            begin
+                scriptCommand := true;
+                if params.Count = 2 then
+                    result := IntToStr(Max(StrToIntDef(params[0], 0), StrToIntDef(params[1], 0)));
+            end;
 
 
 
