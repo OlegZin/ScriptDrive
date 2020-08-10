@@ -133,6 +133,7 @@ type
 
         function GetEventScript(creature: TCreature; name: string): string;
         procedure SetEventScript(creature: TCreature; name, script: string);
+        procedure AddEventScript(creature: TCreature; name, script: string);
         procedure RemoveEventScript(creature: TCreature; name, script: string);
     end;
 
@@ -219,7 +220,7 @@ end;
 
 function TData.GetCurrTarget: string;
 begin
-    result := IntToStr(targets[CurrTargetIndex][0].level);
+    result := IntToStr(targets[CurrTargetIndex].level);
 end;
 
 function TData.GetEvents: string;
@@ -550,7 +551,7 @@ begin
     DEFbuff := Inventory.Draw( 'DEF', 1 );
     Player.Buffs := Inventory.Get;
 
-    CreatureATK   := StrToIntDef(input, 0);
+    CreatureATK := StrToIntDef(input, 0);
     PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
     PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 ) + DEFbuff;
 
@@ -616,6 +617,19 @@ begin
 end;
 
 procedure TData.SetEventScript(creature: TCreature; name, script: string);
+var
+    pars: TStringList;
+begin
+    pars := TStringList.Create;
+    pars.CommaText := creature.Events;
+
+    pars.Values[name] := script;
+    creature.Events := pars.CommaText;
+
+    pars.Free;
+end;
+
+procedure TData.AddEventScript(creature: TCreature; name, script: string);
 var
     pars: TStringList;
 begin
@@ -887,7 +901,7 @@ begin
 
         // лечим игрока
         playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
-        ChangeParamValue(Player, 'HP', playerLVL * 100);
+        SetParamValue(Player, 'HP', IntToStr(playerLVL * 100));
         exit;
     end;
 
@@ -939,10 +953,10 @@ begin
     end;
 
     // проверка на достижение цели
-    if CurrLevel >= targets[CurrTargetIndex][0].level then
+    if CurrLevel >= targets[CurrTargetIndex].level then
     begin
         /// выполняем скрипт достижения цели
-        Script.Exec( targets[CurrTargetIndex][CurrLang].script );
+        Script.Exec( targets[CurrTargetIndex].script );
 
         /// переходим к следующей, если есть
         if CurrTargetIndex < High(targets)

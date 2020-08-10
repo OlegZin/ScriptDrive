@@ -243,12 +243,13 @@ var
     mth, toCalc,
     operation : string;
     operandA, operandB: integer;
+    operandAs, operandBs: string;
     i : integer;
     beg: integer;
     parse: TStringList;
     notation: TStringList;
     digit, oper: TStringList;
-    found: boolean;
+    found, mathCompare, stringCompare: boolean;
 
     HiPrior : string;
     LowPrior : string;
@@ -261,7 +262,7 @@ begin
 
     HiPrior := '()*/';
     LowPrior := '+-';
-    ComparePrior := '>=<=';
+    ComparePrior := '<>=<=';
 
     /// ищем наличие математики
     if Pos('{', command) = 0 then exit;
@@ -422,29 +423,93 @@ begin
           if pos(parse[i], ComparePrior) > 0 then
           begin
               found := true;
-              operandA := StrToInt(parse[i-1]);
-              operation := parse[i];
-              operandB := StrToInt(parse[i+1]);
+
+              // с операндами ComparePrior возможно и текстовое сравнение
+              // поэтому проверяем какие операнды переданы
+              mathCompare :=
+                  (StrToIntDef(parse[i-1], MaxInt) <> MaxInt) and
+                  (StrToIntDef(parse[i+1], MaxInt) <> MaxInt);
+
+              if not mathCompare then
+              begin
+                  operandAs := parse[i-1];
+                  operation := parse[i];
+                  operandBs := parse[i+1];
+              end else
+              begin
+                  operandA := StrToInt(parse[i-1]);
+                  operation := parse[i];
+                  operandB := StrToInt(parse[i+1]);
+              end;
+
               break;
           end;
 
           if operation <> '' then
           begin
               /// вычисляем, сохраняя результат на мете первого операнда
-              if operation = '<' then
+              if (operation = '<') and not mathCompare then
+                  if operandAs < operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '>') and not mathCompare then
+                  if operandAs > operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '=') and not mathCompare then
+                  if operandAs = operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '>=') and not mathCompare then
+                  if operandAs >= operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '<=') and not mathCompare then
+                  if operandAs <= operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '<>') and not mathCompare then
+                  if operandAs <> operandBs
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+
+
+              if (operation = '<') and mathCompare then
                   if operandA < operandB
                   then logicResult := 'true'
                   else logicResult := 'false';
 
-              if operation = '>' then
+              if (operation = '>') and mathCompare then
                   if operandA > operandB
                   then logicResult := 'true'
                   else logicResult := 'false';
 
-              if operation = '=' then
+              if (operation = '=') and mathCompare then
                   if operandA = operandB
                   then logicResult := 'true'
                   else logicResult := 'false';
+
+              if (operation = '>=') and mathCompare then
+                  if operandA >= operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '<=') and mathCompare then
+                  if operandA <= operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
+              if (operation = '<>') and mathCompare then
+                  if operandA <> operandB
+                  then logicResult := 'true'
+                  else logicResult := 'false';
+
 
               // оператор и второй операнд - чистим
               parse[i-1] := logicResult;
@@ -471,7 +536,7 @@ begin
 
     // functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {jgj+functionF(7)} ))+UseItem(RestoreHeal)
     regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]?\s*)*\}|(\w|[а-яА-Я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`]))\s*\,*\s*)*\)');
-    regMath := TRegEx.Create('\((\s*\d*\s*[\+\-\*\/\>\<\=]?)*\)');
+    regMath := TRegEx.Create('\((\s*(\d|\w)*\s*[\+\-\*\/\>\<\=]?)*\)');
 
     fCash := TDictionary<String,TRttiMethod>.Create();
 end;

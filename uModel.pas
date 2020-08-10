@@ -159,8 +159,8 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-    if   Script.Exec('ProcessAuto()') <> ''
-    then UpdateInterface;
+//    if   Script.Exec('ProcessAuto()') <> ''
+//    then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin

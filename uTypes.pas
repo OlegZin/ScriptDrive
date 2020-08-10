@@ -133,72 +133,65 @@ var
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..3,0..1] of TTarget = (
-        ((level: 2;
-         script:
-             'AddEvent(.);'+
-             'AddEvent(Player get 5 AutoATK items);'+
-             'AddEvent(Good job! Keep going!);'+
-             'AddEvent(.);'+
-             'ChangePlayerItemCount(AutoATK, 5);'
-        ),
+    targets: array [0..3] of TTarget = (
         (level: 2;
          script:
              'AddEvent(.);'+
-             'AddEvent(Игрок получил 5 зелий AutoATK);'+
-             'AddEvent(- Отличная работа! Держи `краба`!);'+
+
+             'IF({GetLang() = RU}, 2);'+
+             'AddEvent(Игрок получает 5 зелий AutoATK);'+
+             'AddEvent(Отличная работа! Так держать!);'+
+             'IF({GetLang() = ENG}, 2);'+
+             'AddEvent(Player get 5 AutoATK items);'+
+             'AddEvent(Good job! Keep going!);'+
+
              'AddEvent(.);'+
              'ChangePlayerItemCount(AutoATK, 5);'
-        ))
-
-       ,((level: 6;
-         script:
-             'AddEvent(.);'+
-             'AddEvent(!!! Allow item crafting now !!!);'+
-             'AddEvent(.);'+
-             'AllowMode(Craft, 1);'
         )
+
        ,(level: 6;
          script:
              'AddEvent(.);'+
+
+             'IF({GetLang() = RU}, 1);'+
              'AddEvent(!!! Доступен режим крафта предметов !!!);'+
+             'IF({GetLang() = ENG}, 1);'+
+             'AddEvent(!!! Allow item crafting now !!!);'+
+
              'AddEvent(.);'+
              'AllowMode(Craft, 1);'
-        ))
-
-       ,((level: 11;
-         script:
-             'AddEvent(.);'+
-             'AddEvent(Use `Reset Tower` button to avoid enemy );' +
-             'AddEvent(.);'+
-             'AddEvent(YOU WILL NOT PASS !!!);' +
-             'AddEvent(What are you doing in my Tower insignificance!?);' +
-             'AddEvent(.);'+
-             'DropCreatures();'+
-             'SetCreature(DARK MASTER,HP=99999 ATK=100,,Spirit=1)'
         )
+
        ,(level: 11;
          script:
              'AddEvent(.);'+
+
+             'IF({GetLang() = ENG}, 3);'+
+             'AddEvent(Use `Reset Tower` button to avoid enemy );' +
+             'AddEvent(YOU WILL NOT PASS !!!);' +
+             'AddEvent(What are you doing in my Tower insignificance!?);' +
+
+             'IF({GetLang() = RU}, 3);'+
              'AddEvent(-> Используйте кнопку `Reset Tower` чтобы избежать врага);' +
-             'AddEvent(.);'+
              'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
              'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
-             'SetCreature(DARK MASTER,HP=99999 ATK=100,,Spirit=1)'
-        ))
 
-       ,((level: maxint;
-         script:
-             'AddEvent(!!! INCREDIBLE !!!);' +
-             'AddEvent(!!! YOU PASS THE GAME !!!);' +
-             'CurrentLevel(1);InitCreatures();'
+             'AddEvent(.);'+
+             'SetCreature(DARK MASTER,HP=99999 ATK=100,,Spirit=1)'
         )
+
        ,(level: maxint;
          script:
+             'IF({GetLang() = ENG}, 2);'+
+             'AddEvent(!!! INCREDIBLE !!!);' +
+             'AddEvent(!!! YOU PASS THE GAME !!!);' +
+
+             'IF({GetLang() = RU}, 2);'+
              'AddEvent(!!! НЕВЕРОЯТНО !!!);' +
              'AddEvent(!!! ТЫ ПРОШЕЛ ИГРУ !!!);' +
+
              'CurrentLevel(1);InitCreatures();'
-        ))
+        )
     );
 
     // предметы-расходники. в механике имеют разные уровни силы
