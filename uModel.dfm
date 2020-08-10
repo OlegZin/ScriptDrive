@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 0.1 (techno demo)'
-  ClientHeight = 186
-  ClientWidth = 597
+  ClientHeight = 223
+  ClientWidth = 602
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,16 +19,20 @@ object Form3: TForm3
   object pcGame: TPageControl
     Left = 0
     Top = 0
-    Width = 597
-    Height = 186
-    ActivePage = pTower
+    Width = 602
+    Height = 223
+    ActivePage = pThink
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 597
+    ExplicitHeight = 186
     object pTower: TTabSheet
       Caption = 'Tower'
+      ExplicitWidth = 589
+      ExplicitHeight = 158
       DesignSize = (
-        589
-        158)
+        594
+        195)
       object lAutoCount: TLabel
         Left = 73
         Top = 38
@@ -114,14 +118,14 @@ object Form3: TForm3
         TabOrder = 2
         OnClick = bSkillUseClick
       end
-      object Button1: TButton
+      object bResetTower: TButton
         Left = 2
         Top = 8
         Width = 75
         Height = 25
         Caption = 'Reset Tower'
         TabOrder = 3
-        OnClick = Button1Click
+        OnClick = bResetTowerClick
       end
       object cbAutoAttack: TCheckBox
         Left = 96
@@ -129,6 +133,7 @@ object Form3: TForm3
         Width = 13
         Height = 15
         TabOrder = 4
+        OnClick = cbAutoAttackClick
       end
       object cbItem: TComboBox
         Left = 165
@@ -151,12 +156,14 @@ object Form3: TForm3
       object mLog: TMemo
         Left = 2
         Top = 87
-        Width = 582
-        Height = 68
+        Width = 587
+        Height = 105
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 7
+        ExplicitWidth = 582
+        ExplicitHeight = 68
       end
       object bUpSkill: TButton
         Left = 553
@@ -168,12 +175,58 @@ object Form3: TForm3
         OnClick = bUpSkillClick
       end
     end
+    object pThink: TTabSheet
+      Caption = 'Think'
+      ImageIndex = 2
+      ExplicitWidth = 589
+      ExplicitHeight = 158
+      DesignSize = (
+        594
+        195)
+      object bThink: TButton
+        Left = 3
+        Top = 3
+        Width = 207
+        Height = 25
+        Caption = 'Think...'
+        TabOrder = 0
+      end
+      object cbAutoThink: TCheckBox
+        Left = 10
+        Top = 9
+        Width = 12
+        Height = 12
+        TabOrder = 1
+        OnClick = cbAutoThinkClick
+      end
+      object mThinkLog: TMemo
+        Left = 216
+        Top = 3
+        Width = 375
+        Height = 189
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        ScrollBars = ssVertical
+        TabOrder = 2
+        ExplicitWidth = 360
+      end
+      object lbThinkList: TListBox
+        Left = 3
+        Top = 34
+        Width = 207
+        Height = 158
+        Anchors = [akLeft, akTop, akBottom]
+        ItemHeight = 13
+        TabOrder = 3
+      end
+    end
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
+      ExplicitWidth = 589
+      ExplicitHeight = 158
       DesignSize = (
-        589
-        158)
+        594
+        195)
       object Label1: TLabel
         Left = 6
         Top = 7
@@ -185,22 +238,23 @@ object Form3: TForm3
         Left = 3
         Top = 22
         Width = 134
-        Height = 131
+        Height = 168
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 0
+        ExplicitHeight = 131
       end
     end
   end
   object tAutoAttack: TTimer
     Interval = 100
     OnTimer = tAutoAttackTimer
-    Left = 16
-    Top = 120
+    Left = 96
+    Top = 176
   end
   object MainMenu1: TMainMenu
-    Left = 76
-    Top = 120
+    Left = 28
+    Top = 176
     object mmiLang: TMenuItem
       Caption = 'Lang'
       object mmiEng: TMenuItem
@@ -213,6 +267,17 @@ object Form3: TForm3
         Caption = 'Rus'
         RadioItem = True
         OnClick = mmiRusClick
+      end
+    end
+    object mmiAuto: TMenuItem
+      Caption = 'Auto: 1000'
+      object mmiTowerAuto: TMenuItem
+        Caption = 'Tower'
+        OnClick = mmiTowerAutoClick
+      end
+      object mmiThinkAuto: TMenuItem
+        Caption = 'Think'
+        OnClick = mmiThinkAutoClick
       end
     end
   end

@@ -9,7 +9,7 @@ uses
 
 type
   TForm3 = class(TForm)
-    Button1: TButton;
+    bResetTower: TButton;
     mLog: TMemo;
     bAttack: TButton;
     lPlayerInfo: TLabel;
@@ -36,8 +36,16 @@ type
     mmiLang: TMenuItem;
     mmiEng: TMenuItem;
     mmiRus: TMenuItem;
+    pThink: TTabSheet;
+    bThink: TButton;
+    cbAutoThink: TCheckBox;
+    mmiAuto: TMenuItem;
+    mmiTowerAuto: TMenuItem;
+    mmiThinkAuto: TMenuItem;
+    mThinkLog: TMemo;
+    lbThinkList: TListBox;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
     procedure FormShow(Sender: TObject);
     procedure bAttackClick(Sender: TObject);
@@ -49,6 +57,10 @@ type
     procedure mmiRusClick(Sender: TObject);
     procedure bSkillUseClick(Sender: TObject);
     procedure bUpSkillClick(Sender: TObject);
+    procedure cbAutoAttackClick(Sender: TObject);
+    procedure mmiTowerAutoClick(Sender: TObject);
+    procedure cbAutoThinkClick(Sender: TObject);
+    procedure mmiThinkAutoClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -102,13 +114,23 @@ begin
     UpdateInterface;
 end;
 
-procedure TForm3.Button1Click(Sender: TObject);
+procedure TForm3.bResetTowerClick(Sender: TObject);
 var i: integer;
 begin
     Script.Exec('CurrentLevel(1);InitCreatures();');
     UpdateInterface;
 end;
 
+
+procedure TForm3.cbAutoAttackClick(Sender: TObject);
+begin
+    mmiTowerAuto.Checked := cbAutoAttack.Checked;
+end;
+
+procedure TForm3.cbAutoThinkClick(Sender: TObject);
+begin
+   mmiThinkAuto.Checked := cbAutoThink.Checked;
+end;
 
 procedure TForm3.bAttackClick(Sender: TObject);
 begin
@@ -120,12 +142,19 @@ procedure TForm3.FormShow(Sender: TObject);
 begin
     mLog.Lines.Clear;
 
+    Script.Exec('SetLang(RU)');
+    SetLang('RU');
+
+//    SetLang( Script.Exec('GetLang()') );
+
+    Script.Exec('AllowMode(Think, 1)');
+
     pcGame.ActivePageIndex := pTower.TabIndex;
 
     Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
+
     UpdateInterface;
 
-    SetLang( Script.Exec('GetLang()') );
 end;
 
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
@@ -171,6 +200,8 @@ begin
     AllowModes := Script.Exec('GetAllowModes()');
     // исходя из доступных модифицируем интерфейс
     pars.CommaText := AllowModes;
+    // доступность думательной
+    pThink.TabVisible := pars.IndexOfName( 'Think' ) <> -1;
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
 
@@ -182,10 +213,21 @@ begin
     if floor * 1000000 + step > topFloor then
        topFloor := floor * 1000000 + step;
 
-    lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
-    ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
+    if CurrLang = 'ENG' then
+    begin
+      lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
+      ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
-    lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
+      lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
+    end;
+
+    if CurrLang = 'RU' then
+    begin
+      lStep.Caption    := 'Этаж: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
+      ltopStep.Caption := 'Лучш.: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
+
+      lTarget.Caption := 'Цель: ' + Script.Exec('GetCurrTarget()') + ' этаж';
+    end;
 
     // инфа попротивнику
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
@@ -242,6 +284,7 @@ begin
     /// количество автоатак
     AutoCount := StrToIntDef(Script.Exec('GetAutoATK()'), 0);
     lAutoCount.Caption := 'Auto: ' + IntToStr(AutoCount);
+    mmiAuto.Caption := 'Auto: ' + IntToStr(AutoCount);
 
     if AutoCount <= 0 then
     begin
@@ -285,12 +328,26 @@ procedure TForm3.mmiEngClick(Sender: TObject);
 begin
     Script.Exec('SetLang(ENG)');
     SetLang('ENG');
+    UpdateInterface;
 end;
 
 procedure TForm3.mmiRusClick(Sender: TObject);
 begin
     Script.Exec('SetLang(RU)');
     SetLang('RU');
+    UpdateInterface;
+end;
+
+procedure TForm3.mmiThinkAutoClick(Sender: TObject);
+begin
+   mmiThinkAuto.Checked := not mmiThinkAuto.Checked;
+   cbAutoThink.Checked := mmiThinkAuto.Checked;
+end;
+
+procedure TForm3.mmiTowerAutoClick(Sender: TObject);
+begin
+    mmiTowerAuto.Checked := not mmiTowerAuto.Checked;
+    cbAutoAttack.Checked := mmiTowerAuto.Checked;
 end;
 
 procedure TForm3.SetLang(lang: string);
@@ -307,6 +364,16 @@ begin
 
         mmiRus.Caption := 'Russian';
         mmiRus.Checked := true;
+
+        mmiTowerAuto.Caption := 'Башня';
+        mmiThinkAuto.Caption := 'Раздумья';
+        pTower.Caption := 'Башня';
+        pThink.Caption := 'Раздумья';
+
+        bResetTower.Caption := 'Перезапуск';
+        bUseItem.Caption := 'Исп.!';
+        bSkillUse.Caption := 'Исп.!';
+        bUpSkill.Caption := 'Ап.!';
     end;
 
     if CurrLang = 'ENG' then
@@ -317,6 +384,16 @@ begin
         mmiEng.Checked := true;
 
         mmiRus.Caption := 'Русский';
+
+        mmiTowerAuto.Caption := 'Tower';
+        mmiThinkAuto.Caption := 'Think';
+        pTower.Caption := 'Tower';
+        pThink.Caption := 'Think';
+
+        bResetTower.Caption := 'Restart Tower';
+        bUseItem.Caption := 'Use!';
+        bSkillUse.Caption := 'Use!';
+        bUpSkill.Caption := 'Up!';
     end;
 
 end;

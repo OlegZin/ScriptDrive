@@ -66,6 +66,9 @@ type
         procedure SetPlayerAutoBuff(name, count: variant);
         // добавление бонуса в Player.Buffs
 
+        procedure SetPlayerScript(event, scr: string);
+        procedure SetCreatureScript(event, scr: string);
+
         procedure InitPlayer;
         procedure InitCreatures;
 
