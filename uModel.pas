@@ -144,7 +144,7 @@ begin
     Script.Exec('SetLang(RU)');
     SetLang('RU');
 
-//    Script.Exec('AllowMode(Think, 1)');
+    Script.Exec('AllowMode(Think, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -186,10 +186,6 @@ begin
     if cbSkills.ItemIndex <> -1
     then selSkill := Copy(cbSkills.Text,0,pos('=',cbSkills.Text)-1)
     else selSkill := '';
-{
-    itemItem := cbItem.ItemIndex;
-    itemSkill := cbSkills.ItemIndex;
-}
 
 
     // получение текущих доступных режимов

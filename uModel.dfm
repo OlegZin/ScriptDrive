@@ -26,6 +26,10 @@ object Form3: TForm3
     TabOrder = 0
     object pTower: TTabSheet
       Caption = 'Tower'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         594
         195)
@@ -163,6 +167,10 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         594
         195)
@@ -204,6 +212,10 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         594
         195)

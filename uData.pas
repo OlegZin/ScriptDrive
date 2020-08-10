@@ -536,7 +536,7 @@ begin
     ATKbuff := Inventory.Draw( 'ATK', 1 );
     Player.Buffs := Inventory.Get;
 
-    PlayerATK   := StrToIntDef(input, 0) + ATKbuff;
+    PlayerATK   := Random( StrToIntDef(input, 0) + ATKbuff );
     CreatureHP  := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
     CreatureDEF := StrToIntDef( GetParamValue( Creature, 'DEF'), 0 );
 
@@ -558,13 +558,18 @@ var
     CreatureATK: integer;
     DMG : integer;
     DEFbuff: integer;
+    ATKbuff: integer;
 begin
+
+    Inventory.Fill( Creature.Buffs );
+    ATKbuff := Inventory.Draw( 'ATK', 1 );
+    Creature.Buffs := Inventory.Get;
 
     Inventory.Fill( Player.Buffs );
     DEFbuff := Inventory.Draw( 'DEF', 1 );
     Player.Buffs := Inventory.Get;
 
-    CreatureATK := StrToIntDef(input, 0);
+    CreatureATK := Random( StrToIntDef(input, 0) + ATKbuff );
     PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
     PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 ) + DEFbuff;
 

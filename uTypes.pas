@@ -133,45 +133,68 @@ var
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..3] of TTarget = (
+    targets: array [0..4] of TTarget = (
         (level: 2;
          script:
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
              'IF({GetLang() = RU}, 2);'+
-             'AddEvent(Игрок получает 5 зелий AutoATK);'+
-             'AddEvent(Отличная работа! Так держать!);'+
+             'AddEvent(Игрок получил 5 зелий AutoATK);'+
+             'AddEvent(В ржавом сундуке между этажами нашлось немного зелий.);'+
 
              'IF({GetLang() = ENG}, 2);'+
-             'AddEvent(Player get 5 AutoATK items);'+
-             'AddEvent(Good job! Keep going!);'+
+             'AddEvent(Player got 5 AutoATK items);'+
+             'AddEvent(Some potions were found in a rusty chest between floors.);'+
 
              'AddEvent(..................);'+
 
              'ChangePlayerItemCount(AutoATK, 5);'
-        )
+        ),
 
-       ,(level: 6;
+        (level: 3;
          script:
              'SetBreak(Tower);'+
-             'SetCreature(DARK MASTER,HP=99 ATK=0,,Spirit=1);'+
+             'SetVar(gold, Rand(10000));'+
+             'AddEvent(..................);'+
+
+             'IF({GetLang() = RU}, 4);'+
+             'AddEvent(Игрок получил GetVar(gold) золота);'+
+             'AddEvent(" - Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.");'+
+             'AddEvent("Так же, в сундуке лежит смятая записка:");'+
+             'AddEvent(В ржавом сундуке между этажами нашлось немного золота.);'+
+
+             'IF({GetLang() = ENG}, 4);'+
+             'AddEvent(Player got GetVar(gold) Gold);'+
+             'AddEvent(" - The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.");'+
+             'AddEvent("Also, there is a crumpled note in the chest:");'+
+             'AddEvent(There was some gold in a rusty chest between floors.);'+
+
+             'AddEvent(..................);'+
+
+             'ChangePlayerItemCount(Gold, GetVar(gold));'
+        )
+
+       ,(level: 4;
+         script:
+             'SetBreak(Tower);'+
+             'SetCreature(DARK MASTER,HP=9999 ATK=500,,Spirit=1);'+
 
              'AddEvent(..................);'+
 
              'IF({GetLang() = ENG}, 5);'+
-             'AddEvent(Use `Reset Tower` button to avoid enemy );' +
+             'AddEvent(Use `Restart` button to avoid enemy );' +
              'AddEvent(..................);'+
-             'AddEvent(YOU WILL NOT PASS !!!);' +
-             'AddEvent(What are you doing in my Tower insignificance!?);' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(!!! You defeated me !? Can not be!);AddEvent(..................);");'+
+             'AddEvent(" - YOU WILL NOT PASS!");' +
+             'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
 
              'IF({GetLang() = RU}, 5);'+
-             'AddEvent(-> Используйте кнопку `Reset Tower` чтобы избежать врага);' +
+             'AddEvent("-> Используйте кнопку `Перезапуск`, чтобы избежать врага");' +
              'AddEvent(..................);'+
-             'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
-             'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(!!! Ты победил меня!? Не может быть!);AddEvent(..................);");'+
+             'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
+             'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
 
              'AddEvent(..................);'
         )
@@ -217,14 +240,20 @@ var
          cost:    MaxInt;
          script:
 
-                 'If({GetPlayerItemCount(Gold) < 10000}, 2);'+                     // если золота не достаточно
+                 'If({GetPlayerItemCount(Gold) < 10000}, 5);'+                     // если золота не достаточно
+                 'If({GetLang() = RU}, 1);'+                     // если золота не достаточно
+                 'AddEvent(У игрока не достаточно золота! [Стоимость 10 000 золота]);'+ // ругаемся и
+                 'If({GetLang() = ENG}, 1);'+                     // если золота не достаточно
                  'AddEvent(Player do not have enougth Gold! [Cost 10 000 Gold]);'+ // ругаемся и
                  'ChangePlayerItemCount(Gold, 1);'+                                // компенсируем расход 1 золота за неудачное использование
 
-                 'If({GetPlayerItemCount(Gold) > 9999}, 4);'+   // если золота достаточно
+                 'If({GetPlayerItemCount(Gold) > 9999}, 7);'+   // если золота достаточно
                  'SetVar(iName, GetRandItemName());'+           // получаем имя случайного предмета
                  'ChangePlayerItemCount(GetVar(iName), 1);'+    // добавляем единицу в инвентарь
                  'ChangePlayerItemCount(Gold, -9999);'+         // списываем деньги с учетом того, что 1 спишется за использование золота как предмета
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок получил GetVar(iName)!);'+        // радуем игрока приобретением
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
                  'AddEvent(Player get GetVar(iName)!);'         // радуем игрока приобретением
         ) // золото
 
@@ -232,39 +261,57 @@ var
          cost:    1000;
          script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
-                 'AddEvent(Player restore GetVar(IncHP) HP)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player restore GetVar(IncHP) HP)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок восстановил GetVar(IncHP) HP)'
         ) // зелье лечения
 
        ,(name:   'RestoreMana';
          cost:    1000;
          script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
                  'ChangePlayerParam(MP,GetVar(IncMP));'+
-                 'AddEvent(Player restore GetVar(IncMP) MP)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player restore GetVar(IncMP) MP)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок восстановил GetVar(IncMP) MP)'
          ) // зелье восстановления маны
 
        ,(name:   'PermanentATK';
          cost:    10000;
          script: 'ChangePlayerParam(ATK,1);'+
-                 'AddEvent(Player get +1 ATK permanently!)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player get +1 ATK permanently!)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок получил +1 ATK!)'
         ) // зелье постоянного повышения атаки
 
        ,(name:   'PermanentDEF';
          cost:    10000;
          script: 'ChangePlayerParam(DEF,1);'+
-                 'AddEvent(Player get +1 DEF permanently!)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player get +1 DEF permanently!)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок получил +1 DEF!)'
         ) // зелье постоянного повышения защиты
 
        ,(name:   'PermanentMDEF';
          cost:    10000;
          script: 'ChangePlayerParam(MDEF,1);'+
-                 'AddEvent(Player get +1 MDEF permanently!)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player get +1 MDEF permanently!)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок получил +1 MDEF!)'
         ) // зелье постоянного повышения магической защиты
 
        ,(name:   'EXP';
          cost:    1000;
          script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
-                 'AddEvent(Player get +GetVar(EXP) EXP!)'
+                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'AddEvent(Player get +GetVar(EXP) EXP!)'+
+                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'AddEvent(Игрок получил + GetVar(EXP) EXP!)'
         ) // зелье разового получения опыта
 {
        ,(name:   'REG';
