@@ -153,24 +153,25 @@ var
 
        ,(level: 2;
          script:
+             'SetCreature(DARK MASTER,HP=99 ATK=0,,Spirit=1);'+
+
              'AddEvent(..................);'+
 
-             'IF({GetLang() = ENG}, 4);'+
+             'IF({GetLang() = ENG}, 5);'+
              'AddEvent(Use `Reset Tower` button to avoid enemy );' +
              'AddEvent(..................);'+
              'AddEvent(YOU WILL NOT PASS !!!);' +
              'AddEvent(What are you doing in my Tower insignificance!?);' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(!!! You defeated me !? Can not be!);AddEvent(..................);");'+
 
-             'IF({GetLang() = RU}, 4);'+
+             'IF({GetLang() = RU}, 5);'+
              'AddEvent(-> Используйте кнопку `Reset Tower` чтобы избежать врага);' +
              'AddEvent(..................);'+
              'AddEvent(ТЫ НЕ ПРОЙДЕШЬ !!!);' +
              'AddEvent(Что ты делаешь в моей Башне ничтожество!?);' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(!!! Ты победил меня!? Не может быть!);AddEvent(..................);");'+
 
-             'AddEvent(..................);'+
-
-             'SetCreature(DARK MASTER,HP=1 ATK=1,,Spirit=1);'+
-             'SetCreatureScript(OnDeath,"AddEvent(Ты победил меня!? Не может быть!);");'
+             'AddEvent(..................);'
         )
 
        ,(level: 7;
