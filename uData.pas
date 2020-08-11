@@ -3,7 +3,7 @@ unit uData;
 interface
 
 uses
-    uTypes, uScriptDrive,
+    uTypes, uScriptDrive, uThinkModeData,
     System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
 
 type
@@ -22,7 +22,9 @@ type
 
         CurrLang: integer;         // текущий язык
 
-        EventText: string;
+        EventText: string;  // текстовые сообщения для режима Tower
+        ThinkEvent: string; // текстовые сообщения для режима Think
+
         Breaks: String;  /// набор флагов с именами режимов, для которых произошли события
         ///    требкующие прерывания автодействий
         ///    например, выставлен флаг Tower, поскольку достигнут целевой этаж
@@ -125,6 +127,13 @@ type
 
         procedure SetBreak(name: string);  // флаги события остановки автодействий для различных режимов
         function GetBreaks: string; // получение списка флаго текущих прерываний и их очистка
+
+
+
+        function GetThinks: string;
+        procedure ProcessThinks(caption, delta: variant);
+        procedure AddThinkEvent(text: string);
+        function GetThinkEvents: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -348,6 +357,34 @@ begin
        result := parser.Values[name];
 end;
 
+function TData.GetThinkEvents: string;
+begin
+    result := ThinkEvent;
+    ThinkEvent := '';
+end;
+
+function TData.GetThinks: string;
+var
+    i : integer;
+    pars: TStringList;
+    comma: string;
+begin
+    pars := TStringList.Create;
+    pars.StrictDelimiter := true;
+    comma := '';
+
+    for I := 0 to High(arrThinks) do
+    begin
+        pars.CommaText := arrThinks[i];
+        /// если эдемент доступен и еще не исследован
+        if ( pars.Values['e'] = '1' ) and ( pars.Values['EXP'] <> '0' )then
+        result := result + comma + StringReplace(pars.Values[GetLang], '"', '', [rfReplaceAll]) + ' (' + pars.Values['EXP'] + ')';
+        comma := ',';
+    end;
+
+    pars.Free;
+end;
+
 procedure TData.InitCreatures;
 // формирование пула
 var
@@ -505,6 +542,33 @@ begin
     prs.Free;
 end;
 
+
+procedure TData.ProcessThinks(caption, delta: variant);
+var
+    i, exp : integer;
+    parse: TStringList;
+begin
+    parse := TStringList.Create;
+    parse.StrictDelimiter := true;
+
+    for I := 0 to High(arrThinks) do
+    begin
+        Parse.CommaText := arrThinks[i];
+        if pos(caption, arrThinks[i]) > 0 then
+        begin
+            exp := StrToIntDef(Parse.Values['EXP'], 0);
+            exp := exp + delta;
+            exp := Max(0, exp);
+            Parse.Values['EXP'] := IntToStr(exp);
+            arrThinks[i] := Parse.Text;
+
+            if exp = 0 then Script.Exec(Parser.Values['script']);
+
+            break;
+        end;
+    end;
+
+end;
 
 procedure TData.RemoveEventScript(creature: TCreature; name, script: string);
 /// удаление из скрипта указанного куска
@@ -665,6 +729,11 @@ begin
     creature.Events := pars.CommaText;
 
     pars.Free;
+end;
+
+procedure TData.AddThinkEvent(text: string);
+begin
+    ThinkEvent := text + ifthen(ThinkEvent <> '', sLineBreak, '') + ThinkEvent;
 end;
 
 procedure TData.SetLang(lang: string);

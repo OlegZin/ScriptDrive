@@ -21,15 +21,12 @@ object Form3: TForm3
     Top = 0
     Width = 602
     Height = 223
-    ActivePage = pTower
+    ActivePage = pThink
     Align = alClient
     TabOrder = 0
+    OnChange = pcGameChange
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         594
         195)
@@ -120,9 +117,9 @@ object Form3: TForm3
       end
       object cbAutoAttack: TCheckBox
         Left = 96
-        Top = 13
+        Top = 14
         Width = 13
-        Height = 15
+        Height = 13
         TabOrder = 4
         OnClick = cbAutoAttackClick
       end
@@ -167,10 +164,6 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         594
         195)
@@ -181,12 +174,13 @@ object Form3: TForm3
         Height = 25
         Caption = 'Think...'
         TabOrder = 0
+        OnClick = bThinkClick
       end
       object cbAutoThink: TCheckBox
         Left = 10
         Top = 9
-        Width = 12
-        Height = 12
+        Width = 13
+        Height = 13
         TabOrder = 1
         OnClick = cbAutoThinkClick
       end
@@ -212,10 +206,6 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         594
         195)

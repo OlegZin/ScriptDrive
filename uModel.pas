@@ -48,7 +48,6 @@ type
     procedure log(text: string);
     procedure FormShow(Sender: TObject);
     procedure bAttackClick(Sender: TObject);
-    procedure UpdateInterface;
     procedure bLvlUpClick(Sender: TObject);
     procedure tAutoAttackTimer(Sender: TObject);
     procedure bUseItemClick(Sender: TObject);
@@ -60,12 +59,16 @@ type
     procedure mmiTowerAutoClick(Sender: TObject);
     procedure cbAutoThinkClick(Sender: TObject);
     procedure mmiThinkAutoClick(Sender: TObject);
+    procedure pcGameChange(Sender: TObject);
+    procedure bThinkClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     CurrLang: string;
     procedure SetLang(lang: string);
+    procedure updateThinkInterface;
+    procedure UpdateInterface;
   end;
 
 var
@@ -85,6 +88,46 @@ var
    ,AllowModes
             : string;
     topFloor: integer;
+
+
+
+procedure TForm3.updateThinkInterface;
+var
+    log: string;
+    index: integer;
+begin
+
+    index := lbThinkList.ItemIndex;
+    lbThinkList.Items.StrictDelimiter := true;
+    lbThinkList.Items.CommaText := Script.Exec('GetThinks();');
+    if (index > -1) and (index <= lbThinkList.Items.Count -1)
+    then lbThinkList.ItemIndex := index;
+
+
+    log := Script.Exec('GetThinkEvents();');
+    if log <> '' then mThinkLog.Text := log + sLineBreak + mThinkLog.Text;
+//    mThinkLog.Text := Copy(mLog.Text, 0, 1000);
+end;
+
+procedure TForm3.pcGameChange(Sender: TObject);
+begin
+    updateThinkInterface;
+end;
+
+procedure TForm3.bThinkClick(Sender: TObject);
+var
+    capt: string;
+begin
+    if lbThinkList.ItemIndex = -1 then exit;
+    capt := Copy( lbThinkList.Items[lbThinkList.ItemIndex], 0, pos(' (', lbThinkList.Items[lbThinkList.ItemIndex])-2 );
+    Script.Exec('ProcessThinks('+capt+', -1)');
+    updateThinkInterface;
+end;
+
+
+
+
+
 
 procedure TForm3.bUpSkillClick(Sender: TObject);
 begin
@@ -112,6 +155,7 @@ begin
     Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');CreatureAttack();CheckStatus();');
     UpdateInterface;
 end;
+
 
 procedure TForm3.bResetTowerClick(Sender: TObject);
 var i: integer;
@@ -368,6 +412,7 @@ begin
     mmiTowerAuto.Checked := not mmiTowerAuto.Checked;
     cbAutoAttack.Checked := mmiTowerAuto.Checked;
 end;
+
 
 procedure TForm3.SetLang(lang: string);
 begin
