@@ -6,7 +6,8 @@ uses
   uScriptDrive in 'uScriptDrive.pas',
   uData in 'uData.pas',
   uTypes in 'uTypes.pas',
-  uDoc in 'uDoc.pas';
+  uDoc in 'uDoc.pas',
+  uThinkModeData in 'uThinkModeData.pas';
 
 {$R *.res}
 
