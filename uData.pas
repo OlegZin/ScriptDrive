@@ -134,6 +134,7 @@ type
         procedure ProcessThinks(caption, delta: variant);
         procedure AddThinkEvent(text: string);
         function GetThinkEvents: string;
+        procedure OpenThink(name: string);
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -363,23 +364,37 @@ begin
     ThinkEvent := '';
 end;
 
+procedure TData.OpenThink(name: string);
+var
+    i : integer;
+begin
+    for I := 0 to High(arrThinks) do
+    if arrThinks[i].Name = name
+    then arrThinks[i].enable := 1;
+end;
+
 function TData.GetThinks: string;
 var
     i : integer;
+    comma, caption: string;
     pars: TStringList;
-    comma: string;
 begin
+    comma := '';
+
     pars := TStringList.Create;
     pars.StrictDelimiter := true;
-    comma := '';
 
     for I := 0 to High(arrThinks) do
     begin
-        pars.CommaText := arrThinks[i];
         /// если эдемент доступен и еще не исследован
-        if ( pars.Values['e'] = '1' ) and ( pars.Values['EXP'] <> '0' )then
-        result := result + comma + StringReplace(pars.Values[GetLang], '"', '', [rfReplaceAll]) + ' (' + pars.Values['EXP'] + ')';
-        comma := ',';
+        if ( arrThinks[i].enable = 1 ) and ( arrThinks[i].exp > 0 )then
+        begin
+            pars.CommaText := arrThinks[i].caption;
+            caption := pars.Values[GetLang];
+            result := result + comma + StringReplace(caption, '"', '', [rfReplaceAll]) +
+                ' (' + IntToStr(arrThinks[i].exp) + ')';
+            comma := ',';
+        end;
     end;
 
     pars.Free;
@@ -546,23 +561,17 @@ end;
 procedure TData.ProcessThinks(caption, delta: variant);
 var
     i, exp : integer;
-    parse: TStringList;
 begin
-    parse := TStringList.Create;
-    parse.StrictDelimiter := true;
 
     for I := 0 to High(arrThinks) do
     begin
-        Parse.CommaText := arrThinks[i];
-        if pos(caption, arrThinks[i]) > 0 then
+        if pos(caption, arrThinks[i].caption) > 0 then
         begin
-            exp := StrToIntDef(Parse.Values['EXP'], 0);
-            exp := exp + delta;
-            exp := Max(0, exp);
-            Parse.Values['EXP'] := IntToStr(exp);
-            arrThinks[i] := Parse.CommaText;
+            arrThinks[i].exp := arrThinks[i].exp + delta;
+            arrThinks[i].exp := Max(0, arrThinks[i].exp);
 
-            if exp = 0 then Script.Exec(Parser.Values['script']);
+            if   arrThinks[i].exp = 0
+            then Script.Exec(arrThinks[i].script);
 
             break;
         end;
