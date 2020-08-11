@@ -560,7 +560,7 @@ begin
             exp := exp + delta;
             exp := Max(0, exp);
             Parse.Values['EXP'] := IntToStr(exp);
-            arrThinks[i] := Parse.Text;
+            arrThinks[i] := Parse.CommaText;
 
             if exp = 0 then Script.Exec(Parser.Values['script']);
 
