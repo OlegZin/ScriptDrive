@@ -135,6 +135,8 @@ type
         procedure AddThinkEvent(text: string);
         function GetThinkEvents: string;
         procedure OpenThink(name: string);
+
+        function GetGameScripts: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -261,6 +263,29 @@ begin
         result := pars.Values[name];
 
     pars.Free;
+end;
+
+function TData.GetGameScripts: string;
+var
+    i: integer;
+begin
+    result := '===== ITEMS =====' + sLineBreak + sLineBreak;
+
+    for I := 0 to High(items) do
+    begin
+        result := result + '['+items[i].name+']' + sLineBreak;
+        result := result + items[i].script + sLineBreak;
+        result := result + sLineBreak;
+    end;
+
+    result := result + '===== SKILLS =====' + sLineBreak + sLineBreak;
+
+    for I := 0 to High(skills) do
+    begin
+        result := result + '['+skills[i].name+']' + sLineBreak;
+        result := result + skills[i].script + sLineBreak;
+        result := result + sLineBreak;
+    end;
 end;
 
 function TData.GetPlayerAttr(name: string): string;
@@ -403,19 +428,25 @@ end;
 procedure TData.InitCreatures;
 // формирование пула
 var
-    i, count: integer;
+    i, count, lootCount: integer;
     itm, lt: string;
 begin
 
         if CurrStep < MaxStep then
         begin
+            /// золото
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*2 ) + CurrLevel );
             itm := Inventory.Get;
 
-            Inventory.Clear;
-            Inventory.SetItemCount( loot[Random(Length(loot))], 1 );
-            lt := Inventory.Get;
+            /// ресурсы (шанс на один вид)
+            lootCount := Random(CurrLevel div 2);
+            if lootCount > 0 then
+            begin
+                Inventory.Clear;
+                Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+                lt := Inventory.Get;
+            end;
 
             SetCreature(
                 Format('%s %s %s', [
@@ -437,15 +468,25 @@ begin
         /// босс уровня!
         if CurrStep = MaxStep then
         begin
+            // золото
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
             Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
             itm := Inventory.Get;
 
+            /// ресурсы (шанс на два вида)
             Inventory.Clear;
-            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
-            Inventory.SetItemCount( loot[Random(Length(loot))], Random( CurrLevel ) + 1 );
+
+            lootCount := Random( Random( CurrLevel ) );
+            if lootCount > 0
+            then Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+
+            lootCount := Random( Random( CurrLevel ) );
+            if lootCount > 0
+            then Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+
             lt := Inventory.Get;
+
 
             SetCreature(
                 Format('[BOSS] %s %s %s', [
@@ -601,7 +642,7 @@ var
     CreatureHP: integer;
     CreatureDEF: integer;
     PlayerATK: integer;
-    DMG : integer;
+    DMG, BLOCK : integer;
     ATKbuff: integer;
 begin
 
@@ -613,14 +654,15 @@ begin
     CreatureHP  := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
     CreatureDEF := StrToIntDef( GetParamValue( Creature, 'DEF'), 0 );
 
-//    CreatureDEF := Min(99, CreatureDEF);  // всегда проходит 1% урона
-
-    DMG := Round(PlayerATK - PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
+    BLOCK := Round(PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
+    DMG := PlayerATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     CreatureHP  := CreatureHP - DMG;
 
     SetParamValue( Creature, 'HP', IntToStr(CreatureHP) );
-    AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]));
+    if BLOCK > 0
+    then AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
+    else AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]))
 end;
 
 procedure TData.DoDamageToPlayer(input: string);
@@ -629,7 +671,7 @@ var
     PlayerHP: integer;
     PlayerDEF: integer;
     CreatureATK: integer;
-    DMG : integer;
+    DMG, BLOCK : integer;
     DEFbuff: integer;
     ATKbuff: integer;
 begin
@@ -646,14 +688,16 @@ begin
     PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
     PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 ) + DEFbuff;
 
-//    PlayerDEF := Min(99, PlayerDEF);  // всегда проходит 1% урона
-
-    DMG := Round(CreatureATK - CreatureATK * (( PlayerDEF/10 ) / 100));  // 1 DEF = -0.1% dmg
+    BLOCK := Round(CreatureATK * (( PlayerDEF/10 ) / 100));
+    DMG := CreatureATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     PlayerHP  := PlayerHP - DMG;
 
     SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
-    AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE][CurrLang], [DMG]));
+
+    if BLOCK > 0
+    then AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
+    else AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE][CurrLang], [DMG]));
 end;
 
 function TData.CurrentStep: string;

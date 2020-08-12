@@ -43,6 +43,9 @@ type
     mmiThinkAuto: TMenuItem;
     mThinkLog: TMemo;
     lbThinkList: TListBox;
+    ComboBox1: TComboBox;
+    pSecrets: TTabSheet;
+    mSecrets: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -61,6 +64,7 @@ type
     procedure mmiThinkAutoClick(Sender: TObject);
     procedure pcGameChange(Sender: TObject);
     procedure bThinkClick(Sender: TObject);
+    procedure lbThinkListClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -69,6 +73,7 @@ type
     procedure SetLang(lang: string);
     procedure updateThinkInterface;
     procedure UpdateInterface;
+    procedure updateSecretsInterface;
   end;
 
 var
@@ -90,6 +95,19 @@ var
     topFloor: integer;
 
 
+
+procedure TForm3.updateSecretsInterface;
+/// выводим в окошке скрипты всех предметов и скилов
+var
+    s: string;
+begin
+    if mSecrets.Text = '' then
+    begin
+        s := Data.GetGameScripts;
+        s := StringReplace(s, ';', ';'+sLineBreak, [rfReplaceAll]);
+        mSecrets.Text := s;
+    end;
+end;
 
 procedure TForm3.updateThinkInterface;
 var
@@ -114,17 +132,26 @@ begin
     if   pos(capt, lbThinkList.Items[i]) > 0
     then lbThinkList.ItemIndex := i;
 
+    // если обдцмывание завершено - сбрасываем флаги автомыслей, чтобы не утекали автодействия
+    if cbAutoThink.Checked and (lbThinkList.ItemIndex = -1) then
+    begin
+        cbAutoThink.Checked := false;
+        mmiThinkAuto.Checked := false;
+    end;
 
-
+    // блокируем выбор автомыслей, если тема не выбрана
+    cbAutoThink.Enabled := lbThinkList.ItemIndex <> -1;
+    mmiThinkAuto.Enabled := lbThinkList.ItemIndex <> -1;
 
     log := Script.Exec('GetThinkEvents();');
     if log <> '' then mThinkLog.Text := log + sLineBreak + mThinkLog.Text;
-//    mThinkLog.Text := Copy(mLog.Text, 0, 1000);
 end;
 
 procedure TForm3.pcGameChange(Sender: TObject);
 begin
+    UpdateInterface;
     updateThinkInterface;
+    UpdateSecretsInterface;
 end;
 
 procedure TForm3.bThinkClick(Sender: TObject);
@@ -137,6 +164,13 @@ begin
     updateThinkInterface;
     UpdateInterface;
 end;
+
+procedure TForm3.lbThinkListClick(Sender: TObject);
+begin
+    cbAutoThink.Enabled := lbThinkList.ItemIndex <> -1;
+    mmiThinkAuto.Enabled := lbThinkList.ItemIndex <> -1;
+end;
+
 
 
 
@@ -202,7 +236,8 @@ begin
     Script.Exec('SetLang(RU)');
     SetLang('RU');
 
-//    Script.Exec('AllowMode(Think, 1)');
+    Script.Exec('AllowMode(Think, 1)');
+//    Script.Exec('AllowMode(Secrets, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -215,8 +250,7 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-    if   Script.Exec('ProcessAuto()') <> ''
-    then UpdateInterface;
+//    if   Script.Exec('ProcessAuto()') <> '' then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin
@@ -257,9 +291,11 @@ begin
     pars.CommaText := AllowModes;
     // доступность думательной
     pThink.TabVisible := pars.IndexOfName( 'Think' ) <> -1;
+    mmiThinkAuto.Visible := pars.IndexOfName( 'Think' ) <> -1;
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
-
+    // доступность просмотра секретов
+    pSecrets.TabVisible := pars.IndexOfName( 'Secrets' ) <> -1;
 
     breaks := Script.Exec('GetBreaks()');
     if pos('Tower', breaks) > 0 then
@@ -454,6 +490,7 @@ begin
         mmiThinkAuto.Caption := 'Раздумья';
         pTower.Caption := 'Башня';
         pThink.Caption := 'Раздумья';
+        pSecrets.Caption := 'Секреты';
 
         bResetTower.Caption := 'Перезапуск';
         bUseItem.Caption := 'Исп.!';
@@ -477,6 +514,7 @@ begin
 
         pTower.Caption := 'Tower';
         pThink.Caption := 'Think';
+        pSecrets.Caption := 'Secrets';
 
         bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';

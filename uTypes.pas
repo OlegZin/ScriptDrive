@@ -133,7 +133,7 @@ var
 
     /// массив изменения состояний игры при достижения опредлеленных уровней.
     /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..4] of TTarget = (
+    targets: array [0..7] of TTarget = (
         (level: 2;
          script:
              'SetBreak(Tower);'+
@@ -155,7 +155,7 @@ var
         (level: 3;
          script:
              'SetBreak(Tower);'+
-             'SetVar(gold, Rand(10000));'+
+             'SetVar(gold, Rand(100000));'+
              'AddEvent(..................);'+
 
              'IF({GetLang() = RU}, 4);'+
@@ -173,28 +173,81 @@ var
              'AddEvent(..................);'+
 
              'ChangePlayerItemCount(Gold, GetVar(gold));'
+        ),
+
+        (level: 4;
+         script:
+             'SetBreak(Tower);'+
+             'AddEvent(..................);'+
+
+             'SetVar(iName, GetRandItemName());'+
+             'ChangePlayerItemCount(GetVar(iName), 1);'+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Игрок получил GetVar(iName)!);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(Player get GetVar(iName)!);'+
+
+             'SetVar(iName, GetRandItemName());'+
+             'ChangePlayerItemCount(GetVar(iName), 1);'+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Игрок получил GetVar(iName)!);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(Player get GetVar(iName)!);'+
+
+             'SetVar(iName, GetRandItemName());'+
+             'ChangePlayerItemCount(GetVar(iName), 1);'+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Игрок получил GetVar(iName)!);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(Player get GetVar(iName)!);'+
+
+             'SetVar(iName, GetRandItemName());'+
+             'ChangePlayerItemCount(GetVar(iName), 1);'+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Игрок получил GetVar(iName)!);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(Player get GetVar(iName)!);'+
+
+             'SetVar(iName, GetRandItemName());'+
+             'ChangePlayerItemCount(GetVar(iName), 1);'+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Игрок получил GetVar(iName)!);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(Player get GetVar(iName)!);'+
+
+             'AddEvent( );'+
+
+             'If({GetLang() = RU}, 1);'+
+             'AddEvent(Вы нашли огромный сундк! Замок поддается не с первого раза...);'+
+             'If({GetLang() = ENG}, 1);'+
+             'AddEvent(You have found a huge chest! The lock does not give in the first time ...);'+
+
+             'AddEvent(..................);'
         )
 
        ,(level: 5;
          script:
              'SetBreak(Tower);'+
-             'SetCreature(DARK MASTER,HP=9999 ATK=500,,Spirit=1);'+
 
              'AddEvent(..................);'+
 
-             'IF({GetLang() = ENG}, 5);'+
+             'IF({GetLang() = ENG}, 6);'+
+             'SetVar(DarkMaster, DARK MASTER);'+
              'AddEvent(Use `Restart` button to avoid enemy );' +
              'AddEvent(..................);'+
              'AddEvent(" - YOU WILL NOT PASS!");' +
              'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
              'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
 
-             'IF({GetLang() = RU}, 5);'+
+             'IF({GetLang() = RU}, 6);'+
+             'SetVar(DarkMaster, ТЕМНЫЙ МАСТЕР);'+
              'AddEvent("-> Используйте кнопку `Перезапуск`, чтобы избежать врага");' +
              'AddEvent(..................);'+
              'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
              'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
              'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+
+             'SetCreature(GetVar(DarkMaster),HP=9999 ATK=500,SpiritBless=1,);'+
 
              'AddEvent(..................);'
         )
@@ -204,24 +257,71 @@ var
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
-             'IF({GetLang() = RU}, 3);'+
-             'AddEvent(!!! Доступен режим Раздумий);'+
-             'AddEvent(Вам следует как следует подумать об этом!);'+
-             'AddEvent(Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?);'+
+             'IF({GetLang() = RU}, 4);'+
+             'AddEvent(    !!! Доступен режим Раздумий !!!);'+
+             'AddEvent( );'+
+             'AddEvent("Вам следует как следует подумать об этом!");'+
+             'AddEvent("Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?");'+
 
-             'IF({GetLang() = ENG}, 3);'+
-             'AddEvent(!!! Доступен режим Раздумий);'+
-             'AddEvent(Вам следует как следует подумать об этом!);'+
-             'AddEvent(Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?);'+
+             'IF({GetLang() = ENG}, 4);'+
+             'AddEvent(    !!! Think mode available !!!);'+
+             'AddEvent( );'+
+             'AddEvent("You should think carefully about this!");'+
+             'AddEvent("Wait! What is going on here!? Which tower, which monsters? What am I doing here!?");'+
 
              'AddEvent(..................);'+
 
              'AllowMode(Think, 1);'
         )
 
-       ,(level: maxint;
+       ,(level: 7;
          script:
              'SetBreak(Tower);'+
+
+             'AddEvent(..................);'+
+
+             'IF({GetLang() = ENG}, 3);'+
+             'SetVar(DarkMaster,ANGRY DARK MASTER);'+
+             'AddEvent(" - This is our last meeting, stranger! You will not leave my Tower!");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
+
+             'IF({GetLang() = RU}, 3);'+
+             'SetVar(DarkMaster,ЗЛОЙ ТЕМНЫЙ МАСТЕР);'+
+             'AddEvent(" - Это наша последняя встреча, чужак! Ты не выйдешь из моей Башни!");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+
+             'SetCreature(GetVar(DarkMaster),HP=99999 ATK=1000,,);'+
+
+             'AddEvent(..................);'
+        )
+
+       ,(level: 10;
+         script:
+             'SetBreak(Tower);'+
+
+             'AddEvent(..................);'+
+
+             'IF({GetLang() = ENG}, 4);'+
+             'SetVar(DarkMaster,FURY DARK MASTER);'+
+             'AddEvent(" - You broke into my Tower, scared monsters, looted chests. Who are you after that !?");' +
+             'AddEvent(" - Now EXACTLY our last meeting!");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
+
+             'IF({GetLang() = RU}, 4);'+
+             'SetVar(DarkMaster,ЯРОСТНЫЙ ТЕМНЫЙ МАСТЕР);'+
+             'AddEvent(" - Ты вломился в мою Башню, рапугал монстров, разграбил сундуки. Да кто ты такой после этого!?");' +
+             'AddEvent(" - Вот теперь ТОЧНО наша последняя встреча!");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+
+             'SetCreature(GetVar(DarkMaster),HP=999999999 ATK=100000,,);'+
+
+             'AddEvent(..................);'
+        )
+
+       ,(level: 11;
+         script:
+             'SetBreak(Tower);'+
+             'AddEvent(..................);'+
              'IF({GetLang() = ENG}, 2);'+
              'AddEvent(!!! INCREDIBLE !!!);' +
              'AddEvent(!!! YOU PASS THE GAME !!!);' +
@@ -229,6 +329,7 @@ var
              'IF({GetLang() = RU}, 2);'+
              'AddEvent(!!! НЕВЕРОЯТНО !!!);' +
              'AddEvent(!!! ТЫ ПРОШЕЛ ИГРУ !!!);' +
+             'AddEvent(..................);'+
 
              'CurrentLevel(1);InitCreatures();'
         )
@@ -261,47 +362,47 @@ var
          cost:    1000;
          script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player restore GetVar(IncHP) HP)'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок восстановил GetVar(IncHP) HP)'
+                 'If({GetLang() = ENG}, 1);'+
+                 'AddEvent(Player restore GetVar(IncHP) HP);'+
+                 'If({GetLang() = RU}, 1);'+
+                 'AddEvent(Игрок восстановил GetVar(IncHP) HP);'
         ) // зелье лечения
 
        ,(name:   'RestoreMana';
          cost:    1000;
          script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
                  'ChangePlayerParam(MP,GetVar(IncMP));'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player restore GetVar(IncMP) MP)'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок восстановил GetVar(IncMP) MP)'
+                 'If({GetLang() = ENG}, 1);'+
+                 'AddEvent(Player restore GetVar(IncMP) MP);'+
+                 'If({GetLang() = RU}, 1);'+
+                 'AddEvent(Игрок восстановил GetVar(IncMP) MP);'
          ) // зелье восстановления маны
 
        ,(name:   'PermanentATK';
          cost:    10000;
          script: 'ChangePlayerParam(ATK,1);'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player get +1 ATK permanently!)'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок получил +1 ATK!)'
+                 'If({GetLang() = ENG}, 1);'+
+                 'AddEvent(Player get +1 ATK permanently!);'+
+                 'If({GetLang() = RU}, 1);'+
+                 'AddEvent(Игрок получил +1 ATK!);'
         ) // зелье постоянного повышения атаки
 
        ,(name:   'PermanentDEF';
          cost:    10000;
          script: 'ChangePlayerParam(DEF,1);'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player get +1 DEF permanently!)'+
+                 'AddEvent(Player get +1 DEF permanently!);'+
                  'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок получил +1 DEF!)'
+                 'AddEvent(Игрок получил +1 DEF!);'
         ) // зелье постоянного повышения защиты
 
        ,(name:   'PermanentMDEF';
          cost:    10000;
          script: 'ChangePlayerParam(MDEF,1);'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player get +1 MDEF permanently!)'+
+                 'AddEvent(Player get +1 MDEF permanently!);'+
                  'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок получил +1 MDEF!)'
+                 'AddEvent(Игрок получил +1 MDEF!);'
         ) // зелье постоянного повышения магической защиты
 
        ,(name:   'EXP';
@@ -309,9 +410,9 @@ var
          script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
-                 'AddEvent(Player get +GetVar(EXP) EXP!)'+
+                 'AddEvent(Player get +GetVar(EXP) EXP!);'+
                  'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(Игрок получил + GetVar(EXP) EXP!)'
+                 'AddEvent(Игрок получил + GetVar(EXP) EXP!);'
         ) // зелье разового получения опыта
 {
        ,(name:   'REG';
@@ -324,46 +425,46 @@ var
 
        ,(name:   'RegenHP';
          cost:    500;
-         script: 'SetPlayerAutoBuff(HP,Rand({GetPlayerAttr(LVL) * 500}))'
+         script: 'SetPlayerAutoBuff(HP,Rand({GetPlayerAttr(LVL) * 500}));'
         ) // зелье регенерации здоровья
 
        ,(name:   'RegenMP';
          cost:    500;
-         script: 'SetPlayerAutoBuff(MP,Rand({GetPlayerAttr(LVL) * 50}))'
+         script: 'SetPlayerAutoBuff(MP,Rand({GetPlayerAttr(LVL) * 50}));'
         ) // зелье регенерации маны
 
 
 
        ,(name:   'BuffATK';
          cost:    5000;
-         script: 'SetPlayerBuff(ATK,{Rand(GetPlayerAttr(LVL)) + 1})'
+         script: 'SetPlayerBuff(ATK,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного повышения атаки
 
        ,(name:   'BuffDEF';
          cost:    5000;
-         script: 'SetPlayerBuff(DEF,{Rand(GetPlayerAttr(LVL)) + 1})'
+         script: 'SetPlayerBuff(DEF,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного повышения защиты
 
        ,(name:   'BuffMDEF';
          cost:    3000;
-         script: 'SetPlayerBuff(MDEF,{Rand(GetPlayerAttr(LVL)) + 1})'
+         script: 'SetPlayerBuff(MDEF,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffEXP';
          cost:    3000;
-         script: 'SetPlayerBuff(EXP,{Rand(GetPlayerAttr(LVL)) + 1})'
+         script: 'SetPlayerBuff(EXP,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffREG';
          cost:    3000;
-         script: 'SetPlayerBuff(REG,{Rand({GetPlayerAttr(LVL) * 10}) + 10})'
+         script: 'SetPlayerBuff(REG,{Rand({GetPlayerAttr(LVL) * 10}) + 10});'
         ) // зелье временного прироста опыта
 
 
 
        ,(name:   'AutoATK';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 1000)))'
+         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 1000)));'
         ) // зелье автоматической атаки
     );
 
@@ -375,7 +476,7 @@ var
          cost:    10;
          script: 'SetVar(IncHP,Rand({GetSkillLvl(Healing) * 50}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
-                 'AddEvent(Player restore GetVar(IncHP) HP)'
+                 'AddEvent(Player restore GetVar(IncHP) HP);'
         )
 
        ,(name:   'Explosion';
@@ -389,7 +490,7 @@ var
        ,(name:   'Heroism';
          cost:    20;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(Heroism) * 10}));'+
+                 'SetVar(value,Rand({GetSkillLvl(Heroism) * 5}));'+
                  'AddEvent(Player gets all stats buff by GetVar(value)!);'+
                  'SetPlayerBuff(ATK,GetVar(value));'+
                  'SetPlayerBuff(DEF,GetVar(value));'+
@@ -477,7 +578,7 @@ var
         )
     );
 
-    phrases: array [0..9,0..1] of string = (
+    phrases: array [0..11,0..1] of string = (
     (('-> Player is level up!'),
      ('-> Игрок получиль новый уровень!')),
 
@@ -506,7 +607,13 @@ var
      ('Игрок нанес %d урона')),
 
     (('Monster strike by %d DMG'),
-     ('Монстр нанес %d урона'))
+     ('Монстр нанес %d урона')),
+
+    (('Player strike by %d DMG ( %d is blocked )'),
+     ('Игрок нанес %d урона ( заблокировано %d )')),
+
+    (('Monster strike by %d DMG ( %d is blocked )'),
+     ('Монстр нанес %d урона ( заблокировано %d )'))
     );
 const
     PHRASE_LEVEL_UP       = 0;
@@ -519,6 +626,8 @@ const
     PHRASE_SKILL_OVERUP   = 7;
     PHRASE_PLAYER_STRIKE  = 8;
     PHRASE_MONSTER_STRIKE = 9;
+    PHRASE_PLAYER_STRIKE_BLOCK  = 10;
+    PHRASE_MONSTER_STRIKE_BLOCK = 11;
 
 implementation
 

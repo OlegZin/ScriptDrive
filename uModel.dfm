@@ -2,7 +2,7 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture tower 0.1 (techno demo)'
-  ClientHeight = 223
+  ClientHeight = 220
   ClientWidth = 602
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,16 +20,17 @@ object Form3: TForm3
     Left = 0
     Top = 0
     Width = 602
-    Height = 223
+    Height = 220
     ActivePage = pThink
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
     object pTower: TTabSheet
       Caption = 'Tower'
+      ExplicitHeight = 195
       DesignSize = (
         594
-        195)
+        192)
       object lCreatureInfo: TLabel
         Left = 166
         Top = 68
@@ -145,11 +146,12 @@ object Form3: TForm3
         Left = 2
         Top = 87
         Width = 587
-        Height = 105
+        Height = 102
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 7
+        ExplicitHeight = 105
       end
       object bUpSkill: TButton
         Left = 553
@@ -164,9 +166,10 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
+      ExplicitHeight = 195
       DesignSize = (
         594
-        195)
+        192)
       object bThink: TButton
         Left = 3
         Top = 3
@@ -188,28 +191,42 @@ object Form3: TForm3
         Left = 216
         Top = 3
         Width = 375
-        Height = 189
+        Height = 186
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 2
+        ExplicitHeight = 189
       end
       object lbThinkList: TListBox
         Left = 3
-        Top = 34
+        Top = 56
         Width = 207
-        Height = 158
+        Height = 133
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 3
+        OnClick = lbThinkListClick
+        ExplicitHeight = 136
+      end
+      object ComboBox1: TComboBox
+        Left = 3
+        Top = 31
+        Width = 207
+        Height = 21
+        Style = csDropDownList
+        Enabled = False
+        Sorted = True
+        TabOrder = 4
       end
     end
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
+      ExplicitHeight = 195
       DesignSize = (
         594
-        195)
+        192)
       object Label1: TLabel
         Left = 6
         Top = 7
@@ -221,9 +238,24 @@ object Form3: TForm3
         Left = 3
         Top = 22
         Width = 134
-        Height = 168
+        Height = 165
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
+        TabOrder = 0
+        ExplicitHeight = 168
+      end
+    end
+    object pSecrets: TTabSheet
+      Caption = 'Secrets'
+      ImageIndex = 3
+      object mSecrets: TMemo
+        Left = 0
+        Top = 0
+        Width = 594
+        Height = 192
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssVertical
         TabOrder = 0
       end
     end
