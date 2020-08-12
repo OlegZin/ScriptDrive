@@ -190,6 +190,7 @@ object Form3: TForm3
         Width = 375
         Height = 189
         Anchors = [akLeft, akTop, akRight, akBottom]
+        ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 2
       end

@@ -175,7 +175,7 @@ var
              'ChangePlayerItemCount(Gold, GetVar(gold));'
         )
 
-       ,(level: 4;
+       ,(level: 5;
          script:
              'SetBreak(Tower);'+
              'SetCreature(DARK MASTER,HP=9999 ATK=500,,Spirit=1);'+
@@ -199,7 +199,7 @@ var
              'AddEvent(..................);'
         )
 
-       ,(level: 7;
+       ,(level: 6;
          script:
              'SetBreak(Tower);'+
              'AddEvent(..................);'+

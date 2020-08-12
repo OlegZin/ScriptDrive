@@ -94,14 +94,27 @@ var
 procedure TForm3.updateThinkInterface;
 var
     log: string;
-    index: integer;
+    i: integer;
+    capt: string;
 begin
 
-    index := lbThinkList.ItemIndex;
+    if lbThinkList.ItemIndex <> -1 then
+    capt := copy(
+       lbThinkList.Items[lbThinkList.ItemIndex],
+       0,
+       pos(' (', lbThinkList.Items[lbThinkList.ItemIndex])-2
+    ) else capt := '';
+
+
     lbThinkList.Items.StrictDelimiter := true;
     lbThinkList.Items.CommaText := Script.Exec('GetThinks();');
-    if (index > -1) and (index <= lbThinkList.Items.Count -1)
-    then lbThinkList.ItemIndex := index;
+
+    if capt <> '' then
+    for I := 0 to lbThinkList.Count-1 do
+    if   pos(capt, lbThinkList.Items[i]) > 0
+    then lbThinkList.ItemIndex := i;
+
+
 
 
     log := Script.Exec('GetThinkEvents();');
@@ -122,6 +135,7 @@ begin
     capt := Copy( lbThinkList.Items[lbThinkList.ItemIndex], 0, pos(' (', lbThinkList.Items[lbThinkList.ItemIndex])-2 );
     Script.Exec('ProcessThinks('+capt+', -1)');
     updateThinkInterface;
+    UpdateInterface;
 end;
 
 
@@ -188,7 +202,7 @@ begin
     Script.Exec('SetLang(RU)');
     SetLang('RU');
 
-    Script.Exec('AllowMode(Think, 1)');
+//    Script.Exec('AllowMode(Think, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -210,6 +224,11 @@ begin
         bAttack.Click;
     end;
 
+    if cbAutoThink.Checked then
+    begin
+        Script.Exec('ChangeAutoATK(-1)');
+        bThink.Click;
+    end;
 end;
 
 procedure TForm3.UpdateInterface;
@@ -343,10 +362,12 @@ begin
     if AutoCount <= 0 then
     begin
         cbAutoAttack.Checked := false;
+        cbAutoThink.Checked := false;
         mmiTowerAuto.Checked := false;
         mmiThinkAuto.Checked := false;
     end;
     cbAutoAttack.Enabled := AutoCount > 0;
+    cbAutoThink.Enabled := AutoCount > 0;
     mmiTowerAuto.Enabled := AutoCount > 0;
     mmiThinkAuto.Enabled := AutoCount > 0;
 
@@ -438,6 +459,8 @@ begin
         bUseItem.Caption := '»сп.!';
         bSkillUse.Caption := '»сп.!';
         bUpSkill.Caption := 'јп.!';
+
+        bThink.Caption := 'ƒумать...';
     end;
 
     if CurrLang = 'ENG' then
@@ -459,6 +482,8 @@ begin
         bUseItem.Caption := 'Use!';
         bSkillUse.Caption := 'Use!';
         bUpSkill.Caption := 'Up!';
+
+        bThink.Caption := 'Think...';
     end;
 
 end;
