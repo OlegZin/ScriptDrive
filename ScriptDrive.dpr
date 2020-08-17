@@ -9,7 +9,8 @@ uses
   uDoc in 'uDoc.pas',
   uThinkModeData in 'uThinkModeData.pas',
   uFloors in 'uFloors.pas',
-  uTargets in 'uTargets.pas';
+  uTargets in 'uTargets.pas',
+  uTools in 'uTools.pas';
 
 {$R *.res}
 

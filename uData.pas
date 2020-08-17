@@ -3,7 +3,7 @@ unit uData;
 interface
 
 uses
-    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets,
+    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools,
     System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
 
 type
@@ -148,6 +148,13 @@ type
         function GetFloorEvents: string;
         procedure AddFloorEvent(text: string);
         function GetFloorObjectSize(id: variant): string;
+
+
+        procedure AllowTool(name: string);
+        function GetToolsList: string;
+        function GetToolAttr(capt, attr: string): string;
+        procedure ToolUpgrade(capt: string);
+        function NeedToolUpgrade(capt: string): string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -451,6 +458,89 @@ begin
     pars.Free;
 end;
 
+function TData.GetToolAttr(capt, attr: string): string;
+var
+    i : integer;
+    index : integer;
+    pars: TStringList;
+begin
+
+    index := -1;
+    result := '';
+    pars := TStringList.Create;
+    pars.StrictDelimiter := true;
+
+    for I := 0 to High(arrTools) do
+    if   Pos(AnsiUpperCase(capt), AnsiUpperCase(arrTools[i].caption)) > 0
+    then index := i;
+
+    if index = -1 then exit;
+
+    if attr = 'lvl' then
+       result := IntToStr(arrTools[index].lvl);
+
+    if attr = 'caption' then
+    begin
+        pars.CommaText := arrTools[index].caption;
+        result := pars.Values[GetLang];
+    end;
+
+    if attr = 'desc' then
+    begin
+        pars.CommaText := arrTools[index].desc;
+        result := pars.Values[GetLang];
+    end;
+
+    if attr = 'script' then
+       result := arrTools[index].script;
+
+    pars.free;
+end;
+
+procedure TData.ToolUpgrade(capt: string);
+var
+    i : integer;
+    index : integer;
+begin
+
+    index := -1;
+
+    for I := 0 to High(arrTools) do
+    if   Pos(AnsiUpperCase(capt), AnsiUpperCase(arrTools[i].caption)) > 0
+    then index := i;
+
+    if index = -1 then exit;
+
+    arrTools[index].lvl := arrTools[index].lvl + 1;
+
+    Script.Exec(arrTools[index].script);
+
+    ChangePlayerItemCount('Gold', '-'+NeedToolUpgrade(capt));
+end;
+
+function TData.GetToolsList: string;
+/// получаем список доступных инструментов
+var
+    pars: TStringList;
+    i : integer;
+    comma : string;
+begin
+    pars := TStringList.Create;
+    pars.StrictDelimiter := true;
+
+    comma := '';
+
+    for I := 0 to High(arrTools) do
+    if arrTools[i].isAllow then
+    begin
+        pars.CommaText := arrTools[i].caption;
+        result := result + comma + pars.Values[GetLang];
+        comma := ',';
+    end;
+
+    pars.Free;
+end;
+
 function TData.GetTrashCount: string;
 begin
     result := IntToStr( arrFloors[CurrLevel].Trash.Count );
@@ -553,7 +643,8 @@ end;
 
 procedure TData.InitGame;
 begin
-    Script.Exec('SetVar(SHOVEL_LVL, 10);');
+    Script.Exec('SetVar('+SHOVEL_LVL+', 1);');
+    Script.Exec('SetVar('+PICK_LVL+', 1);');
 end;
 
 procedure TData.InitPlayer;
@@ -660,7 +751,7 @@ var
     capt: string;
     delta: integer;
 begin
-    // пустое возвращаемое значение уничтожит объект в интерфейсе уровня
+    // пустое возвращаемое значение уничтожит(скроет) объект в интерфейсе уровня
     result := '';
 
     if not arrFloors[CurrLevel].Trash.TryGetValue(id, item) then exit;
@@ -671,7 +762,20 @@ begin
     /// получаем короткую ссылку на объект на этаже
     item := arrFloors[CurrLevel].Trash[Integer(id)];
 
-    delta := StrToIntDef(Script.Exec('GetVar(SHOVEL_LVL);'), 1);
+    delta := 1;
+
+    // если объект мусор - лопата дает эффект к скорости раскапывания
+    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Trash'
+    then
+        delta := StrToIntDef(Script.Exec('GetVar('+SHOVEL_LVL+');'), 1);
+
+    // если объект мусор - лопата дает эффект к скорости раскапывания
+    if (arrFloors[CurrLevel].Trash[Integer(id)].name = 'StoneBlockage') or
+       (arrFloors[CurrLevel].Trash[Integer(id)].name = 'WoodBlockage')
+    then
+        delta := StrToIntDef(Script.Exec('GetVar('+PICK_LVL+');'), 1);
+
+
     item.count := item.count - delta;
 
     if item.count > 0 then
@@ -804,6 +908,7 @@ function TData.StepCount: string;
 begin
     result := IntToStr(MaxStep);
 end;
+
 
 procedure TData.CurrentLevel(input: variant);
 // текущий уровень показ/изменение
@@ -1079,6 +1184,15 @@ begin
     AllowModes := Inventory.Get;
 end;
 
+procedure TData.AllowTool(name: string);
+var
+    i : integer;
+begin
+    for I := 0 to High(arrTools) do
+    if AnsiUpperCase(arrTools[i].name) = AnsiUpperCase(name) then
+        arrTools[i].isAllow := true;
+end;
+
 function TData.NeedExp(lvl: variant): string;
 var
     prev, cost, buff, // переменные для вычисления стоимости
@@ -1097,6 +1211,11 @@ begin
     end;
 
     result := IntToStr(cost);
+end;
+
+function TData.NeedToolUpgrade(capt: string): string;
+begin
+    result := IntToStr(StrToInt(NeedExp(GetToolAttr(capt,'lvl'))) * 100);
 end;
 
 procedure TData.ChangeAutoATK(delta: variant);

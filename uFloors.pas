@@ -7,6 +7,7 @@ uses
 
 type
     TTrash = record
+       name: string;     /// внутреннее имя
        caption: string;  /// что будет показано до момента окончания Count
        count : integer;  /// количество тапов до срабатывания script
        script: string;   /// эффект объекта в момент исследования
@@ -26,7 +27,7 @@ type
 var
     arrFloors: array [1..13] of TFloor;
 
-    floorObjects: array [0..26] of string = (
+    floorObjects: array [0..28] of string = (
         'Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash',
         'Rat',  'Rat',  'Rat',  'Rat',  'Rat',
         'SmallChest', 'SmallChest', 'SmallChest',
@@ -34,8 +35,8 @@ var
         'Trap',       'Trap',
         'BigChest',   'BigChest',
         'Cache',
-        'StoneBlockage',
-        'WoodBlockage'
+        'StoneBlockage', 'StoneBlockage',
+        'WoodBlockage', 'WoodBlockage'
     );
 
 implementation
@@ -69,10 +70,12 @@ begin
             // определяем тип объекта
             trash := floorObjects[Random(High(floorObjects))];
 
+
             if (j = 0) and (i = 1) then trash := 'Trash';
             if (j = 0) and (i = 3) then trash := 'Trash';
 
             elem.size := 'normal';
+
 
             /// мусорная куча
             if trash = 'Trash' then
@@ -90,7 +93,7 @@ begin
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
-                   'AllowMode(Shovel, 1);' +
+                   'AllowTool(Shovel);' +
                    'IF({GetLang() = RU}, 2);'+
                    'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
                    'AddFloorEvent(Игрок обнаружил Лопату!);'+
@@ -106,7 +109,7 @@ begin
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
-                   'AllowMode(Pick, 1);' +
+                   'AllowTool(Pick);' +
                    'IF({GetLang() = RU}, 2);'+
                    'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
                    'AddFloorEvent(Игрок обнаружил Кирку!);'+
@@ -310,6 +313,8 @@ begin
 
             if not found then
             found := found;
+
+            elem.name := trash;
 
             arrFloors[i].Trash.Add(j, elem);
 

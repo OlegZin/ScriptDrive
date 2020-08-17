@@ -22,17 +22,12 @@ object Form3: TForm3
     Top = 49
     Width = 669
     Height = 354
-    ActivePage = pTower
+    ActivePage = pTools
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
-    ExplicitTop = 25
-    ExplicitWidth = 665
-    ExplicitHeight = 333
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitWidth = 633
-      ExplicitHeight = 274
       DesignSize = (
         661
         326)
@@ -103,8 +98,6 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
-      ExplicitWidth = 633
-      ExplicitHeight = 274
       DesignSize = (
         661
         326)
@@ -133,8 +126,6 @@ object Form3: TForm3
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 2
-        ExplicitWidth = 414
-        ExplicitHeight = 268
       end
       object lbThinkList: TListBox
         Left = 3
@@ -145,7 +136,6 @@ object Form3: TForm3
         ItemHeight = 13
         TabOrder = 3
         OnClick = lbThinkListClick
-        ExplicitHeight = 215
       end
       object ComboBox1: TComboBox
         Left = 3
@@ -161,8 +151,6 @@ object Form3: TForm3
     object pFloors: TTabSheet
       Caption = 'Floor: 1'
       ImageIndex = 4
-      ExplicitWidth = 633
-      ExplicitHeight = 274
       object mFloorLog: TMemo
         Left = 0
         Top = 268
@@ -172,8 +160,6 @@ object Form3: TForm3
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitTop = 216
-        ExplicitWidth = 633
       end
       object pnlFloor: TPanel
         Left = 0
@@ -183,21 +169,73 @@ object Form3: TForm3
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 633
-        ExplicitHeight = 216
       end
     end
     object pTools: TTabSheet
       Caption = 'Tools'
       ImageIndex = 5
-      ExplicitWidth = 657
-      ExplicitHeight = 305
+      object lToolName: TLabel
+        Left = 216
+        Top = 20
+        Width = 185
+        Height = 23
+        Caption = 'lToolName and LVL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lToolDesc: TLabel
+        Left = 216
+        Top = 61
+        Width = 433
+        Height = 60
+        AutoSize = False
+        Caption = 'lToolDesc'
+      end
+      object lToolUpCost: TLabel
+        Left = 312
+        Top = 175
+        Width = 225
+        Height = 13
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'Cost: '#1061#1061#1061' EXP'
+      end
+      object lbTools: TListBox
+        Left = 0
+        Top = 0
+        Width = 201
+        Height = 326
+        Align = alLeft
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ItemHeight = 19
+        Items.Strings = (
+          #1051#1086#1087#1072#1090#1072
+          #1050#1080#1088#1082#1072)
+        ParentFont = False
+        TabOrder = 0
+        OnClick = lbToolsClick
+      end
+      object bToolUpgrade: TButton
+        Left = 312
+        Top = 144
+        Width = 225
+        Height = 25
+        Caption = 'Upgrade!'
+        TabOrder = 1
+        OnClick = bToolUpgradeClick
+      end
     end
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitWidth = 633
-      ExplicitHeight = 274
       object lbLoot: TListBox
         Left = 0
         Top = 0
@@ -206,7 +244,6 @@ object Form3: TForm3
         Align = alLeft
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 274
       end
       object Panel2: TPanel
         Left = 137
@@ -216,8 +253,6 @@ object Form3: TForm3
         Align = alClient
         Caption = 'Panel2'
         TabOrder = 1
-        ExplicitWidth = 496
-        ExplicitHeight = 274
         object pcCraft: TPageControl
           Left = 1
           Top = 1
@@ -226,12 +261,8 @@ object Form3: TForm3
           ActivePage = pResourceResearch
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 494
-          ExplicitHeight = 200
           object pCraftPotions: TTabSheet
             Caption = 'Potions Research'
-            ExplicitWidth = 486
-            ExplicitHeight = 172
             object Label1: TLabel
               Left = 36
               Top = 54
@@ -452,8 +483,6 @@ object Form3: TForm3
           object pResourceResearch: TTabSheet
             Caption = 'Resource Research'
             ImageIndex = 1
-            ExplicitWidth = 486
-            ExplicitHeight = 172
             object Label10: TLabel
               Left = 36
               Top = 54
@@ -627,16 +656,12 @@ object Form3: TForm3
             'Memo1')
           ReadOnly = True
           TabOrder = 1
-          ExplicitTop = 201
-          ExplicitWidth = 494
         end
       end
     end
     object pSecrets: TTabSheet
       Caption = 'Secrets'
       ImageIndex = 3
-      ExplicitWidth = 633
-      ExplicitHeight = 274
       object mSecrets: TMemo
         Left = 0
         Top = 0
@@ -646,8 +671,6 @@ object Form3: TForm3
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitWidth = 633
-        ExplicitHeight = 274
       end
     end
   end
@@ -735,12 +758,12 @@ object Form3: TForm3
   end
   object tAutoAttack: TTimer
     OnTimer = tAutoAttackTimer
-    Left = 96
-    Top = 176
+    Left = 536
+    Top = 144
   end
   object MainMenu1: TMainMenu
-    Left = 28
-    Top = 176
+    Left = 532
+    Top = 88
     object mmiLang: TMenuItem
       Caption = 'Lang'
       object mmiEng: TMenuItem

@@ -86,6 +86,11 @@ type
     Panel1: TPanel;
     mmiAuto: TLabel;
     pTools: TTabSheet;
+    lbTools: TListBox;
+    lToolName: TLabel;
+    lToolDesc: TLabel;
+    bToolUpgrade: TButton;
+    lToolUpCost: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -102,6 +107,8 @@ type
     procedure bThinkClick(Sender: TObject);
     procedure lbThinkListClick(Sender: TObject);
     procedure OnClickFloorButton(Sender: TObject);
+    procedure lbToolsClick(Sender: TObject);
+    procedure bToolUpgradeClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -112,6 +119,7 @@ type
     procedure UpdateInterface;
     procedure updateSecretsInterface;
     procedure UpdateFloorInterface;
+    procedure UpdateToolInterface;
   end;
 
 var
@@ -133,22 +141,112 @@ var
    ,oldPlayerLoot
    ,oldPlayerSkills
    ,AllowModes
+   ,SelectedTool
             : string;
     topFloor
    ,CurrFloor  // текущий этаж
    ,LastFloor  // последний этаж для которого отстраивался режим Этаж
+   ,NeedToToolUp
             : integer;
     LastFloorObject
             : TButton;
 
 
+
+
+
+procedure TForm3.FormShow(Sender: TObject);
+begin
+    mLog.Lines.Clear;
+
+    Script.Exec('SetLang(ENG)');
+    SetLang('ENG');
+
+//    Script.Exec('AllowMode(Think, 1)');
+//    Script.Exec('AllowMode(Secrets, 1)');
+//    Script.Exec('AllowMode(Craft, 1)');
+    Script.Exec('AllowMode(Floors, 1)');
+    Script.Exec('AllowMode(Tools, 1)');
+    Script.Exec('AllowTool(Shovel)');
+    Script.Exec('AllowTool(Pick)');
+
+    pcGame.ActivePageIndex := pTower.TabIndex;
+
+    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
+
+    UpdateInterface;
+
+end;
+
+
 procedure TForm3.pcGameChange(Sender: TObject);
 begin
     UpdateInterface;
-    updateThinkInterface;
-    UpdateSecretsInterface;
-    UpdateFloorInterface;
 end;
+
+
+
+
+
+procedure TForm3.UpdateToolInterface;
+var
+    i: integer;
+    capt : string;
+    currGold : integer;
+
+begin
+    if pcGame.ActivePage <> pTools then exit;
+
+    /// заполняем список доступных инструментов
+    lbTools.Items.CommaText := Data.GetToolsList;
+
+    for I := 0 to lbTools.Items.Count-1 do
+    if lbTools.Items[i] = SelectedTool then
+    lbTools.ItemIndex := i;
+
+
+    if lbTools.ItemIndex = -1 then
+    if lbTools.Items.Count > 0 then
+    begin
+        lbTools.ItemIndex := 0;
+        SelectedTool := lbTools.Items[0];
+    end else
+        exit;
+
+    capt := lbTools.Items[lbTools.ItemIndex];
+    lToolName.Caption := capt + ' ('+Data.GetToolAttr(capt,'lvl')+')';
+    lToolDesc.Caption := Data.GetToolAttr(capt,'desc');
+
+    NeedToToolUp := StrToInt(Data.NeedToolUpgrade(capt));
+    currGold := StrToIntDef(Data.GetPlayerItemCount('Gold'), 0);
+
+    if Data.GetLang = 'RU' then lToolUpCost.Caption := 'Цена: ' + IntToStr(NeedToToolUp) + ' золота';
+    if Data.GetLang = 'ENG' then lToolUpCost.Caption := 'Cost: ' + IntToStr(NeedToToolUp) + ' Gold';
+
+    bToolUpgrade.Enabled := currGold >= NeedToToolUp;
+end;
+
+procedure TForm3.lbToolsClick(Sender: TObject);
+begin
+    if lbTools.ItemIndex = -1 then exit;
+
+    SelectedTool := lbTools.Items[lbTools.ItemIndex];
+
+    UpdateToolInterface;
+end;
+
+procedure TForm3.bToolUpgradeClick(Sender: TObject);
+var
+    capt : string;
+begin
+    if lbTools.ItemIndex = -1 then exit;
+
+    Data.ToolUpgrade(SelectedTool);
+
+    UpdateInterface;
+end;
+
+
 
 
 
@@ -175,6 +273,8 @@ var
     i: integer;
     capt: string;
 begin
+
+    if pcGame.ActivePage <> pThink then exit;
 
     if lbThinkList.ItemIndex <> -1 then
     capt := copy(
@@ -220,6 +320,7 @@ procedure TForm3.lbThinkListClick(Sender: TObject);
 begin
     cbAutoThink.Enabled := lbThinkList.ItemIndex <> -1;
 end;
+
 
 
 
@@ -368,25 +469,6 @@ begin
     UpdateInterface;
 end;
 
-procedure TForm3.FormShow(Sender: TObject);
-begin
-    mLog.Lines.Clear;
-
-    Script.Exec('SetLang(ENG)');
-    SetLang('ENG');
-
-//    Script.Exec('AllowMode(Think, 1)');
-//    Script.Exec('AllowMode(Secrets, 1)');
-//    Script.Exec('AllowMode(Craft, 1)');
-    Script.Exec('AllowMode(Floors, 1)');
-
-    pcGame.ActivePageIndex := pTower.TabIndex;
-
-    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
-
-    UpdateInterface;
-
-end;
 
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
@@ -576,6 +658,11 @@ begin
     end;
 
     pars.Free;
+
+    updateThinkInterface;
+    UpdateSecretsInterface;
+    UpdateFloorInterface;
+    UpdateToolInterface;
 end;
 
 procedure TForm3.log(text: string);
@@ -627,6 +714,7 @@ begin
         bUpSkill.Caption := 'Ап.!';
 
         bThink.Caption := 'Думать...';
+        bToolUpgrade.Caption := 'Улучшить!';
     end;
 
     if CurrLang = 'ENG' then
@@ -652,6 +740,7 @@ begin
         bUpSkill.Caption := 'Up!';
 
         bThink.Caption := 'Think...';
+        bToolUpgrade.Caption := 'Upgrade!';
     end;
 
 end;
