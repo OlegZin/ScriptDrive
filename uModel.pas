@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls, Vcl.Menus;
+  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons;
 
 type
   TForm3 = class(TForm)
@@ -26,7 +26,6 @@ type
     pTower: TTabSheet;
     pCraft: TTabSheet;
     lbLoot: TListBox;
-    Label1: TLabel;
     bUpSkill: TButton;
     lTopStep: TLabel;
     lTarget: TLabel;
@@ -39,13 +38,53 @@ type
     bThink: TButton;
     cbAutoThink: TCheckBox;
     mmiAuto: TMenuItem;
-    mmiTowerAuto: TMenuItem;
-    mmiThinkAuto: TMenuItem;
     mThinkLog: TMemo;
     lbThinkList: TListBox;
     ComboBox1: TComboBox;
     pSecrets: TTabSheet;
     mSecrets: TMemo;
+    pFloors: TTabSheet;
+    pcCraft: TPageControl;
+    pCraftPotions: TTabSheet;
+    cbPotionSelect: TComboBox;
+    bPotionResearch: TButton;
+    Panel2: TPanel;
+    Memo1: TMemo;
+    pResourceResearch: TTabSheet;
+    Label1: TLabel;
+    Label2: TLabel;
+    cbPotionPart1: TComboBox;
+    cbPotionPart1Count: TComboBox;
+    Label3: TLabel;
+    Label4: TLabel;
+    ComboBox3: TComboBox;
+    ComboBox4: TComboBox;
+    Label5: TLabel;
+    ComboBox5: TComboBox;
+    ComboBox6: TComboBox;
+    Label6: TLabel;
+    ComboBox7: TComboBox;
+    ComboBox8: TComboBox;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    ComboBox9: TComboBox;
+    Button1: TButton;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    SpeedButton1: TSpeedButton;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
+    mFloorLog: TMemo;
+    pnlFloor: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -58,13 +97,10 @@ type
     procedure mmiRusClick(Sender: TObject);
     procedure bSkillUseClick(Sender: TObject);
     procedure bUpSkillClick(Sender: TObject);
-    procedure cbAutoAttackClick(Sender: TObject);
-    procedure mmiTowerAutoClick(Sender: TObject);
-    procedure cbAutoThinkClick(Sender: TObject);
-    procedure mmiThinkAutoClick(Sender: TObject);
     procedure pcGameChange(Sender: TObject);
     procedure bThinkClick(Sender: TObject);
     procedure lbThinkListClick(Sender: TObject);
+    procedure OnClickFloorButton(Sender: TObject);
   private
     { Private declarations }
   public
@@ -74,6 +110,7 @@ type
     procedure updateThinkInterface;
     procedure UpdateInterface;
     procedure updateSecretsInterface;
+    procedure UpdateFloorInterface;
   end;
 
 var
@@ -83,8 +120,12 @@ implementation
 
 {$R *.dfm}
 
+
 uses
     uData;
+
+const
+    UNKNOWN_BUTTON = '??????';
 
 var
     oldPlayerItems
@@ -92,7 +133,20 @@ var
    ,oldPlayerSkills
    ,AllowModes
             : string;
-    topFloor: integer;
+    topFloor
+   ,CurrFloor  // текущий этаж
+   ,LastFloor  // последний этаж для которого отстраивался режим Этаж
+            : integer;
+
+
+procedure TForm3.pcGameChange(Sender: TObject);
+begin
+    UpdateInterface;
+    updateThinkInterface;
+    UpdateSecretsInterface;
+    UpdateFloorInterface;
+end;
+
 
 
 
@@ -108,6 +162,9 @@ begin
         mSecrets.Text := s;
     end;
 end;
+
+
+
 
 procedure TForm3.updateThinkInterface;
 var
@@ -136,22 +193,13 @@ begin
     if cbAutoThink.Checked and (lbThinkList.ItemIndex = -1) then
     begin
         cbAutoThink.Checked := false;
-        mmiThinkAuto.Checked := false;
     end;
 
     // блокируем выбор автомыслей, если тема не выбрана
     cbAutoThink.Enabled := lbThinkList.ItemIndex <> -1;
-    mmiThinkAuto.Enabled := lbThinkList.ItemIndex <> -1;
 
     log := Script.Exec('GetThinkEvents();');
     if log <> '' then mThinkLog.Text := log + sLineBreak + mThinkLog.Text;
-end;
-
-procedure TForm3.pcGameChange(Sender: TObject);
-begin
-    UpdateInterface;
-    updateThinkInterface;
-    UpdateSecretsInterface;
 end;
 
 procedure TForm3.bThinkClick(Sender: TObject);
@@ -168,11 +216,89 @@ end;
 procedure TForm3.lbThinkListClick(Sender: TObject);
 begin
     cbAutoThink.Enabled := lbThinkList.ItemIndex <> -1;
-    mmiThinkAuto.Enabled := lbThinkList.ItemIndex <> -1;
 end;
 
 
 
+
+
+
+
+
+procedure TForm3.UpdateFloorInterface;
+var
+    trash: integer;
+    i: Integer;
+    b: TButton;
+    event: string;
+    pars: TStringList;
+begin
+
+    if pcGame.ActivePage <> pFloors then exit;
+
+    // останавливаем автоатаки
+    cbAutoAttack.Checked := false;
+
+    if CurrFloor <> LastFloor then
+    begin
+
+        pars := TStringList.Create;
+
+        LastFloor := CurrFloor;
+
+        for i := pnlFloor.ControlCount-1 downto 0 do
+            pnlFloor.Controls[i].Free;
+
+        trash := StrToIntDef( Data.GetTrashCount,0 );
+        pars.CommaText := Data.GetTrashIDs;
+
+        for i := 0 to trash-1 do
+        begin
+            b := TButton.Create(self);
+            b.Height := 60;
+            b.Width := 100;
+            b.Caption := UNKNOWN_BUTTON;
+            b.Tag := StrToInt(pars[i]);
+            b.Left := Random(pFloors.ClientWidth - b.Width);
+            b.top := Random(pFloors.ClientHeight - b.Height - mFloorLog.Height);
+            b.Parent := pnlFloor;
+            b.OnClick := OnClickFloorButton;
+        end;
+
+        /// при нулевом количестве мусора отстраиваем другой интерфейс.
+        /// это может быть расковыривание стены или активация алтаря
+        /// (если открыты такие режимы)
+        if trash = 0 then
+        begin
+
+        end;
+
+        pars.Free;
+    end;
+
+    event := Script.Exec('GetFloorEvents();');
+    if event <> '' then
+    if   Trim(mFloorLog.Text) <> ''
+    then mFloorLog.Text := event + sLineBreak + mFloorLog.Text
+    else mFloorLog.Text := event;
+
+end;
+
+procedure TForm3.OnClickFloorButton(Sender: TObject);
+var
+    btn: TButton;
+begin
+    btn := sender as TButton;
+
+    /// отрабатываем скрипт по id кнопки
+    btn.Caption := Script.Exec('ProcessFloorObject('+IntTostr(btn.tag)+')');
+
+    /// пустой результат скрипта означает, что кнопка свое отработала - убираем
+    if btn.Caption = '' then btn.Free;
+
+    /// если уделена последняя кнопка - пробуем перестроить интерфейс
+    UpdateFloorInterface;
+end;
 
 
 
@@ -213,16 +339,6 @@ begin
 end;
 
 
-procedure TForm3.cbAutoAttackClick(Sender: TObject);
-begin
-    mmiTowerAuto.Checked := cbAutoAttack.Checked;
-end;
-
-procedure TForm3.cbAutoThinkClick(Sender: TObject);
-begin
-   mmiThinkAuto.Checked := cbAutoThink.Checked;
-end;
-
 procedure TForm3.bAttackClick(Sender: TObject);
 begin
     Script.Exec('PlayerAttack();CreatureAttack();CheckStatus();');
@@ -233,11 +349,13 @@ procedure TForm3.FormShow(Sender: TObject);
 begin
     mLog.Lines.Clear;
 
-    Script.Exec('SetLang(RU)');
-    SetLang('RU');
+    Script.Exec('SetLang(ENG)');
+    SetLang('ENG');
 
-    Script.Exec('AllowMode(Think, 1)');
+//    Script.Exec('AllowMode(Think, 1)');
 //    Script.Exec('AllowMode(Secrets, 1)');
+//    Script.Exec('AllowMode(Craft, 1)');
+//    Script.Exec('AllowMode(Floors, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -250,7 +368,7 @@ end;
 procedure TForm3.tAutoAttackTimer(Sender: TObject);
 begin
 
-//    if   Script.Exec('ProcessAuto()') <> '' then UpdateInterface;
+    if   Script.Exec('ProcessAuto()') <> '' then UpdateInterface;
 
     if cbAutoAttack.Checked then
     begin
@@ -270,7 +388,7 @@ var
     itemItem, itemSkill: integer;
     AutoCount: integer;
     tmp, exp, lvl, selItem, selSkill, reg, breaks: string;
-    floor, step: integer;
+    step: integer;
     pars: TstringList;
     i: Integer;
 begin
@@ -291,50 +409,52 @@ begin
     pars.CommaText := AllowModes;
     // доступность думательной
     pThink.TabVisible := pars.IndexOfName( 'Think' ) <> -1;
-    mmiThinkAuto.Visible := pars.IndexOfName( 'Think' ) <> -1;
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
     // доступность просмотра секретов
     pSecrets.TabVisible := pars.IndexOfName( 'Secrets' ) <> -1;
+    // доступность крафта
+    pFloors.TabVisible := pars.IndexOfName( 'Floors' ) <> -1;
 
     breaks := Script.Exec('GetBreaks()');
     if pos('Tower', breaks) > 0 then
     begin
-        mmiTowerAuto.Checked := false;
         cbAutoAttack.Checked := false;
     end;
     if pos('Think', breaks) > 0 then
     begin
-        mmiThinkAuto.Checked := false;
         cbAutoThink.Checked := false;
     end;
 
 
     // инфа по текущему / топовому этажу
-    floor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
+    CurrFloor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
     step := StrToIntDef(Script.Exec('CurrentStep()'), 0);
-    if floor * 1000000 + step > topFloor then
-       topFloor := floor * 1000000 + step;
+    if CurrFloor * 1000000 + step > topFloor then
+       topFloor := CurrFloor * 1000000 + step;
 
     if CurrLang = 'ENG' then
     begin
-      lStep.Caption    := 'Floor: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
+      lStep.Caption    := 'Floor: ' + IntToStr(CurrFloor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
       ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
       lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
+
+      pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
     end;
 
     if CurrLang = 'RU' then
     begin
-      lStep.Caption    := 'Этаж: ' + IntToStr(floor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
+      lStep.Caption    := 'Этаж: ' + IntToStr(CurrFloor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
       ltopStep.Caption := 'Лучший: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
 
       lTarget.Caption := 'Цель: ' + Script.Exec('GetCurrTarget()') + ' этаж';
+
+      pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
     end;
 
     // инфа попротивнику
     lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
-
 
 
     // инфа по игроку
@@ -399,13 +519,9 @@ begin
     begin
         cbAutoAttack.Checked := false;
         cbAutoThink.Checked := false;
-        mmiTowerAuto.Checked := false;
-        mmiThinkAuto.Checked := false;
     end;
     cbAutoAttack.Enabled := AutoCount > 0;
     cbAutoThink.Enabled := AutoCount > 0;
-    mmiTowerAuto.Enabled := AutoCount > 0;
-    mmiThinkAuto.Enabled := AutoCount > 0;
 
     if CurrLang = 'ENG' then
         mmiAuto.Caption := 'AutoAction: ' + IntToStr(AutoCount);
@@ -458,19 +574,6 @@ begin
     UpdateInterface;
 end;
 
-procedure TForm3.mmiThinkAutoClick(Sender: TObject);
-begin
-   mmiThinkAuto.Checked := not mmiThinkAuto.Checked;
-   cbAutoThink.Checked := mmiThinkAuto.Checked;
-end;
-
-procedure TForm3.mmiTowerAutoClick(Sender: TObject);
-begin
-    mmiTowerAuto.Checked := not mmiTowerAuto.Checked;
-    cbAutoAttack.Checked := mmiTowerAuto.Checked;
-end;
-
-
 procedure TForm3.SetLang(lang: string);
 begin
     if CurrLang = lang
@@ -486,11 +589,11 @@ begin
         mmiRus.Caption := 'Russian';
         mmiRus.Checked := true;
 
-        mmiTowerAuto.Caption := 'Башня';
-        mmiThinkAuto.Caption := 'Раздумья';
         pTower.Caption := 'Башня';
         pThink.Caption := 'Раздумья';
         pSecrets.Caption := 'Секреты';
+        pCraft.Caption := 'Ремесло';
+        pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
 
         bResetTower.Caption := 'Перезапуск';
         bUseItem.Caption := 'Исп.!';
@@ -509,12 +612,12 @@ begin
 
         mmiRus.Caption := 'Русский';
 
-        mmiTowerAuto.Caption := 'Tower';
-        mmiThinkAuto.Caption := 'Think';
 
         pTower.Caption := 'Tower';
         pThink.Caption := 'Think';
         pSecrets.Caption := 'Secrets';
+        pCraft.Caption := 'Craft';
+        pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
 
         bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';

@@ -7,7 +7,9 @@ uses
   uData in 'uData.pas',
   uTypes in 'uTypes.pas',
   uDoc in 'uDoc.pas',
-  uThinkModeData in 'uThinkModeData.pas';
+  uThinkModeData in 'uThinkModeData.pas',
+  uFloors in 'uFloors.pas',
+  uTargets in 'uTargets.pas';
 
 {$R *.res}
 

@@ -3,7 +3,7 @@ unit uData;
 interface
 
 uses
-    uTypes, uScriptDrive, uThinkModeData,
+    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets,
     System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
 
 type
@@ -24,6 +24,7 @@ type
 
         EventText: string;  // текстовые сообщения для режима Tower
         ThinkEvent: string; // текстовые сообщения для режима Think
+        FloorEvent: string; // текстовые сообщения для режима Floor
 
         Breaks: String;  /// набор флагов с именами режимов, для которых произошли события
         ///    требкующие прерывания автодействий
@@ -108,6 +109,8 @@ type
         function GetItemCount(list, name: string): string;
         /// получение количества в указанном списке
 
+        procedure SetPlayerRes(name, count: variant);
+
         function GetRandItemName: string;
 
         function ProcessAuto: string;
@@ -137,6 +140,12 @@ type
         procedure OpenThink(name: string);
 
         function GetGameScripts: string;
+
+        function GetTrashCount: string; // количество мусора на текущем этаже
+        function GetTrashIDs: string;
+        function ProcessFloorObject(id: variant): string;
+        function GetFloorEvents: string;
+        procedure AddFloorEvent(text: string);
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -263,6 +272,12 @@ begin
         result := pars.Values[name];
 
     pars.Free;
+end;
+
+function TData.GetFloorEvents: string;
+begin
+    result := FloorEvent;
+    FloorEvent := '';
 end;
 
 function TData.GetGameScripts: string;
@@ -425,6 +440,21 @@ begin
     pars.Free;
 end;
 
+function TData.GetTrashCount: string;
+begin
+    result := IntToStr( arrFloors[CurrLevel].Trash.Count );
+end;
+
+function TData.GetTrashIDs: string;
+var
+   i: integer;
+   keys: TArray<integer>;
+begin
+    keys := arrFloors[CurrLevel].Trash.Keys.ToArray;
+    for I := 0 to High(keys) do
+        result := result + IntToStr(keys[i]) + ',';
+end;
+
 procedure TData.InitCreatures;
 // формирование пула
 var
@@ -471,7 +501,8 @@ begin
             // золото
             Inventory.Clear;
             Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
-            Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
+            // возможно, один предмет
+            if Random(1) > 0 Then Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
             itm := Inventory.Get;
 
             /// ресурсы (шанс на два вида)
@@ -599,6 +630,40 @@ begin
 end;
 
 
+function TData.ProcessFloorObject(id: variant): string;
+/// снимаем количество с объекта и если нулевое - исполняем скрипр
+var
+    item: TTrash;
+    pars: TStringList;
+begin
+    // пустое возвращаемое значение уничтожит объект в интерфейсе уровня
+    result := '';
+
+    if not arrFloors[CurrLevel].Trash.TryGetValue(id, item) then exit;
+
+    pars := TStringList.Create;
+
+    /// получаем короткую ссылку на объект на этаже
+    item := arrFloors[CurrLevel].Trash[Integer(id)];
+
+    Dec(item.count);
+
+    if item.count > 0 then
+    begin
+        arrFloors[CurrLevel].Trash[Integer(id)] := item;
+
+        pars.CommaText := item.caption;
+        result := pars.Values[GetLang] + ' (' + IntToStr(item.count) + ')';
+
+    end else
+    begin
+        Script.Exec(item.script);
+        arrFloors[CurrLevel].Trash.Remove(id);
+    end;
+
+    pars.Free;
+end;
+
 procedure TData.ProcessThinks(caption, delta: variant);
 var
     i, exp : integer;
@@ -635,6 +700,7 @@ begin
     scr := GetEventScript( Creature, 'OnAttack' );
     if scr <> '' then Script.Exec( scr );
 end;
+
 
 procedure TData.DoDamageToCreature(input: string);
 // нанесение урона текущему существу
@@ -769,6 +835,7 @@ begin
     pars.Free;
 end;
 
+
 procedure TData.AddEventScript(creature: TCreature; name, script: string);
 var
     pars: TStringList;
@@ -782,6 +849,13 @@ begin
     creature.Events := pars.CommaText;
 
     pars.Free;
+end;
+
+procedure TData.AddFloorEvent(text: string);
+begin
+    if Trim(FloorEvent) <> ''
+    then FloorEvent := text + ifthen(FloorEvent <> '', sLineBreak, '') + FloorEvent
+    else FloorEvent := text;
 end;
 
 procedure TData.AddThinkEvent(text: string);
@@ -822,6 +896,13 @@ begin
     Inventory.Fill(Player.Buffs);
     Inventory.ChangeItemCount(name, count);
     Player.Buffs := Inventory.Get;
+end;
+
+procedure TData.SetPlayerRes(name, count: variant);
+begin
+    Inventory.Fill(Player.Loot);
+    Inventory.ChangeItemCount(name, count);
+    Player.Loot := Inventory.Get;
 end;
 
 procedure TData.SetPlayerScript(event, scr: string);
@@ -1111,6 +1192,7 @@ begin
         then Inc(CurrTargetIndex);
     end;
 end;
+
 
 constructor TData.Create;
 begin

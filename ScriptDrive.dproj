@@ -96,6 +96,8 @@
         <DCCReference Include="uTypes.pas"/>
         <DCCReference Include="uDoc.pas"/>
         <DCCReference Include="uThinkModeData.pas"/>
+        <DCCReference Include="uFloors.pas"/>
+        <DCCReference Include="uTargets.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

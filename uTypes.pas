@@ -40,10 +40,6 @@ type
         script: string;
     end;
 
-    TTarget = record
-        level: integer;
-        script: string;
-    end;
 var
     name1 : array [0..39,0..1] of string = (
         ('Stoned',      'Упоротый'),          ('Strong',     'Сильный'),
@@ -131,209 +127,6 @@ var
         ('Essence')                                                                                           // 1
     );
 
-    /// массив изменения состояний игры при достижения опредлеленных уровней.
-    /// сердце игры, ради которого мутилась фишка со скриптами
-    targets: array [0..7] of TTarget = (
-        (level: 2;
-         script:
-             'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = RU}, 2);'+
-             'AddEvent(Игрок получил 5 зелий AutoATK);'+
-             'AddEvent(В ржавом сундуке между этажами нашлось немного зелий.);'+
-
-             'IF({GetLang() = ENG}, 2);'+
-             'AddEvent(Player got 5 AutoATK items);'+
-             'AddEvent(Some potions were found in a rusty chest between floors.);'+
-
-             'AddEvent(..................);'+
-
-             'ChangePlayerItemCount(AutoATK, 5);'
-        ),
-
-        (level: 3;
-         script:
-             'SetBreak(Tower);'+
-             'SetVar(gold, Rand(100000));'+
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = RU}, 4);'+
-             'AddEvent(Игрок получил GetVar(gold) золота);'+
-             'AddEvent(" - Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.");'+
-             'AddEvent("Так же, в сундуке лежит смятая записка:");'+
-             'AddEvent(В ржавом сундуке между этажами нашлось немного золота.);'+
-
-             'IF({GetLang() = ENG}, 4);'+
-             'AddEvent(Player got GetVar(gold) Gold);'+
-             'AddEvent(" - The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.");'+
-             'AddEvent("Also, there is a crumpled note in the chest:");'+
-             'AddEvent(There was some gold in a rusty chest between floors.);'+
-
-             'AddEvent(..................);'+
-
-             'ChangePlayerItemCount(Gold, GetVar(gold));'
-        ),
-
-        (level: 4;
-         script:
-             'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Игрок получил GetVar(iName)!);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(Player get GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Игрок получил GetVar(iName)!);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(Player get GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Игрок получил GetVar(iName)!);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(Player get GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Игрок получил GetVar(iName)!);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(Player get GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Игрок получил GetVar(iName)!);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(Player get GetVar(iName)!);'+
-
-             'AddEvent( );'+
-
-             'If({GetLang() = RU}, 1);'+
-             'AddEvent(Вы нашли огромный сундк! Замок поддается не с первого раза...);'+
-             'If({GetLang() = ENG}, 1);'+
-             'AddEvent(You have found a huge chest! The lock does not give in the first time ...);'+
-
-             'AddEvent(..................);'
-        )
-
-       ,(level: 5;
-         script:
-             'SetBreak(Tower);'+
-
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = ENG}, 6);'+
-             'SetVar(DarkMaster, DARK MASTER);'+
-             'AddEvent(Use `Restart` button to avoid enemy );' +
-             'AddEvent(..................);'+
-             'AddEvent(" - YOU WILL NOT PASS!");' +
-             'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
-
-             'IF({GetLang() = RU}, 6);'+
-             'SetVar(DarkMaster, ТЕМНЫЙ МАСТЕР);'+
-             'AddEvent("-> Используйте кнопку `Перезапуск`, чтобы избежать врага");' +
-             'AddEvent(..................);'+
-             'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
-             'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
-
-             'SetCreature(GetVar(DarkMaster),HP=9999 ATK=500,SpiritBless=1,);'+
-
-             'AddEvent(..................);'
-        )
-
-       ,(level: 6;
-         script:
-             'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = RU}, 4);'+
-             'AddEvent(    !!! Доступен режим Раздумий !!!);'+
-             'AddEvent( );'+
-             'AddEvent("Вам следует как следует подумать об этом!");'+
-             'AddEvent("Подождите! Что здесь происходит!? Какая башня, какие монстры? Что я здесь делаю!?");'+
-
-             'IF({GetLang() = ENG}, 4);'+
-             'AddEvent(    !!! Think mode available !!!);'+
-             'AddEvent( );'+
-             'AddEvent("You should think carefully about this!");'+
-             'AddEvent("Wait! What is going on here!? Which tower, which monsters? What am I doing here!?");'+
-
-             'AddEvent(..................);'+
-
-             'AllowMode(Think, 1);'
-        )
-
-       ,(level: 7;
-         script:
-             'SetBreak(Tower);'+
-
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = ENG}, 3);'+
-             'SetVar(DarkMaster,ANGRY DARK MASTER);'+
-             'AddEvent(" - This is our last meeting, stranger! You will not leave my Tower!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
-
-             'IF({GetLang() = RU}, 3);'+
-             'SetVar(DarkMaster,ЗЛОЙ ТЕМНЫЙ МАСТЕР);'+
-             'AddEvent(" - Это наша последняя встреча, чужак! Ты не выйдешь из моей Башни!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
-
-             'SetCreature(GetVar(DarkMaster),HP=99999 ATK=1000,,);'+
-
-             'AddEvent(..................);'
-        )
-
-       ,(level: 10;
-         script:
-             'SetBreak(Tower);'+
-
-             'AddEvent(..................);'+
-
-             'IF({GetLang() = ENG}, 4);'+
-             'SetVar(DarkMaster,FURY DARK MASTER);'+
-             'AddEvent(" - You broke into my Tower, scared monsters, looted chests. Who are you after that !?");' +
-             'AddEvent(" - Now EXACTLY our last meeting!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
-
-             'IF({GetLang() = RU}, 4);'+
-             'SetVar(DarkMaster,ЯРОСТНЫЙ ТЕМНЫЙ МАСТЕР);'+
-             'AddEvent(" - Ты вломился в мою Башню, рапугал монстров, разграбил сундуки. Да кто ты такой после этого!?");' +
-             'AddEvent(" - Вот теперь ТОЧНО наша последняя встреча!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
-
-             'SetCreature(GetVar(DarkMaster),HP=999999999 ATK=100000,,);'+
-
-             'AddEvent(..................);'
-        )
-
-       ,(level: 11;
-         script:
-             'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-             'IF({GetLang() = ENG}, 2);'+
-             'AddEvent(!!! INCREDIBLE !!!);' +
-             'AddEvent(!!! YOU PASS THE GAME !!!);' +
-
-             'IF({GetLang() = RU}, 2);'+
-             'AddEvent(!!! НЕВЕРОЯТНО !!!);' +
-             'AddEvent(!!! ТЫ ПРОШЕЛ ИГРУ !!!);' +
-             'AddEvent(..................);'+
-
-             'CurrentLevel(1);InitCreatures();'
-        )
-    );
 
     // предметы-расходники. в механике имеют разные уровни силы
     items: array [0..14] of TItem = (
@@ -462,9 +255,9 @@ var
 
 
 
-       ,(name:   'AutoATK';
+       ,(name:   'AutoAction';
          cost:   10000;
-         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 1000)));'
+         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 2000)));'
         ) // зелье автоматической атаки
     );
 
@@ -603,16 +396,16 @@ var
     (('Level up skill %s is cost %d exp!'),
      ('Улучшение навыка %s стоит %d exp')),
 
-    (('Player strike by %d DMG'),
+    (('Player strike for %d DMG'),
      ('Игрок нанес %d урона')),
 
-    (('Monster strike by %d DMG'),
+    (('Monster strike for %d DMG'),
      ('Монстр нанес %d урона')),
 
-    (('Player strike by %d DMG ( %d is blocked )'),
+    (('Player strike for %d DMG ( %d is blocked )'),
      ('Игрок нанес %d урона ( заблокировано %d )')),
 
-    (('Monster strike by %d DMG ( %d is blocked )'),
+    (('Monster strike for %d DMG ( %d is blocked )'),
      ('Монстр нанес %d урона ( заблокировано %d )'))
     );
 const

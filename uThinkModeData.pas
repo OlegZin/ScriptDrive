@@ -53,32 +53,32 @@ arrThinks : array [0..12] of TThink =(
     (name: 'OldSkills'; enable: 0; caption: 'RU="Старые навыки",ENG="Old skills"'; exp: 300; script:
       'AddThinkEvent(............................................................);'+
       'IF({GetLang() = RU}, 4);'+
-      'AddThinkEvent("     Игрок получил 10000 опыта!");'+
+      'AddThinkEvent("     Игрок получил 5000 опыта!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Но сейчас есть только это грубое ржавое оружие. И с ним я обращаться умею. Да! Нужно просто двигаться... Вот так! Легко, свободно, плавно...");'+
       'AddThinkEvent("Да! Руки помнят! Не это грубое железо меча. Что-то совершенно иное. Легкое, опасное, смертоносное!...");'+
       'IF({GetLang() = ENG}, 4);'+
-      'AddThinkEvent("     Player got 10000 EXP!");'+
+      'AddThinkEvent("     Player got 5000 EXP!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("But now there is only this crude rusty weapon. And I know how to handle him. Yes! You just need to move ... That is it! Easy, free, smooth ...");'+
       'AddThinkEvent("Yes! Hands remember! This is not the crude iron of the sword. Something completely different. Light, dangerous, deadly! ...");'+
-      'ChangePlayerParam(EXP, 10000);'
+      'ChangePlayerParam(EXP, 5000);'
     ),
     (name: 'SomeRest'; enable: 0; caption: 'RU=Передышка,ENG=Respite'; exp: 1000; script:
       'AddThinkEvent(............................................................);'+
       'IF({GetLang() = RU}, 5);'+
-      'AddThinkEvent("     Игрок получил 10000 автодействий!");'+
+      'AddThinkEvent("     Игрок получил 5000 автодействий!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("За дело!");'+
       'AddThinkEvent("Не остается ничего другого, как разобраться с тем, что происходит и найти выход из этой башни.");'+
       'AddThinkEvent("После короткой медитации возвращается спокойствие и ясность.");'+
       'IF({GetLang() = ENG}, 5);'+
-      'AddThinkEvent("     Player got 10000 auto actions!");'+
+      'AddThinkEvent("     Player got 5000 auto actions!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Get down to business!");'+
       'AddThinkEvent("There is nothing left to do but to deal with what is happening and find a way out of this tower.");'+
       'AddThinkEvent("After a short meditation, calmness and clarity return.");'+
-      'ChangeAutoATK(10000);'
+      'ChangeAutoATK(5000);'
     ),
     (name: 'FakeWorld'; enable: 0; caption: 'RU="Поддельный мир",ENG="Fake world"'; exp: 500; script:
       'AddThinkEvent(............................................................);'+
@@ -157,8 +157,8 @@ arrThinks : array [0..12] of TThink =(
     'AddThinkEvent("But there is an idea that these sites can be equipped to relax a little.");'+
     'AddThinkEvent("The higher the floor, the more spacious and dense it is filled with monsters. But in front of each entrance there is a small area. Some of them are empty, some have chests. Perhaps something else will come across.");'+
     'ChangePlayerParam(EXP, 100);'+
-    'OpenThink(Exit);'+
-    'AllowMode(Floors, 1);'
+    'AllowMode(Floors, 1);'+
+    'OpenThink(Exit);'
   ),
     (name: 'Exit'; enable: 0; caption: 'RU="Выход?",ENG="Exit?"'; exp: 500; script:
       'AddThinkEvent(............................................................);'+
@@ -172,7 +172,8 @@ arrThinks : array [0..12] of TThink =(
       'AddThinkEvent( );'+
       'AddThinkEvent("Or maybe there are a lot of hidden passages here, I just need to do a good search on each floor?");'+
       'AddThinkEvent("I have not seen a single door or window out here yet. Maybe they are on the upper floors? Or not at all? Wondering how strong the walls are? Maybe it will be possible to break through them and get out?");'+
-      'AllowMode(Floors, 2);'
+      ''
+//      'AllowMode(Floors, 2);'
     ),
   (name: 'Monsters'; enable: 0; caption: 'RU="Монстры",ENG="Monsters"'; exp: 300; script:
     'AddThinkEvent(............................................................);'+
@@ -191,31 +192,41 @@ arrThinks : array [0..12] of TThink =(
   ),
     (name: 'Resources'; enable: 0; caption: 'RU="Ресурсы",ENG="Resources"'; exp: 800; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 4);'+
+      'IF({GetLang() = RU}, 6);'+
       'AddThinkEvent("    Игрок получил 200 опыта!");'+
+      'AddThinkEvent("    Игрок получил возможность исследовать ресурсы!");'+
+      'AddThinkEvent("    Игрок получил доступ к режиму Ремесла!");'+
       'AddThinkEvent( );'+
-      'AddThinkEvent("");'+
+      'AddThinkEvent("Чтобы точно понять, как можно применить каждый из материалов, придется поэкспериментировать с каждым.");'+
       'AddThinkEvent("Я подробно изучил все эти штуки, которые падают из монстров. Это действительно можно использовать для очень многого!");'+
-      'IF({GetLang() = ENG}, 4);'+
+      'IF({GetLang() = ENG}, 6);'+
       'AddThinkEvent("    Player got 200 EXP!");'+
+      'AddThinkEvent("    The player got the opportunity to research resources!");'+
+      'AddThinkEvent("    The player has gained access to the Craft mode!");'+
       'AddThinkEvent( );'+
-      'AddThinkEvent("");'+
+      'AddThinkEvent("To understand exactly how each of the materials can be applied, you will have to experiment with each.");'+
+      'AddThinkEvent("I have studied in detail all these things that fall from monsters. It can really be used for a lot!");'+
       'ChangePlayerParam(EXP, 200);'+
-      'OpenThink(Potions);'+
-      'AllowMode(Craft, 1);'
+//      'AllowMode(Craft, 1);'+
+//      'AllowMode(ResResearch, 1);'+
+      'OpenThink(Potions);'
     ),
       (name: 'Potions'; enable: 0; caption: 'RU="Зелья",ENG="Potions"'; exp: 1200; script:
         'AddThinkEvent(............................................................);'+
-        'IF({GetLang() = RU}, 4);'+
+        'IF({GetLang() = RU}, 5);'+
         'AddThinkEvent("    Игрок получил 400 опыта!");'+
+        'AddThinkEvent("    Игрок получил возможность исследовать зелья!");'+
         'AddThinkEvent( );'+
-        'AddThinkEvent("");'+
-        'IF({GetLang() = ENG}, 4);'+
+        'AddThinkEvent("Что если попытаться их подробно изучить? Возможно получится понять из чего они сделаны и повторить?");'+
+        'AddThinkEvent("Зелья, выпадающие из особо сильных монстров - крайне полезны, но их так мало!");'+
+        'IF({GetLang() = ENG}, 5);'+
         'AddThinkEvent("    Player got 400 EXP!");'+
+        'AddThinkEvent("    The player got the opportunity to research potions!");'+
         'AddThinkEvent( );'+
-        'AddThinkEvent("");'+
-        'ChangePlayerParam(EXP, 400);'+
-        'AllowMode(Craft, 2);'
+        'AddThinkEvent("What if you try to study them in detail? Perhaps you can understand what they are made of and repeat?");'+
+        'AddThinkEvent("Potions dropped from especially powerful monsters are extremely useful, but there are so few of them!");'+
+//        'AllowMode(PotionResearch, 2);'+
+        'ChangePlayerParam(EXP, 400);'
       )
 );
 {
