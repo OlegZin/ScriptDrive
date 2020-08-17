@@ -3,13 +3,15 @@ unit uFloors;
 interface
 
 uses
-    System.Generics.Collections;
+    System.Generics.Collections, Math;
 
 type
     TTrash = record
        caption: string;  /// что будет показано до момента окончания Count
        count : integer;  /// количество тапов до срабатывания script
        script: string;   /// эффект объекта в момент исследования
+       size: string;     /// условный размер объекта в режиме этажей. исходя из этого
+       /// создается кнопка большего или меньшего размера
     end;
 
 
@@ -22,16 +24,18 @@ type
     end;
 
 var
-    arrFloors: array [1..10] of TFloor;
+    arrFloors: array [1..13] of TFloor;
 
-    floorObjects: array [0..27] of string = (
+    floorObjects: array [0..26] of string = (
         'Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash',
-        'Rat',  'Rat',  'Rat',  'Rat',  'Rat',  'Rat',  'Rat',  'Rat',
-        'SmallChest', 'SmallChest', 'SmallChest', 'SmallChest', 'SmallChest',
-//        'Spider',     'Spider',     'Spider',     'Spider',     'Spider',
-//        'Trap',       'Trap',       'Trap',       'Trap',
-        'BigChest',   'BigChest',   'BigChest',
-        'Cache',      'Cache'
+        'Rat',  'Rat',  'Rat',  'Rat',  'Rat',
+        'SmallChest', 'SmallChest', 'SmallChest',
+        'Spider',     'Spider',
+        'Trap',       'Trap',
+        'BigChest',   'BigChest',
+        'Cache',
+        'StoneBlockage',
+        'WoodBlockage'
     );
 
 implementation
@@ -44,8 +48,9 @@ var
 procedure Init;
 var
     i, j, exitFloor, trashCount : integer;
-    trash: string;
+    trash, param: string;
     elem: TTrash;
+    found: boolean;
 begin
     exitFloor := Random(High(arrFloors))+1;
 
@@ -55,20 +60,62 @@ begin
         arrFloors[i].Trash := TDictionary<Integer,TTrash>.Create();
 
     // объекты
-        trashCount := Random(i*2)+5;
+        trashCount := Max(Random(i*10), 50);
 
         for j := 0 to trashCount-1 do
         begin
 
+            found := false;
             // определяем тип объекта
             trash := floorObjects[Random(High(floorObjects))];
+
+            if (j = 0) and (i = 1) then trash := 'Trash';
+            if (j = 0) and (i = 3) then trash := 'Trash';
+
+            elem.size := 'normal';
 
             /// мусорная куча
             if trash = 'Trash' then
             begin
+
+               found := true;
+
                elem.count := Random(i*50) + 50;
 
-               elem.caption := 'RU=Мусор ENG=Garbage';
+               elem.caption := 'RU=Мусор,ENG=Garbage';
+
+               // в разных этажах прячем разные полезные предметы в мусоре
+               // первый этаж - лопата для разгребания мусора
+               if (j = 0) and (i = 1) then
+               begin
+               elem.script :=
+                   'AllowMode(Tools, 1);' +
+                   'AllowMode(Shovel, 1);' +
+                   'IF({GetLang() = RU}, 2);'+
+                   'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
+                   'AddFloorEvent(Игрок обнаружил Лопату!);'+
+                   'IF({GetLang() = ENG}, 2);'+
+                   'AddFloorEvent(Access to the Tools mode is open!);'+
+                   'AddFloorEvent(The player discovered the Shovel!);'+
+                    'AddFloorEvent( );'
+               end
+               else
+
+               // кирка для разгребания завалов
+               if (j = 0) and (i = 3) then
+               begin
+               elem.script :=
+                   'AllowMode(Tools, 1);' +
+                   'AllowMode(Pick, 1);' +
+                   'IF({GetLang() = RU}, 2);'+
+                   'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
+                   'AddFloorEvent(Игрок обнаружил Кирку!);'+
+                   'IF({GetLang() = ENG}, 2);'+
+                   'AddFloorEvent(Access to the Tools mode is open!);'+
+                   'AddFloorEvent(The player discovered the Pick!);'+
+                    'AddFloorEvent( );'
+               end
+               else
 
                elem.script :=
                    'SetVar(obj, '+loot[Random(Length(loot))]+');'+
@@ -77,15 +124,18 @@ begin
                    'IF({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
                    'IF({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player found GetVar(count) GetVar(obj)!);'
+                   'AddFloorEvent(Player found GetVar(count) GetVar(obj)!);'+
+                    'AddFloorEvent( );'
             end;
 
             /// малый сундук
             if trash = 'SmallChest' then
             begin
+               found := true;
+
                elem.count := Random(i*50) + 100;
 
-               elem.caption := 'RU=Ларец ENG=Box';
+               elem.caption := 'RU=Ларец,ENG=Box';
 
                elem.script :=
                    'SetVar(iName, GetRandItemName());'+
@@ -93,16 +143,19 @@ begin
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Игрок получил GetVar(iName)!);'+
                    'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player got GetVar(iName)!);'
+                   'AddFloorEvent(Player got GetVar(iName)!);'+
+                    'AddFloorEvent( );'
             end;
 
 
             /// большой сундук
-            if trash = 'BidChest' then
+            if trash = 'BigChest' then
             begin
+               found := true;
+
                elem.count := Random(i*50) + 150;
 
-               elem.caption := 'RU=Сундук ENG=Chest';
+               elem.caption := 'RU=Сундук,ENG=Chest';
 
                elem.script :=
                    'SetVar(iName, GetRandItemName());'+
@@ -130,9 +183,11 @@ begin
             /// тайник
             if trash = 'Cache' then
             begin
+               found := true;
+
                elem.count := Random(i*50) + 200;
 
-               elem.caption := 'RU=Тайник ENG=Сache';
+               elem.caption := 'RU=Тайник,ENG=Сache';
 
                elem.script :=
                    'SetVar(gold, Rand('+IntToStr(i*10000+1)+'));'+
@@ -148,9 +203,11 @@ begin
             /// крыса
             if trash = 'Rat' then
             begin
+               found := true;
+
                elem.count := 0;
 
-               elem.caption := 'RU=Крыса ENG=Rat';
+               elem.caption := 'RU=Крыса,ENG=Rat';
 
                elem.script :=
                    'SetVar(dmg, Rand('+IntToStr(i*50+50)+'));'+
@@ -163,9 +220,103 @@ begin
                    'AddFloorEvent( );'
             end;
 
+            /// завал
+            if trash = 'StoneBlockage' then
+            begin
+               found := true;
+
+                elem.size := 'huge';
+                elem.count := Random(i*100) + 1000;
+
+                elem.caption := 'RU="Каменный завал",ENG="Stone blockage"';
+
+                elem.script :=
+                    'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+
+                    'SetPlayerRes(Stone, GetVar(count));' +
+                    'If({GetLang() = RU}, 2);'+
+                    'AddFloorEvent("Игрок получил GetVar(count) Stone!");'+
+                    'AddFloorEvent("Наконец-то завал разобран...");'+
+                    'If({GetLang() = ENG}, 2);'+
+                    'AddFloorEvent("Player got GetVar(count) Stone!");'+
+                    'AddFloorEvent("Finally, the blockage is dismantled ...");'+
+                    'AddFloorEvent( );'
+            end;
+
+            /// завал
+            if trash = 'WoodBlockage' then
+            begin
+               found := true;
+
+                elem.size := 'huge';
+                elem.count := Random(i*100) + 1000;
+
+                elem.caption := 'RU="Деревянный завал",ENG="Wood blockage"';
+
+                elem.script :=
+                    'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+
+                    'SetPlayerRes(Wood, GetVar(count));' +
+                    'If({GetLang() = RU}, 2);'+
+                    'AddFloorEvent("Игрок получил GetVar(count) Wood!");'+
+                    'AddFloorEvent("Наконец-то завал разобран...");'+
+                    'If({GetLang() = ENG}, 2);'+
+                    'AddFloorEvent("Player got GetVar(count) Wood!");'+
+                    'AddFloorEvent("Finally, the blockage is dismantled ...");'+
+                    'AddFloorEvent( );'
+            end;
+
+            /// ловушка
+            if trash = 'Trap' then
+            begin
+               found := true;
+
+               elem.count := 0;
+
+               elem.caption := 'RU=Ловушка,ENG=Trap';
+
+               case Random(3) of
+                  0: param := 'ATK';
+                  1: param := 'DEF';
+                  2: param := 'MDEF';
+               end;
+
+               elem.script :=
+                   'ChangePlayerParam('+param+', -1);'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(The trap hurt! Lost 1 '+param+'!);'+
+                   'AddFloorEvent( );'
+            end;
+
+            /// паук
+            if trash = 'Spider' then
+            begin
+               found := true;
+
+               elem.count := 0;
+
+               elem.caption := 'RU=Паук,ENG=Spider';
+
+               elem.script :=
+                   'SetPlayerAutoBuff(HP, -Rand('+IntToStr(i*100)+'));'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Ядовитый паук укусил вас!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(The poisonous spider bit you!);'+
+                   'AddFloorEvent( );'
+            end;
+
+            if not found then
+            found := found;
+
             arrFloors[i].Trash.Add(j, elem);
 
         end;
+
+        // "пакуем" словарь (убираем пустые элементы)
+        arrFloors[i].Trash.TrimExcess;
 
     // признак захвата этажа
         arrFloors[i].Captured := false;

@@ -2,8 +2,8 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Stupid roguelike: Torture Tower v0.2'
-  ClientHeight = 302
-  ClientWidth = 641
+  ClientHeight = 403
+  ClientWidth = 669
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,77 +17,52 @@ object Form3: TForm3
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Label7: TLabel
-    Left = 22
-    Top = 51
-    Width = 39
-    Height = 13
-    Caption = 'InWork:'
-  end
   object pcGame: TPageControl
     Left = 0
-    Top = 0
-    Width = 641
-    Height = 302
-    ActivePage = pFloors
+    Top = 49
+    Width = 669
+    Height = 354
+    ActivePage = pTower
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
+    ExplicitTop = 25
+    ExplicitWidth = 665
+    ExplicitHeight = 333
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitWidth = 594
-      ExplicitHeight = 192
+      ExplicitWidth = 633
+      ExplicitHeight = 274
       DesignSize = (
-        633
-        274)
+        661
+        326)
       object lCreatureInfo: TLabel
-        Left = 166
-        Top = 68
+        Left = 168
+        Top = 29
         Width = 65
         Height = 13
         Caption = 'lCreatureInfo'
       end
-      object lNeedExp: TLabel
-        Left = 166
-        Top = 37
-        Width = 18
-        Height = 13
-        Caption = 'lLVL'
-      end
-      object lPlayerInfo: TLabel
-        Left = 166
-        Top = 53
-        Width = 52
-        Height = 13
-        Caption = 'lPlayerInfo'
-      end
       object lStep: TLabel
-        Left = 3
-        Top = 38
+        Left = 168
+        Top = 7
         Width = 24
         Height = 13
         Caption = 'lStep'
       end
       object lTopStep: TLabel
-        Left = 3
-        Top = 53
+        Left = 263
+        Top = 7
         Width = 42
         Height = 13
         Caption = 'lTopStep'
       end
       object lTarget: TLabel
-        Left = 3
-        Top = 68
+        Left = 386
+        Top = 7
         Width = 34
         Height = 13
         Caption = 'lTarget'
-      end
-      object lBuffs: TLabel
-        Left = 390
-        Top = 37
-        Width = 27
-        Height = 13
-        Caption = 'lBuffs'
       end
       object bAttack: TButton
         Left = 92
@@ -98,31 +73,13 @@ object Form3: TForm3
         TabOrder = 0
         OnClick = bAttackClick
       end
-      object bUseItem: TButton
-        Left = 333
-        Top = 9
-        Width = 33
-        Height = 23
-        Caption = 'Use!'
-        TabOrder = 1
-        OnClick = bUseItemClick
-      end
-      object bSkillUse: TButton
-        Left = 521
-        Top = 9
-        Width = 33
-        Height = 23
-        Caption = 'Use!'
-        TabOrder = 2
-        OnClick = bSkillUseClick
-      end
       object bResetTower: TButton
         Left = 2
         Top = 8
         Width = 75
         Height = 25
         Caption = 'Reset Tower'
-        TabOrder = 3
+        TabOrder = 1
         OnClick = bResetTowerClick
       end
       object cbAutoAttack: TCheckBox
@@ -130,56 +87,27 @@ object Form3: TForm3
         Top = 14
         Width = 13
         Height = 13
-        TabOrder = 4
-      end
-      object cbItem: TComboBox
-        Left = 165
-        Top = 10
-        Width = 168
-        Height = 21
-        Style = csDropDownList
-        Sorted = True
-        TabOrder = 5
-      end
-      object cbSkills: TComboBox
-        Left = 390
-        Top = 10
-        Width = 131
-        Height = 21
-        Style = csDropDownList
-        Sorted = True
-        TabOrder = 6
+        TabOrder = 2
       end
       object mLog: TMemo
         Left = 2
-        Top = 87
-        Width = 626
-        Height = 184
+        Top = 48
+        Width = 654
+        Height = 275
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         ScrollBars = ssVertical
-        TabOrder = 7
-        ExplicitWidth = 587
-        ExplicitHeight = 102
-      end
-      object bUpSkill: TButton
-        Left = 553
-        Top = 9
-        Width = 33
-        Height = 23
-        Caption = 'Up!'
-        TabOrder = 8
-        OnClick = bUpSkillClick
+        TabOrder = 3
       end
     end
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
-      ExplicitWidth = 594
-      ExplicitHeight = 192
+      ExplicitWidth = 633
+      ExplicitHeight = 274
       DesignSize = (
-        633
-        274)
+        661
+        326)
       object bThink: TButton
         Left = 3
         Top = 3
@@ -199,25 +127,25 @@ object Form3: TForm3
       object mThinkLog: TMemo
         Left = 216
         Top = 3
-        Width = 414
-        Height = 268
+        Width = 442
+        Height = 320
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 2
-        ExplicitWidth = 375
-        ExplicitHeight = 186
+        ExplicitWidth = 414
+        ExplicitHeight = 268
       end
       object lbThinkList: TListBox
         Left = 3
         Top = 56
         Width = 207
-        Height = 215
+        Height = 267
         Anchors = [akLeft, akTop, akBottom]
         ItemHeight = 13
         TabOrder = 3
         OnClick = lbThinkListClick
-        ExplicitHeight = 133
+        ExplicitHeight = 215
       end
       object ComboBox1: TComboBox
         Left = 3
@@ -233,76 +161,77 @@ object Form3: TForm3
     object pFloors: TTabSheet
       Caption = 'Floor: 1'
       ImageIndex = 4
-      ExplicitWidth = 594
-      ExplicitHeight = 192
+      ExplicitWidth = 633
+      ExplicitHeight = 274
       object mFloorLog: TMemo
         Left = 0
-        Top = 216
-        Width = 633
+        Top = 268
+        Width = 661
         Height = 58
         Align = alBottom
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitTop = 216
+        ExplicitWidth = 633
       end
       object pnlFloor: TPanel
         Left = 0
         Top = 0
-        Width = 633
-        Height = 216
+        Width = 661
+        Height = 268
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 296
-        ExplicitTop = 80
-        ExplicitWidth = 185
-        ExplicitHeight = 41
+        ExplicitWidth = 633
+        ExplicitHeight = 216
       end
+    end
+    object pTools: TTabSheet
+      Caption = 'Tools'
+      ImageIndex = 5
+      ExplicitWidth = 657
+      ExplicitHeight = 305
     end
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitLeft = 8
-      ExplicitTop = 28
-      ExplicitWidth = 594
-      ExplicitHeight = 192
+      ExplicitWidth = 633
+      ExplicitHeight = 274
       object lbLoot: TListBox
         Left = 0
         Top = 0
         Width = 137
-        Height = 274
+        Height = 326
         Align = alLeft
         ItemHeight = 13
         TabOrder = 0
-        ExplicitTop = 25
-        ExplicitHeight = 265
+        ExplicitHeight = 274
       end
       object Panel2: TPanel
         Left = 137
         Top = 0
-        Width = 496
-        Height = 274
+        Width = 524
+        Height = 326
         Align = alClient
         Caption = 'Panel2'
         TabOrder = 1
-        ExplicitLeft = 40
-        ExplicitTop = 56
-        ExplicitWidth = 185
-        ExplicitHeight = 89
+        ExplicitWidth = 496
+        ExplicitHeight = 274
         object pcCraft: TPageControl
           Left = 1
           Top = 1
-          Width = 494
-          Height = 200
+          Width = 522
+          Height = 252
           ActivePage = pResourceResearch
           Align = alClient
           TabOrder = 0
+          ExplicitWidth = 494
+          ExplicitHeight = 200
           object pCraftPotions: TTabSheet
             Caption = 'Potions Research'
-            ExplicitLeft = 5
-            ExplicitTop = 22
-            ExplicitWidth = 447
-            ExplicitHeight = 163
+            ExplicitWidth = 486
+            ExplicitHeight = 172
             object Label1: TLabel
               Left = 36
               Top = 54
@@ -523,8 +452,8 @@ object Form3: TForm3
           object pResourceResearch: TTabSheet
             Caption = 'Resource Research'
             ImageIndex = 1
-            ExplicitWidth = 447
-            ExplicitHeight = 163
+            ExplicitWidth = 486
+            ExplicitHeight = 172
             object Label10: TLabel
               Left = 36
               Top = 54
@@ -690,40 +619,121 @@ object Form3: TForm3
         end
         object Memo1: TMemo
           Left = 1
-          Top = 201
-          Width = 494
+          Top = 253
+          Width = 522
           Height = 72
           Align = alBottom
           Lines.Strings = (
             'Memo1')
           ReadOnly = True
           TabOrder = 1
-          ExplicitTop = 192
-          ExplicitWidth = 439
+          ExplicitTop = 201
+          ExplicitWidth = 494
         end
       end
     end
     object pSecrets: TTabSheet
       Caption = 'Secrets'
       ImageIndex = 3
-      ExplicitWidth = 594
-      ExplicitHeight = 192
+      ExplicitWidth = 633
+      ExplicitHeight = 274
       object mSecrets: TMemo
         Left = 0
         Top = 0
-        Width = 633
-        Height = 274
+        Width = 661
+        Height = 326
         Align = alClient
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitWidth = 594
-        ExplicitHeight = 192
+        ExplicitWidth = 633
+        ExplicitHeight = 274
       end
     end
   end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 669
+    Height = 49
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 1
+    object mmiAuto: TLabel
+      Left = 7
+      Top = 6
+      Width = 57
+      Height = 13
+      Caption = 'AutoAction:'
+    end
+    object lNeedExp: TLabel
+      Left = 7
+      Top = 32
+      Width = 16
+      Height = 13
+      Caption = 'LVL'
+    end
+    object lPlayerInfo: TLabel
+      Left = 115
+      Top = 32
+      Width = 52
+      Height = 13
+      Caption = 'lPlayerInfo'
+    end
+    object lBuffs: TLabel
+      Left = 462
+      Top = 32
+      Width = 27
+      Height = 13
+      Caption = 'lBuffs'
+    end
+    object cbSkills: TComboBox
+      Left = 390
+      Top = 3
+      Width = 131
+      Height = 21
+      Style = csDropDownList
+      Sorted = True
+      TabOrder = 0
+    end
+    object bUseItem: TButton
+      Left = 333
+      Top = 2
+      Width = 33
+      Height = 23
+      Caption = 'Use!'
+      TabOrder = 1
+      OnClick = bUseItemClick
+    end
+    object bUpSkill: TButton
+      Left = 553
+      Top = 2
+      Width = 33
+      Height = 23
+      Caption = 'Up!'
+      TabOrder = 2
+      OnClick = bUpSkillClick
+    end
+    object cbItem: TComboBox
+      Left = 165
+      Top = 3
+      Width = 168
+      Height = 21
+      Style = csDropDownList
+      Sorted = True
+      TabOrder = 3
+    end
+    object bSkillUse: TButton
+      Left = 521
+      Top = 2
+      Width = 33
+      Height = 23
+      Caption = 'Use!'
+      TabOrder = 4
+      OnClick = bSkillUseClick
+    end
+  end
   object tAutoAttack: TTimer
-    Interval = 100
     OnTimer = tAutoAttackTimer
     Left = 96
     Top = 176
@@ -744,9 +754,6 @@ object Form3: TForm3
         RadioItem = True
         OnClick = mmiRusClick
       end
-    end
-    object mmiAuto: TMenuItem
-      Caption = 'Auto: 1000'
     end
   end
 end

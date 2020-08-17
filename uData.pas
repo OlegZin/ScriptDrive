@@ -73,6 +73,7 @@ type
         procedure SetPlayerScript(event, scr: string);
         procedure SetCreatureScript(event, scr: string);
 
+        procedure InitGame;
         procedure InitPlayer;
         procedure InitCreatures;
 
@@ -146,6 +147,7 @@ type
         function ProcessFloorObject(id: variant): string;
         function GetFloorEvents: string;
         procedure AddFloorEvent(text: string);
+        function GetFloorObjectSize(id: variant): string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -278,6 +280,15 @@ function TData.GetFloorEvents: string;
 begin
     result := FloorEvent;
     FloorEvent := '';
+end;
+
+function TData.GetFloorObjectSize(id: variant): string;
+var
+    elem: TTrash;
+begin
+    result := '';
+    if arrFloors[CurrLevel].Trash.TryGetValue(id, elem) then
+    result := elem.size;
 end;
 
 function TData.GetGameScripts: string;
@@ -451,6 +462,7 @@ var
    keys: TArray<integer>;
 begin
     keys := arrFloors[CurrLevel].Trash.Keys.ToArray;
+
     for I := 0 to High(keys) do
         result := result + IntToStr(keys[i]) + ',';
 end;
@@ -539,6 +551,11 @@ begin
 
 end;
 
+procedure TData.InitGame;
+begin
+    Script.Exec('SetVar(SHOVEL_LVL, 10);');
+end;
+
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
 var
@@ -616,7 +633,12 @@ begin
 
     for I := 0 to prs.Count-1 do
     begin
+
         count := Inventory.Draw( prs.Names[i], regen );
+
+        if StrToInt((prs.Values[prs.Names[i]]))  < 0
+        then regen := -regen;
+
         if count <> 0 then
         begin
             ChangeParamValue( Player, prs.Names[i], regen );
@@ -635,6 +657,8 @@ function TData.ProcessFloorObject(id: variant): string;
 var
     item: TTrash;
     pars: TStringList;
+    capt: string;
+    delta: integer;
 begin
     // пустое возвращаемое значение уничтожит объект в интерфейсе уровня
     result := '';
@@ -642,17 +666,20 @@ begin
     if not arrFloors[CurrLevel].Trash.TryGetValue(id, item) then exit;
 
     pars := TStringList.Create;
+    pars.StrictDelimiter := true;
 
     /// получаем короткую ссылку на объект на этаже
     item := arrFloors[CurrLevel].Trash[Integer(id)];
 
-    Dec(item.count);
+    delta := StrToIntDef(Script.Exec('GetVar(SHOVEL_LVL);'), 1);
+    item.count := item.count - delta;
 
     if item.count > 0 then
     begin
         arrFloors[CurrLevel].Trash[Integer(id)] := item;
 
         pars.CommaText := item.caption;
+        capt := pars.Values[GetLang];
         result := pars.Values[GetLang] + ' (' + IntToStr(item.count) + ')';
 
     end else
@@ -1230,7 +1257,8 @@ begin
     then has := StrToIntDef(items.Values[name], 0)
     else has := 0;
 
-    has := Max( 0, has + count ); // применяем изменение, но результат не ниже ноля
+//    has := Max( 0, has + count ); // применяем изменение, но результат не ниже ноля
+    has := has + count;
     items.Values[name] := IntToStr(has);
 
 end;
@@ -1308,9 +1336,15 @@ begin
 
     result := StrToIntDef( items.Values[name], 0 );
 
-    if (result - count) > 0
-    then items.Values[name] := IntToStr(result - count)
-    else items.Delete( items.IndexOfName(name) );
+    if result < 0 then
+    if (result + count) = 0
+    then items.Delete( items.IndexOfName(name) )
+    else items.Values[name] := IntToStr(result + count);
+
+    if result > 0 then
+    if (result - count) = 0
+    then items.Delete( items.IndexOfName(name) )
+    else items.Values[name] := IntToStr(result - count);
 end;
 
 initialization

@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons;
+  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math;
 
 type
   TForm3 = class(TForm)
@@ -37,7 +37,6 @@ type
     pThink: TTabSheet;
     bThink: TButton;
     cbAutoThink: TCheckBox;
-    mmiAuto: TMenuItem;
     mThinkLog: TMemo;
     lbThinkList: TListBox;
     ComboBox1: TComboBox;
@@ -65,7 +64,6 @@ type
     Label6: TLabel;
     ComboBox7: TComboBox;
     ComboBox8: TComboBox;
-    Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
     ComboBox9: TComboBox;
@@ -85,6 +83,9 @@ type
     Label21: TLabel;
     mFloorLog: TMemo;
     pnlFloor: TPanel;
+    Panel1: TPanel;
+    mmiAuto: TLabel;
+    pTools: TTabSheet;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -137,6 +138,8 @@ var
    ,CurrFloor  // текущий этаж
    ,LastFloor  // последний этаж для которого отстраивался режим Этаж
             : integer;
+    LastFloorObject
+            : TButton;
 
 
 procedure TForm3.pcGameChange(Sender: TObject);
@@ -230,7 +233,7 @@ var
     trash: integer;
     i: Integer;
     b: TButton;
-    event: string;
+    event, size: string;
     pars: TStringList;
 begin
 
@@ -254,14 +257,27 @@ begin
 
         for i := 0 to trash-1 do
         begin
+            size := Script.Exec('GetFloorObjectSize('+pars[i]+')');
+
             b := TButton.Create(self);
-            b.Height := 60;
-            b.Width := 100;
+            b.Parent := pnlFloor;
+
+            if (size = 'normal') or (size = '') then
+            begin
+                b.Height := Round(pFloors.ClientHeight / 10);
+                b.Width := Round(Max(pFloors.ClientWidth / 10, 80));
+            end;
+            if (size = 'huge') or (size = '') then
+            begin
+                b.Height := Round(pFloors.ClientHeight / 2);
+                b.Width := Round(pFloors.ClientWidth / 2);
+                b.BringToFront;
+            end;
+
             b.Caption := UNKNOWN_BUTTON;
             b.Tag := StrToInt(pars[i]);
             b.Left := Random(pFloors.ClientWidth - b.Width);
             b.top := Random(pFloors.ClientHeight - b.Height - mFloorLog.Height);
-            b.Parent := pnlFloor;
             b.OnClick := OnClickFloorButton;
         end;
 
@@ -290,13 +306,20 @@ var
 begin
     btn := sender as TButton;
 
+    if LastFloorObject <> btn then
+    begin
+        LastFloorObject := btn;
+        exit;
+    end;
+
     /// отрабатываем скрипт по id кнопки
-    btn.Caption := Script.Exec('ProcessFloorObject('+IntTostr(btn.tag)+')');
+    btn.Caption := Script.Exec('ProcessFloorObject('+IntTostr(btn.tag)+');CheckStatus();');
 
     /// пустой результат скрипта означает, что кнопка свое отработала - убираем
-    if btn.Caption = '' then btn.Free;
+    if btn.Caption = '' then btn.Visible := false;
 
     /// если уделена последняя кнопка - пробуем перестроить интерфейс
+    UpdateInterface;
     UpdateFloorInterface;
 end;
 
@@ -355,11 +378,11 @@ begin
 //    Script.Exec('AllowMode(Think, 1)');
 //    Script.Exec('AllowMode(Secrets, 1)');
 //    Script.Exec('AllowMode(Craft, 1)');
-//    Script.Exec('AllowMode(Floors, 1)');
+    Script.Exec('AllowMode(Floors, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
-    Script.Exec('InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
+    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
 
     UpdateInterface;
 
@@ -415,6 +438,8 @@ begin
     pSecrets.TabVisible := pars.IndexOfName( 'Secrets' ) <> -1;
     // доступность крафта
     pFloors.TabVisible := pars.IndexOfName( 'Floors' ) <> -1;
+    // доступность инструментов
+    pTools.TabVisible := pars.IndexOfName( 'Tools' ) <> -1;
 
     breaks := Script.Exec('GetBreaks()');
     if pos('Tower', breaks) > 0 then
@@ -594,6 +619,7 @@ begin
         pSecrets.Caption := 'Секреты';
         pCraft.Caption := 'Ремесло';
         pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
+        pTools.Caption := 'Инструменты';
 
         bResetTower.Caption := 'Перезапуск';
         bUseItem.Caption := 'Исп.!';
@@ -618,6 +644,7 @@ begin
         pSecrets.Caption := 'Secrets';
         pCraft.Caption := 'Craft';
         pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
+        pTools.Caption := 'Tools';
 
         bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';
