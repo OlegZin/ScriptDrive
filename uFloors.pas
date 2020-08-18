@@ -237,7 +237,7 @@ begin
                 elem.size := 'huge';
                 elem.count := Random(i*250) + 1000;
 
-                elem.caption := 'RU="Каменный завал",ENG="Stone blockage"';
+                elem.caption := 'RU=Каменный завал,ENG=Stone blockage';
 
                 elem.script :=
                     'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+
@@ -259,7 +259,7 @@ begin
                 elem.size := 'huge';
                 elem.count := Random(i*250) + 1000;
 
-                elem.caption := 'RU="Деревянный завал",ENG="Wood blockage"';
+                elem.caption := 'RU=Деревянный завал,ENG=Wood blockage';
 
                 elem.script :=
                     'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+

@@ -697,14 +697,14 @@ object Form3: TForm3
       Caption = 'LVL'
     end
     object lPlayerInfo: TLabel
-      Left = 115
+      Left = 165
       Top = 32
       Width = 52
       Height = 13
       Caption = 'lPlayerInfo'
     end
     object lBuffs: TLabel
-      Left = 462
+      Left = 491
       Top = 32
       Width = 27
       Height = 13
@@ -757,6 +757,7 @@ object Form3: TForm3
     end
   end
   object tAutoAttack: TTimer
+    Interval = 100
     OnTimer = tAutoAttackTimer
     Left = 536
     Top = 144

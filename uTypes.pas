@@ -371,7 +371,7 @@ var
         )
     );
 
-    phrases: array [0..11,0..1] of string = (
+    phrases: array [0..12,0..1] of string = (
     (('-> Player is level up!'),
      ('-> Игрок получиль новый уровень!')),
 
@@ -384,7 +384,7 @@ var
     (('Monster %s is killed! Get %s exp'),
      ('Монстр %s убит! Получено %s exp')),
 
-    (('Go up %d Dungeon level...'),
+    (('Go up %d Tower floor...'),
      ('Поднимаемся на %d этаж Башни...')),
 
     (('Using of %s is cost %d MP!'),
@@ -406,7 +406,10 @@ var
      ('Игрок нанес %d урона ( заблокировано %d )')),
 
     (('Monster strike for %d DMG ( %d is blocked )'),
-     ('Монстр нанес %d урона ( заблокировано %d )'))
+     ('Монстр нанес %d урона ( заблокировано %d )')),
+
+    (('Get %s %s'),
+     ('Получено %s %s'))
     );
 const
     PHRASE_LEVEL_UP       = 0;
@@ -421,7 +424,7 @@ const
     PHRASE_MONSTER_STRIKE = 9;
     PHRASE_PLAYER_STRIKE_BLOCK  = 10;
     PHRASE_MONSTER_STRIKE_BLOCK = 11;
-
+    PHRASE_GET_LOOT             = 12;
 implementation
 
 end.

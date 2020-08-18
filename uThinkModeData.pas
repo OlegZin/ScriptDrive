@@ -126,7 +126,7 @@ arrThinks : array [0..12] of TThink =(
     'AddThinkEvent("If this world is really ghostly, things in it may not be what they seem.");'+
     'ChangePlayerParam(EXP, 100);'
   ),
-  (name: 'Темный Мастер'; enable: 0; caption: 'RU="Темный Мастер",ENG="Dark Master"'; exp: 300; script:
+  (name: 'DarkMaser'; enable: 0; caption: 'RU="Темный Мастер",ENG="Dark Master"'; exp: 300; script:
     'AddThinkEvent(............................................................);'+
     'IF({GetLang() = RU}, 4);'+
     'AddThinkEvent("    Игрок получил 100 опыта!");'+

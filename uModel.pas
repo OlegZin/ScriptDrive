@@ -161,17 +161,17 @@ begin
 
     Script.Exec('SetLang(ENG)');
     SetLang('ENG');
-
-//    Script.Exec('AllowMode(Think, 1)');
-//    Script.Exec('AllowMode(Secrets, 1)');
-//    Script.Exec('AllowMode(Craft, 1)');
+{
+    Script.Exec('AllowMode(Think, 1)');
+    Script.Exec('AllowMode(Secrets, 1)');
+    Script.Exec('AllowMode(Craft, 1)');
     Script.Exec('AllowMode(Floors, 1)');
     Script.Exec('AllowMode(Tools, 1)');
     Script.Exec('AllowTool(Shovel)');
     Script.Exec('AllowTool(Pick)');
     Script.Exec('AllowTool(Axe)');
     Script.Exec('AllowTool(Key)');
-
+}
     pcGame.ActivePageIndex := pTower.TabIndex;
 
     Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');

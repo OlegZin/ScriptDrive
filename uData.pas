@@ -1207,7 +1207,10 @@ var
 begin
     for I := 0 to High(arrTools) do
     if AnsiUpperCase(arrTools[i].name) = AnsiUpperCase(name) then
+    begin
         arrTools[i].isAllow := true;
+        AllowMode('Tools', 1);
+    end;
 end;
 
 function TData.NeedExp(lvl: variant): string;
@@ -1427,7 +1430,7 @@ begin
     for I := 0 to loot.Count-1 do
     begin
         ChangeItemCount( loot.Names[i], StrToInt( loot.Values[ loot.Names[i] ]) );
-        Data.AddEvent('Get ' + loot.Values[ loot.Names[i] ] + ' '+ loot.Names[i]);
+        Data.AddEvent(Format(phrases[PHRASE_GET_LOOT][Data.CurrLang],[loot.Values[ loot.Names[i] ], loot.Names[i]]))
     end;
 
     loot.Free;
