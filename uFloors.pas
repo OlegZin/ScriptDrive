@@ -94,12 +94,24 @@ begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
                    'AllowTool(Shovel);' +
-                   'IF({GetLang() = RU}, 2);'+
-                   'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
-                   'AddFloorEvent(Игрок обнаружил Лопату!);'+
-                   'IF({GetLang() = ENG}, 2);'+
-                   'AddFloorEvent(Access to the Tools mode is open!);'+
-                   'AddFloorEvent(The player discovered the Shovel!);'+
+                   'IF({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок обнаружил Лопату !!!);'+
+                   'IF({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player discovered the Shovel !!!);'+
+                    'AddFloorEvent( );'
+               end
+               else
+
+               // кирка для разгребания завалов
+               if (j = 0) and (i = 2) then
+               begin
+               elem.script :=
+                   'AllowMode(Tools, 1);' +
+                   'AllowTool(Pick);' +
+                   'IF({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок обнаружил Кирку !!!);'+
+                   'IF({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player discovered the Pick !!!);'+
                     'AddFloorEvent( );'
                end
                else
@@ -109,13 +121,25 @@ begin
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
-                   'AllowTool(Pick);' +
-                   'IF({GetLang() = RU}, 2);'+
-                   'AddFloorEvent(Открыт доступ к режиму Инструмены!);'+
-                   'AddFloorEvent(Игрок обнаружил Кирку!);'+
-                   'IF({GetLang() = ENG}, 2);'+
-                   'AddFloorEvent(Access to the Tools mode is open!);'+
-                   'AddFloorEvent(The player discovered the Pick!);'+
+                   'AllowTool(Axe);' +
+                   'IF({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок обнаружил Топор !!!);'+
+                   'IF({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player discovered the Axe !!!);'+
+                    'AddFloorEvent( );'
+               end
+               else
+
+               // кирка для разгребания завалов
+               if (j = 0) and (i = 4) then
+               begin
+               elem.script :=
+                   'AllowMode(Tools, 1);' +
+                   'AllowTool(Key);' +
+                   'IF({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок обнаружил Отмычку !!!);'+
+                   'IF({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player discovered the Lock pick !!!);'+
                     'AddFloorEvent( );'
                end
                else
@@ -131,12 +155,12 @@ begin
                     'AddFloorEvent( );'
             end;
 
-            /// малый сундук
+            /// ящик
             if trash = 'Box' then
             begin
                found := true;
 
-               elem.count := Random(i*50) + 100;
+               elem.count := Random(i*60) + 100;
 
                elem.caption := 'RU=Ящик,ENG=Box';
 
@@ -151,12 +175,32 @@ begin
             end;
 
 
-            /// большой сундук
+            /// тайник
+            if trash = 'Cache' then
+            begin
+               found := true;
+
+               elem.count := Random(i*70) + 150;
+
+               elem.caption := 'RU=Тайник,ENG=Сache';
+
+               elem.script :=
+                   'SetVar(gold, Rand('+IntToStr(i*10000+1)+'));'+
+                   'ChangePlayerItemCount(Gold, GetVar(gold));'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Игрок получил GetVar(gold) золота!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(Player got GetVar(gold) Gold!);'+
+                   'AddFloorEvent( );'
+            end;
+
+            /// сундук
             if trash = 'Chest' then
             begin
                found := true;
 
-               elem.count := Random(i*50) + 150;
+               elem.count := Random(i*80) + 200;
 
                elem.caption := 'RU=Сундук,ENG=Chest';
 
@@ -183,45 +227,7 @@ begin
                    'AddFloorEvent( );'
             end;
 
-            /// тайник
-            if trash = 'Cache' then
-            begin
-               found := true;
 
-               elem.count := Random(i*50) + 200;
-
-               elem.caption := 'RU=Тайник,ENG=Сache';
-
-               elem.script :=
-                   'SetVar(gold, Rand('+IntToStr(i*10000+1)+'));'+
-                   'ChangePlayerItemCount(Gold, GetVar(gold));'+
-
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Игрок получил GetVar(gold) золота!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player got GetVar(gold) Gold!);'+
-                   'AddFloorEvent( );'
-            end;
-
-            /// крыса
-            if trash = 'Rat' then
-            begin
-               found := true;
-
-               elem.count := 0;
-
-               elem.caption := 'RU=Крыса,ENG=Rat';
-
-               elem.script :=
-                   'SetVar(dmg, Rand('+IntToStr(i*50+50)+'));'+
-                   'ChangePlayerParam(HP, -GetVar(dmg));'+
-
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
-                   'AddFloorEvent( );'
-            end;
 
             /// завал
             if trash = 'StoneBlockage' then
@@ -229,7 +235,7 @@ begin
                found := true;
 
                 elem.size := 'huge';
-                elem.count := Random(i*100) + 1000;
+                elem.count := Random(i*250) + 1000;
 
                 elem.caption := 'RU="Каменный завал",ENG="Stone blockage"';
 
@@ -251,7 +257,7 @@ begin
                found := true;
 
                 elem.size := 'huge';
-                elem.count := Random(i*100) + 1000;
+                elem.count := Random(i*250) + 1000;
 
                 elem.caption := 'RU="Деревянный завал",ENG="Wood blockage"';
 
@@ -289,6 +295,26 @@ begin
                    'AddFloorEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(The trap hurt! Lost 1 '+param+'!);'+
+                   'AddFloorEvent( );'
+            end;
+
+            /// крыса
+            if trash = 'Rat' then
+            begin
+               found := true;
+
+               elem.count := 0;
+
+               elem.caption := 'RU=Крыса,ENG=Rat';
+
+               elem.script :=
+                   'SetVar(dmg, Rand('+IntToStr(i*25+20)+'));'+
+                   'ChangePlayerParam(HP, -GetVar(dmg));'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
                    'AddFloorEvent( );'
             end;
 
