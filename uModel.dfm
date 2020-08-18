@@ -757,7 +757,7 @@ object Form3: TForm3
     end
   end
   object tAutoAttack: TTimer
-    Interval = 100
+    Interval = 500
     OnTimer = tAutoAttackTimer
     Left = 536
     Top = 144
