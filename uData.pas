@@ -153,6 +153,7 @@ type
 
 
         procedure AllowTool(name: string);
+        function GetAllowTool(name: string): string;
         function GetToolsList: string;
         function GetToolAttr(capt, attr: string): string;
         procedure ToolUpgrade(capt: string);
@@ -246,6 +247,20 @@ end;
 function TData.GetAllowModes: string;
 begin
     result := AllowModes;
+end;
+
+function TData.GetAllowTool(name: string): string;
+var
+    i : integer;
+begin
+    result := 'false';
+
+    for I := 0 to High(arrTools) do
+    if AnsiUpperCase(arrTools[i].name) = AnsiUpperCase(name) then
+    begin
+        if arrTools[i].isAllow
+        then result := 'true';
+    end;
 end;
 
 function TData.GetAutoATK: string;

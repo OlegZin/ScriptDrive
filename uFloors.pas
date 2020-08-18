@@ -48,34 +48,51 @@ var
 
 procedure Init;
 var
-    i, j, exitFloor, trashCount : integer;
+    levelNum, j, exitFloor, trashCount : integer;
     trash, param: string;
     elem: TTrash;
-    found: boolean;
+    found
+
+   ,FirstTrash
+   ,FirstRat
+   ,FirstBox
+   ,FirstSpider
+   ,FirstTrap
+   ,FirstChest
+   ,FirstStoneBlockage
+   ,FirstWoodBlockage
+   ,FirstCache
+       : boolean;
 begin
     exitFloor := Random(High(arrFloors))+1;
 
-    for I := Low(arrFloors) to High(arrFloors) do
+    for levelNum := Low(arrFloors) to High(arrFloors) do
     begin
 
-        arrFloors[i].Trash := TDictionary<Integer,TTrash>.Create();
+        arrFloors[levelNum].Trash := TDictionary<Integer,TTrash>.Create();
 
     // объекты
-        trashCount := Max(Random(i*10), 50);
+        trashCount := Max(Random(levelNum*10), 50);
+
+        FirstTrash          := true;
+        FirstBox            := true;
+        FirstChest          := true;
+        FirstStoneBlockage  := true;
+        FirstWoodBlockage   := true;
+        FirstCache          := true;
+        FirstRat            := true;
+        FirstSpider         := true;
+        FirstTrap           := true;
 
         for j := 0 to trashCount-1 do
         begin
 
             found := false;
+
             // определяем тип объекта
             trash := floorObjects[Random(High(floorObjects))];
 
-
-            if (j = 0) and (i = 1) then trash := 'Trash';
-            if (j = 0) and (i = 3) then trash := 'Trash';
-
             elem.size := 'normal';
-
 
             /// мусорная куча
             if trash = 'Trash' then
@@ -83,13 +100,13 @@ begin
 
                found := true;
 
-               elem.count := Random(i*50) + 50;
+               elem.count := Random(levelNum*50) + 50;
 
                elem.caption := 'RU=Мусор,ENG=Garbage';
 
                // в разных этажах прячем разные полезные предметы в мусоре
                // первый этаж - лопата для разгребания мусора
-               if (j = 0) and (i = 1) then
+               if FirstTrash and (levelNum = 1) then
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
@@ -103,7 +120,7 @@ begin
                else
 
                // кирка для разгребания завалов
-               if (j = 0) and (i = 2) then
+               if FirstTrash and (levelNum = 2) then
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
@@ -117,7 +134,7 @@ begin
                else
 
                // кирка для разгребания завалов
-               if (j = 0) and (i = 3) then
+               if FirstTrash and (levelNum = 3) then
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
@@ -131,7 +148,7 @@ begin
                else
 
                // кирка для разгребания завалов
-               if (j = 0) and (i = 4) then
+               if FirstTrash and (levelNum = 4) then
                begin
                elem.script :=
                    'AllowMode(Tools, 1);' +
@@ -140,19 +157,21 @@ begin
                    'AddFloorEvent(!!! Игрок обнаружил Отмычку !!!);'+
                    'IF({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(!!! The player discovered the Lock pick !!!);'+
-                    'AddFloorEvent( );'
+                   'AddFloorEvent( );'
                end
                else
 
                elem.script :=
                    'SetVar(obj, '+loot[Random(Length(loot))]+');'+
-                   'SetVar(count, ' + IntToStr(Random(i)+1) +');'+
+                   'SetVar(count, ' + IntToStr(Random(levelNum)+1) +');'+
                    'SetPlayerRes(GetVar(obj), GetVar(count));' +
                    'IF({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
                    'IF({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(Player found GetVar(count) GetVar(obj)!);'+
-                    'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+
+               FirstTrash := false;
             end;
 
             /// ящик
@@ -160,7 +179,7 @@ begin
             begin
                found := true;
 
-               elem.count := Random(i*60) + 100;
+               elem.count := Random(levelNum*60) + 100;
 
                elem.caption := 'RU=Ящик,ENG=Box';
 
@@ -171,7 +190,8 @@ begin
                    'AddFloorEvent(Игрок получил GetVar(iName)!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(Player got GetVar(iName)!);'+
-                    'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstBox := false;
             end;
 
 
@@ -180,19 +200,31 @@ begin
             begin
                found := true;
 
-               elem.count := Random(i*70) + 150;
+               elem.count := Random(levelNum*70) + 150;
 
                elem.caption := 'RU=Тайник,ENG=Сache';
 
+               if FirstChest and (levelNum = 2) then
                elem.script :=
-                   'SetVar(gold, Rand('+IntToStr(i*10000+1)+'));'+
+                   'AllowTool(LifeAmulet);'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок нашел Амулет Жизни !!!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player found the Amulet of Life !!!);'+
+                   'AddFloorEvent( );'
+               else
+
+               elem.script :=
+                   'SetVar(gold, Rand('+IntToStr(levelNum*10000+1)+'));'+
                    'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Игрок получил GetVar(gold) золота!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(Player got GetVar(gold) Gold!);'+
-                   'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstCache := false;
             end;
 
             /// сундук
@@ -200,20 +232,33 @@ begin
             begin
                found := true;
 
-               elem.count := Random(i*80) + 200;
+               elem.count := Random(levelNum*80) + 200;
 
                elem.caption := 'RU=Сундук,ENG=Chest';
 
+               if True then
+
+               if FirstChest and (levelNum = 5) then
+               elem.script :=
+                   'AllowTool(TimeSand);'+
+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(!!! Игрок нашел Пески Времени !!!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(!!! The player found the Sands of Time !!!);'+
+                   'AddFloorEvent( );'
+               else
+
                elem.script :=
                    'SetVar(iName, GetRandItemName());'+
-                   'SetVar(iCount, {Rand('+ IntToStr(i) +') + 1});'+
+                   'SetVar(iCount, {Rand('+ IntToStr(levelNum) +') + 1});'+
                    'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
 
                    'SetVar(lName, '+loot[Random(Length(loot))]+');'+
-                   'SetVar(lCount, ' + IntToStr(Random(i*2)+1) +');'+
+                   'SetVar(lCount, ' + IntToStr(Random(levelNum*2)+1) +');'+
                    'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 
-                   'SetVar(gold, Rand('+IntToStr(i*1000+1)+'));'+
+                   'SetVar(gold, Rand('+IntToStr(levelNum*1000+1)+'));'+
                    'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
                    'If({GetLang() = RU}, 3);'+
@@ -224,7 +269,8 @@ begin
                    'AddFloorEvent(Player got GetVar(gold) Gold!);'+
                    'AddFloorEvent(Player got GetVar(lCount) GetVar(lName)!);'+
                    'AddFloorEvent(Player got GetVar(iCount) GetVar(iName)!);'+
-                   'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstChest := false;
             end;
 
 
@@ -235,12 +281,23 @@ begin
                found := true;
 
                 elem.size := 'huge';
-                elem.count := Random(i*250) + 1000;
+                elem.count := Random(levelNum*250) + 1000;
 
                 elem.caption := 'RU=Каменный завал,ENG=Stone blockage';
 
+                if FirstStoneBlockage and (levelNum = 1) then
                 elem.script :=
-                    'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+
+                    'AllowTool(leggings);'+
+
+                    'If({GetLang() = RU}, 1);'+
+                    'AddFloorEvent(!!! Игрок нашел Поножи !!!);'+
+                    'If({GetLang() = ENG}, 1);'+
+                    'AddFloorEvent(!!! The player found the leggings !!!);'+
+                    'AddFloorEvent( );'
+                else
+
+                elem.script :=
+                    'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
                     'SetPlayerRes(Stone, GetVar(count));' +
                     'If({GetLang() = RU}, 2);'+
                     'AddFloorEvent("Игрок получил GetVar(count) Stone!");'+
@@ -248,7 +305,8 @@ begin
                     'If({GetLang() = ENG}, 2);'+
                     'AddFloorEvent("Player got GetVar(count) Stone!");'+
                     'AddFloorEvent("Finally, the blockage is dismantled ...");'+
-                    'AddFloorEvent( );'
+                    'AddFloorEvent( );';
+                FirstStoneBlockage := false;
             end;
 
             /// завал
@@ -257,12 +315,12 @@ begin
                found := true;
 
                 elem.size := 'huge';
-                elem.count := Random(i*250) + 1000;
+                elem.count := Random(levelNum*250) + 1000;
 
                 elem.caption := 'RU=Деревянный завал,ENG=Wood blockage';
 
                 elem.script :=
-                    'SetVar(count, Rand('+IntToStr(i*100+10)+'));'+
+                    'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
                     'SetPlayerRes(Wood, GetVar(count));' +
                     'If({GetLang() = RU}, 2);'+
                     'AddFloorEvent("Игрок получил GetVar(count) Wood!");'+
@@ -270,7 +328,8 @@ begin
                     'If({GetLang() = ENG}, 2);'+
                     'AddFloorEvent("Player got GetVar(count) Wood!");'+
                     'AddFloorEvent("Finally, the blockage is dismantled ...");'+
-                    'AddFloorEvent( );'
+                    'AddFloorEvent( );';
+                FirstWoodBlockage := false;
             end;
 
             /// ловушка
@@ -295,7 +354,8 @@ begin
                    'AddFloorEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(The trap hurt! Lost 1 '+param+'!);'+
-                   'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstTrap := false;
             end;
 
             /// крыса
@@ -308,14 +368,15 @@ begin
                elem.caption := 'RU=Крыса,ENG=Rat';
 
                elem.script :=
-                   'SetVar(dmg, Rand('+IntToStr(i*25+20)+'));'+
+                   'SetVar(dmg, Rand('+IntToStr(levelNum*25+20)+'));'+
                    'ChangePlayerParam(HP, -GetVar(dmg));'+
 
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
-                   'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstRat := false;
             end;
 
             /// паук
@@ -328,13 +389,14 @@ begin
                elem.caption := 'RU=Паук,ENG=Spider';
 
                elem.script :=
-                   'SetPlayerAutoBuff(HP, -Rand('+IntToStr(i*100)+'));'+
+                   'SetPlayerAutoBuff(HP, -Rand('+IntToStr(levelNum*100)+'));'+
 
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Ядовитый паук укусил вас!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(The poisonous spider bit you!);'+
-                   'AddFloorEvent( );'
+                   'AddFloorEvent( );';
+               FirstSpider := false;
             end;
 
             if not found then
@@ -342,23 +404,23 @@ begin
 
             elem.name := trash;
 
-            arrFloors[i].Trash.Add(j, elem);
+            arrFloors[levelNum].Trash.Add(j, elem);
 
         end;
 
         // "пакуем" словарь (убираем пустые элементы)
-        arrFloors[i].Trash.TrimExcess;
+        arrFloors[levelNum].Trash.TrimExcess;
 
     // признак захвата этажа
-        arrFloors[i].Captured := false;
+        arrFloors[levelNum].Captured := false;
 
     // признак возможности выхода
-        if i < exitFloor then arrFloors[i].isExit := -1;
-        if i > exitFloor then arrFloors[i].isExit := 1;
-        if i = exitFloor then arrFloors[i].isExit := 0;
+        if levelNum < exitFloor then arrFloors[levelNum].isExit := -1;
+        if levelNum > exitFloor then arrFloors[levelNum].isExit := 1;
+        if levelNum = exitFloor then arrFloors[levelNum].isExit := 0;
 
     // признак наличия окна
-        arrFloors[i].Window := false;
+        arrFloors[levelNum].Window := false;
     end;
 end;
 

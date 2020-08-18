@@ -127,13 +127,13 @@ var
              'SetVar(DarkMaster, DARK MASTER);'+
              'AddEvent(" - YOU WILL NOT PASS!");' +
              'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);AllowTool(Sword);SetNextTarget();");'+
 
              'IF({GetLang() = RU}, 4);'+
              'SetVar(DarkMaster, ТЕМНЫЙ МАСТЕР);'+
              'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
              'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
-             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
+             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);AllowTool(Sword);SetNextTarget();");'+
 
              'SetCreature(GetVar(DarkMaster),HP=9999 ATK=100,SpiritBless=1,);'+
 
@@ -149,12 +149,12 @@ var
              'IF({GetLang() = ENG}, 3);'+
              'SetVar(DarkMaster,ANGRY DARK MASTER);'+
              'AddEvent(" - This is our last meeting, stranger! You will not leave my Tower!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);SetNextTarget();");'+
 
              'IF({GetLang() = RU}, 3);'+
              'SetVar(DarkMaster,ЗЛОЙ ТЕМНЫЙ МАСТЕР);'+
              'AddEvent(" - Это наша последняя встреча, чужак! Ты не выйдешь из моей Башни!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
 
              'SetCreature(GetVar(DarkMaster),HP=99999 ATK=1000,,);'+
 
@@ -172,13 +172,13 @@ var
              'SetVar(DarkMaster,FURY DARK MASTER);'+
              'AddEvent(" - You broke into my Tower, scared monsters, looted chests. Who are you after that !?");' +
              'AddEvent(" - Now EXACTLY our last meeting!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);SetNextTarget();");'+
 
              'IF({GetLang() = RU}, 4);'+
              'SetVar(DarkMaster,ЯРОСТНЫЙ ТЕМНЫЙ МАСТЕР);'+
              'AddEvent(" - Ты вломился в мою Башню, рапугал монстров, разграбил сундуки. Да кто ты такой после этого!?");' +
              'AddEvent(" - Вот теперь ТОЧНО наша последняя встреча!");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
 
              'SetCreature(GetVar(DarkMaster),HP=999999 ATK=10000,,);'+
 
