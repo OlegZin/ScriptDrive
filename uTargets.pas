@@ -28,7 +28,8 @@ var
 
              'AddEvent(..................);'+
 
-             'ChangePlayerItemCount(AutoAction, GetVar(count));'
+             'ChangePlayerItemCount(AutoAction, GetVar(count));'+
+             'SetNextTarget();'
         ),
 
         (level: 3;
@@ -78,7 +79,8 @@ var
              'If({GetLang() = ENG}, 1);'+
              'AddEvent(You have found a huge chest! The lock does not give in the first time ...);'+
 
-             'AddEvent(..................);'
+             'AddEvent(..................);'+
+             'SetNextTarget();'
         ),
 
         (level: 4;
@@ -112,7 +114,8 @@ var
              'AddEvent(..................);'+
 
              'AllowMode(Think, 1);'+
-             'ChangePlayerItemCount(Gold, GetVar(gold));'
+             'ChangePlayerItemCount(Gold, GetVar(gold));'+
+             'SetNextTarget();'
         ),
 
        (level: 5;
@@ -130,7 +133,7 @@ var
              'SetVar(DarkMaster, ТЕМНЫЙ МАСТЕР);'+
              'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
              'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
-             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);");'+
+             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
 
              'SetCreature(GetVar(DarkMaster),HP=9999 ATK=100,SpiritBless=1,);'+
 
@@ -155,7 +158,8 @@ var
 
              'SetCreature(GetVar(DarkMaster),HP=99999 ATK=1000,,);'+
 
-             'AddEvent(..................);'
+             'AddEvent(..................);'+
+             'SetNextTarget();'
         )
 
        ,(level: 10;
@@ -178,7 +182,8 @@ var
 
              'SetCreature(GetVar(DarkMaster),HP=999999 ATK=10000,,);'+
 
-             'AddEvent(..................);'
+             'AddEvent(..................);'+
+             'SetNextTarget();'
         )
 
        ,(level: 11;

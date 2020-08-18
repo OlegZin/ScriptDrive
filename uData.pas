@@ -84,6 +84,8 @@ type
         procedure CurrentLevel(input: variant);
         function GetCurrentLevel: string;
 
+        procedure SetNextTarget;
+
         function GetEvents: string;
 
         procedure LevelUpPlayer;
@@ -1020,6 +1022,13 @@ begin
     if UpperCase(lang) = 'RU' then CurrLang := 1;
 end;
 
+procedure TData.SetNextTarget;
+begin
+    /// переходим к следующей, если есть
+    if CurrTargetIndex < High(targets)
+    then Inc(CurrTargetIndex);
+end;
+
 procedure TData.SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
 begin
     if not assigned(Player) then Player := TCreature.Create;
@@ -1353,9 +1362,8 @@ begin
         /// выполняем скрипт достижения цели
         Script.Exec( targets[CurrTargetIndex].script );
 
-        /// переходим к следующей, если есть
-        if CurrTargetIndex < High(targets)
-        then Inc(CurrTargetIndex);
+        /// переход на следующую цель задает сам скрипт текущей цели,
+        /// поскольку для этого может понадобиться выполнение условий
     end;
 end;
 
