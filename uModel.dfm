@@ -22,7 +22,7 @@ object Form3: TForm3
     Top = 49
     Width = 669
     Height = 354
-    ActivePage = pTools
+    ActivePage = pTower
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange

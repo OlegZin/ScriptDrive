@@ -739,6 +739,10 @@ begin
 
     Player.AutoBuffs := Inventory.Get;
 
+
+    if result <> '' then CheckStatus;
+
+
     prs.Free;
 end;
 
