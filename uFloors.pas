@@ -28,12 +28,12 @@ var
     arrFloors: array [1..13] of TFloor;
 
     floorObjects: array [0..28] of string = (
-        'Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash',
-        'Rat',  'Rat',  'Rat',  'Rat',  'Rat',
-        'SmallChest', 'SmallChest', 'SmallChest',
-        'Spider',     'Spider',
-        'Trap',       'Trap',
-        'BigChest',   'BigChest',
+        'Trash', 'Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash','Trash',
+        'Rat',   'Rat',  'Rat',  'Rat',  'Rat',
+        'Box',   'Box',  'Box',
+        'Spider','Spider',
+        'Trap',  'Trap',
+        'Chest', 'Chest',
         'Cache',
         'StoneBlockage', 'StoneBlockage',
         'WoodBlockage', 'WoodBlockage'
@@ -132,13 +132,13 @@ begin
             end;
 
             /// малый сундук
-            if trash = 'SmallChest' then
+            if trash = 'Box' then
             begin
                found := true;
 
                elem.count := Random(i*50) + 100;
 
-               elem.caption := 'RU=Ћарец,ENG=Box';
+               elem.caption := 'RU=ящик,ENG=Box';
 
                elem.script :=
                    'SetVar(iName, GetRandItemName());'+
@@ -152,7 +152,7 @@ begin
 
 
             /// большой сундук
-            if trash = 'BigChest' then
+            if trash = 'Chest' then
             begin
                found := true;
 

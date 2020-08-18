@@ -217,6 +217,15 @@ var
 
 {PUBLIC // Script allow}
 
+procedure TData.InitGame;
+begin
+    Script.Exec('SetVar('+SHOVEL_LVL+', 1);');
+    Script.Exec('SetVar('+PICK_LVL+', 1);');
+    Script.Exec('SetVar('+AXE_LVL+', 1);');
+    Script.Exec('SetVar('+KEY_LVL+', 1);');
+end;
+
+
 function TData.GeAttr(creature: TCreature; name: string): string;
 var
     param: TStringList;
@@ -641,11 +650,6 @@ begin
 
 end;
 
-procedure TData.InitGame;
-begin
-    Script.Exec('SetVar('+SHOVEL_LVL+', 1);');
-    Script.Exec('SetVar('+PICK_LVL+', 1);');
-end;
 
 procedure TData.InitPlayer;
 /// устанавливаем стартовые параметры игрока
@@ -779,6 +783,15 @@ begin
     then
         delta := StrToIntDef(Script.Exec('GetVar('+PICK_LVL+');'), 1);
 
+    // если объект ящик - топор дает эффект к скорости разламывания
+    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Box'
+    then
+        delta := StrToIntDef(Script.Exec('GetVar('+AXE_LVL+');'), 1);
+
+    // если объект сундку - отмычки дают эффект к скорости открытия
+    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Chest'
+    then
+        delta := StrToIntDef(Script.Exec('GetVar('+KEY_LVL+');'), 1);
 
     item.count := item.count - delta;
 

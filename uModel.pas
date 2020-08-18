@@ -169,6 +169,8 @@ begin
     Script.Exec('AllowMode(Tools, 1)');
     Script.Exec('AllowTool(Shovel)');
     Script.Exec('AllowTool(Pick)');
+    Script.Exec('AllowTool(Axe)');
+    Script.Exec('AllowTool(Key)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
