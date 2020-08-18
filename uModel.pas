@@ -171,7 +171,12 @@ begin
     Script.Exec('AllowTool(Pick)');
     Script.Exec('AllowTool(Axe)');
     Script.Exec('AllowTool(Key)');
+    Script.Exec('AllowTool(Sword)');
+    Script.Exec('AllowTool(LifeAmulet)');
+    Script.Exec('AllowTool(TimeSand)');
+    Script.Exec('AllowTool(Leggings)');
 }
+
     pcGame.ActivePageIndex := pTower.TabIndex;
 
     Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
@@ -637,7 +642,8 @@ begin
     if CurrLang = 'RU' then
         mmiAuto.Caption := 'Автодействия: ' + IntToStr(AutoCount);
 
-
+    /// скорость автоатак
+    tAutoAttack.Interval := StrToInt(Data.GetAutoSpeed);
 
     /// отображение событий в логе
     log(Script.Exec('GetEvents()'));
@@ -708,7 +714,7 @@ begin
         pSecrets.Caption := 'Секреты';
         pCraft.Caption := 'Ремесло';
         pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
-        pTools.Caption := 'Инструменты';
+        pTools.Caption := 'Артефакты';
 
         bResetTower.Caption := 'Перезапуск';
         bUseItem.Caption := 'Исп.!';
@@ -734,7 +740,7 @@ begin
         pSecrets.Caption := 'Secrets';
         pCraft.Caption := 'Craft';
         pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
-        pTools.Caption := 'Tools';
+        pTools.Caption := 'Artefacts';
 
         bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';

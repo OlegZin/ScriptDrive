@@ -348,12 +348,21 @@ begin
                end;
 
                elem.script :=
-                   'ChangePlayerParam('+param+', -1);'+
+                   'SetVar(val, Rand(100));'+
 
+                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 5);'+
+                   'ChangePlayerParam('+param+', -1);'+
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(The trap hurt! Lost 1 '+param+'!);'+
+
+                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(The trap was triggered but the effect was blocked by Leggins!);'+
+
                    'AddFloorEvent( );';
                FirstTrap := false;
             end;
@@ -368,13 +377,22 @@ begin
                elem.caption := 'RU=Крыса,ENG=Rat';
 
                elem.script :=
+                   'SetVar(val, Rand(100));'+
+
+                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 6);'+
                    'SetVar(dmg, Rand('+IntToStr(levelNum*25+20)+'));'+
                    'ChangePlayerParam(HP, -GetVar(dmg));'+
-
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
+
+                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
+
                    'AddFloorEvent( );';
                FirstRat := false;
             end;
@@ -389,12 +407,21 @@ begin
                elem.caption := 'RU=Паук,ENG=Spider';
 
                elem.script :=
-                   'SetPlayerAutoBuff(HP, -Rand('+IntToStr(levelNum*100)+'));'+
+                   'SetVar(val, Rand(100));'+
 
+                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 5);'+
+                   'SetPlayerAutoBuff(HP, -Rand('+IntToStr(levelNum*100)+'));'+
                    'If({GetLang() = RU}, 1);'+
                    'AddFloorEvent(Ядовитый паук укусил вас!);'+
                    'If({GetLang() = ENG}, 1);'+
                    'AddFloorEvent(The poisonous spider bit you!);'+
+
+                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
+                   'If({GetLang() = RU}, 1);'+
+                   'AddFloorEvent(Ядовитый паук пытался укусить вас но Поножи спасли от яда!);'+
+                   'If({GetLang() = ENG}, 1);'+
+                   'AddFloorEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
+
                    'AddFloorEvent( );';
                FirstSpider := false;
             end;

@@ -158,6 +158,8 @@ type
         function GetToolAttr(capt, attr: string): string;
         procedure ToolUpgrade(capt: string);
         function NeedToolUpgrade(capt: string): string;
+
+        function GetAutoSpeed: string;
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -222,10 +224,14 @@ var
 
 procedure TData.InitGame;
 begin
-    Script.Exec('SetVar('+SHOVEL_LVL+', 1);');
-    Script.Exec('SetVar('+PICK_LVL+', 1);');
-    Script.Exec('SetVar('+AXE_LVL+', 1);');
-    Script.Exec('SetVar('+KEY_LVL+', 1);');
+    Script.Exec('SetVar('+SHOVEL_LVL+    ', 1);');
+    Script.Exec('SetVar('+PICK_LVL+      ', 1);');
+    Script.Exec('SetVar('+AXE_LVL+       ', 1);');
+    Script.Exec('SetVar('+KEY_LVL+       ', 1);');
+    Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
+    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
+    Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
+    Script.Exec('SetVar('+LEGGINGS_LVL+   ', 0);');
 end;
 
 
@@ -266,6 +272,11 @@ end;
 function TData.GetAutoATK: string;
 begin
     result := IntToStr(AutoATKCount);
+end;
+
+function TData.GetAutoSpeed: string;
+begin
+    result := IntToStr(1000 - StrToInt(Data.GetVar('TIMESAND_LVL')) * 20);
 end;
 
 function TData.GetBreaks: string;
@@ -875,6 +886,7 @@ var
     PlayerATK: integer;
     DMG, BLOCK : integer;
     ATKbuff: integer;
+    bustedBySword: integer;
 begin
 
     Inventory.Fill( Player.Buffs );
@@ -882,6 +894,11 @@ begin
     Player.Buffs := Inventory.Get;
 
     PlayerATK   := Random( StrToIntDef(input, 0) + ATKbuff );
+
+    /// применяем эффект Меча, но не выше максимальной атаки
+    bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), StrToInt(GetParamValue( Player, 'ATK')));
+    PlayerATK   := Max(bustedBySword, PlayerATK);
+
     CreatureHP  := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
     CreatureDEF := StrToIntDef( GetParamValue( Creature, 'DEF'), 0 );
 
@@ -1317,7 +1334,8 @@ begin
 
         // лечим игрока
         playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
-        SetParamValue(Player, 'HP', IntToStr(playerLVL * 100));
+        SetParamValue(Player, 'HP', IntToStr(playerLVL * 100 + StrToIntDef(Variables[LIFEAMULET_LVL],0) * 100));
+        /// включая эффект амулета жизни
         exit;
     end;
 

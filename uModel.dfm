@@ -1,7 +1,7 @@
 object Form3: TForm3
   Left = 0
   Top = 0
-  Caption = 'Stupid roguelike: Torture Tower v0.2'
+  Caption = 'Stupid roguelike: Torture Tower v0.2.2'
   ClientHeight = 403
   ClientWidth = 669
   Color = clBtnFace
@@ -22,7 +22,7 @@ object Form3: TForm3
     Top = 49
     Width = 669
     Height = 354
-    ActivePage = pTower
+    ActivePage = pTools
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
@@ -194,6 +194,7 @@ object Form3: TForm3
         Height = 60
         AutoSize = False
         Caption = 'lToolDesc'
+        WordWrap = True
       end
       object lToolUpCost: TLabel
         Left = 312
