@@ -10,7 +10,7 @@ type
 
     TData = class
     private
-        Player : TCreature;
+        Player : ISuperObject;
         Creature: TCreature;
         Variables: TDictionary<String,String>;
 
@@ -246,6 +246,28 @@ begin
 end;
 
 
+procedure TData.InitPlayer;
+/// устанавливаем стартовые параметры игрока
+var
+    i: integer;
+    skl : ISuperObject;
+begin
+
+    /// имена скилов берем из массива, поскольку, изначалоно все они у игрока есть
+    skl := SO();
+
+    for I := 0 to High(skills) do
+          skl.I[skills[i].name] := 0;
+
+    Player.O['params'] := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
+    Player.O['skills'] := skl;
+    Player.O['items'] := SO('{"Gold":100000}');
+    Player.O['buffs'] := SO();
+    Player.O['autoBuffs'] := SO();
+    Player.O['loot'] := SO();
+
+end;
+
 
 function TData.GeAttr(creature: TCreature; name: string): string;
 var
@@ -373,57 +395,44 @@ end;
 
 function TData.GetPlayerAttr(name: string): string;
 begin
-    result := GeAttr(Player, name);
+    result := Player.O['params.'+name].AsString;
 end;
 
 function TData.GetPlayerBuffs: string;
 begin
-    result := Player.AutoBuffs;
+    result := Player.O['AutoBuffs'].AsString;
 end;
 
 function TData.GetPlayerInfo: string;
 var
-    count: string;
-    i: integer;
     resultList: string;
-    parser: TStringList;
+    tmp : ISuperObject;
+    item : TSuperAvlEntry;
 begin
     resultList := '';
 
-    parser := TStringList.Create;
-    parser.CommaText := Player.Params;
+    tmp := Player.O['params'];
 
-    for i := 0 to parser.Count-1 do
-    begin
-        count := GetItemCount( Player.Buffs, parser.Names[i]);
-        if count <> '0'
-        then resultList := resultList + parser[i] + '[' + count + '],'
-        else resultList := resultList + parser[i] + ',';
-    end;
+    for item in Player.O['buffs'].AsObject do
+        tmp.S[item.Name] := tmp.S[item.Name] + '[' + item.Value.AsString + ']';
 
-    parser.Free;
-
-    result := Player.Name + ' ' + resultList;
-
+    result := tmp.AsJSon();
 end;
 
 function TData.GetPlayerItemCount(name: variant): string;
 begin
-    result := '0';
-
-    parser.CommaText := Player.Items;
-    if   parser.IndexOfName(name) <> -1
-    then result := parser.Values[name];
+    result := Player.O['items.'+name].AsString;
 end;
 
 function TData.GetInLang(text: string; lang: string = ''): string;
 var
     multiLang: ISuperObject;
 begin
+    result := '';
     if lang = '' then lang := GetLang;
 
     multiLang := SO(text);
-    result := multiLang.AsObject.S[lang];
+    if Assigned(multiLang) then result := multiLang[lang].AsString;
 end;
 
 function TData.GetItemCount(list, name: string): string;
@@ -450,17 +459,17 @@ end;
 
 function TData.GetPlayerItems: string;
 begin
-    result := Player.Items;
+    result := Player.O['items'].AsJSon();
 end;
 
 function TData.GetPlayerLoot: string;
 begin
-    result := Player.Loot;
+    result := Player.O['loot'].AsJSon();
 end;
 
 function TData.GetPlayerSkills: string;
 begin
-    result := Player.Skills;
+    result := Player.O['skills'].AsJSon();
 end;
 
 function TData.GetRandItemName: string;
@@ -506,10 +515,7 @@ end;
 
 function TData.GetSkillLvl(name: string): string;
 begin
-    result := '0';
-    parser.CommaText := Player.Skills;
-    if parser.IndexOfName(name) <> -1 then
-       result := parser.Values[name];
+    result := Player.O['skills.'+name].AsString;
 end;
 
 function TData.GetThinkEvents: string;
@@ -738,23 +744,6 @@ begin
 end;
 
 
-procedure TData.InitPlayer;
-/// устанавливаем стартовые параметры игрока
-var
-    i: integer;
-    s, comma: string;
-begin
-
-    /// имена скилов берем из массива, поскольку, изначалоно все они у игрока есть
-    comma := '';
-    for I := 0 to High(skills) do
-    begin
-          s := s + comma + skills[i].name + '=0';
-          comma := ' ';
-    end;
-
-    SetPlayer( 'Player', 'LVL=1, HP=100, MP=20, ATK=5, DEF=0, REG=1, EXP=0', s, 'Gold=100000');
-end;
 
 procedure TData.LevelUpPlayer;
 /// поднятие уровня игрока
@@ -762,8 +751,8 @@ var
     CurrLvl: integer;
     DEF: integer;
 begin
-    CurrLvl := StrToIntDef( GetParamValue( Player, 'LVL' ), 1);
-    DEF := StrToIntDef( GetParamValue( Player, 'DEF' ), 1);
+    CurrLvl := Player.O['params.LVL'].AsInteger;
+    DEF := Player.O['params.DEF'].AsInteger;
 
     ChangeParamValue( Player,  'HP', CurrLvl * 100);
     ChangeParamValue( Player,  'MP', CurrLvl * 20);
@@ -795,20 +784,19 @@ var
 begin
     result := '';
 
-    if Player.AutoBuffs = '' then exit;
-
-
-    prs := TStringList.Create;
-    prs.CommaText := Player.AutoBuffs;
+    if Player.O['AutoBuffs'].AsArray.Length = 0 then exit;
 
 
     // считаем силу регена
     // базовый параметр
-    regen := StrToInt(GetPlayerAttr('REG'));
+    regen := Player.O['params.REG'].AsInteger;
+
     // бонусное значение
-    Inventory.Fill( Player.Buffs );
-    regen := regen + Inventory.Draw('REG', 1);
-    Player.Buffs := Inventory.Get;
+    if Assigned(Player.O['buffs.REG']) and Player.O['buffs.REG'].AsInteger <> 0 then
+    begin
+        regen := regen + Inventory.Draw('REG', 1);
+        Player.Buffs := Inventory.Get;
+    end;
 
     /// берем запасы регенерируемых параметров
     Inventory.Fill( Player.AutoBuffs );
@@ -1528,6 +1516,7 @@ begin
    CurrTargetIndex := 0;
    CurrLang := 1;
 
+   Player := SO();
 end;
 
 destructor TData.Destroy;

@@ -123,20 +123,6 @@ var
         ('of Murders',    'Убийства'),        ('of Path',      'Пути')
     );
 
-    // расходники для крафта. количество упоминаний регулирует шанс выпадения
-    loot: array [0..49] of string = (
-        ('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),('Wood'),            // 10
-        ('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),('Stone'),  // 10
-        ('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),('Herbal'),              // 8
-        ('Wheat'),('Wheat'),('Wheat'),('Wheat'),('Wheat'),('Wheat'),                                          // 6
-        ('Meat'),('Meat'),('Meat'),('Meat'),                                                                  // 4
-        ('Blood'),('Blood'),('Blood'),                                                                        // 3
-        ('Bone'),('Bone'),('Bone'),                                                                           // 3
-        ('Skin'),('Skin'),('Skin'),                                                                           // 3
-        ('Ore'),('Ore'),                                                                                      // 2
-        ('Essence')                                                                                           // 1
-    );
-
     arrRes: array [0..9] of TRes = (
         (name:'{"RU":"Дерево","ENG":"Wood"}';      rarity: 10;  cost:  5),
         (name:'{"RU":"Камень","ENG":"Stone"}';     rarity: 10;  cost:  5),
