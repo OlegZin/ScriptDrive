@@ -44,7 +44,7 @@ type
     mSecrets: TMemo;
     pFloors: TTabSheet;
     pcCraft: TPageControl;
-    pCraftPotions: TTabSheet;
+    pPotionsResearch: TTabSheet;
     cbPotionSelect: TComboBox;
     bPotionResearch: TButton;
     Panel2: TPanel;
@@ -176,6 +176,7 @@ begin
     Script.Exec('AllowTool(TimeSand)');
     Script.Exec('AllowTool(Leggings)');
 }
+    Script.Exec('AllowMode(Craft, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -523,6 +524,8 @@ begin
     pThink.TabVisible := pars.IndexOfName( 'Think' ) <> -1;
     // доступность крафта
     pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
+    pResourceResearch.TabVisible := pars.IndexOfName( 'ResResearch' ) <> -1;
+    pPotionsResearch.TabVisible := pars.IndexOfName( 'PotionResearch' ) <> -1;
     // доступность просмотра секретов
     pSecrets.TabVisible := pars.IndexOfName( 'Secrets' ) <> -1;
     // доступность крафта
@@ -740,7 +743,7 @@ begin
         pSecrets.Caption := 'Secrets';
         pCraft.Caption := 'Craft';
         pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
-        pTools.Caption := 'Artefacts';
+        pTools.Caption := 'Artifacts';
 
         bResetTower.Caption := 'Restart';
         bUseItem.Caption := 'Use!';

@@ -188,7 +188,9 @@ arrThinks : array [0..12] of TThink =(
     'AddThinkEvent("I am just sure I can use it all somehow. You need to study these subjects in more detail!");'+
     'AddThinkEvent("With each floor, these creatures are getting stronger and more dangerous! But from some it turns out to get certain objects, and from the most powerful potions even fall!");'+
     'ChangePlayerParam(EXP, 100);'+
-    'OpenThink(Resources);'
+    'AllowMode(Craft, 1);'+
+    'OpenThink(Resources);'+
+    'OpenThink(Potions);'
   ),
     (name: 'Resources'; enable: 0; caption: 'RU="–есурсы",ENG="Resources"'; exp: 800; script:
       'AddThinkEvent(............................................................);'+
@@ -207,27 +209,25 @@ arrThinks : array [0..12] of TThink =(
       'AddThinkEvent("To understand exactly how each of the materials can be applied, you will have to experiment with each.");'+
       'AddThinkEvent("I have studied in detail all these things that fall from monsters. It can really be used for a lot!");'+
       'ChangePlayerParam(EXP, 200);'+
-//      'AllowMode(Craft, 1);'+
-//      'AllowMode(ResResearch, 1);'+
-      'OpenThink(Potions);'
+      'AllowMode(ResResearch, 1);'
     ),
-      (name: 'Potions'; enable: 0; caption: 'RU="«ель€",ENG="Potions"'; exp: 1200; script:
-        'AddThinkEvent(............................................................);'+
-        'IF({GetLang() = RU}, 5);'+
-        'AddThinkEvent("    »грок получил 400 опыта!");'+
-        'AddThinkEvent("    »грок получил возможность исследовать зель€!");'+
-        'AddThinkEvent( );'+
-        'AddThinkEvent("„то если попытатьс€ их подробно изучить? ¬озможно получитс€ пон€ть из чего они сделаны и повторить?");'+
-        'AddThinkEvent("«ель€, выпадающие из особо сильных монстров - крайне полезны, но их так мало!");'+
-        'IF({GetLang() = ENG}, 5);'+
-        'AddThinkEvent("    Player got 400 EXP!");'+
-        'AddThinkEvent("    The player got the opportunity to research potions!");'+
-        'AddThinkEvent( );'+
-        'AddThinkEvent("What if you try to study them in detail? Perhaps you can understand what they are made of and repeat?");'+
-        'AddThinkEvent("Potions dropped from especially powerful monsters are extremely useful, but there are so few of them!");'+
-//        'AllowMode(PotionResearch, 2);'+
-        'ChangePlayerParam(EXP, 400);'
-      )
+    (name: 'Potions'; enable: 0; caption: 'RU="«ель€",ENG="Potions"'; exp: 1200; script:
+      'AddThinkEvent(............................................................);'+
+      'IF({GetLang() = RU}, 5);'+
+      'AddThinkEvent("    »грок получил 400 опыта!");'+
+      'AddThinkEvent("    »грок получил возможность исследовать зель€!");'+
+      'AddThinkEvent( );'+
+      'AddThinkEvent("„то если попытатьс€ их подробно изучить? ¬озможно получитс€ пон€ть из чего они сделаны и повторить?");'+
+      'AddThinkEvent("«ель€, выпадающие из особо сильных монстров - крайне полезны, но их так мало!");'+
+      'IF({GetLang() = ENG}, 5);'+
+      'AddThinkEvent("    Player got 400 EXP!");'+
+      'AddThinkEvent("    The player got the opportunity to research potions!");'+
+      'AddThinkEvent( );'+
+      'AddThinkEvent("What if you try to study them in detail? Perhaps you can understand what they are made of and repeat?");'+
+      'AddThinkEvent("Potions dropped from especially powerful monsters are extremely useful, but there are so few of them!");'+
+      'AllowMode(PotionResearch, 2);'+
+      'ChangePlayerParam(EXP, 400);'
+    )
 );
 {
 (name: ''; enable: 0; caption: 'RU="",ENG=""'; exp: 0; script:

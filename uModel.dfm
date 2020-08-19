@@ -22,7 +22,7 @@ object Form3: TForm3
     Top = 49
     Width = 669
     Height = 354
-    ActivePage = pTools
+    ActivePage = pCraft
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
@@ -259,10 +259,10 @@ object Form3: TForm3
           Top = 1
           Width = 522
           Height = 252
-          ActivePage = pResourceResearch
+          ActivePage = pPotionsResearch
           Align = alClient
           TabOrder = 0
-          object pCraftPotions: TTabSheet
+          object pPotionsResearch: TTabSheet
             Caption = 'Potions Research'
             object Label1: TLabel
               Left = 36
@@ -653,8 +653,6 @@ object Form3: TForm3
           Width = 522
           Height = 72
           Align = alBottom
-          Lines.Strings = (
-            'Memo1')
           ReadOnly = True
           TabOrder = 1
         end
