@@ -28,6 +28,10 @@ object Form3: TForm3
     OnChange = pcGameChange
     object pTower: TTabSheet
       Caption = 'Tower'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         661
         326)
@@ -98,6 +102,10 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         661
         326)
@@ -151,6 +159,10 @@ object Form3: TForm3
     object pFloors: TTabSheet
       Caption = 'Floor: 1'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object mFloorLog: TMemo
         Left = 0
         Top = 268
@@ -174,6 +186,10 @@ object Form3: TForm3
     object pTools: TTabSheet
       Caption = 'Tools'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lToolName: TLabel
         Left = 216
         Top = 20
@@ -484,6 +500,10 @@ object Form3: TForm3
           object pResourceResearch: TTabSheet
             Caption = 'Resource Research'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object Label10: TLabel
               Left = 36
               Top = 54
@@ -661,6 +681,10 @@ object Form3: TForm3
     object pSecrets: TTabSheet
       Caption = 'Secrets'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object mSecrets: TMemo
         Left = 0
         Top = 0

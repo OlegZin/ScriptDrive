@@ -130,8 +130,7 @@ implementation
 {$R *.dfm}
 
 
-uses
-    uData;
+uses uData;
 
 const
     UNKNOWN_BUTTON = '??????';
@@ -206,7 +205,7 @@ begin
     if pcGame.ActivePage <> pTools then exit;
 
     /// заполняем список доступных инструментов
-    lbTools.Items.CommaText := Data.GetToolsList;
+    lbTools.Items.CommaText := Script.Exec('GetToolsList()');
 
     for I := 0 to lbTools.Items.Count-1 do
     if lbTools.Items[i] = SelectedTool then
@@ -222,14 +221,14 @@ begin
         exit;
 
     capt := lbTools.Items[lbTools.ItemIndex];
-    lToolName.Caption := capt + ' ('+Data.GetToolAttr(capt,'lvl')+')';
-    lToolDesc.Caption := Data.GetToolAttr(capt,'desc');
+    lToolName.Caption := capt + ' ('+ Script.Exec('GetToolAttr('+capt+',lvl)')+')';
+    lToolDesc.Caption := Script.Exec('GetToolAttr('+capt+',desc)');
 
-    NeedToToolUp := StrToInt(Data.NeedToolUpgrade(capt));
-    currGold := StrToIntDef(Data.GetPlayerItemCount('Gold'), 0);
+    NeedToToolUp := StrToInt(Script.Exec('NeedToolUpgrade('+capt+')'));
+    currGold := StrToIntDef(Script.Exec('GetPlayerItemCount(Gold)'), 0);
 
-    if Data.GetLang = 'RU' then lToolUpCost.Caption := 'Цена: ' + IntToStr(NeedToToolUp) + ' золота';
-    if Data.GetLang = 'ENG' then lToolUpCost.Caption := 'Cost: ' + IntToStr(NeedToToolUp) + ' Gold';
+    if Script.Exec('GetLang()') = 'RU' then lToolUpCost.Caption := 'Цена: ' + IntToStr(NeedToToolUp) + ' золота';
+    if Script.Exec('GetLang()') = 'ENG' then lToolUpCost.Caption := 'Cost: ' + IntToStr(NeedToToolUp) + ' Gold';
 
     bToolUpgrade.Enabled := currGold >= NeedToToolUp;
 end;

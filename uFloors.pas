@@ -162,7 +162,7 @@ begin
                else
 
                elem.script :=
-                   'SetVar(obj, '+loot[Random(Length(loot))]+');'+
+                   'SetVar(obj, GetRandResName());'+
                    'SetVar(count, ' + IntToStr(Random(levelNum)+1) +');'+
                    'SetPlayerRes(GetVar(obj), GetVar(count));' +
                    'IF({GetLang() = RU}, 1);'+
@@ -254,7 +254,7 @@ begin
                    'SetVar(iCount, {Rand('+ IntToStr(levelNum) +') + 1});'+
                    'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
 
-                   'SetVar(lName, '+loot[Random(Length(loot))]+');'+
+                   'SetVar(lName, GetRandResName());'+
                    'SetVar(lCount, ' + IntToStr(Random(levelNum*2)+1) +');'+
                    'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 

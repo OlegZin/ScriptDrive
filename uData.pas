@@ -3,7 +3,7 @@ unit uData;
 interface
 
 uses
-    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools,
+    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools, superobject,
     System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
 
 type
@@ -37,6 +37,7 @@ type
         /// ее настройки. Например, количество и крутизна доступных рецептов в крафте.
 
         AutoATKCount: integer;
+
     public
 
 
@@ -76,6 +77,7 @@ type
         procedure InitGame;
         procedure InitPlayer;
         procedure InitCreatures;
+        procedure InitItemsCraftCost;
 
         function CurrentStep: string;
         function StepCount: string;
@@ -115,6 +117,7 @@ type
         procedure SetPlayerRes(name, count: variant);
 
         function GetRandItemName: string;
+        function GetRandResName: string;
 
         function ProcessAuto: string;
         // вызывается для процессинга автоэффектов, например автобонусов
@@ -127,6 +130,9 @@ type
 
         procedure SetLang(lang: string);
         function GetLang: string;
+        function GetInLang(text: string; lang: string = ''): string;
+                             /// получает мультиязычную строку и возвращает
+                             /// в текущем или указанном языке
 
         function GetSkillLvl(name: string): string;
         function GetPlayerSkills: string;
@@ -160,6 +166,7 @@ type
         function NeedToolUpgrade(capt: string): string;
 
         function GetAutoSpeed: string;
+
     private
         parser: TStringList;
         Script : TScriptDrive;
@@ -174,6 +181,8 @@ type
         procedure SetEventScript(creature: TCreature; name, script: string);
         procedure AddEventScript(creature: TCreature; name, script: string);
         procedure RemoveEventScript(creature: TCreature; name, script: string);
+
+        function GetResByName(name: string): TRes;
     end;
 
     /// класс-менеджер для манипуляций с содержимым инвентаря
@@ -231,8 +240,11 @@ begin
     Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
     Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
     Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
-    Script.Exec('SetVar('+LEGGINGS_LVL+   ', 0);');
+    Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
+
+    InitItemsCraftCost;
 end;
+
 
 
 function TData.GeAttr(creature: TCreature; name: string): string;
@@ -344,6 +356,7 @@ begin
     for I := 0 to High(items) do
     begin
         result := result + '['+items[i].name+']' + sLineBreak;
+        result := result + 'Craft: ' + ifthen( items[i].isCraftAllow, items[i].craft, '?????') + sLineBreak;
         result := result + items[i].script + sLineBreak;
         result := result + sLineBreak;
     end;
@@ -403,6 +416,16 @@ begin
     then result := parser.Values[name];
 end;
 
+function TData.GetInLang(text: string; lang: string = ''): string;
+var
+    multiLang: ISuperObject;
+begin
+    if lang = '' then lang := GetLang;
+
+    multiLang := SO(text);
+    result := multiLang.AsObject.S[lang];
+end;
+
 function TData.GetItemCount(list, name: string): string;
 begin
     result := '0';
@@ -443,6 +466,42 @@ end;
 function TData.GetRandItemName: string;
 begin
     result := items[Random(Length(items))].name;
+end;
+
+function TData.GetRandResName: string;
+var
+    i: integer;
+    val: integer;
+begin
+    /// при первом обращении получаем сумму всей редкости ресурсов
+    if resSummRarity = 0 then
+    for i := 0 to High(arrRes) do
+        resSummRarity := resSummRarity + arrRes[i].rarity;
+
+    /// получаем случайное число, указывающее на один из ресурсов
+    val := Random( resSummRarity + 1);
+
+    /// перебираем ресурсы и получаем один из них. с учетом редкости!
+    for i := 0 to High(arrRes) do
+    begin
+        val := val - arrRes[i].rarity;
+        if val <= 0 then
+        begin
+            result := arrRes[i].name;
+            break;
+        end;
+    end;
+
+    result := GetInLang(result);
+end;
+
+function TData.GetResByName(name: string): TRes;
+var
+    i: integer;
+begin
+    for i := 0 to High(arrRes) do
+    if Pos(name, arrRes[i].name) > 0 then
+        result := arrRes[i];
 end;
 
 function TData.GetSkillLvl(name: string): string;
@@ -609,11 +668,11 @@ begin
             itm := Inventory.Get;
 
             /// ресурсы (шанс на один вид)
-            lootCount := Random(CurrLevel div 2);
+            lootCount := 1;//Random(CurrLevel div 2);
             if lootCount > 0 then
             begin
                 Inventory.Clear;
-                Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+                Inventory.SetItemCount( GetRandResName, lootCount );
                 lt := Inventory.Get;
             end;
 
@@ -649,11 +708,11 @@ begin
 
             lootCount := Random( Random( CurrLevel ) );
             if lootCount > 0
-            then Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+            then Inventory.SetItemCount( GetRandResName, lootCount );
 
             lootCount := Random( Random( CurrLevel ) );
             if lootCount > 0
-            then Inventory.SetItemCount( loot[Random(Length(loot))], lootCount );
+            then Inventory.SetItemCount( GetRandResName, lootCount );
 
             lt := Inventory.Get;
 
@@ -1401,6 +1460,61 @@ begin
 end;
 
 
+procedure TData.InitItemsCraftCost;
+/// генерим рецепты предметов. в каждой игре - разные
+/// отталкиваемся от условной стоимости в ресурсах
+var
+    i
+   ,cost    // условная остаточная стоимость предмета в ресурсах
+   ,part     // условная суммарная стоимость текущего генерируемого компонента
+   ,resCount // количество требуемого ресурса
+            : integer;
+    craft   // строка собираемого рецепта
+   ,resName
+   ,comma
+            : string;
+    res : TRes;
+begin
+
+    for I := 0 to High(items) do
+    begin
+        if items[i].cost = 0 then Continue;
+
+        /// получаем общую стоимость
+        cost := items[i].cost;
+
+        craft := '';
+        comma := '';
+
+        /// пока не распределна вся стоимость
+        while cost > 0 do
+        begin
+
+            part := Random(items[i].cost+1);  // получаем кусок, который нужно распределить
+
+            part := Min(part, cost);           // выравниваемся, если выпало распределить больше остатка
+
+            resName := GetRandResName;
+                                               // получаем имя случайного ресурса (мультиязычная строка!)
+
+            res := GetResByName(resName);      // получаем данные ресурса
+
+            resCount := part div res.cost;
+            resCount := Max(1, resCount);      // если остатак не хватает, прописывает одну единицу
+
+            craft := craft + comma + resName + '=' + IntToStr(resCount);
+            comma := ',';
+
+            cost := cost - part;               // списываем израсходованную часть
+        end;
+
+        items[i].craft := craft;
+
+    end;
+
+end;
+
+
 constructor TData.Create;
 begin
    inherited;
@@ -1413,6 +1527,7 @@ begin
 
    CurrTargetIndex := 0;
    CurrLang := 1;
+
 end;
 
 destructor TData.Destroy;
@@ -1423,6 +1538,8 @@ begin
     Creature.Free;
     inherited;
 end;
+
+
 
 
 { TInventary }

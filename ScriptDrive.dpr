@@ -10,7 +10,11 @@ uses
   uThinkModeData in 'uThinkModeData.pas',
   uFloors in 'uFloors.pas',
   uTargets in 'uTargets.pas',
-  uTools in 'uTools.pas';
+  uTools in 'uTools.pas',
+  superobject in 'SuperObject\superobject.pas',
+  supertypes in 'SuperObject\supertypes.pas',
+  superdate in 'SuperObject\superdate.pas',
+  supertimezone in 'SuperObject\supertimezone.pas';
 
 {$R *.res}
 

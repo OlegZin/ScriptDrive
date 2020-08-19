@@ -29,15 +29,25 @@ type
        ,Skills              // активируемые за ману скилы/заклинания
 
        ,Events              // скрипты на различные события в игре (боевые, глобальные и т.п.)
-//       ,OnAttack            // скрипт на атаку по монстру
-//       ,OnDeath             // скрипт на смерть
                  : string;
     end;
 
     TItem = record
         name: string;
-        cost: integer;
+        cost: integer;  // стоимость в мане или условная стоимость в ресурсах
+        craft: string; // набор ресурсов для крафта
+        isCraftAllow: boolean; // признак доступности для крафта
+        isUseAllow: boolean; // признак доступности для использования
         script: string;
+    end;
+
+    TRes = record
+        name: string;     // мультиязычное имя ресурса
+        rarity: integer;  // редкость ресурса. чем меньше, тем реже. используется
+                          // в механизме определения случайного ресурса,
+                          // а так же при определении ценности
+        cost: integer;    // условная ценность ресурса исходя из его rarity.
+                          // = сумма rarity всех ресурсов деленная на rarity конкретного ресурса
     end;
 
 var
@@ -127,11 +137,27 @@ var
         ('Essence')                                                                                           // 1
     );
 
+    arrRes: array [0..9] of TRes = (
+        (name:'{"RU":"Дерево","ENG":"Wood"}';      rarity: 10;  cost:  5),
+        (name:'{"RU":"Камень","ENG":"Stone"}';     rarity: 10;  cost:  5),
+        (name:'{"RU":"Трава","ENG":"Herbal"}';     rarity:  8;  cost:  6),
+        (name:'{"RU":"Зерно","ENG":"Wheat"}';      rarity:  6;  cost:  8),
+        (name:'{"RU":"Мясо","ENG":"Meat"}';        rarity:  4;  cost: 13),
+        (name:'{"RU":"Кровь","ENG":"Blood"}';      rarity:  3;  cost: 17),
+        (name:'{"RU":"Кость","ENG":"Bone"}';       rarity:  3;  cost: 17),
+        (name:'{"RU":"Шкура","ENG":"Skin"}';       rarity:  3;  cost: 17),
+        (name:'{"RU":"Руда","ENG":"Ore"}';         rarity:  2;  cost: 25),
+        (name:'{"RU":"Эссенция","ENG":"Essence"}'; rarity:  1;  cost: 50)
+    );
+    resSummRarity: integer;
 
     // предметы-расходники. в механике имеют разные уровни силы
     items: array [0..14] of TItem = (
         (name:   'Gold';
-         cost:    MaxInt;
+         cost:    0;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script:
 
                  'If({GetPlayerItemCount(Gold) < 10000}, 5);'+                     // если золота не достаточно
@@ -152,7 +178,10 @@ var
         ) // золото
 
        ,(name:   'RestoreHealth';
-         cost:    1000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
                  'If({GetLang() = ENG}, 1);'+
@@ -162,7 +191,10 @@ var
         ) // зелье лечения
 
        ,(name:   'RestoreMana';
-         cost:    1000;
+         cost:    750;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
                  'ChangePlayerParam(MP,GetVar(IncMP));'+
                  'If({GetLang() = ENG}, 1);'+
@@ -172,7 +204,10 @@ var
          ) // зелье восстановления маны
 
        ,(name:   'PermanentATK';
-         cost:    10000;
+         cost:    1000;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'ChangePlayerParam(ATK,1);'+
                  'If({GetLang() = ENG}, 1);'+
                  'AddEvent(Player get +1 ATK permanently!);'+
@@ -181,7 +216,10 @@ var
         ) // зелье постоянного повышения атаки
 
        ,(name:   'PermanentDEF';
-         cost:    10000;
+         cost:    1000;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'ChangePlayerParam(DEF,1);'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
                  'AddEvent(Player get +1 DEF permanently!);'+
@@ -190,7 +228,10 @@ var
         ) // зелье постоянного повышения защиты
 
        ,(name:   'PermanentMDEF';
-         cost:    10000;
+         cost:    1000;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'ChangePlayerParam(MDEF,1);'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
                  'AddEvent(Player get +1 MDEF permanently!);'+
@@ -199,7 +240,10 @@ var
         ) // зелье постоянного повышения магической защиты
 
        ,(name:   'EXP';
-         cost:    1000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 100}));'+
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
@@ -217,46 +261,70 @@ var
 
 
        ,(name:   'RegenHP';
-         cost:    500;
+         cost:    1000;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerAutoBuff(HP,Rand({GetPlayerAttr(LVL) * 500}));'
         ) // зелье регенерации здоровья
 
        ,(name:   'RegenMP';
-         cost:    500;
+         cost:    1500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerAutoBuff(MP,Rand({GetPlayerAttr(LVL) * 50}));'
         ) // зелье регенерации маны
 
 
 
        ,(name:   'BuffATK';
-         cost:    5000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerBuff(ATK,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного повышения атаки
 
        ,(name:   'BuffDEF';
-         cost:    5000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerBuff(DEF,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного повышения защиты
 
        ,(name:   'BuffMDEF';
-         cost:    3000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerBuff(MDEF,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffEXP';
-         cost:    3000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerBuff(EXP,{Rand(GetPlayerAttr(LVL)) + 1});'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffREG';
-         cost:    3000;
+         cost:    500;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'SetPlayerBuff(REG,{Rand({GetPlayerAttr(LVL) * 10}) + 10});'
         ) // зелье временного прироста опыта
 
 
 
        ,(name:   'AutoAction';
-         cost:   10000;
+         cost:    5000;
+         craft:    '';
+         isCraftAllow: false;
+         isUseAllow: true;
          script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 2000)));'
         ) // зелье автоматической атаки
     );
