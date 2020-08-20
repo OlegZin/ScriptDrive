@@ -249,6 +249,10 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lbLoot: TListBox
         Left = 0
         Top = 0
@@ -276,6 +280,10 @@ object Form3: TForm3
           TabOrder = 0
           object pPotionsResearch: TTabSheet
             Caption = 'Potions Research'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object Label1: TLabel
               Left = 36
               Top = 54

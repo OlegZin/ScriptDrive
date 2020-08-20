@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math;
+  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math, superobject;
 
 type
   TForm3 = class(TForm)
@@ -149,13 +149,15 @@ var
             : integer;
     LastFloorObject
             : TButton;
-
+    sobj : ISuperObject;
 
 
 
 
 procedure TForm3.FormShow(Sender: TObject);
 begin
+    sobj := SO();
+
     mLog.Lines.Clear;
 
     Script.Exec('SetLang(ENG)');
@@ -503,6 +505,7 @@ var
     step: integer;
     pars: TstringList;
     i: Integer;
+    item : TSuperAvlEntry;
 begin
     pars := TStringList.Create;
 
@@ -517,20 +520,18 @@ begin
 
     // получение текущих доступных режимов
     AllowModes := Script.Exec('GetAllowModes()');
-    // исходя из доступных модифицируем интерфейс
-    pars.CommaText := AllowModes;
     // доступность думательной
-    pThink.TabVisible := pars.IndexOfName( 'Think' ) <> -1;
+    pThink.TabVisible := Pos( 'Think', AllowModes ) > 0;
     // доступность крафта
-    pCraft.TabVisible := pars.IndexOfName( 'Craft' ) <> -1;
-    pResourceResearch.TabVisible := pars.IndexOfName( 'ResResearch' ) <> -1;
-    pPotionsResearch.TabVisible := pars.IndexOfName( 'PotionResearch' ) <> -1;
+    pCraft.TabVisible := Pos( 'Craft', AllowModes ) > 0;
+    pResourceResearch.TabVisible := Pos( 'ResResearch', AllowModes ) > 0;
+    pPotionsResearch.TabVisible := Pos( 'PotionResearch', AllowModes ) > 0;
     // доступность просмотра секретов
-    pSecrets.TabVisible := pars.IndexOfName( 'Secrets' ) <> -1;
+    pSecrets.TabVisible := Pos( 'Secrets', AllowModes ) > 0;
     // доступность крафта
-    pFloors.TabVisible := pars.IndexOfName( 'Floors' ) <> -1;
+    pFloors.TabVisible := Pos( 'Floors', AllowModes ) > 0;
     // доступность инструментов
-    pTools.TabVisible := pars.IndexOfName( 'Tools' ) <> -1;
+    pTools.TabVisible := Pos( 'Tools', AllowModes ) > 0;
 
     breaks := Script.Exec('GetBreaks()');
     if pos('Tower', breaks) > 0 then
@@ -574,16 +575,17 @@ begin
 
 
     // инфа по игроку
-    tmp := Script.Exec('GetPlayerInfo()');
-    pars.CommaText := tmp;
+    sobj := SO( Script.Exec('GetPlayerInfo()') );
 
-    exp := pars.Values[ 'EXP' ];
-    pars.Delete( pars.IndexOfName('EXP') );
+    exp := sobj.S['EXP'];
+    sobj.Delete('EXP');
 
-    lvl := pars.Values[ 'LVL' ];
-    pars.Delete( pars.IndexOfName('LVL') );
+    lvl := sobj.S['LVL'];
+    sobj.Delete('LVL');
 
-    lPlayerInfo.Caption := ReplaceStr( pars.CommaText, ',', '  ' );
+    lPlayerInfo.Caption := '';
+    for item in sobj.AsObject do
+        lPlayerInfo.Caption := lPlayerInfo.Caption + item.Name + ': ' + item.Value.AsString + ' ';
 
     // инфа по текущему опыту игрока
     if CurrLang = 'ENG' then
@@ -593,18 +595,25 @@ begin
         lNeedExp.Caption := 'Ур.: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
 
     // текущие наложенные бафы
-    reg := Script.Exec('GetPlayerBuffs()');
-    if CurrLang = 'ENG' then
-        lBuffs.Caption := 'Regen: ' + reg;
-    if CurrLang = 'RU' then
-        lBuffs.Caption := 'Реген.: ' + reg;
+    if CurrLang = 'ENG' then lBuffs.Caption := 'Regen: ';
+    if CurrLang = 'RU' then lBuffs.Caption := 'Реген.: ';
+
+    lBuffs.Caption := '';
+    sobj := SO( Script.Exec('GetPlayerBuffs()') );
+    for item in sobj.AsObject do
+        lBuffs.Caption := lBuffs.Caption + item.Name + ': ' + item.Value.AsString;
 
 
     // список предметов
     tmp := Script.Exec('GetPlayerItems()');
     if (tmp <> oldPlayerItems) or (oldPlayerItems = '') then
     begin
-        cbItem.Items.CommaText := tmp;
+        sobj := SO( tmp );
+
+        cbItem.Items.Clear;
+        for item in sobj.AsObject do
+            cbItem.Items.Add(Item.Name + '=' + Item.Value.AsString);
+
         oldPlayerItems := tmp;
     end;
 
@@ -613,18 +622,30 @@ begin
     tmp := Script.Exec('GetPlayerSkills()');
     if (tmp <> oldPlayerSkills) or (oldPlayerSkills = '') then
     begin
-        cbSkills.Items.CommaText := tmp;
+        sobj := SO( tmp );
+
+        cbSkills.Items.Clear;
+        for item in sobj.AsObject do
+            cbSkills.Items.Add(Item.Name + '=' + Item.Value.AsString);
+
         oldPlayerSkills := tmp;
     end;
+
 
 
     // список ресурсов
     tmp := Script.Exec('GetPlayerLoot()');
     if (tmp <> oldPlayerLoot) or (oldPlayerLoot = '') then
     begin
-        lbLoot.Items.CommaText := tmp;
+        sobj := SO( tmp );
+
+        lbLoot.Items.Clear;
+        for item in sobj.AsObject do
+            lbLoot.Items.Add( Item.Name + '=' + Item.Value.AsString );
+
         oldPlayerLoot := tmp;
     end;
+
 
 
 

@@ -6,6 +6,17 @@ uses
     uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools, superobject,
     System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
 
+const
+    /// синонимы имен полей
+    O_PARAMS    = 'params';    /// объект параметров
+    O_SKILLS    = 'skills';    /// объект умений
+    O_ITEMS     = 'items';     /// объект предметов
+    O_BUFFS     = 'buffs';     /// объект баффов
+    O_AUTOBUFFS = 'autobuffs'; /// объект автобаффов
+    O_LOOT      = 'loot';      /// объект ресурсов
+    O_EVENTS    = 'events';    /// объект событий
+
+    S_NAME      = 'name';      /// имя существа
 type
 
     TData = class
@@ -30,7 +41,7 @@ type
         ///    требкующие прерывания автодействий
         ///    например, выставлен флаг Tower, поскольку достигнут целевой этаж
 
-        AllowModes: string;
+        AllowModes: ISuperObject;
         /// основной управляющий игрой массив с флагами доступных игроку игровых возможностей
         /// используется повсеместно для определелния доступа к тем или иным возможностям.
         /// перичем, каждая возможность имеет уровень развития, что может использоваться для
@@ -166,7 +177,7 @@ type
         function NeedToolUpgrade(capt: string): string;
 
         function GetAutoSpeed: string;
-        function Draw(obj: ISuperObject; count: variant): integer;
+        function Draw(obj: ISuperObject; name: string; count: variant): integer;
 
     private
         parser: TStringList;
@@ -177,43 +188,11 @@ type
         procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
 
         function GetEventScript(creature: ISuperObject; name: string): string;
-        procedure SetEventScript(creature: TCreature; name, script: string);
-        procedure AddEventScript(creature: TCreature; name, script: string);
-        procedure RemoveEventScript(creature: TCreature; name, script: string);
 
         function GetResByName(name: string): TRes;
-    end;
 
-    /// класс-менеджер для манипуляций с содержимым инвентаря
-    TInventory = class
-    private
-        items: TStringList;   // строка с содержимым
-    public
-        constructor Create;
-        destructor Destroy;
+        procedure Loot(var target, source: ISuperObject; name: string);
 
-        procedure Fill(inv: string);
-        procedure Clear;
-        function Get: string;
-
-        procedure SetItemCount(name: string; count: integer);
-        // задает указанное количество пердметов в инвентаре
-        // добавляет предмет, если отсутствует при значении > 0
-        // удаляет предмет, при значении <= 0
-
-        procedure ChangeItemCount(name: string; count: integer);
-        // изменяет количество на указанную дельту (+/-)
-        // добавляет предмет, если отсутствует при полученном количестве > 0
-        // удаляет предмет, при полученном значении <= 0
-
-        procedure RemoveItem(name: string);
-        // удаляет все объекты с указанным именем
-
-        function GetItemCount(name: string): integer;
-        // возвращает количество имеющихся предметов, 0 = отсутствуют
-
-        procedure Loot(lootInv: string);
-        // получает строку инвентаря и добавляет все найденные предметы в "свой"
     end;
 
 Var
@@ -222,9 +201,6 @@ Var
 implementation
 
 { TData }
-
-var
-   Inventory : TInventory;
 
 {PUBLIC // Script allow}
 
@@ -256,13 +232,13 @@ begin
     for I := 0 to High(skills) do
           skl.I[skills[i].name] := 0;
 
-    Player.O['params'] := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
-    Player.O['skills'] := skl;
-    Player.O['items'] := SO('{"Gold":100000}');
-    Player.O['buffs'] := SO();
-    Player.O['autoBuffs'] := SO();
-    Player.O['loot'] := SO();
-    Player.O['events'] := SO('{"OnAttack":"DoDamageToCreature(GetPlayerAttr(ATK));"}');
+    Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
+    Player.O[O_SKILLS]    := skl;
+    Player.O[O_ITEMS]     := SO('{"Gold":100000}');
+    Player.O[O_BUFFS]     := SO();
+    Player.O[O_AUTOBUFFS] := SO();
+    Player.O[O_LOOT]      := SO();
+    Player.O[O_EVENTS]    := SO('{"OnAttack":"DoDamageToCreature(GetPlayerAttr(ATK));"}');
 
 end;
 
@@ -284,7 +260,7 @@ end;
 
 function TData.GetAllowModes: string;
 begin
-    result := AllowModes;
+    result := AllowModes.AsJSon();
 end;
 
 function TData.GetAllowTool(name: string): string;
@@ -319,7 +295,7 @@ end;
 
 function TData.GetCurrCreatureInfo: string;
 begin
-    result := Creature['name'].AsString + ': ' + Creature['params'].AsString;
+    result := Creature[S_NAME].AsString + ': ' + Creature[O_PARAMS].AsString;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -342,8 +318,8 @@ function TData.GetEventScript(creature: ISuperObject; name: string): string;
 begin
     result := '';
 
-    if Assigned(creature.O['events.'+name])
-    then result := creature.O['events.'+name].AsString;
+    if Assigned(creature.O[ O_EVENTS + '.' + name ])
+    then result := creature.O[ O_EVENTS + '.' + name ].AsString;
 end;
 
 function TData.GetFloorEvents: string;
@@ -387,12 +363,12 @@ end;
 
 function TData.GetPlayerAttr(name: string): string;
 begin
-    result := Player.O['params.'+name].AsString;
+    result := Player.O[ O_PARAMS + '.' + name ].AsString;
 end;
 
 function TData.GetPlayerBuffs: string;
 begin
-    result := Player.O['AutoBuffs'].AsString;
+    result := Player.O[ O_AUTOBUFFS ].AsString;
 end;
 
 function TData.GetPlayerInfo: string;
@@ -403,9 +379,9 @@ var
 begin
     resultList := '';
 
-    tmp := Player.O['params'];
+    tmp := Player.O[ O_PARAMS ];
 
-    for item in Player.O['buffs'].AsObject do
+    for item in Player.O[ O_BUFFS ].AsObject do
         tmp.S[item.Name] := tmp.S[item.Name] + '[' + item.Value.AsString + ']';
 
     result := tmp.AsJSon();
@@ -413,7 +389,7 @@ end;
 
 function TData.GetPlayerItemCount(name: variant): string;
 begin
-    result := Player.O['items.'+name].AsString;
+    result := Player.O[ O_ITEMS + '.' + name].AsString;
 end;
 
 function TData.GetInLang(text: string; lang: string = ''): string;
@@ -446,22 +422,22 @@ end;
 
 function TData.GetMonsterAttr(name: string): string;
 begin
-    result := Creature.O['params.'+name].AsString;
+    result := Creature.O[ O_PARAMS + '.' + name].AsString;
 end;
 
 function TData.GetPlayerItems: string;
 begin
-    result := Player.O['items'].AsJSon();
+    result := Player.O[ O_ITEMS ].AsJSon();
 end;
 
 function TData.GetPlayerLoot: string;
 begin
-    result := Player.O['loot'].AsJSon();
+    result := Player.O[ O_LOOT ].AsJSon();
 end;
 
 function TData.GetPlayerSkills: string;
 begin
-    result := Player.O['skills'].AsJSon();
+    result := Player.O[ O_SKILLS ].AsJSon();
 end;
 
 function TData.GetRandItemName: string;
@@ -507,7 +483,7 @@ end;
 
 function TData.GetSkillLvl(name: string): string;
 begin
-    result := Player.O['skills.'+name].AsString;
+    result := Player.O[ O_SKILLS + '.' + name].AsString;
 end;
 
 function TData.GetThinkEvents: string;
@@ -655,84 +631,76 @@ procedure TData.InitCreatures;
 // формирование пула
 var
     i, count, lootCount: integer;
-    itm, lt: string;
+    _items, _loot: string;
+    tmp: ISuperObject;
 begin
 
-        if CurrStep < MaxStep then
-        begin
-            /// золото
-            Inventory.Clear;
-            Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*2 ) + CurrLevel );
-            itm := Inventory.Get;
+    if CurrStep < MaxStep then
+    begin
+        /// золото
+        _items := Format('{"%s":%d}', [items[I_GOLD].name, Random( CurrLevel*2 ) + CurrLevel]);
 
-            /// ресурсы (шанс на один вид)
-            lootCount := 1;//Random(CurrLevel div 2);
-            if lootCount > 0 then
-            begin
-                Inventory.Clear;
-                Inventory.SetItemCount( GetRandResName, lootCount );
-                lt := Inventory.Get;
-            end;
+        /// ресурсы (шанс на один вид)
+        lootCount := Random(CurrLevel div 2);
+        if   lootCount > 0
+        then _loot := Format('{"%s":%d}', [GetRandResName, lootCount]);
 
-            SetCreature(
-                Format('%s %s %s', [
-                    name1[Random(Length(name1))][CurrLang],
-                    name2[Random(Length(name2))][CurrLang],
-                    name3[Random(Length(name3))][CurrLang]
-                ]),
-                Format('HP=%d, ATK=%d, DEF=%d', [
-                    Random( CurrLevel*10 ) + CurrLevel*5,
-                    Random( CurrLevel*5 )  + CurrLevel*2,
-                    Random( CurrLevel*2 )
-                ]),
-                itm,
-                lt
-            );
+        SetCreature(
+            Format('%s %s %s', [
+                name1[Random(Length(name1))][CurrLang],
+                name2[Random(Length(name2))][CurrLang],
+                name3[Random(Length(name3))][CurrLang]
+            ]),
+            Format('{"HP":%d, "ATK":%d, "DEF":%d}', [
+                Random( CurrLevel*10 ) + CurrLevel*5,
+                Random( CurrLevel*5 )  + CurrLevel*2,
+                Random( CurrLevel*2 )
+            ]),
+            _items,
+            _loot
+        );
 
-        end;
+    end;
 
-        /// босс уровня!
-        if CurrStep = MaxStep then
-        begin
-            // золото
-            Inventory.Clear;
-            Inventory.SetItemCount( items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2 );
-            // возможно, один предмет
-            if Random(1) > 0 Then Inventory.SetItemCount( items[Random(Length(items))].name, 1 );
-            itm := Inventory.Get;
+    /// босс уровня!
+    if CurrStep = MaxStep then
+    begin
 
-            /// ресурсы (шанс на два вида)
-            Inventory.Clear;
-
-            lootCount := Random( Random( CurrLevel ) );
-            if lootCount > 0
-            then Inventory.SetItemCount( GetRandResName, lootCount );
-
-            lootCount := Random( Random( CurrLevel ) );
-            if lootCount > 0
-            then Inventory.SetItemCount( GetRandResName, lootCount );
-
-            lt := Inventory.Get;
+        // шанс на выпадение предмета
+        if Random(2) > 0
+        then _items := Format('{"%s":%d, "%s":%d}', [
+                items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2,
+                items[Random(Length(items))].name, 1
+            ])
+        else _items := Format('{"%s":%d}', [
+                items[I_GOLD].name, Random( CurrLevel*5 ) + CurrLevel*2
+            ]);
 
 
-            SetCreature(
-                Format('[BOSS] %s %s %s', [
-                    name1[Random(Length(name1))][CurrLang],
-                    name2[Random(Length(name2))][CurrLang],
-                    name3[Random(Length(name3))][CurrLang]
-                ]),
-                Format('HP=%d, ATK=%d, DEF=%d', [
-                    Random( CurrLevel*50 ) + CurrLevel*30,
-                    Random( CurrLevel*25 )  + CurrLevel*10,
-                    Random( CurrLevel*6 )
-                ]),
-                itm,
-                lt
-            );
-        end;
+        ///  боса падает до трех типов ресурсов
+        ///  но поскольку типы ресурсов случайны, они могут перезаписаться и дроп выйдет меньше
+        ///  выпавшего lootCount
+        tmp := SO();
+        lootCount := Random( 4 );
+        for I := 0 to lootCount do
+            tmp.I[ O_LOOT + '.' + GetRandResName] := Random( CurrLevel ) + 1;
 
 
-
+        SetCreature(
+            Format('[BOSS] %s %s %s', [
+                name1[Random(Length(name1))][CurrLang],
+                name2[Random(Length(name2))][CurrLang],
+                name3[Random(Length(name3))][CurrLang]
+            ]),
+            Format('{"HP":%d, "ATK":%d, "DEF":%d}', [
+                Random( CurrLevel*50 ) + CurrLevel*30,
+                Random( CurrLevel*25 )  + CurrLevel*10,
+                Random( CurrLevel*6 )
+            ]),
+            _items,
+            tmp.O[ O_LOOT ].AsJSon()
+        );
+    end;
 end;
 
 
@@ -743,8 +711,8 @@ var
     CurrLvl: integer;
     DEF: integer;
 begin
-    CurrLvl := Player.O['params.LVL'].AsInteger;
-    DEF := Player.O['params.DEF'].AsInteger;
+    CurrLvl := Player.O[ O_PARAMS + '.LVL' ].AsInteger;
+    DEF := Player.O[ O_PARAMS + '.DEF' ].AsInteger;
 
     ChangeParamValue( Player,  'HP', CurrLvl * 100);
     ChangeParamValue( Player,  'MP', CurrLvl * 20);
@@ -757,6 +725,27 @@ begin
 end;
 
 
+
+procedure TData.Loot(var target, source: ISuperObject; name: string);
+var
+    item: TSuperObjectIter;
+    count: integer;
+begin
+    if not assigned(Source.O[name]) then exit;
+
+    if ObjectFindFirst(source[name], item) then
+    repeat
+
+        if assigned (target.O[name + '.' + item.key])
+        then count := target.I[name + '.' + item.key]
+        else count := 0;
+
+        target.I[name + '.' + item.key] := count + item.val.AsInteger;
+        AddEvent(Format(phrases[PHRASE_GET_LOOT][CurrLang], [item.val.AsString, item.key]));
+
+    until not ObjectFindNext(item);
+    ObjectFindClose(item);
+end;
 
 procedure TData.PlayerAttack;
 // команда персонажу атаковать текущую цель
@@ -776,25 +765,28 @@ var
 begin
     result := '';
 
-    if Player.O['AutoBuffs'].AsArray.Length = 0 then exit;
+    if not Assigned(Player.O[ O_AUTOBUFFS ]) or
+       not Assigned(Player.A[ O_AUTOBUFFS ]) or
+       (Player.A[ O_AUTOBUFFS ].Length = 0 )
+    then exit;
 
     // считаем силу регена
     // базовый параметр
-    regen := Player.O['params.REG'].AsInteger;
+    regen := Player.O[ O_PARAMS + '.REG'].AsInteger;
 
     // бонусное значение
-    if   Assigned(Player.O['buffs.REG']) and (Player.O['buffs.REG'].AsInteger <> 0)
-    then regen := regen + Draw(Player.O['buffs.REG'], 1);
+    if   Assigned(Player.O[ O_BUFFS + '.REG']) and (Player.O[ O_BUFFS + '.REG' ].AsInteger <> 0)
+    then regen := regen + Draw(Player.O[ O_BUFFS ], 'REG', 1);
 
     ///
-    for item in Player.O['AutoBuffs'].AsObject do
+    for item in Player.O[ O_AUTOBUFFS ].AsObject do
     begin
         // списываем значение регена с автобафа, получаем фактически списанное число
-        count := Draw( Player.O['AutoBuffs.'+item.Name], regen );
+        count := Draw( Player.O[ O_AUTOBUFFS ], item.Name, regen );
 
         // в случае, когда реген отрицательный (эффект яда, например)
         // меняем знак регена, чтобы списать с игрока
-        if Player.O['AutoBuffs.'+item.Name].AsInteger < 0
+        if Player.O[ O_AUTOBUFFS + '.' + item.Name].AsInteger < 0
         then regen := -regen;
 
         /// если реген еще остался
@@ -894,19 +886,13 @@ begin
 
 end;
 
-procedure TData.RemoveEventScript(creature: TCreature; name, script: string);
-/// удаление из скрипта указанного куска
-begin
-    creature.Events := StringReplace( creature.Events, script, '', [] );
-end;
-
 procedure TData.CreatureAttack;
 // команда монстру атаковать игрока
 // выполняем скрипт OnAttack
 var
     scr: string; // текст скрипта
 begin
-//    scr := GetEventScript( Creature, 'OnAttack' );
+    scr := GetEventScript( Creature, 'OnAttack' );
     if scr <> '' then Script.Exec( scr );
 end;
 
@@ -922,23 +908,23 @@ var
     bustedBySword: integer;
 begin
 
-    ATKbuff := Draw( Player.O['buffs.ATK'], 1 );
+    ATKbuff := Draw( Player.O[ O_BUFFS ], 'ATK', 1 );
 
     PlayerATK   := Random( StrToIntDef(input, 0) + ATKbuff );
 
     /// применяем эффект Меча, но не выше максимальной атаки
-    bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), Player.O['params.ATK'].AsInteger);
+    bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), Player.I[ O_PARAMS + '.ATK' ]);
     PlayerATK   := Max(bustedBySword, PlayerATK);
 
-    CreatureHP  := Creature.O['params.HP'].AsInteger;
-    CreatureDEF := Creature.O['params.DEF'].AsInteger;
+    CreatureHP  := Creature.I[ O_PARAMS + '.HP'];
+    CreatureDEF := Creature.I[ O_PARAMS + '.DEF'];
 
     BLOCK := Round(PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
     DMG := PlayerATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     CreatureHP  := CreatureHP - DMG;
 
-    Creature.I['param.HP'] := CreatureHP;
+    Creature.I[ O_PARAMS + '.HP' ] := CreatureHP;
 
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
@@ -956,20 +942,20 @@ var
     ATKbuff: integer;
 begin
 
-    ATKbuff := Draw( Creature.O['buffs.ATK'], 1 );
+    ATKbuff := Draw( Creature.O[ O_BUFFS ], 'ATK',1 );
 
-    DEFbuff := Draw( Player.O['buffs.DEF'], 1 );
+    DEFbuff := Draw( Player.O[ O_BUFFS ], 'DEF', 1 );
 
     CreatureATK := Random( StrToIntDef(input, 0) + ATKbuff );
-    PlayerHP  := Player.O['param.HP'].AsInteger;
-    PlayerDEF  := Player.O['param.DEF'].AsInteger +  + DEFbuff;
+    PlayerHP  := Player.I[ O_PARAMS + '.HP'];
+    PlayerDEF  := Player.I[ O_PARAMS + '.DEF'] + DEFbuff;
 
     BLOCK := Round(CreatureATK * (( PlayerDEF/10 ) / 100));
     DMG := CreatureATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     PlayerHP  := PlayerHP - DMG;
 
-    Player.I['param.HP'] := PlayerHP;
+    Player.I[ O_PARAMS + '.HP'] := PlayerHP;
 
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
@@ -1019,45 +1005,16 @@ end;
 
 procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');
 begin
-    Creature.O['params'] := SO(params);
-    Creature.S['name'] := name;
-    Creature.O['items'] := SO(items);
-    Creature.O['loot'] := SO(loot);
-    Creature.O['events'] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
+    Creature.O[ O_PARAMS ] := SO(params);
+    Creature.S[ S_NAME ]   := name;
+    Creature.O[ O_ITEMS ]  := SO(items);
+    Creature.O[ O_LOOT ]   := SO(loot);
+    Creature.O[ O_EVENTS ] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
 end;
 
 procedure TData.SetCreatureScript(event, scr: string);
 begin
-    SetEventScript(Creature, event, scr);
-end;
-
-procedure TData.SetEventScript(creature: TCreature; name, script: string);
-var
-    pars: TStringList;
-begin
-    pars := TStringList.Create;
-    pars.CommaText := creature.Events;
-
-    pars.Values[name] := script;
-    creature.Events := pars.CommaText;
-
-    pars.Free;
-end;
-
-
-procedure TData.AddEventScript(creature: TCreature; name, script: string);
-var
-    pars: TStringList;
-begin
-    pars := TStringList.Create;
-    pars.CommaText := creature.Events;
-
-    /// поскольку на одно событие скрипт может собираться из различных источников (разовых временных и постоянных эффектов)
-    /// то новый скрипт дописываем к текущей строке
-    pars.Values[name] := pars.Values[name] + script;
-    creature.Events := pars.CommaText;
-
-    pars.Free;
+    Creature.O[ O_EVENTS ] := SO('{"'+event+'":"'+scr+'"}');
 end;
 
 procedure TData.AddFloorEvent(text: string);
@@ -1087,43 +1044,29 @@ begin
     then Inc(CurrTargetIndex);
 end;
 
-procedure TData.SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
+procedure TData.SetPlayer(name, params, skills, items, loot: string);
 begin
-    if not assigned(Player) then Player := TCreature.Create;
 
-    Player.params := params;
-    Player.Skills := skills;
-    Player.Name   := name;
-    Player.Items  := items;
-    Player.Loot   := loot;
-
-    SetEventScript(Player, 'OnAttack', 'DoDamageToCreature(GetPlayerAttr(ATK))')
 end;
 
 procedure TData.SetPlayerAutoBuff(name, count: variant);
 begin
-    Inventory.Fill(Player.AutoBuffs);
-    Inventory.ChangeItemCount(name, count);
-    Player.AutoBuffs := Inventory.Get;
+    Player.I[ O_AUTOBUFFS + '.' + name ] := Player.I[ O_AUTOBUFFS + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerBuff(name, count: variant);
 begin
-    Inventory.Fill(Player.Buffs);
-    Inventory.ChangeItemCount(name, count);
-    Player.Buffs := Inventory.Get;
+    Player.I[ O_BUFFS + '.' + name ] := Player.I[ O_BUFFS + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerRes(name, count: variant);
 begin
-    Inventory.Fill(Player.Loot);
-    Inventory.ChangeItemCount(name, count);
-    Player.Loot := Inventory.Get;
+    Player.I[ O_LOOT + '.' + name ] := Player.I[ O_LOOT + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerScript(event, scr: string);
 begin
-    SetEventScript(Player, event, scr);
+    Player.S[ O_EVENTS + '.' + event] := scr;
 end;
 
 procedure TData.SetVar(name, value: string);
@@ -1152,9 +1095,7 @@ begin
         if StrToIntDef( GetPlayerAttr('EXP'), 0) >= cost then
         begin
 
-            Inventory.Fill(Player.Skills);
-            Inventory.ChangeItemCount(name, 1);
-            Player.Skills := Inventory.Get;
+            Player.I[ O_SKILLS + '.' + name ] := Player.I[ O_SKILLS + '.' + name ] + 1;
 
             ChangePlayerParam('EXP', IntToStr(-cost));
 
@@ -1169,15 +1110,8 @@ var
     count: integer;
     i: integer;
 begin
-    /// берем инвентарь игрока
-    parser.CommaText := player.Items;
 
-    /// есть ли там искомый объект?
-    if pos(name, parser.CommaText) = 0 then exit;
-
-    /// есть ли хоть один, чтобы применить?
-    count := StrToIntDef(parser.Values[name], 0);
-    if count <= 0 then exit;
+    if not Assigned(Player.O[ O_ITEMS + '.' + name ]) or (Player.I[ O_ITEMS + '.' + name ] <= 0) then exit;
 
     /// применяем (выполняем прописанный скрипт эффекта)
     for I := 0 to High(items) do
@@ -1210,25 +1144,12 @@ begin
 end;
 
 procedure TData.ChangePlayerItemCount(name, delta: variant);
-var
-    curr: integer;
 begin
+    if not Assigned( Player.O[ O_ITEMS + '.' + name ]) or ( Player.I[ O_ITEMS + '.' + name ] <= 0 ) then exit;
 
-    /// списываем единицу из инвентаря
-    parser.CommaText := player.Items;
+    Player.I[ O_ITEMS + '.' + name ] := Player.I[ O_ITEMS + '.' + name ] + delta;
 
-    if parser.IndexOfName(name) <> -1 then
-    begin
-        curr := StrToInt(parser.Values[name]);
-        curr := curr + delta
-    end else
-        curr := delta;
-
-    /// если все кончилось - убираем упоминание из инвентаря
-    if (curr <= 0) and (parser.IndexOfName(name) <> -1) then parser.Delete( parser.IndexOfName(name) );
-    if (curr > 0) then parser.Values[name] := IntToStr(curr);
-
-    player.Items := parser.CommaText;
+    if Player.I[ O_ITEMS + '.' + name ] <= 0 then Player.Delete( O_ITEMS + '.' + name);
 end;
 
 
@@ -1244,16 +1165,14 @@ var
     exp : integer;
     need: integer;
 begin
-    exp := StrToIntDef( GetParamValue( Player, 'EXP' ), 1);
-    need := StrToIntDef( NeedExp(GetParamValue( Player, 'LVL' )), 99999);
+    exp := Player.I[ O_PARAMS + '.EXP' ];
+    need := StrToInt(NeedExp( Player.I[ O_PARAMS + '.LVL' ] ));
     result := ifthen( exp >= need, '!', '');
 end;
 
 procedure TData.AllowMode(name, value: variant);
 begin
-    Inventory.Fill( AllowModes );
-    Inventory.SetItemCount( name, value );
-    AllowModes := Inventory.Get;
+    AllowModes.I[name] := value;
 end;
 
 procedure TData.AllowTool(name: string);
@@ -1307,7 +1226,7 @@ function TData.ChangeParamValue(creature: ISuperObject; param: string; delta: in
 var
     val: integer;
 begin
-    val := creature.O['params.'+param].AsInteger;
+    val := creature.O[ O_PARAMS + '.' + param ].AsInteger;
     val := val + delta;
 
     /// возвращаем величену фактического изменения
@@ -1315,7 +1234,7 @@ begin
     then result := IntToStr(delta + val)
     else result := IntToStr(delta);
 
-    creature.O['params.'+param].AsInteger := val;
+    creature.I[ O_PARAMS + '.' + param ] := val;
 end;
 
 
@@ -1333,11 +1252,9 @@ var
 begin
 
     // проверка состояния игрока
-    HP := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
-
-    if HP <= 0 then
+    if Player.I[ O_PARAMS + '.HP' ] <= 0 then
     begin
-        AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creature.Name +'!');
+        AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creature.S[ S_NAME ] +'!');
 
         // возвращаемся на первый уровень
         CurrentLevel(1);
@@ -1345,40 +1262,33 @@ begin
         InitCreatures();
 
         // лечим игрока
-        playerLVL := StrToInt(GetParamValue( Player, 'LVL'));
-        SetParamValue(Player, 'HP', IntToStr(playerLVL * 100 + StrToIntDef(Variables[LIFEAMULET_LVL],0) * 100));
+        HP := Player.I[ O_PARAMS + '.LVL' ] * 100 + StrToIntDef(Variables[LIFEAMULET_LVL],0) * 100;
+        Player.I[ O_PARAMS + '.HP' ] := HP;
         /// включая эффект амулета жизни
         exit;
     end;
 
     // проверка состояния текущего монстра
-    HP := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
-
-    if HP <= 0 then
+    if Creature.I[ O_PARAMS + '.HP' ] <= 0 then
     begin
 
         // выполняем посмертный скрипт
         Script.Exec( GetEventScript(Creature, 'OnDeath') );
 
         // игрок получает опыт
-        Inventory.Fill( Player.Buffs );
-        EXPbuff := Inventory.Draw( 'EXP', 1 );
-        Player.Buffs := Inventory.Get;
+        // смотрим, есть ли бафф на опыт
+        EXPbuff := Draw( Player.O[ O_BUFFS ], 'EXP', 1 );
 
         ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
 
         if EXPbuff = 0
-        then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.Name, IntToStr(CurrLevel)]))
-        else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.Name, IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
+        then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME], IntToStr(CurrLevel)]))
+        else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME], IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
 
         // игрок получает предметы и лут
-        Inventory.Fill( Player.Items );
-        Inventory.Loot( Creature.Items );
-        Player.Items := Inventory.Get;
+        Loot(Player, Creature, O_ITEMS);
 
-        Inventory.Fill( Player.Loot );
-        Inventory.Loot( Creature.Loot );
-        Player.Loot := Inventory.Get;
+        Loot(Player, Creature, O_LOOT);
 
         // проверяем на возможность левелапа
         if   AllowLevelUp <> ''
@@ -1467,7 +1377,7 @@ begin
 
 end;
 
-function TData.Draw(obj: ISuperObject; count: variant): integer;
+function TData.Draw(obj: ISuperObject; name: string; count: variant): integer;
 begin
     result := 0;
     if not Assigned(obj) then exit;
@@ -1475,10 +1385,10 @@ begin
     result := obj.AsInteger;
 
     if obj.AsInteger < 0 then
-    obj.AsInteger := obj.AsInteger + count;
+    obj.I[name] := obj.I[name] + count;
 
     if obj.AsInteger > 0 then
-    obj.AsInteger := obj.AsInteger - count;
+    obj.I[name] := obj.I[name] - count;
 end;
 
 
@@ -1488,7 +1398,6 @@ begin
    inherited;
    CurrStep := 1;
    CurrLevel := -1;
-   Creature := TCreature.Create;
    Script := TScriptDrive.Create;
    parser := TStringList.Create;
    Variables := TDictionary<String,String>.Create();
@@ -1497,6 +1406,8 @@ begin
    CurrLang := 1;
 
    Player := SO();
+   Creature := SO();
+   AllowModes := SO();
 end;
 
 destructor TData.Destroy;
@@ -1504,105 +1415,18 @@ begin
     Variables.Free;
     parser.Free;
     Script.Free;
-    Creature.Free;
     inherited;
 end;
 
 
 
-
-{ TInventary }
-
-procedure TInventory.ChangeItemCount(name: string; count: integer);
-var
-    has: integer;
-begin
-
-    // если такой предмет уже есть, получаем текущее количество
-    if Pos(name, items.CommaText) > 0
-    then has := StrToIntDef(items.Values[name], 0)
-    else has := 0;
-
-//    has := Max( 0, has + count ); // применяем изменение, но результат не ниже ноля
-    has := has + count;
-    items.Values[name] := IntToStr(has);
-
-end;
-
-function TInventory.Get: string;
-begin
-    result := items.CommaText;
-end;
-
-function TInventory.GetItemCount(name: string): integer;
-begin
-    result := 0;
-
-    // если предмет есть в инвентаре
-    if   Pos(name, items.CommaText) > 0
-    then result := StrToIntDef(items.Values[name], 0);
-end;
-
-procedure TInventory.Loot(lootInv: string);
-// добавление в текущий установленный инвентарь все, что есть в lootInv инвентаре
-var
-    loot: TStringList;
-    i: integer;
-begin
-    if Trim(lootInv) = '' then exit;
-
-    loot := TStringList.Create;
-    loot.CommaText := lootInv;
-
-    for I := 0 to loot.Count-1 do
-    begin
-        ChangeItemCount( loot.Names[i], StrToInt( loot.Values[ loot.Names[i] ]) );
-        Data.AddEvent(Format(phrases[PHRASE_GET_LOOT][Data.CurrLang],[loot.Values[ loot.Names[i] ], loot.Names[i]]))
-    end;
-
-    loot.Free;
-end;
-
-procedure TInventory.RemoveItem(name: string);
-begin
-    items.Values[name] := '0';
-end;
-
-procedure TInventory.Clear;
-begin
-    items.CommaText := '';
-end;
-
-procedure TInventory.Fill(inv: string);
-begin
-    items.CommaText := inv;
-end;
-
-procedure TInventory.SetItemCount(name: string; count: integer);
-begin
-    items.Values[name] := IntToStr(count);
-end;
-
-constructor TInventory.Create;
-begin
-    inherited;
-    items := TStringList.Create;
-end;
-
-destructor TInventory.Destroy;
-begin
-    items.Free;
-    inherited;
-end;
 
 
 initialization
    Data := TData.Create;
-   Inventory := TInventory.Create;
 
 
 finalization
    Data.Free;
-   Inventory.Free;
 
 end.
