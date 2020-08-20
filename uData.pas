@@ -11,7 +11,7 @@ type
     TData = class
     private
         Player : ISuperObject;
-        Creature: TCreature;
+        Creature: ISuperObject;
         Variables: TDictionary<String,String>;
 
         CurrLevel: integer;        // текущий проходимый уровень
@@ -166,18 +166,17 @@ type
         function NeedToolUpgrade(capt: string): string;
 
         function GetAutoSpeed: string;
+        function Draw(obj: ISuperObject; count: variant): integer;
 
     private
         parser: TStringList;
         Script : TScriptDrive;
 
-        function GetParamValue(creature: TCreature; param: string): string;
-        procedure SetParamValue(creature: TCreature; param, value: string);
-        function ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
+        function ChangeParamValue(creature: ISuperObject; param: string; delta: integer): string;
 
         procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
 
-        function GetEventScript(creature: TCreature; name: string): string;
+        function GetEventScript(creature: ISuperObject; name: string): string;
         procedure SetEventScript(creature: TCreature; name, script: string);
         procedure AddEventScript(creature: TCreature; name, script: string);
         procedure RemoveEventScript(creature: TCreature; name, script: string);
@@ -196,8 +195,6 @@ type
         procedure Fill(inv: string);
         procedure Clear;
         function Get: string;
-        function Draw(name, count: variant): integer;
-        /// возвращает текущее значение указанного элемента и списывает с него count
 
         procedure SetItemCount(name: string; count: integer);
         // задает указанное количество пердметов в инвентаре
@@ -265,6 +262,7 @@ begin
     Player.O['buffs'] := SO();
     Player.O['autoBuffs'] := SO();
     Player.O['loot'] := SO();
+    Player.O['events'] := SO('{"OnAttack":"DoDamageToCreature(GetPlayerAttr(ATK));"}');
 
 end;
 
@@ -321,7 +319,7 @@ end;
 
 function TData.GetCurrCreatureInfo: string;
 begin
-    result := Creature.Name + ': ' + Creature.Params;
+    result := Creature['name'].AsString + ': ' + Creature['params'].AsString;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -340,18 +338,12 @@ begin
     EventText := '';
 end;
 
-function TData.GetEventScript(creature: TCreature; name: string): string;
-var
-    pars: TStringList;
+function TData.GetEventScript(creature: ISuperObject; name: string): string;
 begin
     result := '';
 
-    pars := TStringList.Create;
-    pars.CommaText := creature.Events;
-    if pars.IndexOfName(name) <> -1 then
-        result := pars.Values[name];
-
-    pars.Free;
+    if Assigned(creature.O['events.'+name])
+    then result := creature.O['events.'+name].AsString;
 end;
 
 function TData.GetFloorEvents: string;
@@ -454,7 +446,7 @@ end;
 
 function TData.GetMonsterAttr(name: string): string;
 begin
-    result := GeAttr(Creature, name);
+    result := Creature.O['params.'+name].AsString;
 end;
 
 function TData.GetPlayerItems: string;
@@ -779,50 +771,44 @@ end;
 
 function TData.ProcessAuto: string;
 var
-    i, count, regen : integer;
-    prs: TStringList;
+    count, regen : integer;
+    item : TSuperAvlEntry;
 begin
     result := '';
 
     if Player.O['AutoBuffs'].AsArray.Length = 0 then exit;
-
 
     // считаем силу регена
     // базовый параметр
     regen := Player.O['params.REG'].AsInteger;
 
     // бонусное значение
-    if Assigned(Player.O['buffs.REG']) and Player.O['buffs.REG'].AsInteger <> 0 then
+    if   Assigned(Player.O['buffs.REG']) and (Player.O['buffs.REG'].AsInteger <> 0)
+    then regen := regen + Draw(Player.O['buffs.REG'], 1);
+
+    ///
+    for item in Player.O['AutoBuffs'].AsObject do
     begin
-        regen := regen + Inventory.Draw('REG', 1);
-        Player.Buffs := Inventory.Get;
-    end;
+        // списываем значение регена с автобафа, получаем фактически списанное число
+        count := Draw( Player.O['AutoBuffs.'+item.Name], regen );
 
-    /// берем запасы регенерируемых параметров
-    Inventory.Fill( Player.AutoBuffs );
-
-    for I := 0 to prs.Count-1 do
-    begin
-
-        count := Inventory.Draw( prs.Names[i], regen );
-
-        if StrToInt((prs.Values[prs.Names[i]]))  < 0
+        // в случае, когда реген отрицательный (эффект яда, например)
+        // меняем знак регена, чтобы списать с игрока
+        if Player.O['AutoBuffs.'+item.Name].AsInteger < 0
         then regen := -regen;
 
+        /// если реген еще остался
         if count <> 0 then
         begin
-            ChangeParamValue( Player, prs.Names[i], regen );
+            // меняем параметр игрока и делаем отметку, что изменения есть
+            ChangeParamValue( Player, item.Name, regen );
             result := '+';
         end;
     end;
 
-    Player.AutoBuffs := Inventory.Get;
-
-
+    ///  если были изменения, проверяем статус игры. например, игрок мог потерять все здоровье
+    ///  и это нужно обыграть
     if result <> '' then CheckStatus;
-
-
-    prs.Free;
 end;
 
 
@@ -920,7 +906,7 @@ procedure TData.CreatureAttack;
 var
     scr: string; // текст скрипта
 begin
-    scr := GetEventScript( Creature, 'OnAttack' );
+//    scr := GetEventScript( Creature, 'OnAttack' );
     if scr <> '' then Script.Exec( scr );
 end;
 
@@ -936,25 +922,24 @@ var
     bustedBySword: integer;
 begin
 
-    Inventory.Fill( Player.Buffs );
-    ATKbuff := Inventory.Draw( 'ATK', 1 );
-    Player.Buffs := Inventory.Get;
+    ATKbuff := Draw( Player.O['buffs.ATK'], 1 );
 
     PlayerATK   := Random( StrToIntDef(input, 0) + ATKbuff );
 
     /// применяем эффект Меча, но не выше максимальной атаки
-    bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), StrToInt(GetParamValue( Player, 'ATK')));
+    bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), Player.O['params.ATK'].AsInteger);
     PlayerATK   := Max(bustedBySword, PlayerATK);
 
-    CreatureHP  := StrToIntDef( GetParamValue( Creature, 'HP'), 0 );
-    CreatureDEF := StrToIntDef( GetParamValue( Creature, 'DEF'), 0 );
+    CreatureHP  := Creature.O['params.HP'].AsInteger;
+    CreatureDEF := Creature.O['params.DEF'].AsInteger;
 
     BLOCK := Round(PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
     DMG := PlayerATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     CreatureHP  := CreatureHP - DMG;
 
-    SetParamValue( Creature, 'HP', IntToStr(CreatureHP) );
+    Creature.I['param.HP'] := CreatureHP;
+
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
     else AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]))
@@ -971,24 +956,20 @@ var
     ATKbuff: integer;
 begin
 
-    Inventory.Fill( Creature.Buffs );
-    ATKbuff := Inventory.Draw( 'ATK', 1 );
-    Creature.Buffs := Inventory.Get;
+    ATKbuff := Draw( Creature.O['buffs.ATK'], 1 );
 
-    Inventory.Fill( Player.Buffs );
-    DEFbuff := Inventory.Draw( 'DEF', 1 );
-    Player.Buffs := Inventory.Get;
+    DEFbuff := Draw( Player.O['buffs.DEF'], 1 );
 
     CreatureATK := Random( StrToIntDef(input, 0) + ATKbuff );
-    PlayerHP  := StrToIntDef( GetParamValue( Player, 'HP'), 0 );
-    PlayerDEF := StrToIntDef( GetParamValue( Player, 'DEF'), 0 ) + DEFbuff;
+    PlayerHP  := Player.O['param.HP'].AsInteger;
+    PlayerDEF  := Player.O['param.DEF'].AsInteger +  + DEFbuff;
 
     BLOCK := Round(CreatureATK * (( PlayerDEF/10 ) / 100));
     DMG := CreatureATK - BLOCK;  // 1 DEF = -0.1% dmg
 
     PlayerHP  := PlayerHP - DMG;
 
-    SetParamValue( Player, 'HP', IntToStr(PlayerHP) );
+    Player.I['param.HP'] := PlayerHP;
 
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
@@ -1038,13 +1019,11 @@ end;
 
 procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');
 begin
-    Creature.Params := params;
-    Creature.Name   := name;
-    Creature.Items  := items;
-    Creature.Loot   := loot;
-
-    Creature.Events := '';
-    SetEventScript( Creature, 'OnAttack', 'DoDamageToPlayer(GetMonsterAttr(ATK));');
+    Creature.O['params'] := SO(params);
+    Creature.S['name'] := name;
+    Creature.O['items'] := SO(items);
+    Creature.O['loot'] := SO(loot);
+    Creature.O['events'] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
 end;
 
 procedure TData.SetCreatureScript(event, scr: string);
@@ -1252,18 +1231,6 @@ begin
     player.Items := parser.CommaText;
 end;
 
-function TData.GetParamValue(creature: TCreature; param: string): string;
-begin
-    parser.CommaText := creature.Params;
-    result := parser.Values[param];
-end;
-
-procedure TData.SetParamValue(creature: TCreature; param, value: string);
-begin
-    parser.CommaText := creature.Params;
-    parser.Values[param] := value;
-    creature.Params := parser.CommaText;
-end;
 
 procedure TData.AddEvent(text: string);
 /// при добавлении события свежее добавляется в начало для корректного
@@ -1336,12 +1303,11 @@ begin
     result := ChangeParamValue(Creature, name, delta);
 end;
 
-function TData.ChangeParamValue(creature: TCreature; param: string; delta: integer): string;
+function TData.ChangeParamValue(creature: ISuperObject; param: string; delta: integer): string;
 var
     val: integer;
 begin
-    parser.CommaText := creature.Params;
-    val := StrToIntDef(parser.Values[param], 0);
+    val := creature.O['params.'+param].AsInteger;
     val := val + delta;
 
     /// возвращаем величену фактического изменения
@@ -1349,8 +1315,7 @@ begin
     then result := IntToStr(delta + val)
     else result := IntToStr(delta);
 
-    parser.Values[param] := IntToStr(val);
-    creature.Params := parser.CommaText;
+    creature.O['params.'+param].AsInteger := val;
 end;
 
 
@@ -1502,6 +1467,21 @@ begin
 
 end;
 
+function TData.Draw(obj: ISuperObject; count: variant): integer;
+begin
+    result := 0;
+    if not Assigned(obj) then exit;
+
+    result := obj.AsInteger;
+
+    if obj.AsInteger < 0 then
+    obj.AsInteger := obj.AsInteger + count;
+
+    if obj.AsInteger > 0 then
+    obj.AsInteger := obj.AsInteger - count;
+end;
+
+
 
 constructor TData.Create;
 begin
@@ -1615,23 +1595,6 @@ begin
     inherited;
 end;
 
-function TInventory.Draw(name, count: variant): integer;
-begin
-    result := 0;
-    if items.IndexOfName(name) = -1 then exit;
-
-    result := StrToIntDef( items.Values[name], 0 );
-
-    if result < 0 then
-    if (result + count) = 0
-    then items.Delete( items.IndexOfName(name) )
-    else items.Values[name] := IntToStr(result + count);
-
-    if result > 0 then
-    if (result - count) = 0
-    then items.Delete( items.IndexOfName(name) )
-    else items.Values[name] := IntToStr(result - count);
-end;
 
 initialization
    Data := TData.Create;

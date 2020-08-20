@@ -22,16 +22,12 @@ object Form3: TForm3
     Top = 49
     Width = 669
     Height = 354
-    ActivePage = pCraft
+    ActivePage = pTower
     Align = alClient
     TabOrder = 0
     OnChange = pcGameChange
     object pTower: TTabSheet
       Caption = 'Tower'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         661
         326)
