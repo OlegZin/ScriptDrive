@@ -98,10 +98,6 @@ object Form3: TForm3
     object pThink: TTabSheet
       Caption = 'Think'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         661
         326)
@@ -182,10 +178,6 @@ object Form3: TForm3
     object pTools: TTabSheet
       Caption = 'Tools'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lToolName: TLabel
         Left = 216
         Top = 20
@@ -249,10 +241,6 @@ object Form3: TForm3
     object pCraft: TTabSheet
       Caption = 'Craft'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lbLoot: TListBox
         Left = 0
         Top = 0
@@ -280,10 +268,6 @@ object Form3: TForm3
           TabOrder = 0
           object pPotionsResearch: TTabSheet
             Caption = 'Potions Research'
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object Label1: TLabel
               Left = 36
               Top = 54
@@ -504,10 +488,6 @@ object Form3: TForm3
           object pResourceResearch: TTabSheet
             Caption = 'Resource Research'
             ImageIndex = 1
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object Label10: TLabel
               Left = 36
               Top = 54
@@ -784,7 +764,7 @@ object Form3: TForm3
     end
   end
   object tAutoAttack: TTimer
-    Interval = 500
+    Interval = 100
     OnTimer = tAutoAttackTimer
     Left = 536
     Top = 144

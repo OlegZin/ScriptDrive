@@ -177,15 +177,13 @@ type
         function NeedToolUpgrade(capt: string): string;
 
         function GetAutoSpeed: string;
-        function Draw(obj: ISuperObject; name: string; count: variant): integer;
+        function Draw(var obj: ISuperObject; name: string; count: variant): integer;
 
     private
         parser: TStringList;
         Script : TScriptDrive;
 
         function ChangeParamValue(creature: ISuperObject; param: string; delta: integer): string;
-
-        procedure SetPlayer(name, params, skills: string; items: string = ''; loot: string = '');
 
         function GetEventScript(creature: ISuperObject; name: string): string;
 
@@ -211,7 +209,7 @@ begin
     Script.Exec('SetVar('+AXE_LVL+       ', 1);');
     Script.Exec('SetVar('+KEY_LVL+       ', 1);');
     Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
-    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
+    Script.Exec('SetVar('+TIMESAND_LVL+  ', 40);');
     Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
     Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
 
@@ -379,9 +377,10 @@ var
 begin
     resultList := '';
 
-    tmp := Player.O[ O_PARAMS ];
+    tmp := Player.O[ O_PARAMS ].Clone;
 
     for item in Player.O[ O_BUFFS ].AsObject do
+    if item.Value.AsInteger <> 0 then
         tmp.S[item.Name] := tmp.S[item.Name] + '[' + item.Value.AsString + ']';
 
     result := tmp.AsJSon();
@@ -761,14 +760,12 @@ end;
 function TData.ProcessAuto: string;
 var
     count, regen : integer;
-    item : TSuperAvlEntry;
+//    item : TSuperAvlEntry;
+    item: TSuperObjectIter;
 begin
     result := '';
 
-    if not Assigned(Player.O[ O_AUTOBUFFS ]) or
-       not Assigned(Player.A[ O_AUTOBUFFS ]) or
-       (Player.A[ O_AUTOBUFFS ].Length = 0 )
-    then exit;
+    if not Assigned(Player.O[ O_AUTOBUFFS ]) then exit;
 
     // считаем силу регена
     // базовый параметр
@@ -776,27 +773,30 @@ begin
 
     // бонусное значение
     if   Assigned(Player.O[ O_BUFFS + '.REG']) and (Player.O[ O_BUFFS + '.REG' ].AsInteger <> 0)
-    then regen := regen + Draw(Player.O[ O_BUFFS ], 'REG', 1);
+    then regen := regen + Draw(Player, O_BUFFS + '.REG', 1);
 
-    ///
-    for item in Player.O[ O_AUTOBUFFS ].AsObject do
-    begin
+    if ObjectFindFirst(Player.O[ O_AUTOBUFFS ], item) then
+    repeat
+
         // списываем значение регена с автобафа, получаем фактически списанное число
-        count := Draw( Player.O[ O_AUTOBUFFS ], item.Name, regen );
+        count := Draw( Player , O_AUTOBUFFS+'.'+item.key, regen );
 
         // в случае, когда реген отрицательный (эффект яда, например)
         // меняем знак регена, чтобы списать с игрока
-        if Player.O[ O_AUTOBUFFS + '.' + item.Name].AsInteger < 0
+        if Player.O[ O_AUTOBUFFS + '.' + item.key].AsInteger < 0
         then regen := -regen;
 
         /// если реген еще остался
         if count <> 0 then
         begin
             // меняем параметр игрока и делаем отметку, что изменения есть
-            ChangeParamValue( Player, item.Name, regen );
+            ChangeParamValue( Player, item.key, regen );
             result := '+';
         end;
-    end;
+
+    until not ObjectFindNext(item);
+    ObjectFindClose(item);
+
 
     ///  если были изменения, проверяем статус игры. например, игрок мог потерять все здоровье
     ///  и это нужно обыграть
@@ -908,7 +908,7 @@ var
     bustedBySword: integer;
 begin
 
-    ATKbuff := Draw( Player.O[ O_BUFFS ], 'ATK', 1 );
+    ATKbuff := Draw( Player, O_BUFFS + '.ATK', 1 );
 
     PlayerATK   := Random( StrToIntDef(input, 0) + ATKbuff );
 
@@ -942,9 +942,9 @@ var
     ATKbuff: integer;
 begin
 
-    ATKbuff := Draw( Creature.O[ O_BUFFS ], 'ATK',1 );
+    ATKbuff := Draw( Creature, O_BUFFS+'.ATK',1 );
 
-    DEFbuff := Draw( Player.O[ O_BUFFS ], 'DEF', 1 );
+    DEFbuff := Draw( Player, O_BUFFS+'.DEF', 1 );
 
     CreatureATK := Random( StrToIntDef(input, 0) + ATKbuff );
     PlayerHP  := Player.I[ O_PARAMS + '.HP'];
@@ -1044,11 +1044,6 @@ begin
     then Inc(CurrTargetIndex);
 end;
 
-procedure TData.SetPlayer(name, params, skills, items, loot: string);
-begin
-
-end;
-
 procedure TData.SetPlayerAutoBuff(name, count: variant);
 begin
     Player.I[ O_AUTOBUFFS + '.' + name ] := Player.I[ O_AUTOBUFFS + '.' + name ] + count;
@@ -1145,7 +1140,7 @@ end;
 
 procedure TData.ChangePlayerItemCount(name, delta: variant);
 begin
-    if not Assigned( Player.O[ O_ITEMS + '.' + name ]) or ( Player.I[ O_ITEMS + '.' + name ] <= 0 ) then exit;
+//    if not Assigned( Player.O[ O_ITEMS + '.' + name ]) or ( Player.I[ O_ITEMS + '.' + name ] <= 0 ) then exit;
 
     Player.I[ O_ITEMS + '.' + name ] := Player.I[ O_ITEMS + '.' + name ] + delta;
 
@@ -1226,7 +1221,10 @@ function TData.ChangeParamValue(creature: ISuperObject; param: string; delta: in
 var
     val: integer;
 begin
-    val := creature.O[ O_PARAMS + '.' + param ].AsInteger;
+    if Assigned(creature.O[ O_PARAMS + '.' + param ])
+    then val := creature.O[ O_PARAMS + '.' + param ].AsInteger
+    else val := 0;
+
     val := val + delta;
 
     /// возвращаем величену фактического изменения
@@ -1277,7 +1275,7 @@ begin
 
         // игрок получает опыт
         // смотрим, есть ли бафф на опыт
-        EXPbuff := Draw( Player.O[ O_BUFFS ], 'EXP', 1 );
+        EXPbuff := Draw( Player, O_BUFFS+'.EXP', 1 );
 
         ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
 
@@ -1377,17 +1375,17 @@ begin
 
 end;
 
-function TData.Draw(obj: ISuperObject; name: string; count: variant): integer;
+function TData.Draw(var obj: ISuperObject; name: string; count: variant): integer;
 begin
     result := 0;
-    if not Assigned(obj) then exit;
+    if not Assigned(obj.O[name]) then exit;
 
-    result := obj.AsInteger;
+    result := obj.I[name];
 
-    if obj.AsInteger < 0 then
+    if obj.I[name] < 0 then
     obj.I[name] := obj.I[name] + count;
 
-    if obj.AsInteger > 0 then
+    if obj.I[name] > 0 then
     obj.I[name] := obj.I[name] - count;
 end;
 

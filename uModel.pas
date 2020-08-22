@@ -594,14 +594,15 @@ begin
     if CurrLang = 'RU' then
         lNeedExp.Caption := 'Ур.: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
 
-    // текущие наложенные бафы
-    if CurrLang = 'ENG' then lBuffs.Caption := 'Regen: ';
-    if CurrLang = 'RU' then lBuffs.Caption := 'Реген.: ';
 
     lBuffs.Caption := '';
     sobj := SO( Script.Exec('GetPlayerBuffs()') );
     for item in sobj.AsObject do
+    if item.Value.AsInteger <> 0 then
         lBuffs.Caption := lBuffs.Caption + item.Name + ': ' + item.Value.AsString;
+    // текущие наложенные бафы
+    if (lBuffs.Caption <> '') and (CurrLang = 'ENG') then lBuffs.Caption := 'Regen: ' + lBuffs.Caption;
+    if (lBuffs.Caption <> '') and (CurrLang = 'RU') then lBuffs.Caption := 'Реген.: ' + lBuffs.Caption;
 
 
     // список предметов
