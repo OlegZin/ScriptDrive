@@ -21,9 +21,19 @@ type
 
     TData = class
     private
-        Player : ISuperObject;
-        Creature: ISuperObject;
+//        Player : ISuperObject;
+//        Creature: ISuperObject;
+
+        Target: ISuperObject;
+            // текущая выбранная цель. используется для
+            // методов, которые не применяются к конкретному объекту.
+            // что позволит сократить набор методов для скриптов
+
         Variables: TDictionary<String,String>;
+            // набор глобальных переменных для скриптов
+
+        Objects: TDictionary<String,ISuperObject>;
+            //
 
         CurrLevel: integer;        // текущий проходимый уровень
         CurrStep: integer;        // текущий проходимый шаг на уровень
@@ -222,10 +232,12 @@ procedure TData.InitPlayer;
 var
     i: integer;
     skl : ISuperObject;
+    Player: ISuperObject;
 begin
 
     /// имена скилов берем из массива, поскольку, изначалоно все они у игрока есть
     skl := SO();
+    Player := SO();
 
     for I := 0 to High(skills) do
           skl.I[skills[i].name] := 0;
@@ -237,6 +249,9 @@ begin
     Player.O[O_AUTOBUFFS] := SO();
     Player.O[O_LOOT]      := SO();
     Player.O[O_EVENTS]    := SO('{"OnAttack":"DoDamageToCreature(GetPlayerAttr(ATK));"}');
+
+    Objects.Add('Player', Player);
+    Player := nil;
 
 end;
 
@@ -293,7 +308,7 @@ end;
 
 function TData.GetCurrCreatureInfo: string;
 begin
-    result := Creature[S_NAME].AsString + ': ' + Creature[O_PARAMS].AsString;
+    result := Objects['Creature'][S_NAME].AsString + ': ' + Objects['Creature'][O_PARAMS].AsString;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -361,12 +376,12 @@ end;
 
 function TData.GetPlayerAttr(name: string): string;
 begin
-    result := Player.O[ O_PARAMS + '.' + name ].AsString;
+    result := Objects['Player'].O[ O_PARAMS + '.' + name ].AsString;
 end;
 
 function TData.GetPlayerBuffs: string;
 begin
-    result := Player.O[ O_AUTOBUFFS ].AsString;
+    result := Objects['Player'].O[ O_AUTOBUFFS ].AsString;
 end;
 
 function TData.GetPlayerInfo: string;
@@ -377,9 +392,9 @@ var
 begin
     resultList := '';
 
-    tmp := Player.O[ O_PARAMS ].Clone;
+    tmp := Objects['Player'].O[ O_PARAMS ].Clone;
 
-    for item in Player.O[ O_BUFFS ].AsObject do
+    for item in Objects['Player'].O[ O_BUFFS ].AsObject do
     if item.Value.AsInteger <> 0 then
         tmp.S[item.Name] := tmp.S[item.Name] + '[' + item.Value.AsString + ']';
 
@@ -388,7 +403,7 @@ end;
 
 function TData.GetPlayerItemCount(name: variant): string;
 begin
-    result := Player.O[ O_ITEMS + '.' + name].AsString;
+    result := Objects['Player'].O[ O_ITEMS + '.' + name].AsString;
 end;
 
 function TData.GetInLang(text: string; lang: string = ''): string;
@@ -421,22 +436,22 @@ end;
 
 function TData.GetMonsterAttr(name: string): string;
 begin
-    result := Creature.O[ O_PARAMS + '.' + name].AsString;
+    result := Objects['Creature'].O[ O_PARAMS + '.' + name].AsString;
 end;
 
 function TData.GetPlayerItems: string;
 begin
-    result := Player.O[ O_ITEMS ].AsJSon();
+    result := Objects['Player'].O[ O_ITEMS ].AsJSon();
 end;
 
 function TData.GetPlayerLoot: string;
 begin
-    result := Player.O[ O_LOOT ].AsJSon();
+    result := Objects['Player'].O[ O_LOOT ].AsJSon();
 end;
 
 function TData.GetPlayerSkills: string;
 begin
-    result := Player.O[ O_SKILLS ].AsJSon();
+    result := Objects['Player'].O[ O_SKILLS ].AsJSon();
 end;
 
 function TData.GetRandItemName: string;
@@ -482,7 +497,7 @@ end;
 
 function TData.GetSkillLvl(name: string): string;
 begin
-    result := Player.O[ O_SKILLS + '.' + name].AsString;
+    result := Objects['Player'].O[ O_SKILLS + '.' + name].AsString;
 end;
 
 function TData.GetThinkEvents: string;
@@ -710,15 +725,15 @@ var
     CurrLvl: integer;
     DEF: integer;
 begin
-    CurrLvl := Player.O[ O_PARAMS + '.LVL' ].AsInteger;
-    DEF := Player.O[ O_PARAMS + '.DEF' ].AsInteger;
+    CurrLvl := Objects['Player'].O[ O_PARAMS + '.LVL' ].AsInteger;
+    DEF := Objects['Player'].O[ O_PARAMS + '.DEF' ].AsInteger;
 
-    ChangeParamValue( Player,  'HP', CurrLvl * 100);
-    ChangeParamValue( Player,  'MP', CurrLvl * 20);
-    ChangeParamValue( Player, 'ATK', CurrLvl );
-    ChangeParamValue( Player, 'DEF', 1 );
-    ChangeParamValue( Player, 'EXP', -StrToIntDef( NeedExp(CurrLvl), 0));
-    ChangeParamValue( Player, 'LVL', 1);
+    ChangeParamValue( Objects['Player'],  'HP', CurrLvl * 100);
+    ChangeParamValue( Objects['Player'],  'MP', CurrLvl * 20);
+    ChangeParamValue( Objects['Player'], 'ATK', CurrLvl );
+    ChangeParamValue( Objects['Player'], 'DEF', 1 );
+    ChangeParamValue( Objects['Player'], 'EXP', -StrToIntDef( NeedExp(CurrLvl), 0));
+    ChangeParamValue( Objects['Player'], 'LVL', 1);
 
     AddEvent(phrases[PHRASE_LEVEL_UP][CurrLang]);
 end;
@@ -752,7 +767,7 @@ procedure TData.PlayerAttack;
 var
     scr: string; // текст скрипта
 begin
-    scr := GetEventScript( Player, 'OnAttack' );
+    scr := GetEventScript( Objects['Player'], 'OnAttack' );
     if scr <> '' then
         Script.Exec( scr );
 end;
@@ -762,8 +777,11 @@ var
     count, regen : integer;
 //    item : TSuperAvlEntry;
     item: TSuperObjectIter;
+    Player: ISuperObject;
 begin
     result := '';
+
+    Player := Objects['Player'];
 
     if not Assigned(Player.O[ O_AUTOBUFFS ]) then exit;
 
@@ -779,7 +797,7 @@ begin
     repeat
 
         // списываем значение регена с автобафа, получаем фактически списанное число
-        count := Draw( Player , O_AUTOBUFFS+'.'+item.key, regen );
+        count := Draw( Player, O_AUTOBUFFS+'.'+item.key, regen );
 
         // в случае, когда реген отрицательный (эффект яда, например)
         // меняем знак регена, чтобы списать с игрока
@@ -797,6 +815,8 @@ begin
     until not ObjectFindNext(item);
     ObjectFindClose(item);
 
+    Objects['Player'] := Player;
+    Player := nil;
 
     ///  если были изменения, проверяем статус игры. например, игрок мог потерять все здоровье
     ///  и это нужно обыграть
@@ -892,7 +912,7 @@ procedure TData.CreatureAttack;
 var
     scr: string; // текст скрипта
 begin
-    scr := GetEventScript( Creature, 'OnAttack' );
+    scr := GetEventScript( Objects['Creature'], 'OnAttack' );
     if scr <> '' then Script.Exec( scr );
 end;
 
@@ -906,7 +926,13 @@ var
     DMG, BLOCK : integer;
     ATKbuff: integer;
     bustedBySword: integer;
+
+    Player: ISuperObject;
+    Creature: ISuperObject;
 begin
+
+    Player := Objects['Player'];
+    Creature := Objects['Creature'];
 
     ATKbuff := Draw( Player, O_BUFFS + '.ATK', 1 );
 
@@ -916,8 +942,13 @@ begin
     bustedBySword := Min(StrToIntDef(Variables[SWORD_LVL], 0), Player.I[ O_PARAMS + '.ATK' ]);
     PlayerATK   := Max(bustedBySword, PlayerATK);
 
-    CreatureHP  := Creature.I[ O_PARAMS + '.HP'];
-    CreatureDEF := Creature.I[ O_PARAMS + '.DEF'];
+    if Assigned(Creature.O[ O_PARAMS + '.HP'])
+    then CreatureHP  := Creature.I[ O_PARAMS + '.HP']
+    else CreatureHP  := 0;
+
+    if Assigned(Creature.O[ O_PARAMS + '.DEF'])
+    then CreatureDEF := Creature.I[ O_PARAMS + '.DEF']
+    else CreatureDEF := 0;
 
     BLOCK := Round(PlayerATK * ((CreatureDEF / 10) / 100));  // 1 DEF = -0.1% dmg
     DMG := PlayerATK - BLOCK;  // 1 DEF = -0.1% dmg
@@ -928,7 +959,13 @@ begin
 
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
-    else AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]))
+    else AddEvent(Format(phrases[PHRASE_PLAYER_STRIKE][CurrLang], [DMG]));
+
+    Objects['Player'] := Player;
+    Player := nil;
+
+    Objects['Creature'] := Creature;
+    Creature := nil;
 end;
 
 procedure TData.DoDamageToPlayer(input: string);
@@ -940,15 +977,27 @@ var
     DMG, BLOCK : integer;
     DEFbuff: integer;
     ATKbuff: integer;
+
+    Player: ISuperObject;
+    Creature : ISuperObject;
 begin
+
+    Player := Objects['Player'];
+    Creature := Objects['Creature'];
 
     ATKbuff := Draw( Creature, O_BUFFS+'.ATK',1 );
 
     DEFbuff := Draw( Player, O_BUFFS+'.DEF', 1 );
 
     CreatureATK := Random( StrToIntDef(input, 0) + ATKbuff );
-    PlayerHP  := Player.I[ O_PARAMS + '.HP'];
-    PlayerDEF  := Player.I[ O_PARAMS + '.DEF'] + DEFbuff;
+
+    if Assigned(Player.O[ O_PARAMS + '.HP'])
+    then PlayerHP  := Player.I[ O_PARAMS + '.HP']
+    else PlayerHP  := 0;
+
+    if Assigned(Player.O[ O_PARAMS + '.DEF'])
+    then PlayerDEF  := Player.I[ O_PARAMS + '.DEF'] + DEFbuff
+    else PlayerDEF  := DEFbuff;
 
     BLOCK := Round(CreatureATK * (( PlayerDEF/10 ) / 100));
     DMG := CreatureATK - BLOCK;  // 1 DEF = -0.1% dmg
@@ -960,6 +1009,12 @@ begin
     if BLOCK > 0
     then AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE_BLOCK][CurrLang], [DMG, BLOCK]))
     else AddEvent(Format(phrases[PHRASE_MONSTER_STRIKE][CurrLang], [DMG]));
+
+    Objects['Player'] := Player;
+    Player := nil;
+
+    Objects['Creature'] := Creature;
+    Creature := nil;
 end;
 
 function TData.CurrentStep: string;
@@ -1004,17 +1059,26 @@ begin
 end;
 
 procedure TData.SetCreature(name, params: string; items: string = ''; loot: string = '');
+var
+    Creature: ISuperObject;
 begin
+    if not Objects.TryGetValue('Creature', Creature)
+    then Objects.Add('Creature', SO());
+
+    Creature := Objects['Creature'];
+
     Creature.O[ O_PARAMS ] := SO(params);
     Creature.S[ S_NAME ]   := name;
     Creature.O[ O_ITEMS ]  := SO(items);
     Creature.O[ O_LOOT ]   := SO(loot);
     Creature.O[ O_EVENTS ] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
+
+    Objects['Creature'] := Creature;
 end;
 
 procedure TData.SetCreatureScript(event, scr: string);
 begin
-    Creature.O[ O_EVENTS ] := SO('{"'+event+'":"'+scr+'"}');
+    Objects['Creature'].O[ O_EVENTS ] := SO('{"'+event+'":"'+scr+'"}');
 end;
 
 procedure TData.AddFloorEvent(text: string);
@@ -1046,22 +1110,22 @@ end;
 
 procedure TData.SetPlayerAutoBuff(name, count: variant);
 begin
-    Player.I[ O_AUTOBUFFS + '.' + name ] := Player.I[ O_AUTOBUFFS + '.' + name ] + count;
+    Objects['Player'].I[ O_AUTOBUFFS + '.' + name ] := Objects['Player'].I[ O_AUTOBUFFS + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerBuff(name, count: variant);
 begin
-    Player.I[ O_BUFFS + '.' + name ] := Player.I[ O_BUFFS + '.' + name ] + count;
+    Objects['Player'].I[ O_BUFFS + '.' + name ] := Objects['Player'].I[ O_BUFFS + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerRes(name, count: variant);
 begin
-    Player.I[ O_LOOT + '.' + name ] := Player.I[ O_LOOT + '.' + name ] + count;
+    Objects['Player'].I[ O_LOOT + '.' + name ] := Objects['Player'].I[ O_LOOT + '.' + name ] + count;
 end;
 
 procedure TData.SetPlayerScript(event, scr: string);
 begin
-    Player.S[ O_EVENTS + '.' + event] := scr;
+    Objects['Player'].S[ O_EVENTS + '.' + event] := scr;
 end;
 
 procedure TData.SetVar(name, value: string);
@@ -1090,7 +1154,7 @@ begin
         if StrToIntDef( GetPlayerAttr('EXP'), 0) >= cost then
         begin
 
-            Player.I[ O_SKILLS + '.' + name ] := Player.I[ O_SKILLS + '.' + name ] + 1;
+            Objects['Player'].I[ O_SKILLS + '.' + name ] := Objects['Player'].I[ O_SKILLS + '.' + name ] + 1;
 
             ChangePlayerParam('EXP', IntToStr(-cost));
 
@@ -1106,7 +1170,7 @@ var
     i: integer;
 begin
 
-    if not Assigned(Player.O[ O_ITEMS + '.' + name ]) or (Player.I[ O_ITEMS + '.' + name ] <= 0) then exit;
+    if not Assigned(Objects['Player'].O[ O_ITEMS + '.' + name ]) or (Objects['Player'].I[ O_ITEMS + '.' + name ] <= 0) then exit;
 
     /// применяем (выполняем прописанный скрипт эффекта)
     for I := 0 to High(items) do
@@ -1142,9 +1206,9 @@ procedure TData.ChangePlayerItemCount(name, delta: variant);
 begin
 //    if not Assigned( Player.O[ O_ITEMS + '.' + name ]) or ( Player.I[ O_ITEMS + '.' + name ] <= 0 ) then exit;
 
-    Player.I[ O_ITEMS + '.' + name ] := Player.I[ O_ITEMS + '.' + name ] + delta;
+    Objects['Player'].I[ O_ITEMS + '.' + name ] := Objects['Player'].I[ O_ITEMS + '.' + name ] + delta;
 
-    if Player.I[ O_ITEMS + '.' + name ] <= 0 then Player.Delete( O_ITEMS + '.' + name);
+    if Objects['Player'].I[ O_ITEMS + '.' + name ] <= 0 then Objects['Player'].Delete( O_ITEMS + '.' + name);
 end;
 
 
@@ -1160,8 +1224,8 @@ var
     exp : integer;
     need: integer;
 begin
-    exp := Player.I[ O_PARAMS + '.EXP' ];
-    need := StrToInt(NeedExp( Player.I[ O_PARAMS + '.LVL' ] ));
+    exp := Objects['Player'].I[ O_PARAMS + '.EXP' ];
+    need := StrToInt(NeedExp( Objects['Player'].I[ O_PARAMS + '.LVL' ] ));
     result := ifthen( exp >= need, '!', '');
 end;
 
@@ -1214,7 +1278,7 @@ end;
 
 function TData.ChangeCreatureParam(name, delta: variant): string;
 begin
-    result := ChangeParamValue(Creature, name, delta);
+    result := ChangeParamValue(Objects['Creature'], name, delta);
 end;
 
 function TData.ChangeParamValue(creature: ISuperObject; param: string; delta: integer): string;
@@ -1239,7 +1303,7 @@ end;
 function TData.ChangePlayerParam(name, delta: variant): string;
 // метод изменения параметра игрока из скриптов
 begin
-    result := ChangeParamValue(Player, name, delta);
+    result := ChangeParamValue(Objects['Player'], name, delta);
 end;
 
 procedure TData.CheckStatus;
@@ -1247,7 +1311,13 @@ procedure TData.CheckStatus;
 var
     HP, EXPbuff: integer;
     playerLVL : integer;
+
+    Player: ISuperObject;
+    Creature: ISuperObject;
 begin
+
+    Player := Objects['Player'];
+    Creature := Objects['Creature'];
 
     // проверка состояния игрока
     if Player.I[ O_PARAMS + '.HP' ] <= 0 then
@@ -1263,7 +1333,10 @@ begin
         HP := Player.I[ O_PARAMS + '.LVL' ] * 100 + StrToIntDef(Variables[LIFEAMULET_LVL],0) * 100;
         Player.I[ O_PARAMS + '.HP' ] := HP;
         /// включая эффект амулета жизни
-        exit;
+
+        Objects['Player'] := Player;
+        Player := nil;
+        //        exit;
     end;
 
     // проверка состояния текущего монстра
@@ -1287,6 +1360,9 @@ begin
         Loot(Player, Creature, O_ITEMS);
 
         Loot(Player, Creature, O_LOOT);
+
+        Objects['Player'] := Player;
+        Player := nil;
 
         // проверяем на возможность левелапа
         if   AllowLevelUp <> ''
@@ -1318,6 +1394,10 @@ begin
         /// переход на следующую цель задает сам скрипт текущей цели,
         /// поскольку для этого может понадобиться выполнение условий
     end;
+
+    Player := nil;
+    Creature := nil;
+
 end;
 
 
@@ -1399,17 +1479,17 @@ begin
    Script := TScriptDrive.Create;
    parser := TStringList.Create;
    Variables := TDictionary<String,String>.Create();
+   Objects := TDictionary<String,ISuperObject>.Create();
 
    CurrTargetIndex := 0;
    CurrLang := 1;
 
-   Player := SO();
-   Creature := SO();
    AllowModes := SO();
 end;
 
 destructor TData.Destroy;
 begin
+    Objects.Free;
     Variables.Free;
     parser.Free;
     Script.Free;

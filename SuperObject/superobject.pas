@@ -6618,7 +6618,7 @@ end;
 initialization
 
 finalization
-  Assert(debugcount = 0, 'Memory leak');
+//  Assert(debugcount = 0, 'Memory leak');
 {$ENDIF}
 end.
 

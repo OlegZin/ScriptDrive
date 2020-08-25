@@ -17,6 +17,10 @@ const
     I_PDEF    = 10;
     I_EXP     = 11;
 
+const
+    objShablon =
+        '{"autobuffs":{},"params":{},"items":{},"events":{},"loot":{},"skills":{},"buffs":{}}';
+
 type
 
     TCreature = class
