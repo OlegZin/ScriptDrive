@@ -177,7 +177,7 @@ begin
     Script.Exec('AllowTool(TimeSand)');
     Script.Exec('AllowTool(Leggings)');
 }
-    Script.Exec('AllowMode(Craft, 1)');
+    Script.Exec('AllowMode(Floors, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
@@ -344,7 +344,9 @@ var
     i: Integer;
     b: TButton;
     event, size: string;
-    pars: TStringList;
+
+    obj: ISuperObject;
+    json : string;
 begin
 
     if pcGame.ActivePage <> pFloors then exit;
@@ -352,22 +354,25 @@ begin
     // останавливаем автоатаки
     cbAutoAttack.Checked := false;
 
+    // перестраиваем этаж, только если ранее был отстроен другой этаж
     if CurrFloor <> LastFloor then
     begin
-
-        pars := TStringList.Create;
-
+        /// запоминаем текущий этаж как последний отстроенный
         LastFloor := CurrFloor;
 
+        /// грохаем все компоненты-объекты на этаже
         for i := pnlFloor.ControlCount-1 downto 0 do
             pnlFloor.Controls[i].Free;
 
-        trash := StrToIntDef( Data.GetTrashCount,0 );
-        pars.CommaText := Data.GetTrashIDs;
+        /// получаем первый объект этажа
+        json := Data.GetFirstFloorObject(IntToStr(CurrFloor));
 
-        for i := 0 to trash-1 do
+        /// если есть хотя бы один объект - генерим интерфейс
+        while json <> '' do
         begin
-            size := Script.Exec('GetFloorObjectSize('+pars[i]+')');
+            obj := SO(json);
+
+            size := obj.S['params.size'];
 
             b := TButton.Create(self);
             b.Parent := pnlFloor;
@@ -385,10 +390,12 @@ begin
             end;
 
             b.Caption := UNKNOWN_BUTTON;
-            b.Tag := StrToInt(pars[i]);
+            b.Tag := obj.I['params.key'];
             b.Left := Random(pFloors.ClientWidth - b.Width);
             b.top := Random(pFloors.ClientHeight - b.Height - mFloorLog.Height);
             b.OnClick := OnClickFloorButton;
+
+            json := Data.GetNextFloorObject;
         end;
 
         /// при нулевом количестве мусора отстраиваем другой интерфейс.
@@ -399,7 +406,6 @@ begin
 
         end;
 
-        pars.Free;
     end;
 
     event := Script.Exec('GetFloorEvents();');

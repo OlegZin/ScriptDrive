@@ -59,6 +59,9 @@ type
 
         AutoATKCount: integer;
 
+        FloorIndex : integer;
+        FloorObjectIndex : integer;
+        /// текущие индексы для механизма перебора объектов указанного этажа
     public
 
 
@@ -71,6 +74,7 @@ type
 
         procedure PlayerAttack;   // команда игроку атаковать текущую цель
         procedure CreatureAttack; // команда монстру атаковать
+        procedure AddObject(key: string; obj: ISuperObject);
 
         procedure DoDamageToCreature(input: string); // нанесение урона текущему существу
         procedure DoDamageToPlayer(input: string); // нанесение урона игроку
@@ -171,12 +175,12 @@ type
 
         function GetGameScripts: string;
 
-        function GetTrashCount: string; // количество мусора на текущем этаже
-        function GetTrashIDs: string;
+
         function ProcessFloorObject(id: variant): string;
         function GetFloorEvents: string;
         procedure AddFloorEvent(text: string);
-        function GetFloorObjectSize(id: variant): string;
+        function GetFirstFloorObject(floor: variant): string;
+        function GetNextFloorObject: string;
 
 
         procedure AllowTool(name: string);
@@ -224,6 +228,7 @@ begin
     Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
 
     InitItemsCraftCost;
+    Init;
 end;
 
 
@@ -335,19 +340,43 @@ begin
     then result := creature.O[ O_EVENTS + '.' + name ].AsString;
 end;
 
+function TData.GetFirstFloorObject(floor: variant): string;
+/// получаем первый из объектов указанного этажа из массива Objects.
+/// ключ элемента строится по формуле:
+///  этаж * 1000 + индекс_объекта, где индекс в диапазоне от 0 до 999
+begin
+    FloorIndex := floor;
+    FloorObjectIndex := 0;
+
+    result := GetNextFloorObject;
+end;
+
+function TData.GetNextFloorObject: string;
+var
+    obj: ISuperObject;
+begin
+    obj := nil;
+    result := '';
+
+    ///  поскольку при отработке объекта на этаже он удаляется из словаря,
+    ///  образуются дырки в нумерации. потому пытаемся перебирать возможные
+    ///  ключи до конца допустимого диапазона
+    ///  после обнаружения элемента индекс передвигается на следующий
+    ///  возможный индекс
+    while not Assigned(obj) and (FloorObjectIndex < 1000) do
+    begin
+        if Objects.TryGetValue( IntToStr(FloorIndex * 1000 + FloorObjectIndex), obj )
+        then result := obj.AsJSon();
+
+        Inc(FloorObjectIndex);
+    end;
+end;
+
+
 function TData.GetFloorEvents: string;
 begin
     result := FloorEvent;
     FloorEvent := '';
-end;
-
-function TData.GetFloorObjectSize(id: variant): string;
-var
-    elem: TTrash;
-begin
-    result := '';
-    if arrFloors[CurrLevel].Trash.TryGetValue(id, elem) then
-    result := elem.size;
 end;
 
 function TData.GetGameScripts: string;
@@ -625,22 +654,6 @@ begin
     pars.Free;
 end;
 
-function TData.GetTrashCount: string;
-begin
-    result := IntToStr( arrFloors[CurrLevel].Trash.Count );
-end;
-
-function TData.GetTrashIDs: string;
-var
-   i: integer;
-   keys: TArray<integer>;
-begin
-    keys := arrFloors[CurrLevel].Trash.Keys.ToArray;
-
-    for I := 0 to High(keys) do
-        result := result + IntToStr(keys[i]) + ',';
-end;
-
 procedure TData.InitCreatures;
 // формирование пула
 var
@@ -827,62 +840,56 @@ end;
 function TData.ProcessFloorObject(id: variant): string;
 /// снимаем количество с объекта и если нулевое - исполняем скрипр
 var
-    item: TTrash;
+    item: ISuperObject;
     pars: TStringList;
-    capt: string;
     delta: integer;
 begin
     // пустое возвращаемое значение уничтожит(скроет) объект в интерфейсе уровня
     result := '';
 
-    if not arrFloors[CurrLevel].Trash.TryGetValue(id, item) then exit;
-
-    pars := TStringList.Create;
-    pars.StrictDelimiter := true;
-
-    /// получаем короткую ссылку на объект на этаже
-    item := arrFloors[CurrLevel].Trash[Integer(id)];
+    if not Objects.TryGetValue(id, item) then exit;
 
     delta := 1;
 
     // если объект мусор - лопата дает эффект к скорости раскапывания
-    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Trash'
+    if item.S['params.name'] = 'Trash'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+SHOVEL_LVL+');'), 1);
 
     // если объект мусор - лопата дает эффект к скорости раскапывания
-    if (arrFloors[CurrLevel].Trash[Integer(id)].name = 'StoneBlockage') or
-       (arrFloors[CurrLevel].Trash[Integer(id)].name = 'WoodBlockage')
+    if (item.S['params.name'] = 'StoneBlockage') or
+       (item.S['params.name'] = 'WoodBlockage')
     then
         delta := StrToIntDef(Script.Exec('GetVar('+PICK_LVL+');'), 1);
 
     // если объект ящик - топор дает эффект к скорости разламывания
-    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Box'
+    if item.S['params.name'] = 'Box'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+AXE_LVL+');'), 1);
 
     // если объект сундку - отмычки дают эффект к скорости открытия
-    if arrFloors[CurrLevel].Trash[Integer(id)].name = 'Chest'
+    if item.S['params.name'] = 'Chest'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+KEY_LVL+');'), 1);
 
-    item.count := item.count - delta;
+    /// списываем хиты
+    item.I['params.HP'] := item.I['params.HP'] - delta;
 
-    if item.count > 0 then
+    /// если объект еще не отработан
+    if item.I['params.HP'] > 0 then
     begin
-        arrFloors[CurrLevel].Trash[Integer(id)] := item;
-
-        pars.CommaText := item.caption;
-        capt := pars.Values[GetLang];
-        result := pars.Values[GetLang] + ' (' + IntToStr(item.count) + ')';
-
+        /// сохраняем изменения
+        Objects[id] := item;
+        /// формируем возвращаемую строку с текущим состоянием объекта
+        result := item.S['params.caption.'+GetLang] + ' (' + item.S['params.HP'] + ')';
     end else
     begin
-        Script.Exec(item.script);
-        arrFloors[CurrLevel].Trash.Remove(id);
+        /// выполняем посмертный скрипт
+        Script.Exec(item.S['script']);
+        /// и удаляем из словаря
+        Objects.Remove(id);
     end;
 
-    pars.Free;
 end;
 
 procedure TData.ProcessThinks(caption, delta: variant);
@@ -1086,6 +1093,11 @@ begin
     if Trim(FloorEvent) <> ''
     then FloorEvent := text + ifthen(FloorEvent <> '', sLineBreak, '') + FloorEvent
     else FloorEvent := text;
+end;
+
+procedure TData.AddObject(key: string; obj: ISuperObject);
+begin
+    Objects.Add(key, obj);
 end;
 
 procedure TData.AddThinkEvent(text: string);
@@ -1506,5 +1518,19 @@ initialization
 
 finalization
    Data.Free;
+
+{
+function TData.GetTrashIDs: string;
+var
+   i: integer;
+   keys: TArray<integer>;
+begin
+    keys := arrFloors[CurrLevel].Trash.Keys.ToArray;
+
+    for I := 0 to High(keys) do
+        result := result + IntToStr(keys[i]) + ',';
+end;
+}
+
 
 end.
