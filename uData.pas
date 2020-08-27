@@ -72,6 +72,10 @@ type
         procedure SetAutoATK(count: variant);
         procedure ChangeAutoATK(delta: variant);
 
+        procedure SetTarget(key: string);
+        /// устанавливает объект из массива Objects в переменную Target,
+        /// которая применяется скриптами
+
         procedure PlayerAttack;   // команда игроку атаковать текущую цель
         procedure CreatureAttack; // команда монстру атаковать
         procedure AddObject(key: string; obj: ISuperObject);
@@ -90,6 +94,11 @@ type
         function GeAttr(creature: TCreature; name: string): string;
 
         function GetCurrTarget: string;
+        /// получение номера этажа текущей задачи
+
+        function GetTargetList: string;
+        /// получение списка дотступных целей для применения способности
+
         procedure SetPlayerBuff(name, count: variant);
         // добавление бонуса в Player.Buffs
 
@@ -247,6 +256,7 @@ begin
     for I := 0 to High(skills) do
           skl.I[skills[i].name] := 0;
 
+    Player.O[S_NAME]      := SO('{"RU":"Игрок", "ENG":"Player"}');
     Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
     Player.O[O_SKILLS]    := skl;
     Player.O[O_ITEMS]     := SO('{"Gold":100000}');
@@ -313,7 +323,7 @@ end;
 
 function TData.GetCurrCreatureInfo: string;
 begin
-    result := Objects['Creature'][S_NAME].AsString + ': ' + Objects['Creature'][O_PARAMS].AsString;
+    result := Objects['Creature'][S_NAME+'.'+GetLang].AsString + ': ' + Objects['Creature'][O_PARAMS].AsString;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -529,6 +539,41 @@ begin
     result := Objects['Player'].O[ O_SKILLS + '.' + name].AsString;
 end;
 
+function TData.GetTargetList: string;
+/// получаем список доступных целей для применения скилов
+var
+    tmp, comma: string;
+    obj: ISuperObject;
+begin
+    comma := '';
+
+    // игрок (доступно всегда)
+    if Objects.TryGetValue('Player', obj) then
+    begin
+        result := obj.S['name.'+GetLang];
+        comma := ',';
+    end;
+
+    // имя монстра (доступно всегда)
+    if Objects.TryGetValue('Creature', obj) then
+    begin
+        result := result + comma + obj.S['name.'+GetLang];
+        comma := ',';
+    end;
+
+    // выбранный объект вне режима Башни (если выбран)
+    if Assigned(Target) then
+    begin
+        /// если есть статус неизвестного - заменяем имя вопросами, пока статус не изменится
+        if Assigned(Target.O['params.status']) and (Target.S['params.status'] = 'unknown')
+        then result := result + comma + '?????'
+        else
+            // так же, если текущая цель не совпадает с монстром или игроком - добавляем
+            if Pos(Target.S['name.'+GetLang], result) = 0
+            then result := result + comma + Target.S['name.'+GetLang];
+    end;
+end;
+
 function TData.GetThinkEvents: string;
 begin
     result := ThinkEvent;
@@ -673,10 +718,13 @@ begin
         then _loot := Format('{"%s":%d}', [GetRandResName, lootCount]);
 
         SetCreature(
-            Format('%s %s %s', [
-                name1[Random(Length(name1))][CurrLang],
-                name2[Random(Length(name2))][CurrLang],
-                name3[Random(Length(name3))][CurrLang]
+            Format('{"ENG":"%s %s %s","RU":"%s %s %s"}', [
+                name1[Random(Length(name1))][0],
+                name2[Random(Length(name2))][0],
+                name3[Random(Length(name3))][0],
+                name1[Random(Length(name1))][1],
+                name2[Random(Length(name2))][1],
+                name3[Random(Length(name3))][1]
             ]),
             Format('{"HP":%d, "ATK":%d, "DEF":%d}', [
                 Random( CurrLevel*10 ) + CurrLevel*5,
@@ -852,28 +900,35 @@ begin
     delta := 1;
 
     // если объект мусор - лопата дает эффект к скорости раскапывания
-    if item.S['params.name'] = 'Trash'
+    if item.S['name.ENG'] = 'Trash'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+SHOVEL_LVL+');'), 1);
 
     // если объект мусор - лопата дает эффект к скорости раскапывания
-    if (item.S['params.name'] = 'StoneBlockage') or
-       (item.S['params.name'] = 'WoodBlockage')
+    if (item.S['name.ENG'] = 'StoneBlockage') or
+       (item.S['name.ENG'] = 'WoodBlockage')
     then
         delta := StrToIntDef(Script.Exec('GetVar('+PICK_LVL+');'), 1);
 
     // если объект ящик - топор дает эффект к скорости разламывания
-    if item.S['params.name'] = 'Box'
+    if item.S['name.ENG'] = 'Box'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+AXE_LVL+');'), 1);
 
     // если объект сундку - отмычки дают эффект к скорости открытия
-    if item.S['params.name'] = 'Chest'
+    if item.S['name.ENG'] = 'Chest'
     then
         delta := StrToIntDef(Script.Exec('GetVar('+KEY_LVL+');'), 1);
 
-    /// списываем хиты
-    item.I['params.HP'] := item.I['params.HP'] - delta;
+    /// списываем хиты, если изменение не нулевое
+    if delta <> 0 then
+    begin
+        item.I['params.HP'] := item.I['params.HP'] - delta;
+
+        // сбрасываем флаг неизвестного
+        if Assigned(item.O['params.status'])
+        then item.S['params.status'] := 'known';
+    end;
 
     /// если объект еще не отработан
     if item.I['params.HP'] > 0 then
@@ -881,13 +936,14 @@ begin
         /// сохраняем изменения
         Objects[id] := item;
         /// формируем возвращаемую строку с текущим состоянием объекта
-        result := item.S['params.caption.'+GetLang] + ' (' + item.S['params.HP'] + ')';
+        result := item.S['name.'+GetLang] + ' (' + item.S['params.HP'] + ')';
     end else
     begin
         /// выполняем посмертный скрипт
         Script.Exec(item.S['script']);
         /// и удаляем из словаря
         Objects.Remove(id);
+        Target := nil;
     end;
 
 end;
@@ -1075,7 +1131,7 @@ begin
     Creature := Objects['Creature'];
 
     Creature.O[ O_PARAMS ] := SO(params);
-    Creature.S[ S_NAME ]   := name;
+    Creature.O[ S_NAME ]   := SO(name);
     Creature.O[ O_ITEMS ]  := SO(items);
     Creature.O[ O_LOOT ]   := SO(loot);
     Creature.O[ O_EVENTS ] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
@@ -1138,6 +1194,11 @@ end;
 procedure TData.SetPlayerScript(event, scr: string);
 begin
     Objects['Player'].S[ O_EVENTS + '.' + event] := scr;
+end;
+
+procedure TData.SetTarget(key: string);
+begin
+    Objects.TryGetValue(key, Target);
 end;
 
 procedure TData.SetVar(name, value: string);

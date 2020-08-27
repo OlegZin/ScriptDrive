@@ -84,7 +84,7 @@ begin
             // определяем тип объекта
             trash := floorObjects[Random(High(floorObjects))];
 
-            obj := SO('{"params":{"size":"normal"},"script":""}');
+            obj := SO('{"name":"","params":{"size":"normal","status":"unknown"},"script":""}');
 
             /// мусорная куча
             if trash = 'Trash' then
@@ -93,7 +93,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := Random(levelNum*50) + 50;
-               obj.O['params.caption'] := SO('{"RU":"Мусор","ENG":"Garbage"}');
+               obj.O['name'] := SO('{"RU":"Мусор","ENG":"Garbage"}');
 
                obj.S['script'] :=
                    'SetVar(obj, GetRandResName());'+
@@ -164,7 +164,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := Random(levelNum*60) + 100;
-               obj.O['params.caption'] := SO('{"RU":"Ящик","ENG":"Box"}');
+               obj.O['name'] := SO('{"RU":"Ящик","ENG":"Box"}');
 
                obj.S['script'] :=
                    'SetVar(iName, GetRandItemName());'+
@@ -185,7 +185,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := Random(levelNum*70) + 150;
-               obj.O['params.caption'] := SO('{"RU":"Тайник","ENG":"Сache"}');
+               obj.O['name'] := SO('{"RU":"Тайник","ENG":"Сache"}');
 
                obj.S['script'] :=
                    'SetVar(gold, Rand('+IntToStr(levelNum*10000+1)+'));'+
@@ -218,7 +218,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := Random(levelNum*80) + 200;
-               obj.O['params.caption'] := SO('{"RU":"Сундук","ENG":"Chest"}');
+               obj.O['name'] := SO('{"RU":"Сундук","ENG":"Chest"}');
 
                obj.S['script'] :=
                    'SetVar(iName, GetRandItemName());'+
@@ -266,7 +266,7 @@ begin
 
                obj.S['params.size'] := 'huge';
                obj.I['params.HP'] := Random(levelNum*250) + 1000;
-               obj.O['params.caption'] := SO('{"RU":"Каменный завал","ENG":"Stone blockage"}');
+               obj.O['name'] := SO('{"RU":"Каменный завал","ENG":"Stone blockage"}');
 
                obj.S['script'] :=
                     'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
@@ -300,7 +300,7 @@ begin
 
                obj.S['params.size'] := 'huge';
                obj.I['params.HP'] := Random(levelNum*250) + 1000;
-               obj.O['params.caption'] := SO('{"RU":"Деревянный завал","ENG":"Wood blockage"}');
+               obj.O['name'] := SO('{"RU":"Деревянный завал","ENG":"Wood blockage"}');
 
                obj.S['script'] :=
                     'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
@@ -321,7 +321,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := 1;
-               obj.O['params.caption'] := SO('{"RU":"Ловушка","ENG":"Trap"}');
+               obj.O['name'] := SO('{"RU":"Ловушка","ENG":"Trap"}');
 
                case Random(3) of
                   0: param := 'ATK';
@@ -355,7 +355,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := 1;
-               obj.O['params.caption'] := SO('{"RU":"Крыса","ENG":"Rat"}');
+               obj.O['name'] := SO('{"RU":"Крыса","ENG":"Rat"}');
 
                obj.S['script'] :=
                    'SetVar(val, Rand(100));'+
@@ -384,7 +384,7 @@ begin
                found := true;
 
                obj.I['params.HP'] := 1;
-               obj.S['params.caption'] := '{"RU":"Паук","ENG":"Spider"}';
+               obj.S['name'] := '{"RU":"Паук","ENG":"Spider"}';
 
                obj.S['script'] :=
                    'SetVar(val, Rand(100));'+
@@ -409,7 +409,6 @@ begin
             if not found then
             found := found;
 
-            obj.S['params.name'] := trash;
             obj.I['params.key'] := levelNum * 1000 + j;
 
             // добавляем объект в общий массив.

@@ -91,6 +91,7 @@ type
     lToolDesc: TLabel;
     bToolUpgrade: TButton;
     lToolUpCost: TLabel;
+    cbTarget: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -351,6 +352,9 @@ begin
 
     if pcGame.ActivePage <> pFloors then exit;
 
+    /// при переключении на башню цель - монстр
+    if pcGame.ActivePage = pTower then Data.SetTarget('Creature');
+
     // останавливаем автоатаки
     cbAutoAttack.Checked := false;
 
@@ -424,6 +428,14 @@ begin
 
     if LastFloorObject <> btn then
     begin
+        // устанавливаем цель
+        Data.SetTarget(IntTostr(btn.tag));
+        cbTarget.Items.CommaText := Data.GetTargetList;
+        cbTarget.ItemIndex := cbTarget.Items.Count -1;
+
+        if Assigned(LastFloorObject) then (LastFloorObject as TButton).Font.Style := [];
+        (btn as TButton).Font.Style := [fsBold];
+
         LastFloorObject := btn;
         exit;
     end;
@@ -505,7 +517,7 @@ end;
 
 procedure TForm3.UpdateInterface;
 var
-    itemItem, itemSkill: integer;
+    itemItem, itemSkill, itemTarget: integer;
     AutoCount: integer;
     tmp, exp, lvl, selItem, selSkill, reg, breaks: string;
     step: integer;
@@ -522,6 +534,18 @@ begin
     if cbSkills.ItemIndex <> -1
     then selSkill := Copy(cbSkills.Text,0,pos('=',cbSkills.Text)-1)
     else selSkill := '';
+
+
+    /// при переключении на башню цель - монстр
+    if pcGame.ActivePage = pTower then Data.SetTarget('Creature');
+
+    itemTarget := cbTarget.ItemIndex;
+    cbTarget.Items.StrictDelimiter := true;
+    cbTarget.Items.CommaText := Data.GetTargetList;
+
+    if cbTarget.Items.Count-1 <= itemTarget
+    then cbTarget.ItemIndex := itemTarget
+    else cbTarget.ItemIndex := 0;
 
 
     // получение текущих доступных режимов
