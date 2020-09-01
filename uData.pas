@@ -83,7 +83,8 @@ type
         procedure DoDamageToCreature(input: string); // нанесение урона текущему существу
         procedure DoDamageToPlayer(input: string); // нанесение урона игроку
 
-        function GetCurrCreatureInfo: string;
+        function GetCurrCreatureParams: string;
+        function GetCurrCreatureName: string;
         function GetPlayerInfo: string;
         function GetPlayerBuffs: string;
         function GetPlayerItems: string;
@@ -131,9 +132,18 @@ type
         function NeedExp(lvl: variant): string;
         // возвращает количество опыта для поднятия уровня
 
+
+        /// методы работы с установленным TARGET
+        function GetItemCount(name: variant):string;       /// получение количества в указанном списке
+        procedure ChangeItemCount(name, delta: variant);
+
+
         function ChangePlayerParam(name, delta: variant): string;
         // метод изменения параметра игрока
         function ChangeCreatureParam(name, delta: variant): string;
+        // метод изменения параметра текущего монстра
+        function ChangeTargetParam(name, delta: variant): string;
+        // метод изменения параметра текущей цели
 
         procedure AddEvent(text: string);
         procedure UseItem(name: string);
@@ -145,8 +155,7 @@ type
 
         procedure ChangePlayerItemCount(name, delta: variant);
         function GetPlayerItemCount(name: variant):string;
-        function GetItemCount(list, name: string): string;
-        /// получение количества в указанном списке
+
 
         procedure SetPlayerRes(name, count: variant);
 
@@ -232,7 +241,7 @@ begin
     Script.Exec('SetVar('+AXE_LVL+       ', 1);');
     Script.Exec('SetVar('+KEY_LVL+       ', 1);');
     Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
-    Script.Exec('SetVar('+TIMESAND_LVL+  ', 40);');
+    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
     Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
     Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
 
@@ -259,7 +268,7 @@ begin
     Player.O[S_NAME]      := SO('{"RU":"Игрок", "ENG":"Player"}');
     Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
     Player.O[O_SKILLS]    := skl;
-    Player.O[O_ITEMS]     := SO('{"Gold":100000}');
+    Player.O[O_ITEMS]     := SO();
     Player.O[O_BUFFS]     := SO();
     Player.O[O_AUTOBUFFS] := SO();
     Player.O[O_LOOT]      := SO();
@@ -321,9 +330,14 @@ begin
     Breaks := '';
 end;
 
-function TData.GetCurrCreatureInfo: string;
+function TData.GetCurrCreatureName: string;
 begin
-    result := Objects['Creature'][S_NAME+'.'+GetLang].AsString + ': ' + Objects['Creature'][O_PARAMS].AsString;
+    result := Objects['Creature'][S_NAME+'.'+GetLang].AsString;
+end;
+
+function TData.GetCurrCreatureParams: string;
+begin
+    result := Objects['Creature'][O_PARAMS].AsString;
 end;
 
 function TData.GetCurrentLevel: string;
@@ -445,6 +459,15 @@ begin
     result := Objects['Player'].O[ O_ITEMS + '.' + name].AsString;
 end;
 
+function TData.GetItemCount(name: variant): string;
+begin
+    result := '0';
+
+    if Assigned(Target.O[ O_ITEMS + '.' + name])
+    then result := Target.S[ O_ITEMS + '.' + name];
+end;
+
+
 function TData.GetInLang(text: string; lang: string = ''): string;
 var
     multiLang: ISuperObject;
@@ -454,15 +477,6 @@ begin
 
     multiLang := SO(text);
     if Assigned(multiLang) then result := multiLang[lang].AsString;
-end;
-
-function TData.GetItemCount(list, name: string): string;
-begin
-    result := '0';
-
-    parser.CommaText := list;
-    if   parser.IndexOfName(name) <> -1
-    then result := parser.Values[name];
 end;
 
 function TData.GetLang: string;
@@ -726,7 +740,7 @@ begin
                 name2[Random(Length(name2))][1],
                 name3[Random(Length(name3))][1]
             ]),
-            Format('{"HP":%d, "ATK":%d, "DEF":%d}', [
+            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d}', [
                 Random( CurrLevel*10 ) + CurrLevel*5,
                 Random( CurrLevel*5 )  + CurrLevel*2,
                 Random( CurrLevel*2 )
@@ -762,12 +776,15 @@ begin
 
 
         SetCreature(
-            Format('[BOSS] %s %s %s', [
-                name1[Random(Length(name1))][CurrLang],
-                name2[Random(Length(name2))][CurrLang],
-                name3[Random(Length(name3))][CurrLang]
+            Format('{"ENG":"[BOSS] %s %s %s","RU":"[БОСС] %s %s %s"}', [
+                name1[Random(Length(name1))][0],
+                name2[Random(Length(name2))][0],
+                name3[Random(Length(name3))][0],
+                name1[Random(Length(name1))][1],
+                name2[Random(Length(name2))][1],
+                name3[Random(Length(name3))][1]
             ]),
-            Format('{"HP":%d, "ATK":%d, "DEF":%d}', [
+            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d}', [
                 Random( CurrLevel*50 ) + CurrLevel*30,
                 Random( CurrLevel*25 )  + CurrLevel*10,
                 Random( CurrLevel*6 )
@@ -1354,6 +1371,13 @@ begin
     result := ChangeParamValue(Objects['Creature'], name, delta);
 end;
 
+procedure TData.ChangeItemCount(name, delta: variant);
+begin
+    Target.I[ O_ITEMS + '.' + name ] := Target.I[ O_ITEMS + '.' + name ] + delta;
+
+    if Target.I[ O_ITEMS + '.' + name ] <= 0 then Target.Delete( O_ITEMS + '.' + name);
+end;
+
 function TData.ChangeParamValue(creature: ISuperObject; param: string; delta: integer): string;
 var
     val: integer;
@@ -1379,6 +1403,12 @@ begin
     result := ChangeParamValue(Objects['Player'], name, delta);
 end;
 
+function TData.ChangeTargetParam(name, delta: variant): string;
+begin
+    if Assigned(Target) then
+    result := ChangeParamValue(Target, name, delta);
+end;
+
 procedure TData.CheckStatus;
 // метод отработки состояния объектов игровой логики
 var
@@ -1395,7 +1425,7 @@ begin
     // проверка состояния игрока
     if Player.I[ O_PARAMS + '.HP' ] <= 0 then
     begin
-        AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creature.S[ S_NAME ] +'!');
+        AddEvent(phrases[PHRASE_KILLED_BY][CurrLang]+ Creature.S[ S_NAME+'.'+GetLang ] +'!');
 
         // возвращаемся на первый уровень
         CurrentLevel(1);
@@ -1426,8 +1456,8 @@ begin
         ChangeParamValue(Player, 'EXP', CurrLevel + EXPbuff);
 
         if EXPbuff = 0
-        then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME], IntToStr(CurrLevel)]))
-        else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME], IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
+        then AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME+'.'+GetLang], IntToStr(CurrLevel)]))
+        else AddEvent(Format(phrases[PHRASE_MONSTER_KILLED][CurrLang],[Creature.S[S_NAME+'.'+GetLang], IntToStr(CurrLevel) + ' [+'+IntToStr(EXPbuff)+']']));
 
         // игрок получает предметы и лут
         Loot(Player, Creature, O_ITEMS);

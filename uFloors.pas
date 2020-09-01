@@ -154,6 +154,18 @@ begin
                      'AddFloorEvent(!!! The player discovered the Lock pick !!!);'+
                      'AddFloorEvent( );';
 
+               // дневник
+               if FirstTrash and (levelNum = 5)
+               then
+                   obj.S['script'] :=
+                     'OpenThink(Diary);'+
+                     'IF({GetLang() = RU}, 2);'+
+                     'AddFloorEvent("Похоже, он зашифрован, придется поработать над расшифровкой...");'+
+                     'AddFloorEvent(!!! Игрок обнаружил Дневник !!!);'+
+                     'IF({GetLang() = ENG}, 2);'+
+                     'AddFloorEvent("It looks like it is encrypted, we will have to work on decryption ...");'+
+                     'AddFloorEvent(!!! The player discovered the Diary !!!);'+
+                     'AddFloorEvent( );';
 
                FirstTrash := false;
             end;

@@ -149,20 +149,20 @@ var
          isCraftAllow: false;
          isUseAllow: true;
          script:
-
-                 'If({GetPlayerItemCount(Gold) < 10000}, 5);'+                     // если золота не достаточно
-                 'If({GetLang() = RU}, 1);'+                     // если золота не достаточно
+                 'SetTarget(Player);' +
+                 'If({GetItemCount(Gold) < 10000}, 5);'+       // если золота не достаточно
+                 'If({GetLang() = RU}, 1);'+                   // если золота не достаточно
                  'AddEvent(” игрока не достаточно золота! [—тоимость 10 000 золота]);'+ // ругаемс€ и
-                 'If({GetLang() = ENG}, 1);'+                     // если золота не достаточно
+                 'If({GetLang() = ENG}, 1);'+                  // если золота не достаточно
                  'AddEvent(Player do not have enougth Gold! [Cost 10 000 Gold]);'+ // ругаемс€ и
-                 'ChangePlayerItemCount(Gold, 1);'+                                // компенсируем расход 1 золота за неудачное использование
+                 'ChangeItemCount(Gold, 1);'+                  // компенсируем расход 1 золота за неудачное использование
 
-                 'If({GetPlayerItemCount(Gold) > 9999}, 7);'+   // если золота достаточно
+                 'If({GetItemCount(Gold) > 9999}, 7);'+         // если золота достаточно
                  'SetVar(iName, GetRandItemName());'+           // получаем им€ случайного предмета
-                 'ChangePlayerItemCount(GetVar(iName), 1);'+    // добавл€ем единицу в инвентарь
-                 'ChangePlayerItemCount(Gold, -9999);'+         // списываем деньги с учетом того, что 1 спишетс€ за использование золота как предмета
+                 'ChangeItemCount(GetVar(iName), 1);'+          // добавл€ем единицу в инвентарь
+                 'ChangeItemCount(Gold, -9999);'+               // списываем деньги с учетом того, что 1 спишетс€ за использование золота как предмета
                  'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
-                 'AddEvent(»грок получил GetVar(iName)!);'+        // радуем игрока приобретением
+                 'AddEvent(»грок получил GetVar(iName)!);'+     // радуем игрока приобретением
                  'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
                  'AddEvent(Player get GetVar(iName)!);'         // радуем игрока приобретением
         ) // золото
@@ -334,8 +334,8 @@ var
          cost:    50;
          script:
                  'SetVar(Expl,Rand({GetSkillLvl(Explosion) * 300}));'+
-                 'AddEvent(Monster take GetVar(Expl) damage from Explosion!);'+
-                 'ChangeCreatureParam(HP,-GetVar(Expl));'
+                 'AddEvent(Target take GetVar(Expl) damage from Explosion!);'+
+                 'ChangeTargetParam(HP,-GetVar(Expl));'
         )
 
        ,(name:   'Heroism';
@@ -439,7 +439,7 @@ var
     (('Enter into Tower...'),
      ('¬ходим в башню...')),
 
-    (('Monster %s is killed! Get %s exp'),
+    (('Monster %s is killed! Got %s exp'),
      ('ћонстр %s убит! ѕолучено %s exp')),
 
     (('Go up %d Tower floor...'),
@@ -466,7 +466,7 @@ var
     (('Monster strike for %d DMG ( %d is blocked )'),
      ('ћонстр нанес %d урона ( заблокировано %d )')),
 
-    (('Get %s %s'),
+    (('Got %s %s'),
      ('ѕолучено %s %s'))
     );
 const

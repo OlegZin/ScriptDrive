@@ -5,15 +5,12 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math, superobject;
+  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math, superobject, Vcl.Imaging.pngimage;
 
 type
   TForm3 = class(TForm)
-    bResetTower: TButton;
     mLog: TMemo;
-    bAttack: TButton;
     lPlayerInfo: TLabel;
-    lStep: TLabel;
     lCreatureInfo: TLabel;
     cbItem: TComboBox;
     bUseItem: TButton;
@@ -27,8 +24,6 @@ type
     pCraft: TTabSheet;
     lbLoot: TListBox;
     bUpSkill: TButton;
-    lTopStep: TLabel;
-    lTarget: TLabel;
     lBuffs: TLabel;
     MainMenu1: TMainMenu;
     mmiLang: TMenuItem;
@@ -39,7 +34,6 @@ type
     cbAutoThink: TCheckBox;
     mThinkLog: TMemo;
     lbThinkList: TListBox;
-    ComboBox1: TComboBox;
     pSecrets: TTabSheet;
     mSecrets: TMemo;
     pFloors: TTabSheet;
@@ -48,7 +42,6 @@ type
     cbPotionSelect: TComboBox;
     bPotionResearch: TButton;
     Panel2: TPanel;
-    Memo1: TMemo;
     pResourceResearch: TTabSheet;
     Label1: TLabel;
     Label2: TLabel;
@@ -81,7 +74,6 @@ type
     Label19: TLabel;
     Label20: TLabel;
     Label21: TLabel;
-    mFloorLog: TMemo;
     pnlFloor: TPanel;
     Panel1: TPanel;
     mmiAuto: TLabel;
@@ -92,6 +84,45 @@ type
     bToolUpgrade: TButton;
     lToolUpCost: TLabel;
     cbTarget: TComboBox;
+    Panel3: TPanel;
+    Splitter1: TSplitter;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    iMonster: TImage;
+    pMonsterHPBG: TPanel;
+    pMonsterHP: TPanel;
+    flpMonsterParams: TFlowPanel;
+    Panel6: TPanel;
+    Image1: TImage;
+    Label7: TLabel;
+    Panel7: TPanel;
+    Image2: TImage;
+    Label22: TLabel;
+    Panel8: TPanel;
+    Image3: TImage;
+    Label23: TLabel;
+    Panel9: TPanel;
+    Image4: TImage;
+    Label24: TLabel;
+    Panel10: TPanel;
+    Image5: TImage;
+    Label25: TLabel;
+    Panel11: TPanel;
+    Image6: TImage;
+    Label26: TLabel;
+    Image8: TImage;
+    lResetTower: TLabel;
+    Image7: TImage;
+    lAttack: TLabel;
+    Image9: TImage;
+    pFloor: TPanel;
+    Image10: TImage;
+    pTarget: TPanel;
+    pStepCount: TPanel;
+    pFloorProgressBG: TPanel;
+    pStep: TPanel;
+    pFloorProgress: TPanel;
+    Image11: TImage;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -115,6 +146,7 @@ type
   public
     { Public declarations }
     CurrLang: string;
+    procedure Attack;
     procedure SetLang(lang: string);
     procedure updateThinkInterface;
     procedure UpdateInterface;
@@ -131,7 +163,7 @@ implementation
 {$R *.dfm}
 
 
-uses uData;
+uses uData, uAssets;
 
 const
     UNKNOWN_BUTTON = '??????';
@@ -142,13 +174,15 @@ var
    ,oldPlayerSkills
    ,AllowModes
    ,SelectedTool
+   ,LastMonsterName  /// имя последнего активного монстра, применяется для отслеживания
+   ///  необходимости смены картинки при появлении нового
             : string;
-    topFloor
-   ,CurrFloor  // текущий этаж
+//    topFloor
+    CurrFloor  // текущий этаж
    ,LastFloor  // последний этаж для которого отстраивался режим Этаж
    ,NeedToToolUp
             : integer;
-    LastFloorObject
+    LastFloorObject   /// последняя кнопка объекта с которой взаимодействовали на этаже
             : TButton;
     sobj : ISuperObject;
 
@@ -178,11 +212,10 @@ begin
     Script.Exec('AllowTool(TimeSand)');
     Script.Exec('AllowTool(Leggings)');
 }
-    Script.Exec('AllowMode(Floors, 1)');
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
-    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);');
+    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);CheckStatus();');
 
     UpdateInterface;
 
@@ -368,6 +401,8 @@ begin
         for i := pnlFloor.ControlCount-1 downto 0 do
             pnlFloor.Controls[i].Free;
 
+        LastFloorObject := nil;
+
         /// получаем первый объект этажа
         json := Data.GetFirstFloorObject(IntToStr(CurrFloor));
 
@@ -396,7 +431,7 @@ begin
             b.Caption := UNKNOWN_BUTTON;
             b.Tag := obj.I['params.key'];
             b.Left := Random(pFloors.ClientWidth - b.Width);
-            b.top := Random(pFloors.ClientHeight - b.Height - mFloorLog.Height);
+            b.top := Random(pFloors.ClientHeight - b.Height);
             b.OnClick := OnClickFloorButton;
 
             json := Data.GetNextFloorObject;
@@ -412,11 +447,7 @@ begin
 
     end;
 
-    event := Script.Exec('GetFloorEvents();');
-    if event <> '' then
-    if   Trim(mFloorLog.Text) <> ''
-    then mFloorLog.Text := event + sLineBreak + mFloorLog.Text
-    else mFloorLog.Text := event;
+    Log(Script.Exec('GetFloorEvents();'));
 
 end;
 
@@ -476,8 +507,23 @@ end;
 
 procedure TForm3.bSkillUseClick(Sender: TObject);
 begin
+    /// если скилл не выбран - выходим
     if cbSkills.ItemIndex = -1 then exit;
-    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');CreatureAttack();CheckStatus();');
+
+    /// применяем скилл
+    Script.Exec('UseSkill('+Copy(cbSkills.Text, 0, Pos('=', cbSkills.Text)-1)+');');
+
+    /// если мы сейчас на экране башни - монстр отвечает атакой
+    if pcGame.ActivePage = pTower then
+      Script.Exec('CreatureAttack();');
+
+    /// если сейчас на экране этажа - обновляем текст активного объекта
+    if pcGame.ActivePage = pFloors then
+        if Assigned(LastFloorObject) then
+            LastFloorObject.Caption := Script.Exec('ProcessFloorObject('+IntTostr(LastFloorObject.tag)+');');
+
+    Script.Exec('CheckStatus();');
+
     UpdateInterface;
 end;
 
@@ -492,6 +538,11 @@ end;
 
 procedure TForm3.bAttackClick(Sender: TObject);
 begin
+    Attack;
+end;
+
+procedure TForm3.Attack;
+begin
     Script.Exec('PlayerAttack();CreatureAttack();CheckStatus();');
     UpdateInterface;
 end;
@@ -505,7 +556,7 @@ begin
     if cbAutoAttack.Checked then
     begin
         Script.Exec('ChangeAutoATK(-1)');
-        bAttack.Click;
+        Attack;
     end;
 
     if cbAutoThink.Checked then
@@ -519,11 +570,12 @@ procedure TForm3.UpdateInterface;
 var
     itemItem, itemSkill, itemTarget: integer;
     AutoCount: integer;
-    tmp, exp, lvl, selItem, selSkill, reg, breaks: string;
+    tmp, exp, lvl, selItem, selSkill, reg, breaks, tmpname: string;
     step: integer;
     pars: TstringList;
     i: Integer;
     item : TSuperAvlEntry;
+    bmp : TBitMap;
 begin
     pars := TStringList.Create;
 
@@ -575,34 +627,37 @@ begin
 
 
     // инфа по текущему / топовому этажу
-    CurrFloor := StrToIntDef(Script.Exec('GetCurrentLevel()'), 0);
-    step := StrToIntDef(Script.Exec('CurrentStep()'), 0);
-    if CurrFloor * 1000000 + step > topFloor then
-       topFloor := CurrFloor * 1000000 + step;
+    CurrFloor := StrToIntDef(Data.GetCurrentLevel, 0);
 
-    if CurrLang = 'ENG' then
-    begin
-      lStep.Caption    := 'Floor: ' + IntToStr(CurrFloor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
-      ltopStep.Caption := 'Top: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
+    pStep.Caption      := Data.CurrentStep;
+    pStepCount.Caption := Data.StepCount;
+    pTarget.Caption    := Data.GetCurrTarget;
+    pFloor.Caption     := IntToStr(CurrFloor);
 
-      lTarget.Caption := 'Target: ' + Script.Exec('GetCurrTarget()') + ' floor';
+    pFloorProgress.Width := Round((StrToInt(pStep.Caption) / StrToInt(pStepCount.Caption)) * pFloorProgressBG.Width);
 
-      pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
-    end;
+    if CurrLang = 'ENG' then pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
+    if CurrLang = 'RU' then pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
 
-    if CurrLang = 'RU' then
-    begin
-      lStep.Caption    := 'Этаж: ' + IntToStr(CurrFloor) + ', ' + IntToStr(step) + '/' + Script.Exec('StepCount()');
-      ltopStep.Caption := 'Лучший: ' + IntToStr(topFloor div 1000000) + ', ' + IntToStr(topFloor mod 1000000);
-
-      lTarget.Caption := 'Цель: ' + Script.Exec('GetCurrTarget()') + ' этаж';
-
-      pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
-    end;
 
     // инфа попротивнику
-    lCreatureInfo.Caption := ReplaceStr( Script.Exec('GetCurrCreatureInfo()'), ',', '  ' );
+    tmpname := Script.Exec('GetCurrCreatureName();');
+    if LastMonsterName <> tmpname then
+    begin
+        /// запоминаем имя нового монстра
+        lCreatureInfo.Caption := tmpname;
+        LastMonsterName := tmpname;
+        /// подставляем картинку
 
+        tmp := 'Monster'+IntToStr(Random(fAssets.MonsterCount)+1);
+        iMonster.Picture.Assign( (fAssets.FindComponent( tmp ) as TImage).Picture );
+    end;
+
+    /// инфа по параметрам противника
+    tmp := Data.GetCurrCreatureParams;
+    sobj := SO(tmp);
+    pMonsterHP.Caption := sobj.S['HP'];
+    pMonsterHP.Width := Round((sobj.I['HP'] / sobj.I['MAXHP']) * pMonsterHPBG.Width);
 
     // инфа по игроку
     sobj := SO( Script.Exec('GetPlayerInfo()') );
@@ -731,7 +786,7 @@ procedure TForm3.log(text: string);
 begin
     if text <> '' then
     mLog.Text := text + sLineBreak + mLog.Text;
-    mLog.Text := Copy(mLog.Text, 0, 1000);
+    mLog.Text := Copy(mLog.Text, 0, 3000);
 end;
 
 procedure TForm3.mmiEngClick(Sender: TObject);
@@ -770,7 +825,8 @@ begin
         pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
         pTools.Caption := 'Артефакты';
 
-        bResetTower.Caption := 'Перезапуск';
+        lResetTower.Caption := 'Перезапуск';
+        lAttack.Caption := 'Атака';
         bUseItem.Caption := 'Исп.!';
         bSkillUse.Caption := 'Исп.!';
         bUpSkill.Caption := 'Ап.!';
@@ -796,7 +852,8 @@ begin
         pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
         pTools.Caption := 'Artifacts';
 
-        bResetTower.Caption := 'Restart';
+        lResetTower.Caption := 'Restart';
+        lAttack.Caption := 'Attack';
         bUseItem.Caption := 'Use!';
         bSkillUse.Caption := 'Use!';
         bUpSkill.Caption := 'Up!';

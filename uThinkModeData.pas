@@ -18,7 +18,7 @@ var
 /// ENG - имя для интерфейса на английском
 /// exp - при exp=0 элемент не отображается в интерфейсе и выполняется скрипт
 /// script - скрипт при завершении обдумывания (при exp=0)
-arrThinks : array [0..12] of TThink =(
+arrThinks : array [0..14] of TThink =(
 (name: 'WhoIAm'; enable: 1; caption: 'RU="Кто я?",ENG="Who am I?"'; exp: 100; script:
   'AddThinkEvent(............................................................);'+
   'IF({GetLang() = RU}, 1);'+
@@ -227,7 +227,73 @@ arrThinks : array [0..12] of TThink =(
       'AddThinkEvent("Potions dropped from especially powerful monsters are extremely useful, but there are so few of them!");'+
       'AllowMode(PotionResearch, 2);'+
       'ChangePlayerParam(EXP, 400);'
-    )
+    ),
+(name: 'Diary'; enable: 0; caption: 'RU="Дневник",ENG="Diary"'; exp: 500; script:
+  'ChangePlayerParam(EXP, 400);'+
+  'AddThinkEvent(............................................................);'+
+  'IF({GetLang() = RU}, 6);'+
+  'AddThinkEvent("    Игрок получил 1000 опыта!");'+
+  'AddThinkEvent( );'+
+  'AddThinkEvent("Но нет никаких сомнений, что содержащаяся в них информация будет крайне полезна.");'+
+  'AddThinkEvent("Долгое изучение страниц приводит к выводу, что на каждой странице используется свой шифр и придется расшифровывапть их по отдельности.");'+
+  'AddThinkEvent("Страницы содержат какие-то схемы, рисунки, записи. Но все они зашифрованы.");'+
+  'AddThinkEvent("Это объемный журнал или дневник. Кто его автор и в чем его предназначение, сказать трудно.");'+
+  'IF({GetLang() = ENG}, 6);'+
+  'AddThinkEvent("    Player got 1000 EXP!");'+
+  'AddThinkEvent( );'+
+  'AddThinkEvent("But there is no doubt that the information they contain will be extremely useful.");'+
+  'AddThinkEvent("A long study of the pages leads to the conclusion that each page uses its own cipher and will have to decrypt them separately.");'+
+  'AddThinkEvent("Pages contain some kind of diagrams, drawings, notes. But they are all encrypted.");'+
+  'AddThinkEvent("This is a voluminous journal or diary. Who is its author and what is its purpose is difficult to say.");'+
+  'OpenThink(Page1);'+
+{  'OpenThink(Page2);'+
+  'OpenThink(Page3);'+
+  'OpenThink(Page4);'+
+  'OpenThink(Page5);'+
+  'OpenThink(Page6);'+
+  'OpenThink(Page7);'+
+  'OpenThink(Page8);'+
+  'OpenThink(Page9);'+
+  'OpenThink(Page10);'+
+  'OpenThink(Page11);'+
+  'OpenThink(Page12);'+
+  'OpenThink(Page13);'+
+  'OpenThink(Page14);'+
+  'OpenThink(Page15);'+
+  'OpenThink(Page16);'+
+  'OpenThink(Page17);'+
+  'OpenThink(Page18);'+
+  'OpenThink(Page19);'+
+  'OpenThink(Page20);'+
+  'OpenThink(Page21);'+
+  'OpenThink(Page22);'+
+  'OpenThink(Page23);'
+}
+  ''
+),
+  (name: 'Page1'; enable: 0; caption: 'RU="Дневник: 1 стр.",ENG="Diary: 1 page"'; exp: 2000; script:
+    'AddThinkEvent(............................................................);'+
+    'IF({GetLang() = RU}, 8);'+
+    'AddThinkEvent("    Игрок получил 1000 опыта!");'+
+    'AddThinkEvent( );'+
+    'AddThinkEvent("Внемли же мудрости твоих павших учителей. И пусть нога твоя отыщет истинный Путь!");'+
+    'AddThinkEvent("Здесь я описал все, что узнал о Башне, ее сокровищах, монстрах и секретах. Эти знания накоплены не только мной, но моими предшественниками, которые так-же искали Путь.");'+
+    'AddThinkEvent("Но знания содержащиеся в нем слишком ценны, чтобы попасть в руки врага и главный из них - Темный Мастер. Потому, все тексты зашифрованы и защищены заклинаниями. Если ты действительно мой премник - ты найдешь способ прочитать дневник.");'+
+    'AddThinkEvent("Тогда этот дневник станет твоим подспорьем, другом и наставником.");'+
+    'AddThinkEvent("Приветствую тебя, незнакомец! Если ты читаешь эти строки, значит моя миссия провалена. И, возможно, именно ты мой приемник на этом Пути.");'+
+    'AddThinkEvent("Личный дневник Олонда, искателя Пути");'+
+    'IF({GetLang() = ENG}, 8);'+
+    'AddThinkEvent("    Player got 1000 EXP!");'+
+    'AddThinkEvent( );'+
+    'AddThinkEvent("Hear the wisdom of your fallen teachers. And may your foot find the true Path!");'+
+    'AddThinkEvent("Here I have described everything I have learned about the Tower, its treasures, monsters and secrets. This knowledge has been accumulated not only by me, but by my predecessors, who were also looking for the Path.");'+
+    'AddThinkEvent("But the knowledge contained in it is too valuable to fall into the hands of the enemy, '+
+        'and the main one is the Dark Master. Therefore, all texts are encrypted and protected by spells. If you are really my presenter, you will find a way to read the diary.");'+
+    'AddThinkEvent("Then this diary will become your help, friend and mentor.");'+
+    'AddThinkEvent("Greetings stranger! If you are reading these lines, then my mission has failed. And, perhaps, you are my successor on this Path.");'+
+    'AddThinkEvent("Personal diary of Olond, the seeker of the Path");'+
+    'ChangePlayerParam(EXP, 1000);'
+  )
 );
 {
 (name: ''; enable: 0; caption: 'RU="",ENG=""'; exp: 0; script:
