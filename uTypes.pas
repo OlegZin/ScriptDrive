@@ -150,20 +150,20 @@ var
          isUseAllow: true;
          script:
                  'SetTarget(Player);' +
-                 'If({GetItemCount(Gold) < 10000}, 5);'+       // если золота не достаточно
-                 'If({GetLang() = RU}, 1);'+                   // если золота не достаточно
-                 'AddEvent(У игрока не достаточно золота! [Стоимость 10 000 золота]);'+ // ругаемся и
-                 'If({GetLang() = ENG}, 1);'+                  // если золота не достаточно
-                 'AddEvent(Player do not have enougth Gold! [Cost 10 000 Gold]);'+ // ругаемся и
+                 'If([GetItemCount(Gold) < 10000], 5);'+       // если золота не достаточно
+                 'If([GetLang() = RU], 1);'+                   // если золота не достаточно
+                 'AddEvent(У игрока не достаточно золота! Требуется 10 000 золота);'+ // ругаемся и
+                 'If([GetLang() = ENG], 1);'+                  // если золота не достаточно
+                 'AddEvent(Player do not have enougth Gold! Cost 10 000 Gold);'+ // ругаемся и
                  'ChangeItemCount(Gold, 1);'+                  // компенсируем расход 1 золота за неудачное использование
 
-                 'If({GetItemCount(Gold) > 9999}, 7);'+         // если золота достаточно
+                 'If([GetItemCount(Gold) > 9999], 7);'+         // если золота достаточно
                  'SetVar(iName, GetRandItemName());'+           // получаем имя случайного предмета
                  'ChangeItemCount(GetVar(iName), 1);'+          // добавляем единицу в инвентарь
                  'ChangeItemCount(Gold, -9999);'+               // списываем деньги с учетом того, что 1 спишется за использование золота как предмета
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'If([GetLang() = RU], 1);'+                    // если золота не достаточно
                  'AddEvent(Игрок получил GetVar(iName)!);'+     // радуем игрока приобретением
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'If([GetLang() = ENG], 1);'+                   // если золота не достаточно
                  'AddEvent(Player get GetVar(iName)!);'         // радуем игрока приобретением
         ) // золото
 
@@ -172,11 +172,11 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetVar(IncHP,Rand({GetPlayerAttr(LVL) * 100}));'+
+         script: 'SetVar(IncHP,Rand([GetPlayerAttr(LVL) * 100]));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
-                 'If({GetLang() = ENG}, 1);'+
+                 'If([GetLang() = ENG], 1);'+
                  'AddEvent(Player restore GetVar(IncHP) HP);'+
-                 'If({GetLang() = RU}, 1);'+
+                 'If([GetLang() = RU], 1);'+
                  'AddEvent(Игрок восстановил GetVar(IncHP) HP);'
         ) // зелье лечения
 
@@ -185,11 +185,11 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetVar(IncMP,Rand({GetPlayerAttr(LVL) * 20}));'+
+         script: 'SetVar(IncMP,Rand([GetPlayerAttr(LVL) * 20]));'+
                  'ChangePlayerParam(MP,GetVar(IncMP));'+
-                 'If({GetLang() = ENG}, 1);'+
+                 'If([GetLang() = ENG], 1);'+
                  'AddEvent(Player restore GetVar(IncMP) MP);'+
-                 'If({GetLang() = RU}, 1);'+
+                 'If([GetLang() = RU], 1);'+
                  'AddEvent(Игрок восстановил GetVar(IncMP) MP);'
          ) // зелье восстановления маны
 
@@ -199,9 +199,9 @@ var
          isCraftAllow: false;
          isUseAllow: true;
          script: 'ChangePlayerParam(ATK,1);'+
-                 'If({GetLang() = ENG}, 1);'+
+                 'If([GetLang() = ENG], 1);'+
                  'AddEvent(Player get +1 ATK permanently!);'+
-                 'If({GetLang() = RU}, 1);'+
+                 'If([GetLang() = RU], 1);'+
                  'AddEvent(Игрок получил +1 ATK!);'
         ) // зелье постоянного повышения атаки
 
@@ -211,9 +211,9 @@ var
          isCraftAllow: false;
          isUseAllow: true;
          script: 'ChangePlayerParam(DEF,1);'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'If([GetLang() = ENG], 1);'+                   // если золота не достаточно
                  'AddEvent(Player get +1 DEF permanently!);'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'If([GetLang() = RU], 1);'+                    // если золота не достаточно
                  'AddEvent(Игрок получил +1 DEF!);'
         ) // зелье постоянного повышения защиты
 
@@ -223,9 +223,9 @@ var
          isCraftAllow: false;
          isUseAllow: true;
          script: 'ChangePlayerParam(MDEF,1);'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'If([GetLang() = ENG], 1);'+                   // если золота не достаточно
                  'AddEvent(Player get +1 MDEF permanently!);'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'If([GetLang() = RU], 1);'+                    // если золота не достаточно
                  'AddEvent(Игрок получил +1 MDEF!);'
         ) // зелье постоянного повышения магической защиты
 
@@ -234,11 +234,11 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetVar(EXP,Rand({GetPlayerAttr(LVL) * 100}));'+
+         script: 'SetVar(EXP,Rand([GetPlayerAttr(LVL) * 100]));'+
                  'ChangePlayerParam(EXP,GetVar(EXP));'+
-                 'If({GetLang() = ENG}, 1);'+                   // если золота не достаточно
+                 'If([GetLang() = ENG], 1);'+                   // если золота не достаточно
                  'AddEvent(Player get +GetVar(EXP) EXP!);'+
-                 'If({GetLang() = RU}, 1);'+                    // если золота не достаточно
+                 'If([GetLang() = RU], 1);'+                    // если золота не достаточно
                  'AddEvent(Игрок получил + GetVar(EXP) EXP!);'
         ) // зелье разового получения опыта
 {
@@ -255,7 +255,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerAutoBuff(HP,Rand({GetPlayerAttr(LVL) * 500}));'
+         script: 'SetPlayerAutoBuff(HP,Rand([GetPlayerAttr(LVL) * 500]));'
         ) // зелье регенерации здоровья
 
        ,(name:   'RegenMP';
@@ -263,7 +263,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerAutoBuff(MP,Rand({GetPlayerAttr(LVL) * 50}));'
+         script: 'SetPlayerAutoBuff(MP,Rand([GetPlayerAttr(LVL) * 50]));'
         ) // зелье регенерации маны
 
 
@@ -273,7 +273,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerBuff(ATK,{Rand(GetPlayerAttr(LVL)) + 1});'
+         script: 'SetPlayerBuff(ATK,[Rand(GetPlayerAttr(LVL)) + 1]);'
         ) // зелье временного повышения атаки
 
        ,(name:   'BuffDEF';
@@ -281,7 +281,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerBuff(DEF,{Rand(GetPlayerAttr(LVL)) + 1});'
+         script: 'SetPlayerBuff(DEF,[Rand(GetPlayerAttr(LVL)) + 1]);'
         ) // зелье временного повышения защиты
 
        ,(name:   'BuffMDEF';
@@ -289,7 +289,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerBuff(MDEF,{Rand(GetPlayerAttr(LVL)) + 1});'
+         script: 'SetPlayerBuff(MDEF,[Rand(GetPlayerAttr(LVL)) + 1]);'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffEXP';
@@ -297,7 +297,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerBuff(EXP,{Rand(GetPlayerAttr(LVL)) + 1});'
+         script: 'SetPlayerBuff(EXP,[Rand(GetPlayerAttr(LVL)) + 1]);'
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffREG';
@@ -305,7 +305,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'SetPlayerBuff(REG,{Rand({GetPlayerAttr(LVL) * 10}) + 10});'
+         script: 'SetPlayerBuff(REG,[Rand([GetPlayerAttr(LVL) * 10]) + 10]);'
         ) // зелье временного прироста опыта
 
 
@@ -315,7 +315,7 @@ var
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
-         script: 'ChangeAutoATK(Rand(Min({GetPlayerAttr(LVL) * 100}, 2000)));'
+         script: 'ChangeAutoATK(Rand(Min([GetPlayerAttr(LVL) * 100], 2000)));'
         ) // зелье автоматической атаки
     );
 
@@ -325,7 +325,7 @@ var
     skills : array [0..8] of TItem = (
         (name:   'Healing';
          cost:    10;
-         script: 'SetVar(IncHP,Rand({GetSkillLvl(Healing) * 50}));'+
+         script: 'SetVar(IncHP,Rand([GetSkillLvl(Healing) * 50]));'+
                  'ChangePlayerParam(HP,GetVar(IncHP));'+
                  'AddEvent(Player restore GetVar(IncHP) HP);'
         )
@@ -333,7 +333,7 @@ var
        ,(name:   'Explosion';
          cost:    50;
          script:
-                 'SetVar(Expl,Rand({GetSkillLvl(Explosion) * 300}));'+
+                 'SetVar(Expl,Rand([GetSkillLvl(Explosion) * 300]));'+
                  'AddEvent(Target take GetVar(Expl) damage from Explosion!);'+
                  'ChangeTargetParam(HP,-GetVar(Expl));'
         )
@@ -341,7 +341,7 @@ var
        ,(name:   'Heroism';
          cost:    20;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(Heroism) * 5}));'+
+                 'SetVar(value,Rand([GetSkillLvl(Heroism) * 5]));'+
                  'AddEvent(Player gets all stats buff by GetVar(value)!);'+
                  'SetPlayerBuff(ATK,GetVar(value));'+
                  'SetPlayerBuff(DEF,GetVar(value));'+
@@ -351,7 +351,7 @@ var
        ,(name:   'BreakDEF';
          cost:    15;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(BreakDEF) * 10}));'+
+                 'SetVar(value,Rand([GetSkillLvl(BreakDEF) * 10]));'+
                  'SetVar(monster, GetMonsterAttr(DEF));'+                  /// столько есть у монстра
                  'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters defense is reduced by GetVar(value)!);'+
@@ -361,7 +361,7 @@ var
        ,(name:   'BreakMDEF';
          cost:    15;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(BreakMDEF) * 10}));'+
+                 'SetVar(value,Rand([GetSkillLvl(BreakMDEF) * 10]));'+
                  'SetVar(monster, GetMonsterAttr(MDEF));'+                  /// столько есть у монстра
                  'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters magic defense is reduced by GetVar(value)!);'+
@@ -371,7 +371,7 @@ var
        ,(name:   'BreakATK';
          cost:    30;
          script:
-                 'SetVar(value,Rand({GetSkillLvl(BreakATK) * 5}));'+      /// столько хотим забрать
+                 'SetVar(value,Rand([GetSkillLvl(BreakATK) * 5]));'+      /// столько хотим забрать
                  'SetVar(monster, GetMonsterAttr(ATK));'+                  /// столько есть у монстра
                  'SetVar(value, MIN(GetVar(monster), GetVar(value)));'+    /// берем минмальное значение, чтобы не уйти в минус
                  'AddEvent(Monsters attack reduced by GetVar(value)!);'+
@@ -381,17 +381,17 @@ var
        ,(name:   'LeakMP';
          cost:    10;
          script:
-                 'SetVar(leak,Rand({GetSkillLvl(LeakMP) * 30}));'+  // сколько пытается забрать навык
+                 'SetVar(leak,Rand([GetSkillLvl(LeakMP) * 30]));'+  // сколько пытается забрать навык
                  'SetVar(monsterMP,GetMonsterAttr(MP));'+           // сколько есть у монстра
 
-                 'IF({GetVar(leak) >= GetVar(monsterMP)}, 3);'+        // если забираем больше, чем есть
-                 'SetVar(leak, {GetVar(monsterMP) / 2});'+          // получаемое игроком = половина от возможного
+                 'IF([GetVar(leak) >= GetVar(monsterMP)], 3);'+        // если забираем больше, чем есть
+                 'SetVar(leak, [GetVar(monsterMP) / 2]);'+          // получаемое игроком = половина от возможного
                  'ChangeCreatureParam(MP,-GetVar(monsterMP));'+     // забираем у монстра все
                  'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает свое
 
-                 'IF(GetVar(leak) < GetVar(monsterMP), 4);'+        // если забираем меньше чем есть
+                 'IF([GetVar(leak) < GetVar(monsterMP)], 4);'+        // если забираем меньше чем есть
                  'SetVar(monsterMP, GetVar(leak));'+                // монстр будет терять в полном объеме
-                 'SetVar(leak, {GetVar(leak) / 2});'+               // игрок получит половину от требуемого
+                 'SetVar(leak, [GetVar(leak) / 2]);'+               // игрок получит половину от требуемого
                  'ChangeCreatureParam(MP,-GetVar(monsterMP));'+     // монстр теряет
                  'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает
 
@@ -402,17 +402,17 @@ var
        ,(name:   'VampireStrike';
          cost:    10;
          script:
-                 'SetVar(leak,Rand({GetSkillLvl(VampireStrike) * 20}));'+  // сколько пытается забрать навык
+                 'SetVar(leak,Rand([GetSkillLvl(VampireStrike) * 20]));'+  // сколько пытается забрать навык
                  'SetVar(monsterHP,GetMonsterAttr(HP));'+           // сколько есть у монстра
 
-                 'IF({GetVar(leak) >= GetVar(monsterHP)}, 3);'+        // если забираем больше, чем есть
-                 'SetVar(leak, {GetVar(monsterHP) / 2});'+          // получаемое игроком = половина от возможного
+                 'IF([GetVar(leak) >= GetVar(monsterHP)], 3);'+        // если забираем больше, чем есть
+                 'SetVar(leak, [GetVar(monsterHP) / 2]);'+          // получаемое игроком = половина от возможного
                  'ChangeCreatureParam(HP,-GetVar(monsterHP));'+     // забираем у монстра все
                  'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает свое
 
-                 'IF(GetVar(leak) < GetVar(monsterHP), 4);'+        // если забираем меньше чем есть
+                 'IF([GetVar(leak) < GetVar(monsterHP)], 4);'+        // если забираем меньше чем есть
                  'SetVar(monsterHP, GetVar(leak));'+                // монстр будет терять в полном объеме
-                 'SetVar(leak, {GetVar(leak) / 2});'+               // игрок получит половину от требуемого
+                 'SetVar(leak, [GetVar(leak) / 2]);'+               // игрок получит половину от требуемого
                  'ChangeCreatureParam(HP,-GetVar(monsterHP));'+     // монстр теряет
                  'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает
 
@@ -423,7 +423,7 @@ var
        ,(name:   'Metabolism';
          cost:    10;
          script:
-                 'SetVar(value,{Rand({GetSkillLvl(Metabolism) * 5}) + 10});'+
+                 'SetVar(value,[Rand([GetSkillLvl(Metabolism) * 5]) + 10]);'+
                  'SetPlayerBuff(REG,GetVar(value));'+
                  'AddEvent(Player speed up regen by GetVar(value)!);'
         )

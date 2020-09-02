@@ -87,6 +87,7 @@ type
         function GetCurrCreatureName: string;
         function GetPlayerInfo: string;
         function GetPlayerBuffs: string;
+        function GetPlayerAutoBuffs: string;
         function GetPlayerItems: string;
         function GetPlayerLoot: string;
 
@@ -241,7 +242,7 @@ begin
     Script.Exec('SetVar('+AXE_LVL+       ', 1);');
     Script.Exec('SetVar('+KEY_LVL+       ', 1);');
     Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
-    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
+    Script.Exec('SetVar('+TIMESAND_LVL+  ', 40);');
     Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
     Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
 
@@ -266,7 +267,7 @@ begin
           skl.I[skills[i].name] := 0;
 
     Player.O[S_NAME]      := SO('{"RU":"Игрок", "ENG":"Player"}');
-    Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "REG":1, "EXP":0}');
+    Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "MDEF":0, "REG":1, "EXP":0}');
     Player.O[O_SKILLS]    := skl;
     Player.O[O_ITEMS]     := SO();
     Player.O[O_BUFFS]     := SO();
@@ -434,6 +435,11 @@ end;
 
 function TData.GetPlayerBuffs: string;
 begin
+    result := Objects['Player'].O[ O_BUFFS ].AsString;
+end;
+
+function TData.GetPlayerAutoBuffs: string;
+begin
     result := Objects['Player'].O[ O_AUTOBUFFS ].AsString;
 end;
 
@@ -446,11 +452,11 @@ begin
     resultList := '';
 
     tmp := Objects['Player'].O[ O_PARAMS ].Clone;
-
+{
     for item in Objects['Player'].O[ O_BUFFS ].AsObject do
     if item.Value.AsInteger <> 0 then
         tmp.S[item.Name] := tmp.S[item.Name] + '[' + item.Value.AsString + ']';
-
+}
     result := tmp.AsJSon();
 end;
 
@@ -740,7 +746,7 @@ begin
                 name2[Random(Length(name2))][1],
                 name3[Random(Length(name3))][1]
             ]),
-            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d}', [
+            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d, "MP":0, "MDEF":0, "REG":0}', [
                 Random( CurrLevel*10 ) + CurrLevel*5,
                 Random( CurrLevel*5 )  + CurrLevel*2,
                 Random( CurrLevel*2 )
@@ -784,7 +790,7 @@ begin
                 name2[Random(Length(name2))][1],
                 name3[Random(Length(name3))][1]
             ]),
-            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d}', [
+            Format('{"HP":%d, "ATK":%d, "DEF":%d, "MAXHP":%0:d, "MP":0, "MDEF":0, "REG":0}', [
                 Random( CurrLevel*50 ) + CurrLevel*30,
                 Random( CurrLevel*25 )  + CurrLevel*10,
                 Random( CurrLevel*6 )
@@ -1306,6 +1312,7 @@ procedure TData.AddEvent(text: string);
 /// при добавлении события свежее добавляется в начало для корректного
 /// отображения в интерфейсе
 begin
+    text := ReplaceStr(text, '"', '');
     EventText := text + ifthen(EventText <> '', sLineBreak, '') + EventText;
 end;
 

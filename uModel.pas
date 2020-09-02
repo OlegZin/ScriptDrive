@@ -5,18 +5,17 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uScriptDrive, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math, superobject, Vcl.Imaging.pngimage;
+  Vcl.ComCtrls, Vcl.Menus, Vcl.Buttons, math, superobject, Vcl.Imaging.pngimage,
+  Vcl.Imaging.jpeg;
 
 type
   TForm3 = class(TForm)
     mLog: TMemo;
-    lPlayerInfo: TLabel;
     lCreatureInfo: TLabel;
     cbItem: TComboBox;
     bUseItem: TButton;
     cbSkills: TComboBox;
     bSkillUse: TButton;
-    lNeedExp: TLabel;
     cbAutoAttack: TCheckBox;
     tAutoAttack: TTimer;
     pcGame: TPageControl;
@@ -24,13 +23,11 @@ type
     pCraft: TTabSheet;
     lbLoot: TListBox;
     bUpSkill: TButton;
-    lBuffs: TLabel;
     MainMenu1: TMainMenu;
     mmiLang: TMenuItem;
     mmiEng: TMenuItem;
     mmiRus: TMenuItem;
     pThink: TTabSheet;
-    bThink: TButton;
     cbAutoThink: TCheckBox;
     mThinkLog: TMemo;
     lbThinkList: TListBox;
@@ -76,7 +73,6 @@ type
     Label21: TLabel;
     pnlFloor: TPanel;
     Panel1: TPanel;
-    mmiAuto: TLabel;
     pTools: TTabSheet;
     lbTools: TListBox;
     lToolName: TLabel;
@@ -92,24 +88,21 @@ type
     pMonsterHPBG: TPanel;
     pMonsterHP: TPanel;
     flpMonsterParams: TFlowPanel;
-    Panel6: TPanel;
+    pmATK: TPanel;
     Image1: TImage;
-    Label7: TLabel;
-    Panel7: TPanel;
+    lMonsterATK: TLabel;
+    pmDEF: TPanel;
     Image2: TImage;
-    Label22: TLabel;
-    Panel8: TPanel;
+    lMonsterDEF: TLabel;
+    pmMDEF: TPanel;
     Image3: TImage;
-    Label23: TLabel;
-    Panel9: TPanel;
+    lMonsterMDEF: TLabel;
+    pmREG: TPanel;
     Image4: TImage;
-    Label24: TLabel;
-    Panel10: TPanel;
-    Image5: TImage;
-    Label25: TLabel;
+    lMonsterREG: TLabel;
     Panel11: TPanel;
     Image6: TImage;
-    Label26: TLabel;
+    lMonsterMP: TLabel;
     Image8: TImage;
     lResetTower: TLabel;
     Image7: TImage;
@@ -118,11 +111,40 @@ type
     pFloor: TPanel;
     Image10: TImage;
     pTarget: TPanel;
-    pStepCount: TPanel;
     pFloorProgressBG: TPanel;
-    pStep: TPanel;
     pFloorProgress: TPanel;
     Image11: TImage;
+    Panel15: TPanel;
+    Panel16: TPanel;
+    Image18: TImage;
+    lPlayerMP: TLabel;
+    Panel17: TPanel;
+    Image19: TImage;
+    lPlayerHP: TLabel;
+    Panel18: TPanel;
+    Image20: TImage;
+    lPlayerREG: TLabel;
+    Panel19: TPanel;
+    Image21: TImage;
+    lPlayerMDEF: TLabel;
+    Panel20: TPanel;
+    Image22: TImage;
+    lPlayerDEF: TLabel;
+    Panel21: TPanel;
+    Image23: TImage;
+    lPlayerATK: TLabel;
+    Panel7: TPanel;
+    Image12: TImage;
+    lLvl: TLabel;
+    pEXPBG: TPanel;
+    pEXP: TPanel;
+    Panel6: TPanel;
+    Image5: TImage;
+    lAutoActions: TLabel;
+    Panel8: TPanel;
+    Image13: TImage;
+    lThink: TLabel;
+    Image14: TImage;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -147,6 +169,7 @@ type
     { Public declarations }
     CurrLang: string;
     procedure Attack;
+    procedure Think;
     procedure SetLang(lang: string);
     procedure updateThinkInterface;
     procedure UpdateInterface;
@@ -349,6 +372,11 @@ begin
 end;
 
 procedure TForm3.bThinkClick(Sender: TObject);
+begin
+    Think;
+end;
+
+procedure TForm3.Think;
 var
     capt: string;
 begin
@@ -399,7 +427,8 @@ begin
 
         /// грохаем все компоненты-объекты на этаже
         for i := pnlFloor.ControlCount-1 downto 0 do
-            pnlFloor.Controls[i].Free;
+        if pnlFloor.Controls[i] is TButton
+        then pnlFloor.Controls[i].Free;
 
         LastFloorObject := nil;
 
@@ -419,7 +448,7 @@ begin
             if (size = 'normal') or (size = '') then
             begin
                 b.Height := Round(pFloors.ClientHeight / 10);
-                b.Width := Round(Max(pFloors.ClientWidth / 10, 80));
+                b.Width := Min(Max(Round(pFloors.ClientWidth / 10), 150), 100);
             end;
             if (size = 'huge') or (size = '') then
             begin
@@ -432,6 +461,7 @@ begin
             b.Tag := obj.I['params.key'];
             b.Left := Random(pFloors.ClientWidth - b.Width);
             b.top := Random(pFloors.ClientHeight - b.Height);
+            b.Font.Style := [];
             b.OnClick := OnClickFloorButton;
 
             json := Data.GetNextFloorObject;
@@ -562,7 +592,7 @@ begin
     if cbAutoThink.Checked then
     begin
         Script.Exec('ChangeAutoATK(-1)');
-        bThink.Click;
+        Think;
     end;
 end;
 
@@ -629,12 +659,10 @@ begin
     // инфа по текущему / топовому этажу
     CurrFloor := StrToIntDef(Data.GetCurrentLevel, 0);
 
-    pStep.Caption      := Data.CurrentStep;
-    pStepCount.Caption := Data.StepCount;
     pTarget.Caption    := Data.GetCurrTarget;
     pFloor.Caption     := IntToStr(CurrFloor);
 
-    pFloorProgress.Width := Round((StrToInt(pStep.Caption) / StrToInt(pStepCount.Caption)) * pFloorProgressBG.Width);
+    pFloorProgress.Width := Round((StrToInt(Data.CurrentStep) / StrToInt(Data.StepCount)) * pFloorProgressBG.Width);
 
     if CurrLang = 'ENG' then pFloors.Caption := 'Floor: ' + IntToStr(CurrFloor);
     if CurrLang = 'RU' then pFloors.Caption := 'Этаж: ' + IntToStr(CurrFloor);
@@ -654,40 +682,44 @@ begin
     end;
 
     /// инфа по параметрам противника
-    tmp := Data.GetCurrCreatureParams;
-    sobj := SO(tmp);
+    sobj := SO(Data.GetCurrCreatureParams);
+    /// текущее значение и полоска здоровья
     pMonsterHP.Caption := sobj.S['HP'];
     pMonsterHP.Width := Round((sobj.I['HP'] / sobj.I['MAXHP']) * pMonsterHPBG.Width);
 
-    // инфа по игроку
-    sobj := SO( Script.Exec('GetPlayerInfo()') );
-
-    exp := sobj.S['EXP'];
-    sobj.Delete('EXP');
-
-    lvl := sobj.S['LVL'];
-    sobj.Delete('LVL');
-
-    lPlayerInfo.Caption := '';
+    /// инфа по параметрам
     for item in sobj.AsObject do
-        lPlayerInfo.Caption := lPlayerInfo.Caption + item.Name + ': ' + item.Value.AsString + ' ';
-
-    // инфа по текущему опыту игрока
-    if CurrLang = 'ENG' then
-        lNeedExp.Caption := 'Lvl: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
-
-    if CurrLang = 'RU' then
-        lNeedExp.Caption := 'Ур.: ' + lvl + ', ' + exp + '/' + Script.Exec('NeedExp(GetPlayerAttr(LVL))') + ' EXP';
+        (self.FindComponent( 'lMonster' + item.Name ) as TLabel).Caption := item.Value.AsString;
 
 
-    lBuffs.Caption := '';
-    sobj := SO( Script.Exec('GetPlayerBuffs()') );
+    // инфа по игроку
+    sobj := SO( Data.GetPlayerInfo );
+
+    // инфа по уровню и опыту
+    lLvl.Caption := sobj.S['LVL'];
+    // полоска опыта
+    pEXP.Width := Round((sobj.I['EXP'] / StrToInt(Script.Exec('NeedExp(GetPlayerAttr(LVL))'))) * pEXPBG.Width);
+
+    /// инфа по параметрам
+    for item in sobj.AsObject do
+        (self.FindComponent( 'lPlayer' + item.Name ) as TLabel).Caption := item.Value.AsString;
+
+
+    /// инфа по баффам (приписываем к зачениям)
+    sobj := SO( Data.GetPlayerBuffs );
     for item in sobj.AsObject do
     if item.Value.AsInteger <> 0 then
-        lBuffs.Caption := lBuffs.Caption + item.Name + ': ' + item.Value.AsString;
-    // текущие наложенные бафы
-    if (lBuffs.Caption <> '') and (CurrLang = 'ENG') then lBuffs.Caption := 'Regen: ' + lBuffs.Caption;
-    if (lBuffs.Caption <> '') and (CurrLang = 'RU') then lBuffs.Caption := 'Реген.: ' + lBuffs.Caption;
+        (self.FindComponent( 'lPlayer' + item.Name ) as TLabel).Caption :=
+        (self.FindComponent( 'lPlayer' + item.Name ) as TLabel).Caption +
+        ' [' + item.Value.AsString + ']';
+
+    /// инфа по АВТОбаффам (приписываем к зачениям)
+    sobj := SO( Data.GetPlayerAutoBuffs );
+    for item in sobj.AsObject do
+    if item.Value.AsInteger <> 0 then
+        (self.FindComponent( 'lPlayer' + item.Name ) as TLabel).Caption :=
+        (self.FindComponent( 'lPlayer' + item.Name ) as TLabel).Caption +
+        ' (' + item.Value.AsString + ')';
 
 
     // список предметов
@@ -746,10 +778,8 @@ begin
     cbAutoAttack.Enabled := AutoCount > 0;
     cbAutoThink.Enabled := AutoCount > 0;
 
-    if CurrLang = 'ENG' then
-        mmiAuto.Caption := 'AutoAction: ' + IntToStr(AutoCount);
-    if CurrLang = 'RU' then
-        mmiAuto.Caption := 'Автодействия: ' + IntToStr(AutoCount);
+    lAutoActions.Caption := IntToStr(AutoCount);
+
 
     /// скорость автоатак
     tAutoAttack.Interval := StrToInt(Data.GetAutoSpeed);
@@ -831,7 +861,7 @@ begin
         bSkillUse.Caption := 'Исп.!';
         bUpSkill.Caption := 'Ап.!';
 
-        bThink.Caption := 'Думать...';
+        lThink.Caption := 'Думать...';
         bToolUpgrade.Caption := 'Улучшить!';
     end;
 
@@ -858,7 +888,7 @@ begin
         bSkillUse.Caption := 'Use!';
         bUpSkill.Caption := 'Up!';
 
-        bThink.Caption := 'Think...';
+        lThink.Caption := 'Think...';
         bToolUpgrade.Caption := 'Upgrade!';
     end;
 

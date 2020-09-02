@@ -73,7 +73,7 @@ begin
             varName := 'Var'+IntToStr(fVars.Count);
             fVars.Add( varName, copy(match.Value, 2, Length(match.Value)-2) );
             /// подмен€ем строку именем переменной из кэша
-            scrt := StringReplace(scrt, match.Value, '{'+varName+'}', []);
+            scrt := StringReplace(scrt, match.Value, '['+varName+']', []);
         end;
     until match.Value = '';
 
@@ -244,11 +244,36 @@ end;
 
 function TScriptDrive.GetParams(command: string): TStringList;
 var spos : integer;
+    res,symbol: string;
+    i, braces: integer;
+
 begin
     result := TStringList.Create;
-    result.StrictDelimiter := true;
+
+    /// вырезаем часть с параметрами
     spos := Pos('(', command);
-    result.CommaText := Copy(command, spos+1, Pos(')', command)-1 - spos);
+    command := Copy(command, spos+1, Pos(')', command)-1 - spos);
+
+    braces := 0;
+    res := '';
+
+    for I := 1 to Length(command) do
+    begin
+        symbol := command[i];
+
+        if (symbol = '{') then Inc(braces);
+        if (symbol = '}') then Dec(braces);
+
+        if (symbol = ',') and (braces = 0)
+        then symbol := sLineBreak;
+
+        if (symbol = #0) then symbol := '';
+
+        res := res + symbol;
+    end;
+
+    result.Text := res;
+
 end;
 
 procedure TScriptDrive.SetClass(cls: TClass; obj: TObject);
@@ -291,13 +316,13 @@ begin
     ComparePrior := '<>=<=';
 
     /// ищем наличие математики
-    if Pos('{', command) = 0 then exit;
+    if Pos('[', command) = 0 then exit;
 
 
 
     /// вырезаем арифметику в отдельную строку дл€ обработки
-    beg := pos('{', command) + 1;
-    mth := Trim( copy(command, beg, pos('}', command)-beg) );
+    beg := pos('[', command) + 1;
+    mth := Trim( copy(command, beg, pos(']', command)-beg) );
 
 
 
@@ -562,7 +587,7 @@ begin
     parser.StrictDelimiter := true;
 
     // functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {jgj+functionF(7)} ))+UseItem(RestoreHeal)
-    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]*\s*)*\}|(\w|[а-€ј-я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`]))\s*\,*\s*)*\)');
+    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]*\s*)*\}|(\w|[а-€ј-я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`])|(\{.*\}))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*(\d|\w)*\s*[\+\-\*\/\>\<\=]?)*\)');
     regNotExec := TRegEx.Create('\"[^\"]*\"');  // все в кавычках, кроме вложенных кавычек
 
