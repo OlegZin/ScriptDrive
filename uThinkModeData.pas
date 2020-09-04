@@ -21,15 +21,15 @@ var
 arrThinks : array [0..14] of TThink =(
 (name: 'WhoIAm'; enable: 1; caption: 'RU="Кто я?",ENG="Who am I?"'; exp: 100; script:
   'AddThinkEvent(............................................................);'+
-  'IF({GetLang() = RU}, 1);'+
+  'IF([GetLang() = RU], 1);'+
   'AddThinkEvent("Как странно. Ни имени, ни прошлого. Только пустота и головная боль, когда я пытаюсь что-то вспомнить...");'+
-  'IF({GetLang() = ENG}, 1);'+
+  'IF([GetLang() = ENG], 1);'+
   'AddThinkEvent("How strange. No name, no past. Only emptiness and headache when I try to remember something...");'+
   'OpenThink(OverPain);'
 ),
   (name: 'OverPain'; enable: 0; caption: 'RU="Вспомнить через боль",ENG="Remember through pain"'; exp: 500; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 7);'+
+    'IF([GetLang() = RU], 7);'+
     'AddThinkEvent("    Игрок получил 500 опыта!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Похоже, нужно немного расслабиться, придти в себя... Вдох-выдох...");'+
@@ -37,7 +37,7 @@ arrThinks : array [0..14] of TThink =(
     'AddThinkEvent("И монстры, монстры, монстры...");'+
     'AddThinkEvent("Этот мир выглядит не настоящим, каким-то поддельным, призрачным. Отчего такое чувство?");'+
     'AddThinkEvent("Я не помню, но чувствую, что чужак в этом мире. Мире? Я вижу только нутро и лестницы этой проклятой Башни, из которой нет выхода!");'+
-    'IF({GetLang() = ENG}, 7);'+
+    'IF([GetLang() = ENG], 7);'+
     'AddThinkEvent("    Player got 500 EXP!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("It looks like i need to relax a little, come to your senses ... Inhale, exhale ...");'+
@@ -50,14 +50,14 @@ arrThinks : array [0..14] of TThink =(
     'OpenThink(SomeRest);'+
     'ChangePlayerParam(EXP, 500);'
   ),
-    (name: 'OldSkills'; enable: 0; caption: 'RU="Старые навыки",ENG="Old skills"'; exp: 300; script:
+    (name: 'OldSkills'; enable: 0; caption: 'RU="Старые навыки",ENG="Old skills"'; exp: 1000; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 4);'+
+      'IF([GetLang() = RU], 4);'+
       'AddThinkEvent("     Игрок получил 5000 опыта!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Но сейчас есть только это грубое ржавое оружие. И с ним я обращаться умею. Да! Нужно просто двигаться... Вот так! Легко, свободно, плавно...");'+
       'AddThinkEvent("Да! Руки помнят! Не это грубое железо меча. Что-то совершенно иное. Легкое, опасное, смертоносное!...");'+
-      'IF({GetLang() = ENG}, 4);'+
+      'IF([GetLang() = ENG], 4);'+
       'AddThinkEvent("     Player got 5000 EXP!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("But now there is only this crude rusty weapon. And I know how to handle him. Yes! You just need to move ... That is it! Easy, free, smooth ...");'+
@@ -66,13 +66,13 @@ arrThinks : array [0..14] of TThink =(
     ),
     (name: 'SomeRest'; enable: 0; caption: 'RU=Передышка,ENG=Respite'; exp: 1000; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 5);'+
+      'IF([GetLang() = RU], 5);'+
       'AddThinkEvent("     Игрок получил 5000 автодействий!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("За дело!");'+
       'AddThinkEvent("Не остается ничего другого, как разобраться с тем, что происходит и найти выход из этой башни.");'+
       'AddThinkEvent("После короткой медитации возвращается спокойствие и ясность.");'+
-      'IF({GetLang() = ENG}, 5);'+
+      'IF([GetLang() = ENG], 5);'+
       'AddThinkEvent("     Player got 5000 auto actions!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Get down to business!");'+
@@ -82,12 +82,12 @@ arrThinks : array [0..14] of TThink =(
     ),
     (name: 'FakeWorld'; enable: 0; caption: 'RU="Поддельный мир",ENG="Fake world"'; exp: 500; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 4);'+
+      'IF([GetLang() = RU], 4);'+
       'AddThinkEvent("    Игрок получил доступ к режиму Секретов!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Однако, любая иллюзия поддается изучению и разоблачению. Теперь, когда я осознаю призрачность мира, я могу проникнуть во все его секреты и увидеть все скрытые механизмы!");'+
       'AddThinkEvent("Да, это, несомненно, мир иллюзий и навождений, но как покинуть его?..");'+
-      'IF({GetLang() = ENG}, 4);'+
+      'IF([GetLang() = ENG], 4);'+
       'AddThinkEvent("    Player got access to Secrets mode!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("However, any illusion lends itself to study and exposure. Now, when I realize the illusion of the world, I can penetrate into all its secrets and see all the hidden mechanisms!");'+
@@ -97,10 +97,10 @@ arrThinks : array [0..14] of TThink =(
 
 (name: 'WhereIAm'; enable: 1; caption: 'RU="Где я?",ENG="Where I am?"'; exp: 100; script:
   'AddThinkEvent(............................................................);'+
-  'IF({GetLang() = RU}, 2);'+
+  'IF([GetLang() = RU], 2);'+
   'AddThinkEvent("Стоит подробнее изучить окружающую обстановку.");'+
   'AddThinkEvent("Никаких идей. Это какая-то огромная башня с бесконечными лестницами вверх и монстрами на каждом этаже.");'+
-  'IF({GetLang() = ENG}, 2);'+
+  'IF([GetLang() = ENG], 2);'+
   'AddThinkEvent("It is worthwhile to study the environment in more detail.");'+
   'AddThinkEvent("No ideas. This is some kind of huge tower with endless stairs and monsters on each floor.");'+
   'OpenThink(Tower);'+
@@ -110,14 +110,14 @@ arrThinks : array [0..14] of TThink =(
 ),
   (name: 'Tower'; enable: 0; caption: 'RU="Башня?",ENG="Tower?"'; exp: 300; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 6);'+
+    'IF([GetLang() = RU], 6);'+
     'AddThinkEvent("    Игрок получил 100 опыта!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Интересная идея, но является ли она верной?");'+
     'AddThinkEvent("И миры эти настолько отличаются, что переход между ними не может быть реальным и обладать четкими законами...");'+
     'AddThinkEvent("И то, что воспринимается как башня, на самом деле - переход. Тоннель, пробитый кам-то из одного мира в другой.");'+
     'AddThinkEvent("Если этот мир на самом деле призрачный, вещи в нем могут быть не такими как кажутся.");'+
-    'IF({GetLang() = ENG}, 6);'+
+    'IF([GetLang() = ENG], 6);'+
     'AddThinkEvent("    Player got 100 EXP!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("An interesting idea, but is it correct?");'+
@@ -128,28 +128,28 @@ arrThinks : array [0..14] of TThink =(
   ),
   (name: 'DarkMaser'; enable: 0; caption: 'RU="Темный Мастер",ENG="Dark Master"'; exp: 300; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 4);'+
+    'IF([GetLang() = RU], 4);'+
     'AddThinkEvent("    Игрок получил 100 опыта!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Не думаю, что получится с ним договориться, но и победить его практически невозможно. Нужно продолжить поиски. Возможно, найдется подсказка, как одолеть или обмануть этого опасного противника.");'+
     'AddThinkEvent("Темный Мастер, судя по всему, является хозяином и хранителем этой Башни.");'+
-    'IF({GetLang() = ENG}, 6);'+
+    'IF([GetLang() = ENG], 6);'+
     'AddThinkEvent("    Player got 100 EXP!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("I do not think that it will be possible to come to an agreement with him, but it is almost impossible to defeat him. We need to continue looking. Perhaps there is a hint on how to defeat or deceive this dangerous foe.");'+
     'AddThinkEvent("The Dark Master appears to be the owner and guardian of this Tower.");'+
     'ChangePlayerParam(EXP, 100);'
   ),
-  (name: 'Floors'; enable: 0; caption: 'RU="Этажи",ENG="Floors"'; exp: 300; script:
+  (name: 'Floors'; enable: 0; caption: 'RU="Этажи",ENG="Floors"'; exp: 1500; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 6);'+
+    'IF([GetLang() = RU], 6);'+
     'AddThinkEvent("    Игрок получил 100 опыта!");'+
     'AddThinkEvent("    Получил доступ к режиму Этажи!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Нужно подробнее исследовать каждый этаж!");'+
     'AddThinkEvent("Но есть мысль, что на эти площадки можно обустроить, чтобы немного отдохнуть.");'+
     'AddThinkEvent("Чем выше этаж, тем он просторнее и плотнее забит монстрами. Но перед входом на каждый есть небольшая площадка. Некоторые из них пустуют, на некоторых есть сундуки. Возможно, попадется и еще что-то.");'+
-    'IF({GetLang() = ENG}, 6);'+
+    'IF([GetLang() = ENG], 6);'+
     'AddThinkEvent("    Player got 100 EXP!");'+
     'AddThinkEvent("    Player got access to Floors mode!");'+
     'AddThinkEvent( );'+
@@ -162,12 +162,12 @@ arrThinks : array [0..14] of TThink =(
   ),
     (name: 'Exit'; enable: 0; caption: 'RU="Выход?",ENG="Exit?"'; exp: 500; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 4);'+
+      'IF([GetLang() = RU], 4);'+
       'AddThinkEvent("    Игрок расширил возможности режима Этажи!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("А может, тут полно скрытых проходов, просто нужно хорошенько поискать на каждом этаже?");'+
       'AddThinkEvent("Я еще не видел здесь ни одной двери или окна наружу. Может они есть на верхних этажах? Или нет совсем? Интересно, насколько крепки стены? Может получится их пробить и выбраться наружу?");'+
-      'IF({GetLang() = ENG}, 4);'+
+      'IF([GetLang() = ENG], 4);'+
       'AddThinkEvent("    The player has expanded the capabilities of the Floors mode!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Or maybe there are a lot of hidden passages here, I just need to do a good search on each floor?");'+
@@ -177,12 +177,12 @@ arrThinks : array [0..14] of TThink =(
     ),
   (name: 'Monsters'; enable: 0; caption: 'RU="Монстры",ENG="Monsters"'; exp: 300; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 4);'+
+    'IF([GetLang() = RU], 4);'+
     'AddThinkEvent("    Игрок получил 100 опыта!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Я просто уверен, что смогу все это как-то использовать. Нужно изучить эти предметы подробнее!");'+
     'AddThinkEvent("С каждым этажом эти твари все сильнее и опаснее! Но из некоторых получается добыть некие предметы, а из наиболее сильных даже падают зелья!");'+
-    'IF({GetLang() = ENG}, 4);'+
+    'IF([GetLang() = ENG], 4);'+
     'AddThinkEvent("    Player got 100 EXP!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("I am just sure I can use it all somehow. You need to study these subjects in more detail!");'+
@@ -194,14 +194,14 @@ arrThinks : array [0..14] of TThink =(
   ),
     (name: 'Resources'; enable: 0; caption: 'RU="Ресурсы",ENG="Resources"'; exp: 800; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 6);'+
+      'IF([GetLang() = RU], 6);'+
       'AddThinkEvent("    Игрок получил 200 опыта!");'+
       'AddThinkEvent("    Игрок получил возможность исследовать ресурсы!");'+
       'AddThinkEvent("    Игрок получил доступ к режиму Ремесла!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Чтобы точно понять, как можно применить каждый из материалов, придется поэкспериментировать с каждым.");'+
       'AddThinkEvent("Я подробно изучил все эти штуки, которые падают из монстров. Это действительно можно использовать для очень многого!");'+
-      'IF({GetLang() = ENG}, 6);'+
+      'IF([GetLang() = ENG], 6);'+
       'AddThinkEvent("    Player got 200 EXP!");'+
       'AddThinkEvent("    The player got the opportunity to research resources!");'+
       'AddThinkEvent("    The player has gained access to the Craft mode!");'+
@@ -213,13 +213,13 @@ arrThinks : array [0..14] of TThink =(
     ),
     (name: 'Potions'; enable: 0; caption: 'RU="Зелья",ENG="Potions"'; exp: 1200; script:
       'AddThinkEvent(............................................................);'+
-      'IF({GetLang() = RU}, 5);'+
+      'IF([GetLang() = RU], 5);'+
       'AddThinkEvent("    Игрок получил 400 опыта!");'+
       'AddThinkEvent("    Игрок получил возможность исследовать зелья!");'+
       'AddThinkEvent( );'+
       'AddThinkEvent("Что если попытаться их подробно изучить? Возможно получится понять из чего они сделаны и повторить?");'+
       'AddThinkEvent("Зелья, выпадающие из особо сильных монстров - крайне полезны, но их так мало!");'+
-      'IF({GetLang() = ENG}, 5);'+
+      'IF([GetLang() = ENG], 5);'+
       'AddThinkEvent("    Player got 400 EXP!");'+
       'AddThinkEvent("    The player got the opportunity to research potions!");'+
       'AddThinkEvent( );'+
@@ -231,14 +231,14 @@ arrThinks : array [0..14] of TThink =(
 (name: 'Diary'; enable: 0; caption: 'RU="Дневник",ENG="Diary"'; exp: 500; script:
   'ChangePlayerParam(EXP, 400);'+
   'AddThinkEvent(............................................................);'+
-  'IF({GetLang() = RU}, 6);'+
+  'IF([GetLang() = RU], 6);'+
   'AddThinkEvent("    Игрок получил 1000 опыта!");'+
   'AddThinkEvent( );'+
   'AddThinkEvent("Но нет никаких сомнений, что содержащаяся в них информация будет крайне полезна.");'+
   'AddThinkEvent("Долгое изучение страниц приводит к выводу, что на каждой странице используется свой шифр и придется расшифровывапть их по отдельности.");'+
   'AddThinkEvent("Страницы содержат какие-то схемы, рисунки, записи. Но все они зашифрованы.");'+
   'AddThinkEvent("Это объемный журнал или дневник. Кто его автор и в чем его предназначение, сказать трудно.");'+
-  'IF({GetLang() = ENG}, 6);'+
+  'IF([GetLang() = ENG], 6);'+
   'AddThinkEvent("    Player got 1000 EXP!");'+
   'AddThinkEvent( );'+
   'AddThinkEvent("But there is no doubt that the information they contain will be extremely useful.");'+
@@ -273,7 +273,7 @@ arrThinks : array [0..14] of TThink =(
 ),
   (name: 'Page1'; enable: 0; caption: 'RU="Дневник: 1 стр.",ENG="Diary: 1 page"'; exp: 2000; script:
     'AddThinkEvent(............................................................);'+
-    'IF({GetLang() = RU}, 8);'+
+    'IF([GetLang() = RU], 8);'+
     'AddThinkEvent("    Игрок получил 1000 опыта!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Внемли же мудрости твоих павших учителей. И пусть нога твоя отыщет истинный Путь!");'+
@@ -282,7 +282,7 @@ arrThinks : array [0..14] of TThink =(
     'AddThinkEvent("Тогда этот дневник станет твоим подспорьем, другом и наставником.");'+
     'AddThinkEvent("Приветствую тебя, незнакомец! Если ты читаешь эти строки, значит моя миссия провалена. И, возможно, именно ты мой приемник на этом Пути.");'+
     'AddThinkEvent("Личный дневник Олонда, искателя Пути");'+
-    'IF({GetLang() = ENG}, 8);'+
+    'IF([GetLang() = ENG], 8);'+
     'AddThinkEvent("    Player got 1000 EXP!");'+
     'AddThinkEvent( );'+
     'AddThinkEvent("Hear the wisdom of your fallen teachers. And may your foot find the true Path!");'+

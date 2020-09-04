@@ -36,6 +36,8 @@ type
             //
 
         CurrLevel: integer;        // текущий проходимый уровень
+        LastCurrLevel: integer;    // последний текущий проходимый уровень для аброботчива автодействий
+                                  // используется для отсечения повторов. например, выполнения скрипта достижения целевого этажа
         CurrStep: integer;        // текущий проходимый шаг на уровень
         MaxStep: integer;        // всего шагов на уровне уровень
 
@@ -242,7 +244,7 @@ begin
     Script.Exec('SetVar('+AXE_LVL+       ', 1);');
     Script.Exec('SetVar('+KEY_LVL+       ', 1);');
     Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
-    Script.Exec('SetVar('+TIMESAND_LVL+  ', 40);');
+    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
     Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
     Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
 
@@ -413,7 +415,8 @@ begin
     for I := 0 to High(items) do
     begin
         result := result + '['+items[i].name+']' + sLineBreak;
-        result := result + 'Craft: ' + ifthen( items[i].isCraftAllow, items[i].craft, '?????') + sLineBreak;
+//      result := result + 'Craft: ' + ifthen( items[i].isCraftAllow, items[i].craft, '?????') + sLineBreak;
+        result := result + 'Craft: ' + items[i].craft + sLineBreak;
         result := result + items[i].script + sLineBreak;
         result := result + sLineBreak;
     end;
@@ -1157,14 +1160,14 @@ begin
     Creature.O[ S_NAME ]   := SO(name);
     Creature.O[ O_ITEMS ]  := SO(items);
     Creature.O[ O_LOOT ]   := SO(loot);
-    Creature.O[ O_EVENTS ] := SO('{"OnAttack":"DoDamageToPlayer(GetMonsterAttr(ATK));"}');
+    Creature.O[ O_EVENTS ] := SO('{OnAttack:DoDamageToPlayer(GetMonsterAttr(ATK));}');
 
     Objects['Creature'] := Creature;
 end;
 
 procedure TData.SetCreatureScript(event, scr: string);
 begin
-    Objects['Creature'].O[ O_EVENTS ] := SO('{"'+event+'":"'+scr+'"}');
+    Objects['Creature'].S[ O_EVENTS + '.' + event ] := scr;
 end;
 
 procedure TData.AddFloorEvent(text: string);
@@ -1181,6 +1184,7 @@ end;
 
 procedure TData.AddThinkEvent(text: string);
 begin
+    text := ReplaceStr(text, '"', '');
     ThinkEvent := text + ifthen(ThinkEvent <> '', sLineBreak, '') + ThinkEvent;
 end;
 
@@ -1436,6 +1440,7 @@ begin
 
         // возвращаемся на первый уровень
         CurrentLevel(1);
+        LastCurrLevel := 0;
         // генерим монстров
         InitCreatures();
 
@@ -1489,6 +1494,7 @@ begin
     begin
         // переходим на новый уровень подземелья
         inc(CurrLevel);
+        LastCurrLevel := 0;
         CurrentLevel(CurrLevel);
         // генерим новую пачку монстров
         InitCreatures();
@@ -1496,10 +1502,11 @@ begin
     end;
 
     // проверка на достижение цели
-    if CurrLevel >= targets[CurrTargetIndex].level then
+    if (CurrLevel = targets[CurrTargetIndex].level) and (CurrLevel <> LastCurrLevel) then
     begin
         /// выполняем скрипт достижения цели
         Script.Exec( targets[CurrTargetIndex].script );
+        LastCurrLevel := CurrLevel;
 
         /// переход на следующую цель задает сам скрипт текущей цели,
         /// поскольку для этого может понадобиться выполнение условий

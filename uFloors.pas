@@ -99,11 +99,11 @@ begin
                    'SetVar(obj, GetRandResName());'+
                    'SetVar(count, ' + IntToStr(Random(levelNum*10)+1) +');'+
                    'SetPlayerRes(GetVar(obj), GetVar(count));' +
-                   'IF({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
-                   'IF({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player found GetVar(count) GetVar(obj)!);'+
-                   'AddFloorEvent( );';
+                   'IF([GetLang() = RU], 1);'+
+                   'AddEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
+                   'IF([GetLang() = ENG], 1);'+
+                   'AddEvent(Player found GetVar(count) GetVar(obj)!);'+
+                   'AddEvent( );';
 
                // в разных этажах прячем разные полезные предметы в мусоре
                // первый этаж - лопата для разгребания мусора
@@ -112,11 +112,11 @@ begin
                    obj.S['script'] :=
                      'AllowMode(Tools, 1);' +
                      'AllowTool(Shovel);' +
-                     'IF({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок обнаружил Лопату !!!);'+
-                     'IF({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player discovered the Shovel !!!);'+
-                     'AddFloorEvent( );';
+                     'IF([GetLang() = RU], 1);'+
+                     'AddEvent(!!! Игрок обнаружил Лопату !!!);'+
+                     'IF([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player discovered the Shovel !!!);'+
+                     'AddEvent( );';
 
                // кирка для разгребания завалов
                if FirstTrash and (levelNum = 2)
@@ -124,11 +124,11 @@ begin
                    obj.S['script'] :=
                      'AllowMode(Tools, 1);' +
                      'AllowTool(Pick);' +
-                     'IF({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок обнаружил Кирку !!!);'+
-                     'IF({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player discovered the Pick !!!);'+
-                     'AddFloorEvent( );';
+                     'IF([GetLang() = RU], 1);'+
+                     'AddEvent(!!! Игрок обнаружил Кирку !!!);'+
+                     'IF([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player discovered the Pick !!!);'+
+                     'AddEvent( );';
 
                // кирка для разгребания завалов
                if FirstTrash and (levelNum = 3)
@@ -136,11 +136,11 @@ begin
                    obj.S['script'] :=
                      'AllowMode(Tools, 1);' +
                      'AllowTool(Axe);' +
-                     'IF({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок обнаружил Топор !!!);'+
-                     'IF({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player discovered the Axe !!!);'+
-                     'AddFloorEvent( );';
+                     'IF([GetLang() = RU]}, 1);'+
+                     'AddEvent(!!! Игрок обнаружил Топор !!!);'+
+                     'IF([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player discovered the Axe !!!);'+
+                     'AddEvent( );';
 
                // кирка для разгребания завалов
                if FirstTrash and (levelNum = 4)
@@ -148,24 +148,24 @@ begin
                    obj.S['script'] :=
                      'AllowMode(Tools, 1);' +
                      'AllowTool(Key);' +
-                     'IF({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок обнаружил Отмычку !!!);'+
-                     'IF({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player discovered the Lock pick !!!);'+
-                     'AddFloorEvent( );';
+                     'IF([GetLang() = RU], 1);'+
+                     'AddEvent(!!! Игрок обнаружил Отмычку !!!);'+
+                     'IF([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player discovered the Lock pick !!!);'+
+                     'AddEvent( );';
 
                // дневник
                if FirstTrash and (levelNum = 5)
                then
                    obj.S['script'] :=
                      'OpenThink(Diary);'+
-                     'IF({GetLang() = RU}, 2);'+
-                     'AddFloorEvent("Похоже, он зашифрован, придется поработать над расшифровкой...");'+
-                     'AddFloorEvent(!!! Игрок обнаружил Дневник !!!);'+
-                     'IF({GetLang() = ENG}, 2);'+
-                     'AddFloorEvent("It looks like it is encrypted, we will have to work on decryption ...");'+
-                     'AddFloorEvent(!!! The player discovered the Diary !!!);'+
-                     'AddFloorEvent( );';
+                     'IF([GetLang() = RU], 2);'+
+                     'AddEvent("Похоже, он зашифрован, придется поработать над расшифровкой...");'+
+                     'AddEvent(!!! Игрок обнаружил Дневник !!!);'+
+                     'IF([GetLang() = ENG], 2);'+
+                     'AddEvent("It looks like it is encrypted, we will have to work on decryption ...");'+
+                     'AddEvent(!!! The player discovered the Diary !!!);'+
+                     'AddEvent( );';
 
                FirstTrash := false;
             end;
@@ -181,11 +181,11 @@ begin
                obj.S['script'] :=
                    'SetVar(iName, GetRandItemName());'+
                    'ChangePlayerItemCount(GetVar(iName), 1);'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Игрок получил GetVar(iName)!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player got GetVar(iName)!);'+
-                   'AddFloorEvent( );';
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Игрок получил GetVar(iName)!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(Player got GetVar(iName)!);'+
+                   'AddEvent( );';
 
                FirstBox := false;
             end;
@@ -203,11 +203,11 @@ begin
                    'SetVar(gold, Rand('+IntToStr(levelNum*10000+1)+'));'+
                    'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Игрок получил GetVar(gold) золота!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Player got GetVar(gold) Gold!);'+
-                   'AddFloorEvent( );';
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Игрок получил GetVar(gold) золота!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(Player got GetVar(gold) Gold!);'+
+                   'AddEvent( );';
 
 
                if FirstChest and (levelNum = 2)
@@ -215,11 +215,11 @@ begin
                   obj.S['script'] :=
                      'AllowTool(LifeAmulet);'+
 
-                     'If({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок нашел Амулет Жизни !!!);'+
-                     'If({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player found the Amulet of Life !!!);'+
-                     'AddFloorEvent( );';
+                     'If([GetLang() = RU], 1);'+
+                     'AddEvent(!!! Игрок нашел Амулет Жизни !!!);'+
+                     'If([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player found the Amulet of Life !!!);'+
+                     'AddEvent( );';
 
                FirstCache := false;
             end;
@@ -234,7 +234,7 @@ begin
 
                obj.S['script'] :=
                    'SetVar(iName, GetRandItemName());'+
-                   'SetVar(iCount, {Rand('+ IntToStr(levelNum) +') + 1});'+
+                   'SetVar(iCount, [Rand('+ IntToStr(levelNum) +') + 1]);'+
                    'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
 
                    'SetVar(lName, GetRandResName());'+
@@ -244,15 +244,15 @@ begin
                    'SetVar(gold, Rand('+IntToStr(levelNum*1000+1)+'));'+
                    'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
-                   'If({GetLang() = RU}, 3);'+
-                   'AddFloorEvent(Игрок получил GetVar(gold) золота!);'+
-                   'AddFloorEvent(Игрок получил GetVar(lCount) GetVar(lName)!);'+
-                   'AddFloorEvent(Игрок получил GetVar(iCount) GetVar(iName)!);'+
-                   'If({GetLang() = ENG}, 3);'+
-                   'AddFloorEvent(Player got GetVar(gold) Gold!);'+
-                   'AddFloorEvent(Player got GetVar(lCount) GetVar(lName)!);'+
-                   'AddFloorEvent(Player got GetVar(iCount) GetVar(iName)!);'+
-                   'AddFloorEvent( );';
+                   'If([GetLang() = RU], 3);'+
+                   'AddEvent(Игрок получил GetVar(gold) золота!);'+
+                   'AddEvent(Игрок получил GetVar(lCount) GetVar(lName)!);'+
+                   'AddEvent(Игрок получил GetVar(iCount) GetVar(iName)!);'+
+                   'If([GetLang() = ENG], 3);'+
+                   'AddEvent(Player got GetVar(gold) Gold!);'+
+                   'AddEvent(Player got GetVar(lCount) GetVar(lName)!);'+
+                   'AddEvent(Player got GetVar(iCount) GetVar(iName)!);'+
+                   'AddEvent( );';
 
 
                if FirstChest and (levelNum = 5)
@@ -260,11 +260,11 @@ begin
                   obj.S['script'] :=
                      'AllowTool(TimeSand);'+
 
-                     'If({GetLang() = RU}, 1);'+
-                     'AddFloorEvent(!!! Игрок нашел Пески Времени !!!);'+
-                     'If({GetLang() = ENG}, 1);'+
-                     'AddFloorEvent(!!! The player found the Sands of Time !!!);'+
-                     'AddFloorEvent( );';
+                     'If([GetLang() = RU], 1);'+
+                     'AddEvent(!!! Игрок нашел Пески Времени !!!);'+
+                     'If([GetLang() = ENG], 1);'+
+                     'AddEvent(!!! The player found the Sands of Time !!!);'+
+                     'AddEvent( );';
 
                FirstChest := false;
             end;
@@ -283,24 +283,24 @@ begin
                obj.S['script'] :=
                     'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
                     'SetPlayerRes(Stone, GetVar(count));' +
-                    'If({GetLang() = RU}, 2);'+
-                    'AddFloorEvent("Игрок получил GetVar(count) Stone!");'+
-                    'AddFloorEvent("Наконец-то завал разобран...");'+
-                    'If({GetLang() = ENG}, 2);'+
-                    'AddFloorEvent("Player got GetVar(count) Stone!");'+
-                    'AddFloorEvent("Finally, the blockage is dismantled ...");'+
-                    'AddFloorEvent( );';
+                    'If([GetLang() = RU], 2);'+
+                    'AddEvent("Игрок получил GetVar(count) Stone!");'+
+                    'AddEvent("Наконец-то завал разобран...");'+
+                    'If([GetLang() = ENG], 2);'+
+                    'AddEvent("Player got GetVar(count) Stone!");'+
+                    'AddEvent("Finally, the blockage is dismantled ...");'+
+                    'AddEvent( );';
 
 
                if FirstStoneBlockage and (levelNum = 1) then
                  obj.S['script'] :=
                     'AllowTool(leggings);'+
 
-                    'If({GetLang() = RU}, 1);'+
-                    'AddFloorEvent(!!! Игрок нашел Поножи !!!);'+
-                    'If({GetLang() = ENG}, 1);'+
-                    'AddFloorEvent(!!! The player found the leggings !!!);'+
-                    'AddFloorEvent( );';
+                    'If([GetLang() = RU], 1);'+
+                    'AddEvent(!!! Игрок нашел Поножи !!!);'+
+                    'If([GetLang() = ENG], 1);'+
+                    'AddEvent(!!! The player found the leggings !!!);'+
+                    'AddEvent( );';
 
                 FirstStoneBlockage := false;
             end;
@@ -317,13 +317,13 @@ begin
                obj.S['script'] :=
                     'SetVar(count, Rand('+IntToStr(levelNum*100+10)+'));'+
                     'SetPlayerRes(Wood, GetVar(count));' +
-                    'If({GetLang() = RU}, 2);'+
-                    'AddFloorEvent("Игрок получил GetVar(count) Wood!");'+
-                    'AddFloorEvent("Наконец-то завал разобран...");'+
-                    'If({GetLang() = ENG}, 2);'+
-                    'AddFloorEvent("Player got GetVar(count) Wood!");'+
-                    'AddFloorEvent("Finally, the blockage is dismantled ...");'+
-                    'AddFloorEvent( );';
+                    'If([GetLang() = RU], 2);'+
+                    'AddEvent("Игрок получил GetVar(count) Wood!");'+
+                    'AddEvent("Наконец-то завал разобран...");'+
+                    'If([GetLang() = ENG], 2);'+
+                    'AddEvent("Player got GetVar(count) Wood!");'+
+                    'AddEvent("Finally, the blockage is dismantled ...");'+
+                    'AddEvent( );';
                 FirstWoodBlockage := false;
             end;
 
@@ -344,18 +344,18 @@ begin
                obj.S['script'] :=
                    'SetVar(val, Rand(100));'+
 
-                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 5);'+
+                   'IF([GetVar(val) > GetVar(LEGGINGS_LVL)], 5);'+
                    'ChangePlayerParam('+param+', -1);'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(The trap hurt! Lost 1 '+param+'!);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Ловушка нанесла травму! Потеряно 1 '+param+'!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(The trap hurt! Lost 1 '+param+'!);'+
 
-                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(The trap was triggered but the effect was blocked by Leggins!);'+
+                   'IF([GetVar(val) <= GetVar(LEGGINGS_LVL)], 4);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
 
                    'AddFloorEvent( );';
                FirstTrap := false;
@@ -372,19 +372,19 @@ begin
                obj.S['script'] :=
                    'SetVar(val, Rand(100));'+
 
-                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 6);'+
+                   'IF([GetVar(val) > GetVar(LEGGINGS_LVL)], 6);'+
                    'SetVar(dmg, Rand('+IntToStr(levelNum*25+20)+'));'+
                    'ChangePlayerParam(HP, -GetVar(dmg));'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Из кучи мусора выскочила крыса и укусила вас на GetVar(dmg) HP!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
 
-                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
+                   'IF([GetVar(val) <= GetVar(LEGGINGS_LVL)], 4);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
 
                    'AddFloorEvent( );';
                FirstRat := false;
@@ -401,18 +401,18 @@ begin
                obj.S['script'] :=
                    'SetVar(val, Rand(100));'+
 
-                   'IF({GetVar(val) > GetVar(LEGGINGS_LVL)}, 5);'+
+                   'IF([GetVar(val) > GetVar(LEGGINGS_LVL)], 5);'+
                    'SetPlayerAutoBuff(HP, -Rand('+IntToStr(levelNum*100)+'));'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Ядовитый паук укусил вас!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(The poisonous spider bit you!);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Ядовитый паук укусил вас!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(The poisonous spider bit you!);'+
 
-                   'IF({GetVar(val) <= GetVar(LEGGINGS_LVL)}, 4);'+
-                   'If({GetLang() = RU}, 1);'+
-                   'AddFloorEvent(Ядовитый паук пытался укусить вас но Поножи спасли от яда!);'+
-                   'If({GetLang() = ENG}, 1);'+
-                   'AddFloorEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
+                   'IF([GetVar(val) <= GetVar(LEGGINGS_LVL)], 4);'+
+                   'If([GetLang() = RU], 1);'+
+                   'AddEvent(Ядовитый паук пытался укусить вас но Поножи спасли от яда!);'+
+                   'If([GetLang() = ENG], 1);'+
+                   'AddEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
 
                    'AddFloorEvent( );';
                FirstSpider := false;

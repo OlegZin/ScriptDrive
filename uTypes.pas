@@ -168,7 +168,7 @@ var
         ) // золото
 
        ,(name:   'RestoreHealth';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -181,7 +181,7 @@ var
         ) // зелье лечения
 
        ,(name:   'RestoreMana';
-         cost:    750;
+         cost:    250;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -194,7 +194,7 @@ var
          ) // зелье восстановления маны
 
        ,(name:   'PermanentATK';
-         cost:    1000;
+         cost:    200;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -206,7 +206,7 @@ var
         ) // зелье постоянного повышения атаки
 
        ,(name:   'PermanentDEF';
-         cost:    1000;
+         cost:    200;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -218,7 +218,7 @@ var
         ) // зелье постоянного повышения защиты
 
        ,(name:   'PermanentMDEF';
-         cost:    1000;
+         cost:    200;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -230,7 +230,7 @@ var
         ) // зелье постоянного повышения магической защиты
 
        ,(name:   'EXP';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -251,7 +251,7 @@ var
 
 
        ,(name:   'RegenHP';
-         cost:    1000;
+         cost:    300;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -259,7 +259,7 @@ var
         ) // зелье регенерации здоровья
 
        ,(name:   'RegenMP';
-         cost:    1500;
+         cost:    500;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -269,7 +269,7 @@ var
 
 
        ,(name:   'BuffATK';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -277,7 +277,7 @@ var
         ) // зелье временного повышения атаки
 
        ,(name:   'BuffDEF';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -285,7 +285,7 @@ var
         ) // зелье временного повышения защиты
 
        ,(name:   'BuffMDEF';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -293,7 +293,7 @@ var
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffEXP';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -301,7 +301,7 @@ var
         ) // зелье временного прироста опыта
 
        ,(name:   'BuffREG';
-         cost:    500;
+         cost:    100;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;
@@ -311,7 +311,7 @@ var
 
 
        ,(name:   'AutoAction';
-         cost:    5000;
+         cost:    1000;
          craft:    '';
          isCraftAllow: false;
          isUseAllow: true;

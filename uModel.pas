@@ -145,6 +145,10 @@ type
     Image13: TImage;
     lThink: TLabel;
     Image14: TImage;
+    Image15: TImage;
+    Panel9: TPanel;
+    Panel10: TPanel;
+    Panel12: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure bResetTowerClick(Sender: TObject);
     procedure log(text: string);
@@ -201,7 +205,7 @@ var
    ///  необходимости смены картинки при появлении нового
             : string;
 //    topFloor
-    CurrFloor  // текущий этаж
+    CurrFloor  //fmsec текущий этаж
    ,LastFloor  // последний этаж для которого отстраивался режим Этаж
    ,NeedToToolUp
             : integer;
@@ -223,7 +227,6 @@ begin
 {
     Script.Exec('AllowMode(Think, 1)');
     Script.Exec('AllowMode(Secrets, 1)');
-    Script.Exec('AllowMode(Craft, 1)');
     Script.Exec('AllowMode(Floors, 1)');
     Script.Exec('AllowMode(Tools, 1)');
     Script.Exec('AllowTool(Shovel)');
@@ -234,11 +237,15 @@ begin
     Script.Exec('AllowTool(LifeAmulet)');
     Script.Exec('AllowTool(TimeSand)');
     Script.Exec('AllowTool(Leggings)');
+
+    Script.Exec('AllowMode(Craft, 1)');
+    Script.Exec('AllowMode(PotionResearch, 1)');
+    Script.Exec('AllowMode(ResResearch, 1)');
 }
 
     pcGame.ActivePageIndex := pTower.TabIndex;
 
-    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(1000);CheckStatus();');
+    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(10000);CheckStatus();');
 
     UpdateInterface;
 
@@ -322,12 +329,9 @@ procedure TForm3.updateSecretsInterface;
 var
     s: string;
 begin
-    if mSecrets.Text = '' then
-    begin
-        s := Data.GetGameScripts;
-        s := StringReplace(s, ';', ';'+sLineBreak, [rfReplaceAll]);
-        mSecrets.Text := s;
-    end;
+    s := Data.GetGameScripts;
+    s := StringReplace(s, ';', ';'+sLineBreak, [rfReplaceAll]);
+    mSecrets.Text := s;
 end;
 
 

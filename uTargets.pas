@@ -180,22 +180,23 @@ var
        (level: 5;
          script:
              'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-
-             'IF([GetLang() = ENG], 4);'+
-             'AddEvent(" - YOU WILL NOT PASS!");' +
-             'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
-             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);AllowTool(Sword);SetNextTarget();");'+
-
-             'IF([GetLang() = RU], 4);'+
-             'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
-             'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
-             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);AllowTool(Sword);SetNextTarget();");'+
 
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
                  '{HP:9999, ATK:100, DEF:0, MAXHP:9999, MP:0, MDEF:0, REG:0},'+
-                 '{SpiritBless:1},);'+
+                 '{SpiritBless:1}, );'+
+
+             'AddEvent(..................);'+
+
+             'IF([GetLang() = ENG], 3);'+
+             'AddEvent(" - YOU WILL NOT PASS!");' +
+             'AddEvent(" - What are you doing in my Tower, insignificance!?");' +
+             'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);AddEvent( );AddEvent(    Player got Sword artifact!);AllowTool(Sword);SetNextTarget();");'+
+
+             'IF([GetLang() = RU], 3);'+
+             'AddEvent(" - ТЫ НЕ ПРОЙДЕШЬ!");' +
+             'AddEvent(" - Что ты делаешь в моей Башне, ничтожество!?");' +
+             'SetCreatureScript(OnDeath,"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);AddEvent( );AddEvent(    Игрок получил артефакт Меч!);AllowTool(Sword);SetNextTarget();");'+
 
              'AddEvent(..................);'
         )
@@ -203,6 +204,11 @@ var
        ,(level: 7;
          script:
              'SetBreak(Tower);'+
+
+             'SetCreature('+
+                 '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
+                 '{HP:99999, ATK:1000, DEF:0, MAXHP:99999, MP:0, MDEF:0, REG:0},'+
+                 '{SpiritBless:1}, );'+
 
              'AddEvent(..................);'+
 
@@ -216,11 +222,6 @@ var
              'AddEvent(" - Это наша последняя встреча, чужак! Ты не выйдешь из моей Башни!");' +
              'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
 
-             'SetCreature('+
-                 '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:99999, ATK:1000, DEF:0, MAXHP:99999, MP:0, MDEF:0, REG:0},'+
-                 '{SpiritBless:1},);'+
-
              'AddEvent(..................);'+
              'SetNextTarget();'
         )
@@ -231,14 +232,12 @@ var
 
              'AddEvent(..................);'+
 
-             'IF([GetLang() = ENG], 4);'+
-             'SetVar(DarkMaster,FURY DARK MASTER);'+
+             'IF([GetLang() = ENG], 3);'+
              'AddEvent(" - You broke into my Tower, scared monsters, looted chests. Who are you after that !?");' +
              'AddEvent(" - Now EXACTLY our last meeting!");' +
              'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);SetNextTarget();");'+
 
-             'IF([GetLang() = RU], 4);'+
-             'SetVar(DarkMaster,ЯРОСТНЫЙ ТЕМНЫЙ МАСТЕР);'+
+             'IF([GetLang() = RU], 3);'+
              'AddEvent(" - Ты вломился в мою Башню, рапугал монстров, разграбил сундуки. Да кто ты такой после этого!?");' +
              'AddEvent(" - Вот теперь ТОЧНО наша последняя встреча!");' +
              'SetCreatureScript(OnDeath,"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();");'+
@@ -246,7 +245,7 @@ var
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
                  '{HP:999999, ATK:10000, DEF:0, MAXHP:999999, MP:0, MDEF:0, REG:0},'+
-                 '{SpiritBless:1},);'+
+                 '{SpiritBless:1}, );'+
 
              'AddEvent(..................);'+
              'SetNextTarget();'

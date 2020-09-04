@@ -245,7 +245,7 @@ end;
 function TScriptDrive.GetParams(command: string): TStringList;
 var spos : integer;
     res,symbol: string;
-    i, braces: integer;
+    i, braces, quotes: integer;
 
 begin
     result := TStringList.Create;
@@ -256,6 +256,7 @@ begin
 
     braces := 0;
     res := '';
+    quotes := 0;
 
     for I := 1 to Length(command) do
     begin
@@ -263,8 +264,9 @@ begin
 
         if (symbol = '{') then Inc(braces);
         if (symbol = '}') then Dec(braces);
+        if (symbol = '"') then quotes := 1 - quotes;
 
-        if (symbol = ',') and (braces = 0)
+        if (symbol = ',') and (braces = 0) and (quotes = 0)
         then symbol := sLineBreak;
 
         if (symbol = #0) then symbol := '';

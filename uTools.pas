@@ -11,6 +11,9 @@ const
     LIFEAMULET_LVL = 'LIFEAMULET_LVL';
     TIMESAND_LVL   = 'TIMESAND_LVL';
     LEGGINGS_LVL   = 'LEGGINGS_LVL';
+    WISDOM_LVL     = 'WISDOM_LVL';
+    RESIST_LVL     = 'RESIST_LVL';
+    EXP_LVL        = 'EXP_LVL';
 
 type
     TTool = record
@@ -23,7 +26,7 @@ type
     end;
 
 var
-    arrTools : array[0..7] of TTool = (
+    arrTools : array[0..10] of TTool = (
       (name: 'shovel';
        isAllow: false;
        lvl: 1;
@@ -70,16 +73,37 @@ var
        isAllow: false;
        lvl: 0;
        caption: 'RU="Пески Времени",ENG="Sand of Time"';
-       desc: 'RU=Ускоряет Автодействия на 2% за уровень,ENG=Speeds up Auto Actions by 2% per level';
-       script: 'SetVar('+TIMESAND_LVL+', [GetVar('+TIMESAND_LVL+') + 2]);'),
+       desc: 'RU=Ускоряет Автодействия на 3% за уровень,ENG=Speeds up Auto Actions by 3% per level';
+       script: 'SetVar('+TIMESAND_LVL+', [GetVar('+TIMESAND_LVL+') + 3]);'),
 
       (name: 'leggings';
        isAllow: false;
        lvl: 0;
        caption: 'RU=Поножи,ENG=Leggings';
-       desc: 'RU=Увеличивает шанс избежать эффекта ловушек крыс пауков и т.д. на 2% за уровень,ENG=Increases the chance to avoid the effect of traps rats spiders etc. 2% per level';
-       script: 'SetVar('+LEGGINGS_LVL+', [GetVar('+LEGGINGS_LVL+') + 2]);')
-    );
+       desc: 'RU=Увеличивает шанс избежать эффекта ловушек крыс пауков и т.д. на 3% за уровень,ENG=Increases the chance to avoid the effect of traps rats spiders etc. 3% per level';
+       script: 'SetVar('+LEGGINGS_LVL+', [GetVar('+LEGGINGS_LVL+') + 3]);'),
+
+      (name: 'wisdom';
+       isAllow: false;
+       lvl: 1;
+       caption: 'RU="Обруч Мудрости",ENG="Circle of Wisdom"';
+       desc: 'RU=Проясняет мысли и позволяет быстрее находить новые идеи, ENG=Clarifies thoughts and allows you to find new ideas faster';
+       script: 'SetVar('+WISDOM_LVL+', [GetVar('+WISDOM_LVL+') + 1]);'),
+
+      (name: 'resist';
+       isAllow: false;
+       lvl: 0;
+       caption: 'RU="Кольцо сопротивления",ENG="Ring of resistance"';
+       desc: 'RU=Увеличивает на 2% за уровень шанс заблокировать эффекты, снижающие параметры персонажа, ENG=Increases by 2% per level the chance to block effects that reduce character parameters';
+       script: 'SetVar('+RESIST_LVL+', [GetVar('+RESIST_LVL+') + 2]);'),
+
+      (name: 'exp';
+       isAllow: false;
+       lvl: 0;
+       caption: 'RU="Камень опыта",ENG="Experience stone"';
+       desc: 'RU=На 1 за уровень увеличивает получаемый опыт, ENG=Increases experience gained by 1 per level';
+       script: 'SetVar('+EXP_LVL+', [GetVar('+EXP_LVL+') + 2]);')
+      );
 
 implementation
 
