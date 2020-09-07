@@ -44,26 +44,26 @@ type
     layChest: TLayout;
     Image1: TImage;
     Label6: TLabel;
-    Layout2: TLayout;
+    layMoneyEarning: TLayout;
     Label7: TLabel;
     Rectangle4: TRectangle;
     Label8: TLabel;
-    Layout3: TLayout;
+    layBuildSpeed: TLayout;
     Label9: TLabel;
     Label10: TLabel;
     Rectangle5: TRectangle;
     Label12: TLabel;
-    Layout4: TLayout;
+    layBuildEconomy: TLayout;
     Label13: TLabel;
     Label14: TLabel;
     Rectangle6: TRectangle;
     Label15: TLabel;
-    Layout5: TLayout;
+    layResearch: TLayout;
     Label16: TLabel;
     Label17: TLabel;
     Rectangle7: TRectangle;
     Label18: TLabel;
-    Layout6: TLayout;
+    layConstruction: TLayout;
     Layout7: TLayout;
     RoundRect1: TRoundRect;
     RoundRect2: TRoundRect;
@@ -73,7 +73,7 @@ type
     Label20: TLabel;
     Label21: TLabel;
     Label22: TLabel;
-    Layout9: TLayout;
+    layOwnTower: TLayout;
     Label23: TLabel;
     Label24: TLabel;
     Rectangle8: TRectangle;
@@ -103,20 +103,25 @@ end;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
-    Menu.bNew := bNew;
-    Menu.lNew := lNewGame;
 
-    Menu.bResume := bResume;
-    Menu.lResume := lResumeGame;
+    /// отдаем под управление кнопки и лого
+    Menu.LinkSkillComponent( 'Logo', layLogo );
+    Menu.LinkSkillComponent( 'New', bNew );
+    Menu.LinkSkillComponent( 'Resume', bResume );
+    Menu.LinkSkillComponent( 'Lang', bLang );
+    Menu.LinkSkillComponent( 'Exit', bExit );
 
-    Menu.bLang := bLang;
-    Menu.lLang := lLang;
-
-    Menu.bExit := bExit;
-    Menu.lExit := lExit;
-
-    Menu.layLogo := layLogo;
+    /// отдаем "игрвые" объекты
     Menu.iChest := iChestDef;
+    Menu.layGold := layGold;
+    Menu.bBuild := bBuild;
+    Menu.layConstruction := layConstruction;
+
+    Menu.LinkSkillComponent( 'Research', layResearch  );
+    Menu.LinkSkillComponent( 'MoneyEaring', layMoneyEarning  );
+    Menu.LinkSkillComponent( 'BuildSpeed', layBuildSpeed  );
+    Menu.LinkSkillComponent( 'BuildEconomy', layBuildEconomy  );
+    Menu.LinkSkillComponent( 'OwnTower', layOwnTower  );
 
     Menu.Init;
 end;

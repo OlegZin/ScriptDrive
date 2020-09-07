@@ -603,7 +603,7 @@ object fMain: TfMain
           Size.PlatformDefault = False
         end
       end
-      object Layout2: TLayout
+      object layMoneyEarning: TLayout
         Align = Scale
         Position.X = 30.000000000000000000
         Position.Y = 618.000000000000000000
@@ -615,6 +615,7 @@ object fMain: TfMain
           Align = Left
           AutoSize = True
           StyledSettings = [Family]
+          Position.X = 18.000000000000000000
           Size.Width = 148.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -625,10 +626,10 @@ object fMain: TfMain
           Text = 'Money earning'
         end
         object Label7: TLabel
-          Align = Right
+          Tag = 1
+          Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Position.X = 166.000000000000000000
           Size.Width = 18.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -640,6 +641,7 @@ object fMain: TfMain
         end
         object Rectangle4: TRectangle
           Align = Right
+          Cursor = crHandPoint
           Fill.Color = claWhite
           Position.X = 184.000000000000000000
           Size.Width = 43.000000000000000000
@@ -651,6 +653,7 @@ object fMain: TfMain
           YRadius = 5.000000000000000000
           object Label8: TLabel
             Align = Client
+            Cursor = crHandPoint
             StyledSettings = [Family, Size]
             Size.Width = 43.000000000000000000
             Size.Height = 25.000000000000000000
@@ -662,7 +665,7 @@ object fMain: TfMain
           end
         end
       end
-      object Layout3: TLayout
+      object layBuildSpeed: TLayout
         Align = Scale
         Position.X = 30.000000000000000000
         Position.Y = 584.000000000000000000
@@ -674,6 +677,7 @@ object fMain: TfMain
           Align = Left
           AutoSize = True
           StyledSettings = [Family]
+          Position.X = 18.000000000000000000
           Size.Width = 115.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -684,10 +688,10 @@ object fMain: TfMain
           Text = 'Build speed'
         end
         object Label10: TLabel
-          Align = Right
+          Tag = 1
+          Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Position.X = 166.000000000000000000
           Size.Width = 18.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -699,6 +703,7 @@ object fMain: TfMain
         end
         object Rectangle5: TRectangle
           Align = Right
+          Cursor = crHandPoint
           Fill.Color = claWhite
           Position.X = 184.000000000000000000
           Size.Width = 43.000000000000000000
@@ -710,6 +715,7 @@ object fMain: TfMain
           YRadius = 5.000000000000000000
           object Label12: TLabel
             Align = Client
+            Cursor = crHandPoint
             StyledSettings = [Family, Size]
             Size.Width = 43.000000000000000000
             Size.Height = 25.000000000000000000
@@ -721,7 +727,7 @@ object fMain: TfMain
           end
         end
       end
-      object Layout4: TLayout
+      object layBuildEconomy: TLayout
         Align = Scale
         Position.X = 30.000000000000000000
         Position.Y = 549.000000000000000000
@@ -733,6 +739,7 @@ object fMain: TfMain
           Align = Left
           AutoSize = True
           StyledSettings = [Family]
+          Position.X = 18.000000000000000000
           Size.Width = 147.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -743,10 +750,10 @@ object fMain: TfMain
           Text = 'Build economy'
         end
         object Label14: TLabel
-          Align = Right
+          Tag = 1
+          Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Position.X = 166.000000000000000000
           Size.Width = 18.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -758,6 +765,7 @@ object fMain: TfMain
         end
         object Rectangle6: TRectangle
           Align = Right
+          Cursor = crHandPoint
           Fill.Color = claWhite
           Position.X = 184.000000000000000000
           Size.Width = 43.000000000000000000
@@ -769,6 +777,7 @@ object fMain: TfMain
           YRadius = 5.000000000000000000
           object Label15: TLabel
             Align = Client
+            Cursor = crHandPoint
             StyledSettings = [Family, Size]
             Size.Width = 43.000000000000000000
             Size.Height = 25.000000000000000000
@@ -780,7 +789,7 @@ object fMain: TfMain
           end
         end
       end
-      object Layout5: TLayout
+      object layResearch: TLayout
         Align = Scale
         Position.X = 30.000000000000000000
         Position.Y = 652.000000000000000000
@@ -792,6 +801,7 @@ object fMain: TfMain
           Align = Left
           AutoSize = True
           StyledSettings = [Family]
+          Position.X = 18.000000000000000000
           Size.Width = 90.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -802,10 +812,10 @@ object fMain: TfMain
           Text = 'Research'
         end
         object Label17: TLabel
-          Align = Right
+          Tag = 1
+          Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Position.X = 166.000000000000000000
           Size.Width = 18.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -817,6 +827,7 @@ object fMain: TfMain
         end
         object Rectangle7: TRectangle
           Align = Right
+          Cursor = crHandPoint
           Fill.Color = claWhite
           Position.X = 184.000000000000000000
           Size.Width = 43.000000000000000000
@@ -828,6 +839,7 @@ object fMain: TfMain
           YRadius = 5.000000000000000000
           object Label18: TLabel
             Align = Client
+            Cursor = crHandPoint
             StyledSettings = [Family, Size]
             Size.Width = 43.000000000000000000
             Size.Height = 25.000000000000000000
@@ -839,7 +851,7 @@ object fMain: TfMain
           end
         end
       end
-      object Layout6: TLayout
+      object layConstruction: TLayout
         Position.X = 736.000000000000000000
         Position.Y = 624.000000000000000000
         Size.Width = 209.000000000000000000
@@ -1655,7 +1667,7 @@ object fMain: TfMain
           Text = '1'
         end
       end
-      object Layout9: TLayout
+      object layOwnTower: TLayout
         Align = Scale
         Position.X = 30.000000000000000000
         Position.Y = 513.000000000000000000
@@ -1667,20 +1679,21 @@ object fMain: TfMain
           Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Size.Width = 117.000000000000000000
+          Position.X = 18.000000000000000000
+          Size.Width = 114.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
           TextSettings.Font.Size = 20.000000000000000000
           TextSettings.Font.Style = [fsBold]
           TextSettings.FontColor = xFF2D4A69
           TextSettings.WordWrap = False
-          Text = 'NEW GAME'
+          Text = 'Own Tower'
         end
         object Label24: TLabel
-          Align = Right
+          Tag = 1
+          Align = Left
           AutoSize = True
           StyledSettings = [Family]
-          Position.X = 166.000000000000000000
           Size.Width = 18.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
@@ -1692,6 +1705,7 @@ object fMain: TfMain
         end
         object Rectangle8: TRectangle
           Align = Right
+          Cursor = crHandPoint
           Fill.Color = claWhite
           Position.X = 184.000000000000000000
           Size.Width = 43.000000000000000000
@@ -1703,6 +1717,7 @@ object fMain: TfMain
           YRadius = 5.000000000000000000
           object Label25: TLabel
             Align = Client
+            Cursor = crHandPoint
             StyledSettings = [Family, Size]
             Size.Width = 43.000000000000000000
             Size.Height = 25.000000000000000000
