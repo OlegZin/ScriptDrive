@@ -9,12 +9,15 @@ uses
   superobject in 'SuperObject\superobject.pas',
   supertimezone in 'SuperObject\supertimezone.pas',
   supertypes in 'SuperObject\supertypes.pas',
-  superxmlparser in 'SuperObject\superxmlparser.pas';
+  superxmlparser in 'SuperObject\superxmlparser.pas',
+  Unit1 in 'Unit1.pas' {Form1},
+  uConst in 'uConst.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.CreateForm(TfMain, fMain);
+  Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.

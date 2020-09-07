@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   FMX.Controls.Presentation, FMX.Edit, FMX.ComboEdit, FMX.ComboTrackBar,
-  FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts;
+  FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts, IOUtils;
 
 type
   TfMain = class(TForm)
@@ -73,13 +73,10 @@ type
     Label20: TLabel;
     Label21: TLabel;
     Label22: TLabel;
-    layOwnTower: TLayout;
-    Label23: TLabel;
-    Label24: TLabel;
-    Rectangle8: TRectangle;
-    Label25: TLabel;
+    iTower1: TImage;
     procedure bExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
   public
@@ -94,15 +91,26 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu;
+    uMenu, uConst;
 
 procedure TfMain.bExitClick(Sender: TObject);
 begin
     Close;
 end;
 
+procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+    Menu.SaveData;
+end;
+
 procedure TfMain.FormCreate(Sender: TObject);
 begin
+    /// создаем папку хранения данных (сейвы)
+    if not DirectoryExists( DIR_DATA ) then
+    if not CreateDir( DIR_DATA ) then
+        ShowMessage('Can`t create data directory:'+ sLineBreak +
+                     DIR_DATA + sLineBreak +
+                    'Save game is not available!');
 
     /// отдаем под управление кнопки и лого
     Menu.LinkSkillComponent( 'Logo', layLogo );
@@ -121,7 +129,7 @@ begin
     Menu.LinkSkillComponent( 'MoneyEaring', layMoneyEarning  );
     Menu.LinkSkillComponent( 'BuildSpeed', layBuildSpeed  );
     Menu.LinkSkillComponent( 'BuildEconomy', layBuildEconomy  );
-    Menu.LinkSkillComponent( 'OwnTower', layOwnTower  );
+    Menu.LinkSkillComponent( 'Tower1', iTower1  );
 
     Menu.Init;
 end;

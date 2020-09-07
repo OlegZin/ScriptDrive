@@ -10,25 +10,6 @@ uses
     FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts,
     Generics.Collections, Math;
 
-const
-    def =
-    '{Gold:0, '+
-     'Skills: {'+
-         'Research:     {Enabled:0, Level:0, NeedGold:10,  NeedResearch:1 },'+
-         'MoneyEaring:  {Enabled:0, Level:1, NeedGold:20,  NeedResearch:5 },'+
-         'BuildSpeed:   {Enabled:0, Level:1, NeedGold:100, NeedResearch:10},'+
-         'BuildEconomy: {Enabled:0, Level:0, NeedGold:500, NeedResearch:15},'+
-         'OwnTower:     {Enabled:0, Level:1, NeedGold:1000,NeedResearch:20}'+
-    '},'+
-     'Objects: {'+
-         'Logo:   {NeedResearch:3,  BuildCost:5,  Attempts:0, FullAttempts:10 },'+
-         'Exit:   {NeedResearch:6,  BuildCost:10, Attempts:0, FullAttempts:20 },'+
-         'Lang:   {NeedResearch:9,  BuildCost:20, Attempts:0, FullAttempts:30 },'+
-         'Resume: {NeedResearch:13, BuildCost:30, Attempts:0, FullAttempts:40 },'+
-         'New:    {NeedResearch:17, BuildCost:50, Attempts:0, FullAttempts:50 }'+
-    '}}';
-    /// состояние меню при первом запуске
-
 type
     TSkillComponents = record
 
@@ -57,6 +38,9 @@ type
         procedure LinkSkillComponent(key: string; comp: TControl);
         procedure AddCoin;
         procedure UpdateInterface;
+
+        procedure SaveData;
+        procedure LoadData;
     private
         procedure ButtonMouseEnter(Sender: TObject);
         procedure ButtonMouseLeave(Sender: TObject);
@@ -73,14 +57,20 @@ var
 implementation
 
 uses
-    uMain;
+    uMain, uConst;
 
 procedure TMenu.UpdateInterface;
 var
     item : TSuperAvlEntry;
     i, need: integer;
+    Cnt: TControl;
 begin
-    (layGold.Controls[1] as TLabel).Text := data.S['Gold'];
+    if not Assigned(data) then exit;
+
+    for I := 0 to layGold.ControlsCount-1 do
+    if (layGold.Controls[i] is TLabel)
+    then (layGold.Controls[i] as TLabel).Text := data.S['Gold'];
+
     layGold.Visible := data.I['Gold'] > 0;
 
     /// отслеживаем первоначальный показ навыка науки
@@ -131,30 +121,38 @@ begin
         if (data.I['Objects.' + item.name + '.NeedResearch'] > data.I['Skills.Research.Level']) and
            (data.I['Objects.' + item.name + '.Attempts'] < data.I['Objects.' + item.name + '.FullAttempts'])
         then
-            sklComponent[item.name].Visible := false;
+        begin
+            if   sklComponent.TryGetValue(item.name, Cnt)
+            then Cnt.Visible := false;
+        end;
 
         /// объект исследован и завершен
         if (data.I['Objects.' + item.name + '.NeedResearch'] <= data.I['Skills.Research.Level']) and
-           (data.I['Objects.' + item.name + '.Attempts'] >= data.I['Objects.' + item.name + '.FullAttempts'])
+           (data.I['Objects.' + item.name + '.Attempts'] >= data.I['Objects.' + item.name + '.FullAttempts']) and
+           (WorkKey = item.Name)
         then
         begin
             layConstruction.Visible := false;
             sklComponent[item.name].Visible := true;
+            WorkKey := '';
+            bBuild.Visible := false;
         end;
 
         /// объект уже "исследован" и еще не завершен
         if (data.I['Objects.' + item.name + '.NeedResearch'] <= data.I['Skills.Research.Level']) and
-           (data.I['Objects.' + item.name + '.Attempts'] < data.I['Objects.' + item.name + '.FullAttempts'])
+           (data.I['Objects.' + item.name + '.Attempts'] < data.I['Objects.' + item.name + '.FullAttempts']) and
+           ((WorkKey = '') or (WorkKey = item.Name))
         then
         begin
             /// запоминаем объект с которым работаем для обработчика события кнопки строительства
             WorkKey := item.Name;
 
             /// показываем значок строительства в центре позиции "отстраиваемого" объекта
-            layConstruction.Position.X :=
-                 sklComponent[item.name].Position.X + (sklComponent[item.name].Width - layConstruction.Width) / 2;
-            layConstruction.Position.Y :=
-                 sklComponent[item.name].Position.Y + (sklComponent[item.name].Height - layConstruction.Height) / 2;
+            if sklComponent.TryGetValue(item.name, Cnt) then
+            begin
+                layConstruction.Position.X := Cnt.Position.X + (Cnt.Width - layConstruction.Width) / 2;
+                layConstruction.Position.Y := Cnt.Position.Y + (Cnt.Height - layConstruction.Height) / 2;
+            end;
 
             /// выставляем прогресс
             for I := 0 to layConstruction.ControlsCount-1 do
@@ -202,6 +200,11 @@ end;
 
 
 
+procedure TMenu.SaveData;
+begin
+    data.SaveTo( DIR_DATA + FILE_MENU_DATA );
+end;
+
 procedure TMenu.ChestClick(Sender: TObject);
 begin
     (Sender as TImage).Visible := false;
@@ -235,7 +238,7 @@ begin
 
     iChest.OnClick       := Menu.ChestClick;
 
-    data := SO(def);
+    LoadData;
 
     Menu.timer := TTimer.Create(nil);
     Menu.timer.Interval := 100;
@@ -267,6 +270,15 @@ begin
          (comp.Controls[i] as TRectangle).Tag := hash;
     end;
 
+end;
+
+procedure TMenu.LoadData;
+///  получаем данные текущего состояния меню
+///  при первом запуске файл состояния отсутствует и берем из константы
+begin
+    if DirectoryExists( DIR_DATA ) and FileExists( DIR_DATA + FILE_MENU_DATA )
+    then data := TSuperObject.ParseFile( DIR_DATA + FILE_MENU_DATA, false )
+    else data := SO( MENU_DATA_DEF );
 end;
 
 procedure TMenu.OnBuildClick(Sender: TObject);
