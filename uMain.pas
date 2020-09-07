@@ -6,7 +6,8 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   FMX.Controls.Presentation, FMX.Edit, FMX.ComboEdit, FMX.ComboTrackBar,
-  FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts, IOUtils;
+  FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts, IOUtils,
+  FMX.Ani;
 
 type
   TfMain = class(TForm)
@@ -53,11 +54,6 @@ type
     Label10: TLabel;
     Rectangle5: TRectangle;
     Label12: TLabel;
-    layBuildEconomy: TLayout;
-    Label13: TLabel;
-    Label14: TLabel;
-    Rectangle6: TRectangle;
-    Label15: TLabel;
     layResearch: TLayout;
     Label16: TLabel;
     Label17: TLabel;
@@ -75,9 +71,18 @@ type
     Label22: TLabel;
     iTower1: TImage;
     Label23: TLabel;
-    procedure bExitClick(Sender: TObject);
+    iTower2: TImage;
+    iTower3: TImage;
+    iTower4: TImage;
+    FloatAnimation1: TFloatAnimation;
+    layAutoMoney: TLayout;
+    Label13: TLabel;
+    Label14: TLabel;
+    Rectangle6: TRectangle;
+    Label15: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure bExitClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -115,22 +120,26 @@ begin
 
     /// отдаем под управление кнопки и лого
     Menu.LinkSkillComponent( 'Logo', layLogo );
-    Menu.LinkSkillComponent( 'New', bNew );
-    Menu.LinkSkillComponent( 'Resume', bResume );
-    Menu.LinkSkillComponent( 'Lang', bLang );
-    Menu.LinkSkillComponent( 'Exit', bExit );
+    Menu.LinkSkillComponent( 'MenuNew', bNew );
+    Menu.LinkSkillComponent( 'MenuResume', bResume );
+    Menu.LinkSkillComponent( 'MenuLang', bLang );
+    Menu.LinkSkillComponent( 'MenuExit', bExit );
 
     /// отдаем "игрвые" объекты
     Menu.iChest := iChestDef;
+    Menu.iChestBG := iChestActive;
     Menu.layGold := layGold;
     Menu.bBuild := bBuild;
     Menu.layConstruction := layConstruction;
 
-    Menu.LinkSkillComponent( 'Research', layResearch  );
-    Menu.LinkSkillComponent( 'MoneyEaring', layMoneyEarning  );
-    Menu.LinkSkillComponent( 'BuildSpeed', layBuildSpeed  );
-    Menu.LinkSkillComponent( 'BuildEconomy', layBuildEconomy  );
-    Menu.LinkSkillComponent( 'Tower1', iTower1  );
+    Menu.LinkSkillComponent( 'Research', layResearch );
+    Menu.LinkSkillComponent( 'MoneyEaring', layMoneyEarning );
+    Menu.LinkSkillComponent( 'BuildSpeed', layBuildSpeed );
+    Menu.LinkSkillComponent( 'AutoMoney', layAutoMoney );
+    Menu.LinkSkillComponent( 'Tower1', iTower1 );
+    Menu.LinkSkillComponent( 'Tower2', iTower2 );
+    Menu.LinkSkillComponent( 'Tower3', iTower3 );
+    Menu.LinkSkillComponent( 'Tower4', iTower4 );
 
     Menu.Init;
 end;

@@ -8,7 +8,7 @@ uses
     FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
     FMX.Controls.Presentation, FMX.Edit, FMX.ComboEdit, FMX.ComboTrackBar,
     FMX.StdCtrls, FMX.WebBrowser, FMX.TabControl, FMX.Objects, FMX.Layouts,
-    Generics.Collections, Math;
+    Generics.Collections, Math, FMX.Ani;
 
 type
     TSkillComponents = record
@@ -18,6 +18,7 @@ type
     TMenu = class
         bBuild
        ,iChest
+       ,iChestBG
        ,layGold
        ,layConstruction
             : TControl;
@@ -28,6 +29,7 @@ type
         timer: TTimer;
 
         isChestCkicked
+       ,isFirstUpdate
                 : boolean;
 
         WorkKey: string;
@@ -49,6 +51,9 @@ type
         procedure OnSkillUpClick(Sender: TObject);
         function GetTextHash(text: string): integer;
         procedure OnBuildClick(Sender: TObject);
+        procedure OnLangClick(Sender: TObject);
+
+        procedure UpdateLang;
     end;
 
 var
@@ -64,25 +69,17 @@ var
     item : TSuperAvlEntry;
     i, need: integer;
     Cnt: TControl;
+    HasUnfinished: boolean;
+        /// если после перебора всех объектов не найдено неисследованных,
+        /// это признак завершения игрвого пролога
+    delay: real;
 begin
     if not Assigned(data) then exit;
 
-    /// пишем в лэйбл текущее золото
-    for I := 0 to layGold.ControlsCount-1 do
-    if (layGold.Controls[i] is TLabel)
-    then (layGold.Controls[i] as TLabel).Text := data.S['Gold'];
+    HasUnfinished := false;
 
-    /// показываем лэйбл с золотом, если не нулевое
-    layGold.Visible := data.I['Gold'] > 0;
-
-    /// отслеживаем первоначальный показ навыка науки
-    if (data.I['Gold'] >= data.I['Skills.Research.NeedGold']) and
-       (data.I['Skills.Research.Level'] = 0)
-    then data.I['Skills.Research.Level'] := 1;
-
-    /// показываем уровень новой игры
-    if sklComponent.TryGetValue('New', Cnt) then
-    ((Cnt.Controls[0]).Controls[1] as TLabel).Text := 'Power ' + data.S['NewLevel'];
+    if data.I['IntroOver'] = 0 then
+    begin
 
     for item in data['Skills'].AsObject do
     begin
@@ -109,8 +106,9 @@ begin
                     data.S['Skills.' + item.name + '.Level'];
 
             /// проверка на показ кнопки апдейта
-            need := (data.I['Skills.' + item.name + '.Level']) *
-                    data.I['Skills.' + item.name + '.NeedGold'];
+            /// при этом цена не может быть нулевой (даже если стартовый уровень - нулевой)
+            need := Max((data.I['Skills.' + item.name + '.Level']) *
+                    data.I['Skills.' + item.name + '.NeedGold'], data.I['Skills.' + item.name + '.NeedGold']);
             /// ищем объект кнопки
             for I := 0 to Cnt.ControlsCount-1 do
             if (Cnt.Controls[i] is TRectangle) then
@@ -122,18 +120,8 @@ begin
 
 
     /// рассматриваем элементы интерфейса, если нет в работе
-//    if WorkKey = '' then
     for item in data['Objects'].AsObject do
     begin
-
-        /// объект не "исследован" - скрываем
-        if (data.I['Objects.' + item.name + '.NeedResearch'] > data.I['Skills.Research.Level']) and
-           (data.I['Objects.' + item.name + '.Attempts'] < data.I['Objects.' + item.name + '.FullAttempts'])
-        then
-        begin
-            if   sklComponent.TryGetValue(item.name, Cnt)
-            then Cnt.Visible := false;
-        end;
 
         /// объект исследован и завершен
         if (data.I['Objects.' + item.name + '.NeedResearch'] <= data.I['Skills.Research.Level']) and
@@ -141,10 +129,21 @@ begin
            (WorkKey = item.Name)
         then
         begin
+            if Pos('Tower', WorkKey ) > 0
+            then data.I['NewLevel'] := data.I['NewLevel'] + 1;
+
             layConstruction.Visible := false;
             sklComponent[item.name].Visible := true;
             WorkKey := '';
             bBuild.Visible := false;
+
+        end;
+
+        /// объект не "исследован" - скрываем
+        if (data.I['Objects.' + item.name + '.Attempts'] < data.I['Objects.' + item.name + '.FullAttempts']) then
+        begin
+            if sklComponent.TryGetValue(item.name, Cnt) then Cnt.Visible := false;
+            HasUnfinished := true;
         end;
 
         /// объект уже "исследован" и еще не завершен
@@ -186,6 +185,62 @@ begin
 
     end;
 
+    end; /// if data.I['IntroOver'] = 0
+
+    /// пишем в лэйбл текущее золото
+    for I := 0 to layGold.ControlsCount-1 do
+    if (layGold.Controls[i] is TLabel)
+    then (layGold.Controls[i] as TLabel).Text := data.S['Gold'];
+
+    /// показываем лэйбл с золотом, если не нулевое
+    layGold.Visible := data.I['Gold'] > 0;
+
+    /// отслеживаем первоначальный показ навыка науки
+    if (data.I['Gold'] >= data.I['Skills.Research.NeedGold']) and
+       (data.I['Skills.Research.Level'] = 0)
+    then data.I['Skills.Research.Level'] := 1;
+
+    /// показываем уровень новой игры
+    if sklComponent.TryGetValue('MenuNew', Cnt) then
+    ((Cnt.Controls[0]).Controls[1] as TLabel).Text := 'Level ' + data.S['NewLevel'];
+
+    /// если исследовали все объекты - высталяем флаг завершения пролога
+    if not HasUnfinished or (data.I['IntroOver'] = 1) then
+    begin
+        /// фишка в том, что остояние игры может быть загружено в любой момент
+        /// и если мы попали сюда сразу после загрузки - интро-игра завершена
+        /// и будем двигать кнопки быстро, иначе, игра в процессе и перестроим
+        /// интерфейс медленно и красиво
+        if isFirstUpdate
+        then delay := 0
+        else delay := 2;
+
+        data.I['IntroOver'] := 1;
+        timer.Enabled := false;
+
+        for item in data['Skills'].AsObject do
+            sklComponent[item.name].AnimateFloat('Opacity', 0, delay, TAnimationType.&In, TInterpolationType.Linear);
+
+        for item in data['Objects'].AsObject do
+        begin
+            if Pos('Logo', item.name ) > 0 then
+                sklComponent[item.name].AnimateFloat('Position.X', sklComponent[item.name].Position.X - 50, delay, TAnimationType.&In, TInterpolationType.Linear);
+
+            if Pos('Tower', item.name ) > 0 then
+                sklComponent[item.name].AnimateFloat('Position.X', sklComponent[item.name].Position.X - 100, delay, TAnimationType.&In, TInterpolationType.Linear);
+
+            if Pos('Menu', item.name ) > 0 then
+                sklComponent[item.name].AnimateFloat('Position.X', sklComponent[item.name].Position.X - 200, delay, TAnimationType.&In, TInterpolationType.Linear);
+        end;
+
+        bBuild.Visible := false;
+        iChest.Visible := false;
+        iChestBG.Visible := false;
+        layGold.Visible := false;
+        layConstruction.Visible := false;
+    end;
+
+    isFirstUpdate := false;
 end;
 
 procedure TMenu.AddCoin;
@@ -197,6 +252,8 @@ end;
 
 
 procedure TMenu.onTimer(Sender: TObject);
+var
+    i : integer;
 begin
     if isChestCkicked then
     begin
@@ -204,6 +261,14 @@ begin
       fMain.iChestDef.Visible := true;
       isChestCkicked := false;
     end;
+
+    if data.I['Skills.AutoMoney.Level'] > 0 then
+    begin
+      /// добавляем
+      data.I['Gold'] := data.I['Gold'] + data.I['Skills.AutoMoney.Level'];
+      UpdateInterface;
+    end;
+
 end;
 
 
@@ -235,15 +300,17 @@ end;
 
 procedure TMenu.Init;
 begin
-    sklComponent['New'].OnMouseEnter    := ButtonMouseEnter;
-    sklComponent['Resume'].OnMouseEnter := ButtonMouseEnter;
-    sklComponent['Lang'].OnMouseEnter   := ButtonMouseEnter;
-    sklComponent['Exit'].OnMouseEnter   := ButtonMouseEnter;
+    sklComponent['MenuNew'].OnMouseEnter    := ButtonMouseEnter;
+    sklComponent['MenuResume'].OnMouseEnter := ButtonMouseEnter;
+    sklComponent['MenuLang'].OnMouseEnter   := ButtonMouseEnter;
+    sklComponent['MenuExit'].OnMouseEnter   := ButtonMouseEnter;
 
-    sklComponent['New'].OnMouseLeave    := ButtonMouseLeave;
-    sklComponent['Resume'].OnMouseLeave := ButtonMouseLeave;
-    sklComponent['Lang'].OnMouseLeave   := ButtonMouseLeave;
-    sklComponent['Exit'].OnMouseLeave   := ButtonMouseLeave;
+    sklComponent['MenuNew'].OnMouseLeave    := ButtonMouseLeave;
+    sklComponent['MenuResume'].OnMouseLeave := ButtonMouseLeave;
+    sklComponent['MenuLang'].OnMouseLeave   := ButtonMouseLeave;
+    sklComponent['MenuExit'].OnMouseLeave   := ButtonMouseLeave;
+
+    sklComponent['MenuLang'].OnClick        := OnLangClick;
 
     iChest.OnClick       := Menu.ChestClick;
 
@@ -260,7 +327,10 @@ begin
     bBuild.OnClick := OnBuildClick;
     bBuild.Visible := false;
 
+    isFirstUpdate := true;
+
     UpdateInterface;
+    UpdateLang;
 end;
 
 procedure TMenu.LinkSkillComponent(key: string; comp: TControl);
@@ -293,11 +363,52 @@ end;
 procedure TMenu.OnBuildClick(Sender: TObject);
 begin
     /// списываем золото за апгрейд
-    data.I['Gold'] := data.I['Gold'] - Max(data.I['Objects.' + WorkKey + '.BuildCost'] - data.I['Skills.BuildEconomy.Level'], 1);
+    data.I['Gold'] := data.I['Gold'] - data.I['Objects.' + WorkKey + '.BuildCost'];
     /// уменьшаем количество необходимых попыток, с учетом бонуса
     data.I['Objects.' + WorkKey + '.Attempts'] := data.I['Objects.' + WorkKey + '.Attempts'] + 1 + data.I['Skills.BuildSpeed.Level'];
 
     UpdateInterface;
+end;
+
+procedure TMenu.OnLangClick(Sender: TObject);
+begin
+    if   data.S['Lang'] = 'ENG'
+    then data.S['Lang'] := 'RU'
+    else data.S['Lang'] := 'ENG';
+
+    UpdateLang;
+end;
+
+procedure TMenu.UpdateLang;
+var
+    item : TSuperAvlEntry;
+    Cnt : TControl;
+    i: Integer;
+begin
+    for item in data['Skills'].AsObject do
+    begin
+        Cnt := nil;
+        sklComponent.TryGetValue(item.Name, Cnt);
+        if Assigned(Cnt) then
+        begin
+            /// название навыка в текущем языке
+            for I := 0 to Cnt.ControlsCount-1 do
+            /// ищем лабел с числовым значеним
+            if (Cnt.Controls[i] is TLabel) and
+               (StrToIntDef((Cnt.Controls[i] as TLabel).Text, -1) = -1)
+            then
+                (Cnt.Controls[i] as TLabel).Text :=
+                    data.S['Skills.' + item.name + '.Name.'+data.S['Lang']];
+        end;
+    end;
+
+    for item in data['Objects'].AsObject do
+    if Pos('Menu', item.Name) > 0 then
+    begin
+        (sklComponent[item.Name].Controls[0] as TLabel).Text :=
+            data.S['Objects.' + item.name + '.Name.'+data.S['Lang']];
+    end;
+
 end;
 
 procedure TMenu.OnSkillUpClick(Sender: TObject);
@@ -317,7 +428,9 @@ begin
           /// списываем золото
           data.I['Gold'] :=
               data.I['Gold'] -
-                  data.I['Skills.' + item.name + '.NeedGold'] * data.I['Skills.' + item.name + '.Level'];
+                  Max(data.I['Skills.' + item.name + '.NeedGold'] * data.I['Skills.' + item.name + '.Level'],
+                      data.I['Skills.' + item.name + '.NeedGold']
+                  );
 
           /// увеличиваем уровень
           data.I['Skills.' + item.name + '.Level'] :=
