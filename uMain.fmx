@@ -359,6 +359,21 @@ object fMain: TfMain
           TextSettings.FontColor = xFF2D4A69
           TextSettings.HorzAlign = Center
           Text = 'NEW GAME'
+          object Label23: TLabel
+            Align = Right
+            AutoSize = True
+            StyledSettings = [Family]
+            Position.X = 241.000000000000000000
+            Size.Width = 55.000000000000000000
+            Size.Height = 41.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 16.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            TextSettings.FontColor = xFFBA1F24
+            TextSettings.VertAlign = Leading
+            TextSettings.WordWrap = False
+            Text = 'Level 1'
+          end
         end
       end
       object bResume: TRoundRect

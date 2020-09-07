@@ -9,7 +9,7 @@ uses
 
   System.NetEncoding;
   /// https://flixengineering.com/archives/961
-  /// кодировка
+  /// кодировка картинки в base64
 
 type
   TForm1 = class(TForm)

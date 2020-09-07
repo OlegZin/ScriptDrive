@@ -1,0 +1,16 @@
+﻿[m]
+Coordinates=79,10,40,58
+
+[wb]
+Coordinates=10,78,40,36
+Visible=True
+
+[Panel1]
+Coordinates=129,10,55,36
+
+[Button1]
+Coordinates=10,10,59,58
+
+[]
+Coordinates=137,56,91,36
+

@@ -74,6 +74,7 @@ type
     Label21: TLabel;
     Label22: TLabel;
     iTower1: TImage;
+    Label23: TLabel;
     procedure bExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

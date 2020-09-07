@@ -9,6 +9,7 @@ object Form1: TForm1
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
   object wb: TWebBrowser
+    EnableCaching = False
     Align = Client
     Size.Width = 640.000000000000000000
     Size.Height = 399.000000000000000000
@@ -23,6 +24,9 @@ object Form1: TForm1
     object m: TMemo
       Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
       DataDetectorTypes = []
+      Lines.Strings = (
+        '<a href="1" >1 <span title="title">zdfg</span></a>'
+        '<a href="2">2</a>')
       Align = Left
       Size.Width = 513.000000000000000000
       Size.Height = 81.000000000000000000

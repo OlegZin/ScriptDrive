@@ -67,10 +67,12 @@ var
 begin
     if not Assigned(data) then exit;
 
+    /// пишем в лэйбл текущее золото
     for I := 0 to layGold.ControlsCount-1 do
     if (layGold.Controls[i] is TLabel)
     then (layGold.Controls[i] as TLabel).Text := data.S['Gold'];
 
+    /// показываем лэйбл с золотом, если не нулевое
     layGold.Visible := data.I['Gold'] > 0;
 
     /// отслеживаем первоначальный показ навыка науки
@@ -78,6 +80,9 @@ begin
        (data.I['Skills.Research.Level'] = 0)
     then data.I['Skills.Research.Level'] := 1;
 
+    /// показываем уровень новой игры
+    if sklComponent.TryGetValue('New', Cnt) then
+    ((Cnt.Controls[0]).Controls[1] as TLabel).Text := 'Power ' + data.S['NewLevel'];
 
     for item in data['Skills'].AsObject do
     begin
@@ -89,26 +94,30 @@ begin
         then
             data.I['Skills.' + item.name + '.Enabled'] := 1;
 
-        sklComponent[item.name].Visible := data.I['Skills.' + item.name + '.Enabled'] <> 0;
+        if sklComponent.TryGetValue(item.name, Cnt) then
+        begin
 
-        /// показ текущего уровня
-        for I := 0 to sklComponent[item.name].ControlsCount-1 do
-        /// ищем лабел с числовым значеним
-        if (sklComponent[item.name].Controls[i] is TLabel) and
-           (StrToIntDef((sklComponent[item.name].Controls[i] as TLabel).Text, -1) > -1)
-        then
-            (sklComponent[item.name].Controls[i] as TLabel).Text :=
-                data.S['Skills.' + item.name + '.Level'];
+            Cnt.Visible := data.I['Skills.' + item.name + '.Enabled'] <> 0;
 
-        /// проверка на показ кнопки апдейта
-        need := (data.I['Skills.' + item.name + '.Level']) *
-                data.I['Skills.' + item.name + '.NeedGold'];
-        /// ищем объект кнопки
-        for I := 0 to sklComponent[item.name].ControlsCount-1 do
-        if (sklComponent[item.name].Controls[i] is TRectangle) then
-           (sklComponent[item.name].Controls[i] as TRectangle).Visible :=
-               need <= data.I['Gold'];
+            /// показ текущего уровня
+            for I := 0 to Cnt.ControlsCount-1 do
+            /// ищем лабел с числовым значеним
+            if (Cnt.Controls[i] is TLabel) and
+               (StrToIntDef((Cnt.Controls[i] as TLabel).Text, -1) > -1)
+            then
+                (Cnt.Controls[i] as TLabel).Text :=
+                    data.S['Skills.' + item.name + '.Level'];
 
+            /// проверка на показ кнопки апдейта
+            need := (data.I['Skills.' + item.name + '.Level']) *
+                    data.I['Skills.' + item.name + '.NeedGold'];
+            /// ищем объект кнопки
+            for I := 0 to Cnt.ControlsCount-1 do
+            if (Cnt.Controls[i] is TRectangle) then
+               (Cnt.Controls[i] as TRectangle).Visible :=
+                   need <= data.I['Gold'];
+
+        end;
     end;
 
 
