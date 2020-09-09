@@ -11,7 +11,8 @@ uses
   supertypes in 'SuperObject\supertypes.pas',
   superxmlparser in 'SuperObject\superxmlparser.pas',
   Unit1 in 'Unit1.pas' {Form1},
-  uConst in 'uConst.pas';
+  uConst in 'uConst.pas',
+  uTowerMode in 'uTowerMode.pas';
 
 {$R *.res}
 

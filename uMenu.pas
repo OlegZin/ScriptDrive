@@ -276,7 +276,11 @@ end;
 
 procedure TMenu.SaveData;
 begin
-    data.SaveTo( DIR_DATA + FILE_MENU_DATA );
+    data.SaveTo(
+        DIR_DATA + FILE_MENU_DATA
+//       ,false // не использовать красивое форматирование
+//       ,false  // не преобразовывать русские буквы в эскейп последовательности
+    );
 end;
 
 procedure TMenu.ChestClick(Sender: TObject);

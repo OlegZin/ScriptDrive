@@ -11,14 +11,8 @@ uses
 
 type
   TfMain = class(TForm)
-    WebBrowser1: TWebBrowser;
-    Splitter1: TSplitter;
     TabControl1: TTabControl;
     tabGame: TTabItem;
-    Rectangle2: TRectangle;
-    Rectangle1: TRectangle;
-    TabControl2: TTabControl;
-    TabItem2: TTabItem;
     tabMenu: TTabItem;
     Label1: TLabel;
     Label3: TLabel;
@@ -80,6 +74,36 @@ type
     Label14: TLabel;
     Rectangle6: TRectangle;
     Label15: TLabel;
+    layPlayerPanel: TLayout;
+    layScreen: TLayout;
+    pModesPanel: TRectangle;
+    tModes: TTabControl;
+    tabTower: TTabItem;
+    rLogButtons: TRectangle;
+    wbLog: TWebBrowser;
+    Rectangle9: TRectangle;
+    Label24: TLabel;
+    Image3: TImage;
+    Label25: TLabel;
+    Image2: TImage;
+    Image4: TImage;
+    Label26: TLabel;
+    Image5: TImage;
+    Label27: TLabel;
+    Image6: TImage;
+    Label28: TLabel;
+    Image7: TImage;
+    Label29: TLabel;
+    Image8: TImage;
+    Label30: TLabel;
+    bMenu: TRectangle;
+    rExpBG: TRectangle;
+    rExp: TRectangle;
+    lExp: TLabel;
+    bTower: TRectangle;
+    Image9: TImage;
+    Rectangle1: TRectangle;
+    Image10: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
@@ -97,7 +121,7 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst;
+    uMenu, uConst, uTowerMode, uLog;
 
 procedure TfMain.bExitClick(Sender: TObject);
 begin
@@ -117,6 +141,11 @@ begin
         ShowMessage('Can`t create data directory:'+ sLineBreak +
                      DIR_DATA + sLineBreak +
                     'Save game is not available!');
+
+
+    /////////////////////////////////////////
+    ///    настройка игрового меню
+    /////////////////////////////////////////
 
     /// отдаем под управление кнопки и лого
     Menu.LinkSkillComponent( 'Logo', layLogo );
@@ -142,6 +171,17 @@ begin
     Menu.LinkSkillComponent( 'Tower4', iTower4 );
 
     Menu.Init;
+
+    /////////////////////////////////////////
+    ///    настройка экрана башни
+    /////////////////////////////////////////
+
+    Log.wbLog := wbLog;
+
+    /////////////////////////////////////////
+    ///    настройка экрана башни
+    /////////////////////////////////////////
+
 end;
 
 end.
