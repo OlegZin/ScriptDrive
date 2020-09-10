@@ -1,34 +1,29 @@
-unit uTowerMode;
+unit uThinkMode;
 
 interface
 
 type
-    TTower = class
+    TThink = class
         procedure SetActive;  // активация режима (пользователь переключился на вкладку Башни)
         procedure SetUnactive;  // активация режима (пользователь переключился на вкладку Башни)
     end;
 
 var
-    Tower : TTower;
+    Think : TThink;
 
 implementation
 
 { TTower }
 
-procedure TTower.SetActive;
-begin
-
-end;
-
-procedure TTower.SetUnactive;
+procedure TThink.SetActive;
 begin
 
 end;
 
 initialization
-    Tower := TTower.Create;
+    Think := TThink.Create;
 
 finalization
-    Tower.Free;
+    Think.Free;
 
 end.

@@ -12,7 +12,8 @@ uses
   superxmlparser in 'SuperObject\superxmlparser.pas',
   Unit1 in 'Unit1.pas' {Form1},
   uConst in 'uConst.pas',
-  uTowerMode in 'uTowerMode.pas';
+  uTowerMode in 'uTowerMode.pas',
+  uThinkMode in 'uThinkMode.pas';
 
 {$R *.res}
 

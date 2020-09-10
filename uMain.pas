@@ -76,12 +76,9 @@ type
     Label15: TLabel;
     layPlayerPanel: TLayout;
     layScreen: TLayout;
-    pModesPanel: TRectangle;
     tModes: TTabControl;
     tabTower: TTabItem;
-    rLogButtons: TRectangle;
     wbLog: TWebBrowser;
-    Rectangle9: TRectangle;
     Label24: TLabel;
     Image3: TImage;
     Label25: TLabel;
@@ -100,13 +97,22 @@ type
     rExpBG: TRectangle;
     rExp: TRectangle;
     lExp: TLabel;
-    bTower: TRectangle;
+    bTowerMode: TRectangle;
     Image9: TImage;
-    Rectangle1: TRectangle;
+    bThinkMode: TRectangle;
     Image10: TImage;
+    iPlayer: TImage;
+    iAutoBG: TImage;
+    Label31: TLabel;
+    iPlayerBG: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
+    procedure bTowerModeMouseEnter(Sender: TObject);
+    procedure bTowerModeMouseLeave(Sender: TObject);
+    procedure iPlayerMouseEnter(Sender: TObject);
+    procedure iPlayerMouseLeave(Sender: TObject);
+    procedure bTowerModeClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -122,16 +128,6 @@ implementation
 
 uses
     uMenu, uConst, uTowerMode, uLog;
-
-procedure TfMain.bExitClick(Sender: TObject);
-begin
-    Close;
-end;
-
-procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-begin
-    Menu.SaveData;
-end;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
@@ -182,6 +178,46 @@ begin
     ///    настройка экрана башни
     /////////////////////////////////////////
 
+end;
+
+procedure TfMain.bExitClick(Sender: TObject);
+begin
+    Close;
+end;
+
+procedure TfMain.bTowerModeClick(Sender: TObject);
+begin
+    tModes.ActiveTab := tabTower;
+    Tower.SetActive;
+//    Think.SetUnactive;
+end;
+
+procedure TfMain.bTowerModeMouseEnter(Sender: TObject);
+begin
+    (sender as TControl).Opacity := 1;
+end;
+
+procedure TfMain.bTowerModeMouseLeave(Sender: TObject);
+begin
+    (sender as TControl).Opacity := 0.25;
+end;
+
+procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+    Menu.SaveData;
+end;
+
+
+procedure TfMain.iPlayerMouseEnter(Sender: TObject);
+begin
+    iPlayerBG.Opacity := 0;
+    iPlayer.Opacity := 1;
+end;
+
+procedure TfMain.iPlayerMouseLeave(Sender: TObject);
+begin
+    iPlayerBG.Opacity := 0.5;
+    iPlayer.Opacity := 0;
 end;
 
 end.
