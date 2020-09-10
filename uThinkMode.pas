@@ -20,6 +20,11 @@ begin
 
 end;
 
+procedure TThink.SetUnactive;
+begin
+
+end;
+
 initialization
     Think := TThink.Create;
 

@@ -127,7 +127,7 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uTowerMode, uLog;
+    uMenu, uConst, uTowerMode, uLog, uThinkMode;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
@@ -189,7 +189,7 @@ procedure TfMain.bTowerModeClick(Sender: TObject);
 begin
     tModes.ActiveTab := tabTower;
     Tower.SetActive;
-//    Think.SetUnactive;
+    Think.SetUnactive;
 end;
 
 procedure TfMain.bTowerModeMouseEnter(Sender: TObject);
