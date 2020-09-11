@@ -7,7 +7,6 @@ uses SysUtils;
 const
     FILE_MENU_DATA = '\menu.dat';
 
-const
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
     '{Gold:0, '+
@@ -35,6 +34,477 @@ const
          'Tower3: {NeedResearch:23, BuildCost:200, Attempts:0, FullAttempts:200 },'+
          'Tower4: {NeedResearch:26, BuildCost:250, Attempts:0, FullAttempts:250 }'+
     '}}';
+
+
+    GAME_DATA =
+    '{'+
+    'player: {'+
+        'params: {LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, REG:1, EXP:0},'+
+        'events: {OnAttack:"DoDamageToCreature(GetPlayerAttr(ATK));"},'+
+    '},'+
+
+
+
+    /// rarity - редкость ресурса. чем меньше, тем реже встречается
+    /// cost - стоимость единицы ресурса в золоте
+    ///        считается по формуле: cost = FULL / rarity, где FULL = сумма rarity всех ресурсов
+    /// count - количество ресурса у игрока
+    'resRaritySumm: 50,'+
+    'resources:{'+
+        'wood:   {caption:{RU:"Дерево",ENG:"Wood"},      rarity: 10,  cost:  5, count: 0},'+
+        'stone:  {caption:{RU:"Камень",ENG:"Stone"},     rarity: 10,  cost:  5, count: 0},'+
+        'herbal: {caption:{RU:"Трава",ENG:"Herbal"},     rarity:  8,  cost:  6, count: 0},'+
+        'wheat:  {caption:{RU:"Зерно",ENG:"Wheat"},      rarity:  6,  cost:  8, count: 0},'+
+        'meat:   {caption:{RU:"Мясо",ENG:"Meat"},        rarity:  4,  cost: 13, count: 0},'+
+        'blood:  {caption:{RU:"Кровь",ENG:"Blood"},      rarity:  3,  cost: 17, count: 0},'+
+        'bone:   {caption:{RU:"Кость",ENG:"Bone"},       rarity:  3,  cost: 17, count: 0},'+
+        'skin:   {caption:{RU:"Шкура",ENG:"Skin"},       rarity:  3,  cost: 17, count: 0},'+
+        'ore:    {caption:{RU:"Руда",ENG:"Ore"},         rarity:  2,  cost: 25, count: 0},'+
+        'essence:{caption:{RU:"Эссенция",ENG:"Essence"}, rarity:  1,  cost: 50, count: 0}'+
+    '},'+
+
+
+
+    /// cost - стоимость покупки в золоте
+    /// craft - набор ресурсов для крафта. случайно генерится при старте игры
+    /// isCraftAllow - доступен ли для крафта
+    /// isUseAllow - доступен ли для использования
+    'items:{'+
+        'gold:{ caption: {RU:"Золото", ENG:"Gold"}, cost: 0, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Полновесные золотые монеты. За 10 000 монет можно получить случайный предмет. Испытаем удачу?",'+
+                'ENG:"Full-weight gold coins. For 10,000 coins, you can get a random item. Lets try our luck?"'+
+            '},'+
+            'script:"'+
+                'SetTarget(Player);' +
+                'If([GetItemCount(Gold) < 10000], 5);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Не достаточно золота!);'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(You do not have enougth Gold!);'+
+                'ChangeItemCount(Gold, 1);'+
+
+                'If([GetItemCount(Gold) > 9999], 7);'+
+                'SetVar(iName, GetRandItemName());'+
+                'ChangeItemCount(GetVar(iName), 1);'+
+                'ChangeItemCount(Gold, -9999);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено GetVar(iName)!);'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained GetVar(iName)!);'+
+        '"},'+
+        'restoreHealth:{ caption: {RU:"Зелье здоровья", ENG:"Potion of health"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Мгновенно добавляет здоровье. Количество случайно: от нуля до 100 умноженного на текущий уровень игрока.",'+
+                'ENG:"Instantly adds health. The amount is random: from zero to 100 multiplied by the players current level."'+
+            '},'+
+            'script:"'+
+                'SetVar(IncHP,Rand([GetPlayerAttr(LVL) * 100]));'+
+                'ChangePlayerParam(HP,GetVar(IncHP));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained GetVar(IncHP) health);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено GetVar(IncHP) здоровья);'+
+        '"},'+
+        'restoreMana:{ caption: {RU:"Зелье маны", ENG:"Potion of mana"}, cost: 250, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Мгновенно добавляет ману. Количество случайно: от нуля до 50 умноженного на текущий уровень игрока.",'+
+                'ENG:"Instantly adds mana. The amount is random: from zero to 50 multiplied by the players current level."'+
+            '},'+
+            'script:"'+
+                'SetVar(IncMP,Rand([GetPlayerAttr(LVL) * 50]));'+
+                'ChangePlayerParam(MP,GetVar(IncMP));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained GetVar(IncMP) mana);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено GetVar(IncMP) маны);'+
+        '"},'+
+        'permanentATK:{ caption: {RU:"Зелье атаки", ENG:"Potion of attack"}, cost: 200, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Повышает потенциал атаки. Постоянный эффект.",'+
+                'ENG:"Increases attack potential. Permanent effect."'+
+            '},'+
+            'script:"'+
+                'ChangePlayerParam(ATK,1);'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained +1 attack!);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено +1 к атаке!);'+
+        '"},'+
+        'permanentDEF:{ caption: {RU:"Зелье защиты", ENG:"Potion of defence"}, cost: 200, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Повышает физическую защиту. Постоянный эффект.",'+
+                'ENG:"Increases physical protection. Permanent effect."'+
+            '},'+
+            'script:"'+
+                'ChangePlayerParam(DEF,1);'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained +1 defence!);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено +1 к защите!);'+
+        '"},'+
+        'PermanentMDEF:{ caption: {RU:"Зелье магической защиты", ENG:"Potion of magic defence"}, cost: 200, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Повышает защиту от магии и энергитических воздействий. Постоянный эффект.",'+
+                'ENG:"Increases protection against magic and energetic influences. Permanent effect."'+
+            '},'+
+            'script:"'+
+                'ChangePlayerParam(MDEF,1);'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained +1 magic defence!);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено +1 магической защиты!);'+
+        '"},'+
+        'exp:{ caption: {RU:"Зелье опыта", ENG:"Potion of experience"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Мгновенно дает бесплатный опыт. Количество от 0 до 100 умноженное на текущий уровень игрока.",'+
+                'ENG:"Gives you a free experience instantly. A number between 0 and 100 multiplied by the players current level."'+
+            '},'+
+            'script:"'+
+                'SetVar(EXP,Rand([GetPlayerAttr(LVL) * 100]));'+
+                'ChangePlayerParam(EXP,GetVar(EXP));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Gained GetVar(EXP) experience!);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Получено GetVar(EXP) опыта!);'+
+        '"},'+
+        'regenHP:{ caption: {RU:"Мазь здоровья", ENG:"Ointment of health"}, cost: 300, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Постепенно восстанавливает здоровье. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
+                'ENG:"Restores health over time. Recovery potential from 0 to 500 multiplied by the players current level."'+
+            '},'+
+            'script:"SetPlayerAutoBuff(HP,Rand([GetPlayerAttr(LVL) * 500]));'+
+        '"},'+
+        'regenMP:{ caption: {RU:"Мазь энергии", ENG:"Ointment of mana"}, cost: 500, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Постепенно восстанавливает ману. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
+                'ENG:"Restores mana over time. Recovery potential from 0 to 500 multiplied by the players current level."'+
+            '},'+
+            'script:"SetPlayerAutoBuff(MP,Rand([GetPlayerAttr(LVL) * 50]));'+
+        '"},'+
+        'buffATK:{ caption: {RU:"Порошок атаки", ENG:"Powder of attack"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Временно повышает потенциал атаки. Снижается после каждой атаки игрока.",'+
+                'ENG:"Temporarily increases attack potential. Decreases after each player attack."'+
+            '},'+
+            'script:"SetPlayerBuff(ATK,[Rand(GetPlayerAttr(LVL)) + 1]);'+
+        '"},'+
+        'buffDEF:{ caption: {RU:"Порошок защиты", ENG:"Powder of defence"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Временно повышает потенциал защиты. Снижается после каждой атаки по игроку.",'+
+                'ENG:"Temporarily increases attack potential. Decreases after each attack on the player."'+
+            '},'+
+            'script:"SetPlayerBuff(DEF,[Rand(GetPlayerAttr(LVL)) + 1]);'+
+        '"},'+
+        'buffMDEF:{ caption: {RU:"Порошок магической защиты", ENG:"Powder of magic defence"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Временно повышает потенциал магической защиты. Снижается после каждого магического или энергетического воздействия на игрока.",'+
+                'ENG:"Temporarily increases the potential of magic protection. Decreases after each magical or energy impact on the player."'+
+            '},'+
+            'script:"SetPlayerBuff(MDEF,[Rand(GetPlayerAttr(LVL)) + 1]);'+
+        '"},'+
+        'buffEXP:{ caption: {RU:"Порошок опыта", ENG:"Powder of experience"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Временно повышает потенциал получения опыта. Снижается после каждого получения опыта игроком.",'+
+                'ENG:"Temporarily increases the potential for gaining experience. Decreased after each player gains experience."'+
+            '},'+
+            'script:"SetPlayerBuff(EXP,[Rand(GetPlayerAttr(LVL)) + 1]);'+
+        '"},'+
+        'buffREG:{ caption: {RU:"Порошок регенерации", ENG:"Powder of regeneration"}, cost: 100, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации.",'+
+                'ENG:"Temporarily increases the strength of the regeneration effect. Decreases after each regeneration."'+
+            '},'+
+            'script:"SetPlayerBuff(REG,[Rand([GetPlayerAttr(LVL) * 10]) + 10]);'+
+        '"},'+
+        'autoAction:{ caption: {RU:"Зелье автодействий", ENG:"Potion of autoactions"}, cost: 1000, craft: "", isCraftAllow: false, isUseAllow: true,'+
+            'description:{'+
+                'RU:"Добавляет автодействия. Эффект от 0 до 100 умноженное на уровень игрока, но не больше 2000.",'+
+                'ENG:"Adds auto-actions. The effect is from 0 to 100 multiplied by the players level, but not more than 2000."'+
+            '},'+
+            'script:"ChangeAutoATK(Rand(Min([GetPlayerAttr(LVL) * 100], 2000)));'+
+        '"}'+
+    '},'+
+
+
+    /// cost - стоимость активации в мане за уровень скила
+    /// lvl - стоимость активации в мане за уровень скила
+    /// isActivated - активируемый или пассивный навык
+    /// isEnabled - доступен ли для использования (будет ли отображаться в списке доступных)
+    'skills:{'+
+        'healing:{caption:{RU:"Лечение",ENG:"Healing"}, lvl: 0; cost: 10, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Восстанавливает здоровье цели. Эффект от 0 до 50 умноженное на уровень навыка. Стоимость 20 маны на уровень навыка.",'+
+                'ENG:"Restores the targets health. The effect is from 0 to 50 multiplied by the skill level. Cost 20 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(IncHP,Rand([GetSkillLvl(healing) * 50]));'+
+                'ChangeTargetParam(HP,GetVar(IncHP));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Тarget gets GetVar(IncHP) health);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Цель получет GetVar(IncHP) здоровья);'+
+        '"},'+
+        'explosion:{caption:{RU:"Взрыв",ENG:"Explosion"}, lvl: 0; cost: 50, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Наносит цели магический урон. Эффект от 0 до 300 умноженное на уровень навыка. Стоимость 50 маны на уровень навыка.",'+
+                'ENG:"Deals magic damage to the target. The effect is from 0 to 300 multiplied by the skill level. Cost 50 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(Expl,Rand([GetSkillLvl(explosion) * 300]));'+
+                'ChangeTargetParam(HP,-GetVar(Expl));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target take GetVar(Expl) damage!);'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Цель получет GetVar(Expl) урона!);'+
+        '"},'+
+        'heroism:{caption:{RU:"Героизм",ENG:"Heroism"}, lvl: 0; cost: 20, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Временно повышает параметры цели: атаку, защиту и магическую защиту. Эффект от 0 до 5 умноженное на уровень навыка. Стоимость 20 маны на уровень навыка.",'+
+                'ENG:"Temporarily increases the parameters of the target: attack, defence and magic defence. The effect is from 0 to 5 multiplied by the skill level. Cost 20 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(value,Rand([GetSkillLvl(heroism) * 5]));'+
+                'SetTargetBuff(ATK,GetVar(value));'+
+                'SetTargetBuff(DEF,GetVar(value));'+
+                'SetTargetBuff(MDEF,GetVar(value));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target has received an attack and defence boost of GetVar(value));'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Цель получила усиление атаки и защиты на GetVar(value));'+
+        '"},'+
+        'breakDEF:{caption:{RU:"Пробитие защиты",ENG:"Defence break"}, lvl: 0; cost: 15, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Снижает значение защиты цели. Эффект от 0 до 10 умноженное на уровень навыка. Стоимость 15 маны на уровень навыка.",'+
+                'ENG:"Reduces the value of target defence. The effect is from 0 to 10 multiplied by the skill level. Cost 15 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(value,Rand([GetSkillLvl(breakDEF) * 10]));'+
+                'ChangeTargetParam(DEF,-GetVar(value));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target defense reduced by GetVar(value));'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Защита цели снижена на GetVar(value));'+
+        '"},'+
+        'breakMDEF:{caption:{RU:"Пробитие магической защиты",ENG:"Magic defence break"}, lvl: 0; cost: 15, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Снижает значение магической защиты цели. Эффект от 0 до 10 умноженное на уровень навыка. Стоимость 15 маны на уровень навыка.",'+
+                'ENG:"Reduces the value of target magic defence. The effect is from 0 to 10 multiplied by the skill level. Cost 15 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(value,Rand([GetSkillLvl(breakMDEF) * 10]));'+
+                'ChangeTargetParam(MDEF,-GetVar(value));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target magic defense reduced by GetVar(value));'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Магическая защита цели снижена на GetVar(value));'+
+        '"},'+
+        'breakATK:{caption:{RU:"Травма",ENG:"Injury"}, lvl: 0; cost: 30, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Снижает атаку цели. Эффект от 0 до 5 умноженное на уровень навыка. Стоимость 30 маны на уровень навыка.",'+
+                'ENG:"Reduces target attack. The effect is from 0 to 5 multiplied by the skill level. Cost of 30 mana per skill level."'+
+            '},'+
+            'script:"'+
+                'SetVar(value,Rand([GetSkillLvl(breakATK) * 5]));'+
+                'ChangeTargetParam(ATK,-GetVar(value));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target attack reduced by GetVar(value));'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Атака цели снижена на GetVar(value));'+
+        '"},'+
+        'leakMP:{caption:{RU:"Утечка маны",ENG:"Mana leak"}, lvl: 0; cost: 10, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Забирает у цели ману, но не больше имеющегося количества. Игрок получает половину этого количества. Эффект от 0 до 30 умноженное на уровень навыка. Стоимость 10 маны за уровень.",'+
+                'ENG:"It takes away mana from the target, but not more than the available amount. The player receives half of this amount. The effect is from 0 to 30 multiplied by the skill level. Cost 10 mana per level."'+
+            '},'+
+            'script:"'+
+                'SetVar(leak,Rand([GetSkillLvl(leakMP) * 30]));'+  // сколько пытается забрать навык
+                'SetVar(monsterMP,GetTargetAttr(MP));'+           // сколько есть у монстра
+
+                'IF([GetVar(leak) >= GetVar(monsterMP)], 3);'+        // если забираем больше, чем есть
+                'SetVar(leak, [GetVar(monsterMP) / 2]);'+          // получаемое игроком = половина от возможного
+                'ChangeTargetParam(MP,-GetVar(monsterMP));'+     // забираем у монстра все
+                'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает свое
+
+                'IF([GetVar(leak) < GetVar(monsterMP)], 4);'+        // если забираем меньше чем есть
+                'SetVar(monsterMP, GetVar(leak));'+                // монстр будет терять в полном объеме
+                'SetVar(leak, [GetVar(leak) / 2]);'+               // игрок получит половину от требуемого
+                'ChangeTargetParam(MP,-GetVar(monsterMP));'+     // монстр теряет
+                'ChangePlayerParam(MP,GetVar(leak));'+             // игрок получает
+
+                'If([GetLang() = ENG], 2);'+
+                'AddEvent(Target lost GetVar(monsterMP) mana);'+   // радуем игрока
+                'AddEvent(Player got GetVar(leak) mana);'+
+                'If([GetLang() = RU], 2);'+
+                'AddEvent(Цель потеряла GetVar(monsterMP) маны);'+   // радуем игрока
+                'AddEvent(Игрок получил GetVar(leak) маны);'+
+        '"},'+
+        'vampireStrike:{caption:{RU:"",ENG:""}, lvl: 0; cost: 10, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Забирает у цели здоровье, но не больше имеющегося количества. Игрок получает половину этого количества. Эффект от 0 до 20 умноженное на уровень навыка. Стоимость 10 маны за уровень.",'+
+                'ENG:"It takes away health from the target, but not more than the available amount. The player receives half of this amount. The effect is from 0 to 20 multiplied by the skill level. Cost 10 mana per level."'+
+            '},'+
+            'script:"'+
+                'SetVar(leak,Rand([GetSkillLvl(vampireStrike) * 20]));'+  // сколько пытается забрать навык
+                'SetVar(monsterHP,GetTargetAttr(HP));'+           // сколько есть у монстра
+
+                'IF([GetVar(leak) >= GetVar(monsterHP)], 3);'+        // если забираем больше, чем есть
+                'SetVar(leak, [GetVar(monsterHP) / 2]);'+          // получаемое игроком = половина от возможного
+                'ChangeTargetParam(HP,-GetVar(monsterHP));'+     // забираем у монстра все
+                'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает свое
+
+                'IF([GetVar(leak) < GetVar(monsterHP)], 4);'+        // если забираем меньше чем есть
+                'SetVar(monsterHP, GetVar(leak));'+                // монстр будет терять в полном объеме
+                'SetVar(leak, [GetVar(leak) / 2]);'+               // игрок получит половину от требуемого
+                'ChangeTargetParam(HP,-GetVar(monsterHP));'+     // монстр теряет
+                'ChangePlayerParam(HP,GetVar(leak));'+             // игрок получает
+
+                'If([GetLang() = ENG], 2);'+
+                'AddEvent(Target lost GetVar(monsterHP) health);'+   // радуем игрока
+                'AddEvent(Player got GetVar(leak) health);'+
+                'If([GetLang() = RU], 2);'+
+                'AddEvent(Цель потеряла GetVar(monsterHP) здоровья);'+   // радуем игрока
+                'AddEvent(Игрок получил GetVar(leak) здоровья);'+
+        '"},'+
+        'metabolism:{caption:{RU:"Метаболизм",ENG:"Metabolism"}, lvl: 0; cost: 10, isActivated: true, isEnabled: true,'+
+            'description:{'+
+                'RU:"Временно повышает силу эффекта регенерации. Эффект от 0 до 5 умноженное на уровень навыка. Стоимость 10 маны на уровень.",'+
+                'ENG:"Temporarily increases the strength of the regeneration effect. The effect is from 0 to 5 multiplied by the skill level. Cost 10 mana per level."'+
+            '},'+
+            'script:"'+
+                'SetVar(value,[Rand([GetSkillLvl(metabolism) * 5]) + 10]);'+
+                'SetTargetBuff(REG,GetVar(value));'+
+                'If([GetLang() = ENG], 1);'+
+                'AddEvent(Target speed up regeneration by GetVar(value));'+
+                'If([GetLang() = RU], 1);'+
+                'AddEvent(Регенерация цели увеличена на GetVar(value));'+
+        '"},'+
+    '},'+
+
+
+
+    /// isAllow - доступен ли для использования
+    /// lvl - текущий уровень инструмента
+    'Tools:{'+
+        'shovel:{'+
+            'isAllow: false,'+
+            'lvl: 1,'+
+            'caption: {RU:"Лопата",ENG:"Shovel"},'+
+            'desc: {RU:"Позволяет быстрее разгребать мусор",ENG:"Allows you to clear trash faster."},'+
+            'script: "SetVar(SHOVEL_LVL, [GetVar(SHOVEL_LVL) + 1]);"'+
+        '},'+
+        'pick:{'+
+            'isAllow: false,'+
+            'lvl: 1,'+
+            'caption: {RU:"Кирка",ENG:"Pick"},'+
+            'desc: {RU:"Позволяет быстрее разбирать завалы.",ENG:"Allows you to quickly disassemble blockage."},'+
+            'script: "SetVar(PICK_LVL, [GetVar(PICK_LVL) + 1]);"'+
+        '},'+
+        'axe:{'+
+            'isAllow: false,'+
+            'lvl: 1,'+
+            'caption: {RU:"Топор",ENG:"Axe"},'+
+            'desc: {RU:"Позволяет быстрее разбивать ящики.",ENG:"Allows you to break boxes faster."},'+
+            'script: "SetVar(AXE_LVL, [GetVar(AXE_LVL) + 1]);"'+
+        '},'+
+        'lockpick:{'+
+            'isAllow: false,'+
+            'lvl: 1,'+
+            'caption: {RU:"Отмычка",ENG:"Lockpick"},'+
+            'desc: {RU:"Позволяет быстрее открывать сундуки.",ENG:"Allows you to open chests faster."},'+
+            'script: "SetVar(KEY_LVL, [GetVar(KEY_LVL) + 1]);"'+
+        '},'+
+        'sword:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Меч",ENG:"Sword"},'+
+            'desc: {RU:"Увеличивает минимальный урон но не выше текущей атаки.",ENG:"Increases minimum damage but not higher than the current attack."},'+
+            'script: "SetVar(SWORD_LVL, [GetVar(SWORD_LVL) + 1]);"'+
+        '},'+
+        'lifeAmulet:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Амулет Здоровья",ENG:"Amulet of Health"},'+
+            'desc: {RU:"При возрождении добавляет +100 здоровья за уровень.",ENG:"Adds +100 HP per level upon respawn."},'+
+            'script: "SetVar(LIFEAMULET_LVL, [GetVar(LIFEAMULET_LVL) + 1]);"'+
+        '},'+
+        'timeSand:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Пески Времени",ENG:"Sand of Time"},'+
+            'desc: {RU:"Ускоряет Автодействия на 3% за уровень.",ENG:"Speeds up Auto Actions by 3% per level."},'+
+            'script: "SetVar(TIMESAND_LVL, [GetVar(TIMESAND_LVL) + 3]);"'+
+        '},'+
+        'leggings:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Поножи",ENG:"Leggings"},'+
+            'desc: {RU:"Увеличивает шанс избежать эффекта ловушек крыс пауков и т.д. на 3% за уровень.",ENG:"Increases the chance to avoid the effect of traps rats spiders etc. 3% per level."},'+
+            'script: "SetVar(LEGGINGS_LVL, [GetVar(LEGGINGS_LVL) + 3]);"'+
+        '},'+
+        'wisdom:{'+
+            'isAllow: false,'+
+            'lvl: 1,'+
+            'caption: {RU:"Обруч Мудрости",ENG:"Circle of Wisdom"},'+
+            'desc: {RU:"Проясняет мысли и позволяет быстрее находить новые идеи.",ENG:"Clarifies thoughts and allows you to find new ideas faster."},'+
+            'script: "SetVar(WISDOM_LVL, [GetVar(WISDOM_LVL) + 1]);"'+
+        '},'+
+        'resist:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Кольцо сопротивления",ENG:"Ring of resistance"},'+
+            'desc: {RU:"Увеличивает на 2% за уровень шанс заблокировать эффекты, снижающие параметры персонажа.",ENG:"Increases by 2% per level the chance to block effects that reduce character parameters."},'+
+            'script: "SetVar(RESIST_LVL, [GetVar(RESIST_LVL) + 2]);"'+
+        '},'+
+        'expStone:{'+
+            'isAllow: false,'+
+            'lvl: 0,'+
+            'caption: {RU:"Камень опыта",ENG:"Experience stone"},'+
+            'desc: {RU:"На 1 за уровень увеличивает получаемый опыт.",ENG:"Increases experience gained by 1 per level."},'+
+            'script: "SetVar(EXP_LVL, [GetVar(EXP_LVL) + 2]);"'+
+        '},'+
+    '},'+
+
+
+
+    /// имена для монстров
+    'names:{'+
+        'count: 40,'+
+        'first:['+
+            '{RU:"Упоротый",ENG:"Stoned"},{RU:"Сильный",ENG:"Strong"},{RU:"Отважный",ENG:"Brave"},{RU:"Северный",ENG:"Northern"},{RU:"Обреченный",ENG:"Doomed"},'+
+            '{RU:"Местный",ENG:"Local"},{RU:"Коварный",ENG:"Insidious"},{RU:"Великолепный",ENG:"Great"},{RU:"Смертоносный",ENG:"Deadly"},{RU:"Точный",ENG:"Accurate"},'+
+            '{RU:"Голодный",ENG:"Hungry"},{RU:"Тяжелый",ENG:"Heavy"},{RU:"Сонный",ENG:"Sleepy"},{RU:"Святой",ENG:"Holy"},{RU:"Лысый",ENG:"Bold"},'+
+            '{RU:"Газовый",ENG:"Gas"},{RU:"Красивый",ENG:"Beautiful"},{RU:"Аналогичный",ENG:"Similar"},{RU:"Безобразный",ENG:"Ugly"},{RU:"Стеклянный",ENG:"Glassy"},'+
+            '{RU:"Теплый",ENG:"Warm"},{RU:"Современный",ENG:"Modern"},{RU:"Узкий",ENG:"Narrow"},{RU:"Неприятный",ENG:"Unpleasant"},{RU:"Мертвый",ENG:"Dead"},'+
+            '{RU:"Конечный",ENG:"Finite"},{RU:"Основной",ENG:"Main"},{RU:"Возможный",ENG:"Possible"},{RU:"Вечерний",ENG:"Evening"},{RU:"Материальный",ENG:"Physical"},'+
+            '{RU:"Предыдущий",ENG:"Previous"},{RU:"Холодный",ENG:"Cold"},{RU:"Удобный",ENG:"Convenient"},{RU:"Эффективный",ENG:"Efficient"},{RU:"Истинный",ENG:"Genuine"},'+
+            '{RU:"Хороший",ENG:"Good"},{RU:"Чудовищный",ENG:"Monstrous"},{RU:"Зеленый",ENG:"Green"},{RU:"Любой",ENG:"Any"},{RU:"Видный",ENG:"Prominent"}'+
+        '],'+
+        'middle:['+
+            '{RU:"Урод",ENG:"Freak"},{RU:"Майор",ENG:"Major"},{RU:"Искатель",ENG:"Seeker"},{RU:"Житель",ENG:"Dweller"},{RU:"Крушитель",ENG:"Crusher"},'+
+            '{RU:"Барьер",ENG:"Wall"},{RU:"Тюфяк",ENG:"Mattress"},{RU:"Министр",ENG:"Minister"},{RU:"Жадина",ENG:"Greedy"},{RU:"Армия",ENG:"Army"},'+
+            '{RU:"Выпивоха",ENG:"Drinker"},{RU:"Результат",ENG:"Result"},{RU:"Пептид",ENG:"Peptide"},{RU:"Солдат",ENG:"Soldier"},{RU:"Отсекатель",ENG:"Cutter"},'+
+            '{RU:"Воздух",ENG:"Air"},{RU:"НяшМяш",ENG:"Kawaii"},{RU:"Птиц",ENG:"Bird"},{RU:"Крутыш",ENG:"Winner"},{RU:"Последователь",ENG:"Follower"},'+
+            '{RU:"Хвост",ENG:"Tail"},{RU:"Подарок",ENG:"Gift"},{RU:"Чемодан",ENG:"Bag"},{RU:"Закрыватель",ENG:"System"},{RU:"Танк",ENG:"Tank"},'+
+            '{RU:"Кризис",ENG:"Crisis"},{RU:"Массив",ENG:"Mass"},{RU:"Разжигатель",ENG:"Dream"},{RU:"Призрак",ENG:"Future"},{RU:"Фаталист",ENG:"Fate"},'+
+            '{RU:"Костюм",ENG:"Suit"},{RU:"Разрушитель",ENG:"Doom"},{RU:"Образ",ENG:"Word"},{RU:"Властитель",ENG:"Power"},{RU:"Родственник",ENG:"Relative"},'+
+            '{RU:"Аппарат",ENG:"Machine"},{RU:"Мозг",ENG:"Brain"},{RU:"Ужас",ENG:"Horror"},{RU:"Дым",ENG:"Smoke"},{RU:"Металл",ENG:"Steel"}'+
+        '],'+
+        'last:['+
+            '{RU:"Поликлиники",ENG:"of Hospital"},{RU:"Предательства",ENG:"of Betrayal"},{RU:"of Hell",ENG:"of Hell"},{RU:"Блаженства",ENG:"of Bliss"},'+
+            '{RU:"Иных миров",ENG:"of Worlds"},{RU:"Недоразумения",ENG:"of Misunderstanding"},{RU:"Подземелий",ENG:"of Dungeons"},{RU:"Бесконечности",ENG:"of Infinity"},'+
+            '{RU:"Лесов",ENG:"of Forest"},{RU:"Богатства",ENG:"of Wealth"},{RU:"Безумия",ENG:"of Madness"},{RU:"Нищеты",ENG:"of Poverty"},'+
+            '{RU:"Тайн",ENG:"of Mistery"},{RU:"Праздника",ENG:"of Holiday"},{RU:"Безнадежности",ENG:"of Hopeless"},{RU:"Уныния",ENG:"of Despondency"},'+
+            '{RU:"Героизма",ENG:"of Heroism"},{RU:"Удачи",ENG:"of Luck"},{RU:"Коварства",ENG:"of Deceit"},{RU:"Повтора",ENG:"of Replay"},'+
+            '{RU:"Договора",ENG:"of Agreement"},{RU:"Оружия",ENG:"of Weapon"},{RU:"Crisis",ENG:"of Кризиса"},{RU:"Весны",ENG:"of Spring"},'+
+            '{RU:"Сердца",ENG:"of Heart"},{RU:"Тела",ENG:"of Body"},{RU:"Подруги",ENG:"of Girlfriend"},{RU:"Детства",ENG:"of Childhood"},'+
+            '{RU:"Сознания",ENG:"of Conscious"},{RU:"Воспоминаний",ENG:"of Memory"},{RU:"Поддержки",ENG:"of Support"},{RU:"Звезды",ENG:"of Stars"},'+
+            '{RU:"Сути",ENG:"of Essence"},{RU:"Сцены",ENG:"of Scene"},{RU:"Сомнений",ENG:"of Doubt"},{RU:"Риска",ENG:"of Risk"},'+
+            '{RU:"Реальности",ENG:"of Reality"},{RU:"Охраны",ENG:"of Guard"},{RU:"Убийства",ENG:"of Murders"},{RU:"Пути",ENG:"of Path"}'+
+        ']'+
+    '},'+
+    '}';
+
 
 var
     DIR_DATA :string;

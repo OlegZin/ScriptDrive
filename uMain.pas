@@ -127,10 +127,14 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uTowerMode, uLog, uThinkMode;
+    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive;
+
+var
+   Script : TScriptDrive;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
+
     /// создаем папку хранения данных (сейвы)
     if not DirectoryExists( DIR_DATA ) then
     if not CreateDir( DIR_DATA ) then
@@ -173,10 +177,50 @@ begin
     /////////////////////////////////////////
 
     Log.wbLog := wbLog;
+    Log.Clear;
 
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
+
+
+
+    /////////////////////////////////////////
+    ///    инициализация скриптового движка
+    /////////////////////////////////////////
+    Script := TScriptDrive.Create;
+    Script.SetClass(TData, Data);
+
+
+    /////////////////////////////////////////
+    ///    нинциализация игры
+    /////////////////////////////////////////
+    Script.Exec('SetLang(ENG)');
+    SetLang('ENG');
+{
+    Script.Exec('AllowMode(Think, 1)');
+    Script.Exec('AllowMode(Secrets, 1)');
+    Script.Exec('AllowMode(Floors, 1)');
+    Script.Exec('AllowMode(Tools, 1)');
+    Script.Exec('AllowTool(Shovel)');
+    Script.Exec('AllowTool(Pick)');
+    Script.Exec('AllowTool(Axe)');
+    Script.Exec('AllowTool(Key)');
+    Script.Exec('AllowTool(Sword)');
+    Script.Exec('AllowTool(LifeAmulet)');
+    Script.Exec('AllowTool(TimeSand)');
+    Script.Exec('AllowTool(Leggings)');
+
+    Script.Exec('AllowMode(Craft, 1)');
+    Script.Exec('AllowMode(PotionResearch, 1)');
+    Script.Exec('AllowMode(ResResearch, 1)');
+}
+
+    pcGame.ActivePageIndex := pTower.TabIndex;
+
+    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(10000);CheckStatus();');
+
+    UpdateInterface;
 
 end;
 
@@ -211,7 +255,7 @@ end;
 procedure TfMain.iPlayerMouseEnter(Sender: TObject);
 begin
     iPlayerBG.Opacity := 0;
-    iPlayer.Opacity := 1;
+    iPlayer.Opacity := 0.5;
 end;
 
 procedure TfMain.iPlayerMouseLeave(Sender: TObject);

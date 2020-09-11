@@ -1,9 +1,10 @@
-unit uData;
+unit uGameDrive;
 
 interface
 
 uses
-    uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools, superobject,
+{    uTypes,  uThinkModeData, uFloors, uTargets, uTools,}
+    uScriptDrive, superobject,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils;
 
 const
@@ -19,12 +20,13 @@ const
     S_NAME      = 'name';      /// имя существа
 type
 
-    TData = class
+    TGameDrive = class
     private
-//        Player : ISuperObject;
-//        Creature: ISuperObject;
+        GameData: ISuperObject; /// все данные игры. прелесть в том, что могут быть одной
+        ///    командой выгружены в файл или загружены из него
 
-        Target: ISuperObject;
+        Target: string;  /// путь до текущего выбранного объекта в структуре GameData
+
             // текущая выбранная цель. используется для
             // методов, которые не применяются к конкретному объекту.
             // что позволит сократить набор методов для скриптов
@@ -95,7 +97,7 @@ type
 
         function GetPlayerAttr(name: string): string;
         function GetMonsterAttr(name: string): string;
-        function GeAttr(creature: TCreature; name: string): string;
+//        function GeAttr(creature: TCreature; name: string): string;
 
         function GetCurrTarget: string;
         /// получение номера этажа текущей задачи
@@ -113,7 +115,6 @@ type
         procedure SetCreatureScript(event, scr: string);
 
         procedure InitGame;
-        procedure InitPlayer;
         procedure InitCreatures;
         procedure InitItemsCraftCost;
 
@@ -222,14 +223,14 @@ type
 
         function GetEventScript(creature: ISuperObject; name: string): string;
 
-        function GetResByName(name: string): TRes;
+//        function GetResByName(name: string): TRes;
 
         procedure Loot(var target, source: ISuperObject; name: string);
 
     end;
 
 Var
-    Data : TData;
+    GameDrive : TGameDrive;
 
 implementation
 
@@ -237,51 +238,10 @@ implementation
 
 {PUBLIC // Script allow}
 
-procedure TData.InitGame;
+procedure TGameDrive.InitGame;
 begin
-    Script.Exec('SetVar('+SHOVEL_LVL+    ', 1);');
-    Script.Exec('SetVar('+PICK_LVL+      ', 1);');
-    Script.Exec('SetVar('+AXE_LVL+       ', 1);');
-    Script.Exec('SetVar('+KEY_LVL+       ', 1);');
-    Script.Exec('SetVar('+SWORD_LVL+     ', 0);');
-    Script.Exec('SetVar('+TIMESAND_LVL+  ', 0);');
-    Script.Exec('SetVar('+LIFEAMULET_LVL+', 0);');
-    Script.Exec('SetVar('+LEGGINGS_LVL+  ', 0);');
-
     InitItemsCraftCost;
-    Init;
 end;
-
-
-procedure TData.InitPlayer;
-/// устанавливаем стартовые параметры игрока
-var
-    i: integer;
-    skl : ISuperObject;
-    Player: ISuperObject;
-begin
-
-    /// имена скилов берем из массива, поскольку, изначалоно все они у игрока есть
-    skl := SO();
-    Player := SO();
-
-    for I := 0 to High(skills) do
-          skl.I[skills[i].name] := 0;
-
-    Player.O[S_NAME]      := SO('{"RU":"Игрок", "ENG":"Player"}');
-    Player.O[O_PARAMS]    := SO('{"LVL":1, "HP":100, "MP":20, "ATK":5, "DEF":0, "MDEF":0, "REG":1, "EXP":0}');
-    Player.O[O_SKILLS]    := skl;
-    Player.O[O_ITEMS]     := SO();
-    Player.O[O_BUFFS]     := SO();
-    Player.O[O_AUTOBUFFS] := SO();
-    Player.O[O_LOOT]      := SO();
-    Player.O[O_EVENTS]    := SO('{"OnAttack":"DoDamageToCreature(GetPlayerAttr(ATK));"}');
-
-    Objects.Add('Player', Player);
-    Player := nil;
-
-end;
-
 
 function TData.GeAttr(creature: TCreature; name: string): string;
 var
@@ -521,18 +481,13 @@ begin
     result := items[Random(Length(items))].name;
 end;
 
-function TData.GetRandResName: string;
+function TGameDrive.GetRandResName: string;
 var
     i: integer;
     val: integer;
 begin
-    /// при первом обращении получаем сумму всей редкости ресурсов
-    if resSummRarity = 0 then
-    for i := 0 to High(arrRes) do
-        resSummRarity := resSummRarity + arrRes[i].rarity;
-
     /// получаем случайное число, указывающее на один из ресурсов
-    val := Random( resSummRarity + 1);
+    val := Random( GameData.I['resRaritySumm'] + 1);
 
     /// перебираем ресурсы и получаем один из них. с учетом редкости!
     for i := 0 to High(arrRes) do
@@ -1518,7 +1473,7 @@ begin
 end;
 
 
-procedure TData.InitItemsCraftCost;
+procedure TGameDrive.InitItemsCraftCost;
 /// генерим рецепты предметов. в каждой игре - разные
 /// отталкиваемся от условной стоимости в ресурсах
 var
@@ -1531,15 +1486,15 @@ var
    ,resName
    ,comma
             : string;
-    res : TRes;
+    res : ISuperObject;
 begin
 
-    for I := 0 to High(items) do
+    for res in GameData.O['items'] do
     begin
-        if items[i].cost = 0 then Continue;
+        if res.I['cost'] = 0 then Continue;
 
         /// получаем общую стоимость
-        cost := items[i].cost;
+        cost := res.I['cost'];
 
         craft := '';
         comma := '';
@@ -1548,7 +1503,7 @@ begin
         while cost > 0 do
         begin
 
-            part := Random(items[i].cost+1);  // получаем кусок, который нужно распределить
+            part := Random(res.I['cost']+1);  // получаем кусок, который нужно распределить
 
             part := Min(part, cost);           // выравниваемся, если выпало распределить больше остатка
 
