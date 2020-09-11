@@ -13,7 +13,9 @@ uses
   Unit1 in 'Unit1.pas' {Form1},
   uConst in 'uConst.pas',
   uTowerMode in 'uTowerMode.pas',
-  uThinkMode in 'uThinkMode.pas';
+  uThinkMode in 'uThinkMode.pas',
+  uLog in 'uLog.pas',
+  uData in 'uData.pas';
 
 {$R *.res}
 

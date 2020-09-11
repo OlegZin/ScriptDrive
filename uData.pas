@@ -4,7 +4,7 @@ interface
 
 uses
     uTypes, uScriptDrive, uThinkModeData, uFloors, uTargets, uTools, superobject,
-    System.SysUtils, Generics.Collections, Vcl.Dialogs, Classes, Math, StrUtils;
+    System.SysUtils, Generics.Collections, Classes, Math, StrUtils;
 
 const
     /// синонимы имен полей
