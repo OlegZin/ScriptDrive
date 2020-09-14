@@ -34,7 +34,7 @@ type
         Variables: TDictionary<String,String>;
             // набор глобальных переменных для скриптов
 
-        Objects: TDictionary<String,ISuperObject>;
+//        Objects: TDictionary<String,ISuperObject>;
             //
 
         CurrLevel: integer;        // текущий проходимый уровень
@@ -243,72 +243,48 @@ begin
     InitItemsCraftCost;
 end;
 
-function TData.GeAttr(creature: TCreature; name: string): string;
-var
-    param: TStringList;
-begin
-
-    param := TStringList.Create;
-    param.CommaText := creature.Params;
-
-    if   param.IndexOfName(name) <> -1
-    then result := param.Values[name]
-    else result := '0';
-
-    param.Free;
-end;
-
-function TData.GetAllowModes: string;
+function TGameDrive.GetAllowModes: string;
 begin
     result := AllowModes.AsJSon();
 end;
 
-function TData.GetAllowTool(name: string): string;
-var
-    i : integer;
+function TGameDrive.GetAllowTool(name: string): string;
 begin
-    result := 'false';
-
-    for I := 0 to High(arrTools) do
-    if AnsiUpperCase(arrTools[i].name) = AnsiUpperCase(name) then
-    begin
-        if arrTools[i].isAllow
-        then result := 'true';
-    end;
+    GameData.S['tools.'+name+'.isAllow'];
 end;
 
-function TData.GetAutoATK: string;
+function TGameDrive.GetAutoATK: string;
 begin
     result := IntToStr(AutoATKCount);
 end;
 
-function TData.GetAutoSpeed: string;
+function TGameDrive.GetAutoSpeed: string;
 begin
-    result := IntToStr(1000 - StrToInt(Data.GetVar('TIMESAND_LVL')) * 20);
+    result := IntToStr(1000 - StrToInt(GameDrive.GetVar('TIMESAND_LVL')) * 20);
 end;
 
-function TData.GetBreaks: string;
+function TGameDrive.GetBreaks: string;
 begin
     result := Breaks;
     Breaks := '';
 end;
 
-function TData.GetCurrCreatureName: string;
+function TGameDrive.GetCurrCreatureName: string;
 begin
-    result := Objects['Creature'][S_NAME+'.'+GetLang].AsString;
+    result := GameData.S['Creature.name.'+GetLang];
 end;
 
-function TData.GetCurrCreatureParams: string;
+function TGameDrive.GetCurrCreatureParams: string;
 begin
-    result := Objects['Creature'][O_PARAMS].AsString;
+    result := GameData.S['Creature.params'];
 end;
 
-function TData.GetCurrentLevel: string;
+function TGameDrive.GetCurrentLevel: string;
 begin
     result := IntToStr(CurrLevel);
 end;
 
-function TData.GetCurrTarget: string;
+function TGameDrive.GetCurrTarget: string;
 begin
     result := IntToStr(targets[CurrTargetIndex].level);
 end;
@@ -1512,7 +1488,7 @@ begin
 
             res := GetResByName(resName);      // получаем данные ресурса
 
-            resCount := part div res.cost;
+            resCount := part div res.I['cost'];
             resCount := Max(1, resCount);      // если остатак не хватает, прописывает одну единицу
 
             craft := craft + comma + resName + '=' + IntToStr(resCount);
@@ -1521,7 +1497,7 @@ begin
             cost := cost - part;               // списываем израсходованную часть
         end;
 
-        items[i].craft := craft;
+        res.S['craft'] := craft;
 
     end;
 
