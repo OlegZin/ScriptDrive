@@ -127,13 +127,17 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive;
+    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject;
 
 var
    Script : TScriptDrive;
 
 procedure TfMain.FormCreate(Sender: TObject);
+var
+    data: ISuperObject;
 begin
+
+    data := SO(GAME_DATA);
 
     /// создаем папку хранения данных (сейвы)
     if not DirectoryExists( DIR_DATA ) then
@@ -189,14 +193,14 @@ begin
     ///    инициализация скриптового движка
     /////////////////////////////////////////
     Script := TScriptDrive.Create;
-    Script.SetClass(TData, Data);
+    Script.SetClass(TGameDrive, GameDrive);
 
 
     /////////////////////////////////////////
     ///    нинциализация игры
     /////////////////////////////////////////
     Script.Exec('SetLang(ENG)');
-    SetLang('ENG');
+//    SetLang('ENG');
 {
     Script.Exec('AllowMode(Think, 1)');
     Script.Exec('AllowMode(Secrets, 1)');
@@ -216,11 +220,11 @@ begin
     Script.Exec('AllowMode(ResResearch, 1)');
 }
 
-    pcGame.ActivePageIndex := pTower.TabIndex;
+//    pcGame.ActivePageIndex := pTower.TabIndex;
 
-    Script.Exec('InitGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(10000);CheckStatus();');
+    Script.Exec('NewGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(10000);CheckStatus();');
 
-    UpdateInterface;
+//    UpdateInterface;
 
 end;
 
