@@ -178,6 +178,12 @@ begin
                     result := IntToStr(Max(StrToIntDef(params[0], 0), StrToIntDef(params[1], 0)));
             end;
 
+            if AnsiUpperCase(method) = 'CALC' then
+            begin
+                scriptCommand := true;
+                if params.Count = 1 then
+                    result := CalcMath(params[0]);
+            end;
 
 
 
@@ -218,8 +224,6 @@ begin
 
             line := StringReplace(line, match.Value, result, []);
 
-
-
             match := regFunction.Match(line)
 
         until match.Value = '';
@@ -230,6 +234,8 @@ begin
 
     end;
     prs.Free;
+
+    line := CalcMath(line); /// текуща€ строка может быть математическим выражением без функций
 
     result := trim(line);
 
@@ -318,14 +324,14 @@ begin
     ComparePrior := '<>=<=';
 
     /// ищем наличие математики
-    if Pos('[', command) = 0 then exit;
+//    if Pos('[', command) = 0 then exit;
 
 
 
     /// вырезаем арифметику в отдельную строку дл€ обработки
-    beg := pos('[', command) + 1;
-    mth := Trim( copy(command, beg, pos(']', command)-beg) );
-
+//    beg := pos('[', command) + 1;
+//    mth := Trim( copy(command, beg, pos(']', command)-beg) );
+    mth := command;
 
 
     /// смотрим, не €вл€етс€ ли это выражение именем переменной из кэша
@@ -339,7 +345,7 @@ begin
 
 
 
-    mth := '('+mth+')';
+    mth := '('+mth+')'; /// заворачиваем в скобки, чтобы на последней итерации посчитать все выражение целиком (регул€рка нашла его)
 
     // убираем избыточные пробелы дл€ исключени€ пустых строк при разбиении через TStringList
     while Pos('  ', mth) > 0 do
