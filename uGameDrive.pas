@@ -22,11 +22,17 @@ type
         constructor Create;
         destructor Destroy;
 
-        procedure NewGame;
+        function NewGame(level: integer): string;
+        function LoadGame(level: integer): string;
+
+        procedure CheckStatus;
 
         function GetLang: string;   // возврат стрки с именем текущего языка ENG|RU
         function GetRandResName: string; /// получение внутреннего имени случайного ресурса с учетом редкости
         function GetCurrFloor: string;             // текущий этаж
+
+        function GetRandomItemName: string;
+        procedure ChangePlayerItemCount(name, delta: variant);
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
         function GetRandItemName: string;          // внутреннее имя случайного предмета
@@ -53,11 +59,26 @@ implementation
 
 {PUBLIC // Script allow}
 
-procedure TGameDrive.NewGame;
+function TGameDrive.NewGame(level: integer): string;
+var
+    i : integer;
+    name: string;
 begin
+    result := '';
     GameData := SO(GAME_DATA);  // загрузка дефолтных данных
     InitItemsCraftCost;         // генерация рецептов предметов
-    InitFloorObjects;
+    InitFloorObjects;           // генерация объектов на этажах
+
+    /// генерим первоначальные ресурсы, исходя из уровня игры
+    /// автодействия
+    GameData.I['state.AutoActions'] := 500 + 500 * level;
+
+    /// предметы. на один меньше, чем уровень новой игры
+    if level > 1 then
+    for i := 1 to level -1 do
+    begin
+        name := GetRandomItemName;
+    end;
 end;
 
 function TGameDrive.GetLang: string;
@@ -133,6 +154,13 @@ begin
     end;
 end;
 
+function TGameDrive.GetRandomItemName: string;
+var
+    count: integer;
+begin
+    count := GameData.O['items'].AsArray.Length;
+end;
+
 function TGameDrive.GetRandResName: string;
 var
     val: integer;
@@ -206,6 +234,22 @@ begin
 
 end;
 
+
+procedure TGameDrive.ChangePlayerItemCount(name, delta: variant);
+begin
+
+end;
+
+procedure TGameDrive.CheckStatus;
+/// пересчет игрового статуса исходя из текущего состояния игроовых объектов
+begin
+
+end;
+
+function TGameDrive.LoadGame(level: integer): string;
+begin
+
+end;
 
 constructor TGameDrive.Create;
 begin

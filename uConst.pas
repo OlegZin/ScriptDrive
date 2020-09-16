@@ -5,7 +5,10 @@ interface
 uses SysUtils;
 
 const
+    FOLDER_DATA = 'DATA\';
+
     FILE_MENU_DATA = '\menu.dat';
+    FILE_GAME_DATA = '\toto.dat';
 
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
@@ -365,8 +368,10 @@ const
     /// craft - набор ресурсов для крафта. случайно генерится при старте игры
     /// isCraftAllow - доступен ли для крафта
     /// isUseAllow - доступен ли для использования
+    'itemsCount: 15,'+
     'items:{'+
         'gold:{'+
+            'name:"gold",'+
             'caption: {RU:"Золото", ENG:"Gold"},'+
             'description:{'+
                 'RU:"Полновесные золотые монеты. За 10 000 монет можно получить случайный предмет. Испытаем удачу?",'+
@@ -391,6 +396,7 @@ const
                 'AddEvent(Gained GetVar(iName)!);'+
         '"},'+
         'restoreHealth:{'+
+            'name:"restoreHealth",'+
             'caption: {RU:"Зелье здоровья", ENG:"Potion of health"},'+
             'description:{'+
                 'RU:"Мгновенно добавляет здоровье. Количество случайно: от нуля до 100 умноженного на текущий уровень игрока.",'+
@@ -405,6 +411,7 @@ const
                 'AddEvent(Получено GetVar(IncHP) здоровья);'+
         '"},'+
         'restoreMana:{'+
+            'name:"restoreMana",'+
             'caption: {RU:"Зелье маны", ENG:"Potion of mana"},'+
             'description:{'+
                 'RU:"Мгновенно добавляет ману. Количество случайно: от нуля до 50 умноженного на текущий уровень игрока.",'+
@@ -419,6 +426,7 @@ const
                 'AddEvent(Получено GetVar(IncMP) маны);'+
         '"},'+
         'permanentATK:{'+
+            'name:"permanentATK",'+
             'caption: {RU:"Зелье атаки", ENG:"Potion of attack"},'+
             'description:{'+
                 'RU:"Повышает потенциал атаки. Постоянный эффект.",'+
@@ -432,6 +440,7 @@ const
                 'AddEvent(Получено +1 к атаке!);'+
         '"},'+
         'permanentDEF:{'+
+            'name:"permanentDEF",'+
             'caption: {RU:"Зелье защиты", ENG:"Potion of defence"},'+
             'description:{'+
                 'RU:"Повышает физическую защиту. Постоянный эффект.",'+
@@ -445,6 +454,7 @@ const
                 'AddEvent(Получено +1 к защите!);'+
         '"},'+
         'PermanentMDEF:{'+
+            'name:"PermanentMDEF",'+
             'caption: {RU:"Зелье магической защиты", ENG:"Potion of magic defence"},'+
             'description:{'+
                 'RU:"Повышает защиту от магии и энергитических воздействий. Постоянный эффект.",'+
@@ -458,6 +468,7 @@ const
                 'AddEvent(Получено +1 магической защиты!);'+
         '"},'+
         'exp:{'+
+            'name:"exp",'+
             'caption: {RU:"Зелье опыта", ENG:"Potion of experience"},'+
             'description:{'+
                 'RU:"Мгновенно дает бесплатный опыт. Количество от 0 до 100 умноженное на текущий уровень игрока.",'+
@@ -472,6 +483,7 @@ const
                 'AddEvent(Получено GetVar(EXP) опыта!);'+
         '"},'+
         'regenHP:{'+
+            'name:"regenHP",'+
             'caption: {RU:"Мазь здоровья", ENG:"Ointment of health"},'+
             'description:{'+
                 'RU:"Постепенно восстанавливает здоровье. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
@@ -480,6 +492,7 @@ const
             'script:"SetPlayerAutoBuff(HP,Rand(GetPlayerAttr(LVL) * 500));'+
         '"},'+
         'regenMP:{'+
+            'name:"regenMP",'+
             'caption: {RU:"Мазь энергии", ENG:"Ointment of mana"},'+
             'description:{'+
                 'RU:"Постепенно восстанавливает ману. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
@@ -488,6 +501,7 @@ const
             'script:"SetPlayerAutoBuff(MP,Rand(GetPlayerAttr(LVL) * 50));'+
         '"},'+
         'buffATK:{'+
+            'name:"buffATK",'+
             'caption: {RU:"Порошок атаки", ENG:"Powder of attack"},'+
             'description:{'+
                 'RU:"Временно повышает потенциал атаки. Снижается после каждой атаки игрока.",'+
@@ -496,6 +510,7 @@ const
             'script:"SetPlayerBuff(ATK,Rand(GetPlayerAttr(LVL)) + 1);'+
         '"},'+
         'buffDEF:{'+
+            'name:"buffDEF",'+
             'caption: {RU:"Порошок защиты", ENG:"Powder of defence"},'+
             'description:{'+
                 'RU:"Временно повышает потенциал защиты. Снижается после каждой атаки по игроку.",'+
@@ -504,6 +519,7 @@ const
             'script:"SetPlayerBuff(DEF,Rand(GetPlayerAttr(LVL)) + 1);'+
         '"},'+
         'buffMDEF:{'+
+            'name:"buffMDEF",'+
             'caption: {RU:"Порошок магической защиты", ENG:"Powder of magic defence"},'+
             'description:{'+
                 'RU:"Временно повышает потенциал магической защиты. Снижается после каждого магического или энергетического воздействия на игрока.",'+
@@ -512,6 +528,7 @@ const
             'script:"SetPlayerBuff(MDEF,Rand(GetPlayerAttr(LVL)) + 1);'+
         '"},'+
         'buffEXP:{'+
+            'name:"buffEXP",'+
             'caption: {RU:"Порошок опыта", ENG:"Powder of experience"},'+
             'description:{'+
                 'RU:"Временно повышает потенциал получения опыта. Снижается после каждого получения опыта игроком.",'+
@@ -520,6 +537,7 @@ const
             'script:"SetPlayerBuff(EXP,Rand(GetPlayerAttr(LVL)) + 1);'+
         '"},'+
         'buffREG:{'+
+            'name:"buffREG",'+
             'caption: {RU:"Порошок регенерации", ENG:"Powder of regeneration"},'+
             'description:{'+
                 'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации.",'+
@@ -528,6 +546,7 @@ const
             'script:"SetPlayerBuff(REG,Rand(GetPlayerAttr(LVL) * 10) + 10);'+
         '"},'+
         'autoAction:{'+
+            'name:"autoAction",'+
             'caption: {RU:"Зелье автодействий", ENG:"Potion of autoactions"},'+
             'description:{'+
                 'RU:"Добавляет автодействия. Эффект от 0 до 100 умноженное на уровень игрока, но не больше 2000.",'+
@@ -1060,7 +1079,7 @@ var
 implementation
 
 initialization
-    DIR_DATA := ExtractFilePath( paramstr(0) ) + 'DATA';
+    DIR_DATA := ExtractFilePath( paramstr(0) ) + FOLDER_DATA;
 
 end.
 

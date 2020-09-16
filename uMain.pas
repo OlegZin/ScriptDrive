@@ -11,7 +11,7 @@ uses
 
 type
   TfMain = class(TForm)
-    TabControl1: TTabControl;
+    tabsGame: TTabControl;
     tabGame: TTabItem;
     tabMenu: TTabItem;
     Label1: TLabel;
@@ -113,6 +113,7 @@ type
     procedure iPlayerMouseEnter(Sender: TObject);
     procedure iPlayerMouseLeave(Sender: TObject);
     procedure bTowerModeClick(Sender: TObject);
+    procedure bNewClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -222,7 +223,6 @@ begin
 
 //    pcGame.ActivePageIndex := pTower.TabIndex;
 
-    Script.Exec('NewGame();InitPlayer();CurrentLevel(1);InitCreatures();SetAutoATK(10000);CheckStatus();');
 
 //    UpdateInterface;
 
@@ -231,6 +231,13 @@ end;
 procedure TfMain.bExitClick(Sender: TObject);
 begin
     Close;
+end;
+
+procedure TfMain.bNewClick(Sender: TObject);
+begin
+    GameDrive.NewGame( Menu.NewLevel );
+    GameDrive.CheckStatus;
+    tabsGame.ActiveTab := tabGame;
 end;
 
 procedure TfMain.bTowerModeClick(Sender: TObject);

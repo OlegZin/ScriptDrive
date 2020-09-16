@@ -43,6 +43,8 @@ type
 
         procedure SaveData;
         procedure LoadData;
+
+        function NewLevel: integer;
     private
         procedure ButtonMouseEnter(Sender: TObject);
         procedure ButtonMouseLeave(Sender: TObject);
@@ -76,6 +78,22 @@ var
 begin
     if not Assigned(data) then exit;
 
+    /// проверяем наличие сейва игры, исходя из этого отрисовываем кнопку продолжения
+    if not FileExists(ExtractFilePath(paramstr(0)) + FOLDER_DATA + FILE_GAME_DATA) then
+    begin
+        sklComponent['MenuResume'].Opacity := 0.5;
+        sklComponent['MenuResume'].Enabled := false;
+        sklComponent['MenuResume'].Cursor := crDefault;
+        sklComponent['MenuResume'].Controls[0].Cursor := crDefault;
+    end else
+    begin
+        sklComponent['MenuResume'].Opacity := 1;
+        sklComponent['MenuResume'].Enabled := true;
+        sklComponent['MenuResume'].Cursor := crHandPoint;
+        sklComponent['MenuResume'].Controls[0].Cursor := crHandPoint;
+    end;
+
+    /// признак завершения вступления
     HasUnfinished := false;
 
     if data.I['IntroOver'] = 0 then
@@ -303,6 +321,8 @@ begin
 end;
 
 procedure TMenu.Init;
+var
+    presentSave: boolean;
 begin
     sklComponent['MenuNew'].OnMouseEnter    := ButtonMouseEnter;
     sklComponent['MenuResume'].OnMouseEnter := ButtonMouseEnter;
@@ -362,6 +382,11 @@ begin
     if DirectoryExists( DIR_DATA ) and FileExists( DIR_DATA + FILE_MENU_DATA )
     then data := TSuperObject.ParseFile( DIR_DATA + FILE_MENU_DATA, false )
     else data := SO( MENU_DATA_DEF );
+end;
+
+function TMenu.NewLevel: integer;
+begin
+    result := data.I['NewLevel'];
 end;
 
 procedure TMenu.OnBuildClick(Sender: TObject);
