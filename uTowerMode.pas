@@ -2,8 +2,12 @@ unit uTowerMode;
 
 interface
 
+uses FMX.TabControl;
+
 type
     TTower = class
+        page: TTabItem;
+        tcModes: TTabControl;
         procedure SetActive;  // активация режима (пользователь переключился на вкладку Башни)
         procedure SetUnactive;  // активация режима (пользователь переключился на вкладку Башни)
     end;
@@ -17,7 +21,7 @@ implementation
 
 procedure TTower.SetActive;
 begin
-
+    tcModes.ActiveTab := page;
 end;
 
 procedure TTower.SetUnactive;

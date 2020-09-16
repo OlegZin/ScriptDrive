@@ -4,7 +4,8 @@ interface
 
 uses
     uScriptDrive, superobject, uConst,
-    System.SysUtils, Generics.Collections, Classes, Math, StrUtils;
+    System.SysUtils, Generics.Collections, Classes, Math, StrUtils,
+    uTowerMode, uThinkMode;
 
 type
 
@@ -23,13 +24,15 @@ type
         destructor Destroy;
 
         function NewGame(level: integer): string;
-        function LoadGame(level: integer): string;
+        function LoadGame: string;
+        function SaveGame: string;
 
         procedure CheckStatus;
 
-        function GetLang: string;   // возврат стрки с именем текущего языка ENG|RU
-        function GetRandResName: string; /// получение внутреннего имени случайного ресурса с учетом редкости
-        function GetCurrFloor: string;             // текущий этаж
+        function GetLang: string;          // возврат стрки с именем текущего языка ENG|RU
+        procedure SetLang(lang: string);   // возврат стрки с именем текущего языка ENG|RU
+        function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
+        function GetCurrFloor: string;     // текущий этаж
 
         function GetRandomItemName: string;
         procedure ChangePlayerItemCount(name, delta: variant);
@@ -40,6 +43,8 @@ type
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
+        procedure UpdateInterface;
+        procedure SetActiveMode(name: string);
     private
         Script : TScriptDrive;
 
@@ -59,13 +64,19 @@ implementation
 
 {PUBLIC // Script allow}
 
+procedure TGameDrive.CheckStatus;
+/// пересчет игрового статуса исходя из текущего состояния игроовых объектов
+begin
+
+end;
+
+
 function TGameDrive.NewGame(level: integer): string;
 var
     i : integer;
     name: string;
 begin
     result := '';
-    GameData := SO(GAME_DATA);  // загрузка дефолтных данных
     InitItemsCraftCost;         // генерация рецептов предметов
     InitFloorObjects;           // генерация объектов на этажах
 
@@ -73,11 +84,50 @@ begin
     /// автодействия
     GameData.I['state.AutoActions'] := 500 + 500 * level;
 
-    /// предметы. на один меньше, чем уровень новой игры
-    if level > 1 then
-    for i := 1 to level -1 do
+    /// генерим предметы
+    for i := 1 to level do
     begin
         name := GetRandomItemName;
+        ChangePlayerItemCount(name, level);
+    end;
+
+    /// золото
+    ChangePlayerItemCount('gold', 100000 + 10000 * level);
+
+    /// проверяем состояние игровых объектов
+    GameDrive.CheckStatus;
+end;
+
+function TGameDrive.SaveGame: string;
+begin
+    GameData.O['state'].SaveTo(
+        DIR_DATA + FILE_GAME_DATA
+//       ,false // не использовать красивое форматирование
+//       ,false  // не преобразовывать русские буквы в эскейп последовательности
+    );
+
+    /// "красивая" версия для тестового контроля
+    GameData.O['state'].SaveTo(
+        DIR_DATA + FILE_GAME_DATA_TEST
+       ,true // не использовать красивое форматирование
+//       ,false  // не преобразовывать русские буквы в эскейп последовательности
+    );
+end;
+
+function TGameDrive.LoadGame: string;
+/// загрузка состояния игры
+var
+    state: ISuperObject;
+begin
+    /// подгрузка данных, если есть сохранение
+    if DirectoryExists( DIR_DATA ) and FileExists( DIR_DATA + FILE_GAME_DATA ) then
+    begin
+        /// пытаемся загрузить
+        state := TSuperObject.ParseFile( DIR_DATA + FILE_GAME_DATA, false );
+
+        /// если данные корректны, объект существует
+        if Assigned(state) then
+        GameData.O['state'] := state;
     end;
 end;
 
@@ -86,7 +136,28 @@ begin
     result := GameData.S['state.Lang'];
 end;
 
+procedure TGameDrive.SetLang(lang: string);
+begin
+    GameData.S['state.Lang'] := lang;
+end;
 
+
+
+
+procedure TGameDrive.UpdateInterface;
+/// обновяем состояние окна активного режима
+begin
+
+end;
+
+procedure TGameDrive.SetActiveMode(name: string);
+begin
+    Tower.SetUnactive;
+    Think.SetUnactive;
+
+    if name = 'Tower' then Tower.SetActive;
+    if name = 'Think' then Think.SetActive;
+end;
 
 { PRIVATE METHODS }
 
@@ -157,8 +228,20 @@ end;
 function TGameDrive.GetRandomItemName: string;
 var
     count: integer;
+    item: ISuperObject;
 begin
-    count := GameData.O['items'].AsArray.Length;
+    count := Random( GameData.I['itemsCount'] );
+
+    /// перебираем ресурсы и получаем один из них. с учетом редкости!
+    for item in GameData.O['items'] do
+    begin
+        if count = 0 then
+        begin
+            result := item.S['name'];
+            exit;
+        end;
+        Dec(count);
+    end;
 end;
 
 function TGameDrive.GetRandResName: string;
@@ -228,7 +311,7 @@ begin
             cost := cost - part;               // списываем израсходованную часть
         end;
 
-        item.O['state.items.'+resName+'.craft'] := craft;
+        item.O['craft'] := craft;
 
     end;
 
@@ -236,20 +319,12 @@ end;
 
 
 procedure TGameDrive.ChangePlayerItemCount(name, delta: variant);
+/// изменяем количество указанного предмета на указанную дельту (в + или - ),
+/// но не ниже нуля.
 begin
-
+    GameData.I['state.items.'+name+'.count'] := Max(GameData.I['state.items.'+name+'.count'] + delta, 0);
 end;
 
-procedure TGameDrive.CheckStatus;
-/// пересчет игрового статуса исходя из текущего состояния игроовых объектов
-begin
-
-end;
-
-function TGameDrive.LoadGame(level: integer): string;
-begin
-
-end;
 
 constructor TGameDrive.Create;
 begin
@@ -269,6 +344,7 @@ end;
 
 initialization
    GameDrive := TGameDrive.Create;
+   GameDrive.GameData := SO(GAME_DATA);  // загрузка дефолтных данных
 
 finalization
    GameDrive.Free;

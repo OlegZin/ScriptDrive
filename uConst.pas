@@ -9,6 +9,7 @@ const
 
     FILE_MENU_DATA = '\menu.dat';
     FILE_GAME_DATA = '\toto.dat';
+    FILE_GAME_DATA_TEST = '\test_toto.dat';
 
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
@@ -26,7 +27,7 @@ const
          'Logo:       {NeedResearch:3,  BuildCost:5,  Attempts:0, FullAttempts:10 },'+
          'MenuExit:   {Name:{ENG:"EXIT",RU:"ВЫХОД"}, '+
                       'NeedResearch:6,  BuildCost:10, Attempts:0, FullAttempts:20 },'+
-         'MenuLang:   {Name:{ENG:"LANGUAGE",RU:"ЯЗЫК"},'+
+         'MenuLang:   {Name:{ENG:"ЯЗЫК",RU:"LANGUAGE"},'+
                       'NeedResearch:9,  BuildCost:20, Attempts:0, FullAttempts:50 },'+
          'MenuResume: {Name:{ENG:"RESUME",RU:"ПРОДОЛЖИТЬ"},'+
                       'NeedResearch:11, BuildCost:30, Attempts:0, FullAttempts:100 },'+
@@ -77,21 +78,21 @@ const
             'events: {OnAttack:"DoDamageToPlayer(GetCreatureAttr(ATK));"},'+
         '},'+
         'items:{'+
-            'gold:         { cost:    0, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'restoreHealth:{ cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'restoreMana:  { cost:  250, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'permanentATK: { cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'permanentDEF: { cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'PermanentMDEF:{ cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'exp:          { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'regenHP:      { cost:  300, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'regenMP:      { cost:  500, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'buffATK:      { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'buffDEF:      { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'buffMDEF:     { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'buffEXP:      { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'buffREG:      { cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
-            'autoAction:   { cost: 1000, craft: {}, isCraftAllow: false, isUseAllow: true}'+
+            'gold:         { count: 0, cost:    0, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'restoreHealth:{ count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'restoreMana:  { count: 0, cost:  250, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'permanentATK: { count: 0, cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'permanentDEF: { count: 0, cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'PermanentMDEF:{ count: 0, cost:  200, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'exp:          { count: 0, cost:  150, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'regenHP:      { count: 0, cost:  300, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'regenMP:      { count: 0, cost:  500, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'buffATK:      { count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'buffDEF:      { count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'buffMDEF:     { count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'buffEXP:      { count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'buffREG:      { count: 0, cost:  100, craft: {}, isCraftAllow: false, isUseAllow: true},'+
+            'autoAction:   { count: 0, cost: 1000, craft: {}, isCraftAllow: false, isUseAllow: true}'+
         '},'+
         'skills:{'+
             'healing:      {lvl: 0, cost: 10, isEnabled: true},'+

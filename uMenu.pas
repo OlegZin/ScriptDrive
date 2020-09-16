@@ -45,6 +45,7 @@ type
         procedure LoadData;
 
         function NewLevel: integer;
+        function Lang: string;
     private
         procedure ButtonMouseEnter(Sender: TObject);
         procedure ButtonMouseLeave(Sender: TObject);
@@ -355,6 +356,11 @@ begin
 
     UpdateInterface;
     UpdateLang;
+end;
+
+function TMenu.Lang: string;
+begin
+    result := data.S['Lang'];
 end;
 
 procedure TMenu.LinkSkillComponent(key: string; comp: TControl);

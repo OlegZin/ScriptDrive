@@ -15,7 +15,8 @@ uses
   uThinkMode in 'uThinkMode.pas',
   uLog in 'uLog.pas',
   uGameDrive in 'uGameDrive.pas',
-  uScriptDrive in 'uScriptDrive.pas';
+  uScriptDrive in 'uScriptDrive.pas',
+  uGameInterface in 'uGameInterface.pas';
 
 {$R *.res}
 

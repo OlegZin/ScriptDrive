@@ -105,6 +105,9 @@ type
     iAutoBG: TImage;
     Label31: TLabel;
     iPlayerBG: TImage;
+    tabThink: TTabItem;
+    Label32: TLabel;
+    Label33: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
@@ -114,10 +117,14 @@ type
     procedure iPlayerMouseLeave(Sender: TObject);
     procedure bTowerModeClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
+    procedure bResumeClick(Sender: TObject);
+    procedure tabsGameChange(Sender: TObject);
+    procedure bThinkModeClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
+    procedure SaveData;
   end;
 
 var
@@ -134,11 +141,7 @@ var
    Script : TScriptDrive;
 
 procedure TfMain.FormCreate(Sender: TObject);
-var
-    data: ISuperObject;
 begin
-
-    data := SO(GAME_DATA);
 
     /// создаем папку хранения данных (сейвы)
     if not DirectoryExists( DIR_DATA ) then
@@ -177,16 +180,29 @@ begin
 
     Menu.Init;
 
-    /////////////////////////////////////////
-    ///    настройка экрана башни
-    /////////////////////////////////////////
 
+
+    /////////////////////////////////////////
+    ///    настройка лога
+    /////////////////////////////////////////
     Log.wbLog := wbLog;
     Log.Clear;
 
+
+
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
+    Tower.tcModes := tModes;
+    Tower.page := tabTower;
+
+
+
+    /////////////////////////////////////////
+    ///    настройка экрана размышлений
+    /////////////////////////////////////////
+    Think.tcModes := tModes;
+    Think.page := tabThink;
 
 
 
@@ -197,11 +213,10 @@ begin
     Script.SetClass(TGameDrive, GameDrive);
 
 
+
     /////////////////////////////////////////
     ///    нинциализация игры
     /////////////////////////////////////////
-    Script.Exec('SetLang(ENG)');
-//    SetLang('ENG');
 {
     Script.Exec('AllowMode(Think, 1)');
     Script.Exec('AllowMode(Secrets, 1)');
@@ -226,6 +241,7 @@ begin
 
 //    UpdateInterface;
 
+    tabsGame.ActiveTab := tabMenu;
 end;
 
 procedure TfMain.bExitClick(Sender: TObject);
@@ -236,15 +252,25 @@ end;
 procedure TfMain.bNewClick(Sender: TObject);
 begin
     GameDrive.NewGame( Menu.NewLevel );
-    GameDrive.CheckStatus;
-    tabsGame.ActiveTab := tabGame;
+    GameDrive.SetLang( Menu.Lang );
+    GameDrive.SetActiveMode('Tower');
+end;
+
+procedure TfMain.bResumeClick(Sender: TObject);
+begin
+    GameDrive.LoadGame;
+    GameDrive.SetLang( Menu.Lang );
+    GameDrive.SetActiveMode('Tower');
+end;
+
+procedure TfMain.bThinkModeClick(Sender: TObject);
+begin
+    GameDrive.SetActiveMode('Think');
 end;
 
 procedure TfMain.bTowerModeClick(Sender: TObject);
 begin
-    tModes.ActiveTab := tabTower;
-    Tower.SetActive;
-    Think.SetUnactive;
+    GameDrive.SetActiveMode('Tower');
 end;
 
 procedure TfMain.bTowerModeMouseEnter(Sender: TObject);
@@ -259,7 +285,7 @@ end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-    Menu.SaveData;
+    SaveData;
 end;
 
 
@@ -273,6 +299,17 @@ procedure TfMain.iPlayerMouseLeave(Sender: TObject);
 begin
     iPlayerBG.Opacity := 0.5;
     iPlayer.Opacity := 0;
+end;
+
+procedure TfMain.SaveData;
+begin
+    Menu.SaveData;
+    GameDrive.SaveGame;
+end;
+
+procedure TfMain.tabsGameChange(Sender: TObject);
+begin
+    if tabsGame.ActiveTab = tabMenu then SaveData;
 end;
 
 end.
