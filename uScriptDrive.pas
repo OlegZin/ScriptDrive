@@ -73,7 +73,7 @@ begin
             varName := 'Var'+IntToStr(fVars.Count);
             fVars.Add( varName, copy(match.Value, 2, Length(match.Value)-2) );
             /// подменяем строку именем переменной из кэша
-            scrt := StringReplace(scrt, match.Value, '['+varName+']', []);
+            scrt := StringReplace(scrt, match.Value, varName, []);
         end;
     until match.Value = '';
 

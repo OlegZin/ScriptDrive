@@ -108,7 +108,6 @@ type
     tabThink: TTabItem;
     Label32: TLabel;
     Label33: TLabel;
-    procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bTowerModeMouseEnter(Sender: TObject);
@@ -120,6 +119,7 @@ type
     procedure bResumeClick(Sender: TObject);
     procedure tabsGameChange(Sender: TObject);
     procedure bThinkModeClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -141,7 +141,7 @@ uses
 var
    Script : TScriptDrive;
 
-procedure TfMain.FormCreate(Sender: TObject);
+procedure TfMain.FormShow(Sender: TObject);
 begin
 
     /// создаем папку хранения данных (сейвы)
@@ -204,6 +204,8 @@ begin
     ///    настройка лога
     /////////////////////////////////////////
     Log.wbLog := wbLog;
+    Log.linesCount := 100;  /// максимум отображаемых строк в логе
+    Log.GenerateImages;
     Log.Clear;
 
 
@@ -329,7 +331,7 @@ end;
 
 procedure TfMain.tabsGameChange(Sender: TObject);
 begin
-    if tabsGame.ActiveTab = tabMenu then SaveData;
+//    if tabsGame.ActiveTab = tabMenu then SaveData;
 end;
 
 end.

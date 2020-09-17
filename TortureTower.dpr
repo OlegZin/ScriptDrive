@@ -16,12 +16,14 @@ uses
   uLog in 'uLog.pas',
   uGameDrive in 'uGameDrive.pas',
   uScriptDrive in 'uScriptDrive.pas',
-  uGameInterface in 'uGameInterface.pas';
+  uGameInterface in 'uGameInterface.pas',
+  uAtlas in 'uAtlas.pas' {fAtlas};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.CreateForm(TfMain, fMain);
+  Application.CreateForm(TfAtlas, fAtlas);
   Application.Run;
 end.

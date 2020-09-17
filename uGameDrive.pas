@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils,
-    uTowerMode, uThinkMode, uGameInterface;
+    uTowerMode, uThinkMode, uGameInterface, uLog;
 
 type
 
@@ -34,18 +34,20 @@ type
         function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
         function GetCurrFloor: string;     // текущий этаж
 
-        function GetRandomItemName: string;
+        function GetRandItemName: string;          // внутреннее имя случайного предмета
         procedure ChangePlayerItemCount(name, delta: variant);
         function NeedExp(lvl: variant): string;
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
-        function GetRandItemName: string;          // внутреннее имя случайного предмета
         procedure AllowMode(name: string);
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
         procedure UpdateInterface;
         procedure SetActiveMode(name: string);
+
+        /// работа с логом
+        procedure Log(kind, text: string);
     private
         Script : TScriptDrive;
 
@@ -68,7 +70,9 @@ implementation
 procedure TGameDrive.CheckStatus;
 /// пересчет игрового статуса исходя из текущего состояния игроовых объектов
 begin
-
+    /// проверяем достижение цели (целевого этажа). если так - выполняем скрипт
+    if   GameData.I['state.CurrFloor'] = GameData.I['state.NextTarget']
+    then Script.Exec(GameData.S['targetFloor.floor'+GameData.S['state.CurrFloor']]);
 end;
 
 
@@ -90,7 +94,7 @@ begin
     /// генерим предметы
     for i := 1 to level do
     begin
-        name := GetRandomItemName;
+        name := GetRandItemName;
         ChangePlayerItemCount(name, level);
     end;
 
@@ -141,6 +145,11 @@ begin
     GameDrive.UpdateInterface;
 end;
 
+procedure TGameDrive.Log(kind, text: string);
+begin
+    uLog.Log.Add(kind, text);
+end;
+
 function TGameDrive.GetLang: string;
 begin
     result := GameData.S['state.Lang'];
@@ -158,6 +167,7 @@ procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима
 begin
     GameInterface.Update( GameData.O['state.player.params']);
+    uLog.Log.Update;
 end;
 
 procedure TGameDrive.SetActiveMode(name: string);
@@ -235,7 +245,7 @@ begin
     end;
 end;
 
-function TGameDrive.GetRandomItemName: string;
+function TGameDrive.GetRandItemName: string;
 var
     count: integer;
     item: ISuperObject;

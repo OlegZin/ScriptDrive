@@ -482,8 +482,6 @@ type
                                // маркера, без его затирания. используется для добавления
                                // элементов в по маркерам #STYLE#, #CONTENT#, #ROW#
 
-       procedure ClearMarks;   // удаление всех служебных маркеров перед
-                               // соранением в файл
 
    public
        Template: TTemplate;
@@ -503,7 +501,9 @@ type
        function SaveToExcelFile(_FileName: string): boolean;
         function SaveToPDFFile(_FileName: string): boolean;
        procedure OpenFile(FileName: string);
-//       function AddImage
+
+       procedure ClearMarks;   // удаление всех служебных маркеров перед
+                               // соранением в файл
    end;
 
 implementation

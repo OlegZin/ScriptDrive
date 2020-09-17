@@ -45,6 +45,7 @@ const
         'Lang:"ENG",'+
         'CurrStep: 1,'+
         'CurrFloor: 1,'+
+        'NextTarget: 1,'+
         'resources:{'+
             'wood:   {count: 0},'+
             'stone:  {count: 0},'+
@@ -784,19 +785,36 @@ const
 
 
     /// список целей по уровням
-    'targets:['+
-        '{level: 1,script:"'+
-             'ChangePlayerItemCount(Gold, 100000);'+
+    'targetFloor:{'+
+        'floor1:"'+
+//             'If(GetLang() = RU, 5);'+
+             'Log(normal,\"Ты открываешь глаза в полумраке на каменном полу.\");'+
+             'Log(normal,\"В голове пустота, сердце сжимается от ощущение утраты.\");'+
+             'Log(normal,\"Немного оглядевшись, ты понимаешь, что находишься в каком-то большом пустом помещении, заваленном различным хламом.\");'+
+             'Log(normal,\"Окна отсутствуют. Только факела коптят по стенам. В дальнем углу смутно виднеется лестница наверх к массивной, оббитой железом двери.\");'+
+             'Log(normal,\"Практически под рукой обнаруживается увесистый тряпичный мешочек с пришпиленной к нему запиской.\");'+
+             'Log(normal,\"В слабом свете факелов ты с трудом разбираешь текст:\");'+
+             'Log(note,\"Тут золото и кое-какие вещи. Это на первое время. Больше ничем помочь не могу. Знаю, что сейчас ты сбит с толку и ничего не помнишь, '+
+                 'но это было необходимо сделать. Позднее сам все поймешь. И что бы не происходило в Башне, помни: нужно найти выход! Сейчас ты в самой дальней от него, но и самой безопасной точке входа. Удачи, мой друг!\");'+
+             'Log(normal,\"Несколько раз перечитав послание, ты так и не понял его смысла. Но долго думать об этом тебе не дали.\");'+
+             'Log(normal,\"Неподалеку, за кучами мусора, послышалось шевеление и тихое рычание.\");'+
+             'Log(normal,\"Рука непроизвольно стиснула рукоять непонятно откуда взявшегося кинжала и выбросила его навстречу летящему на тебя монстру.\");'+
+             'Log(danger,\"БОЙ!\");'+
+//             'If(GetLang() = ENG, 5);'+
+//             'Log(normal,\"Nearby, behind heaps of rubbish, there was a stirring and a low growl.\");'+
+//             'Log(normal,\"The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
+//             'Log(danger,\"FIGHT!\");'+
+        '",'+
+        'floor2:"'+
              'AddEvent(..................);'+
 
-             'AddEvent(    Получено 100 000 золота);'+
-             'AddEvent( );'+
+             'If(GetLang() = RU, 13);'+
              'AddEvent(\"БОЙ!\");'+
              'AddEvent(\"Рука непроизвольно стиснула рукоять непонятно откуда взявшегося кинжала и выбросила его навстречу летящему на тебя монстру.\");'+
              'AddEvent(\"Неподалеку, за кучами мусора, послышалось шевеление и тихое рычание.\");'+
              'AddEvent(\"Несколько раз перечитав послание, ты так и не понял его смысла. Но долго думать об этом тебе не дали.\");'+
              'AddEvent( );'+
-             'AddEvent(\"Это на первое время. Больше ничем помочь не могу. Знаю, что сейчас ты сбит с толку и ничего не помнишь, '+
+             'AddEvent(\"Тут золото и кое-какие вещи. Это на первое время. Больше ничем помочь не могу. Знаю, что сейчас ты сбит с толку и ничего не помнишь, '+
                  'но это было необходимо сделать. Позднее сам все поймешь. И что бы не происходило в Башне, помни: нужно найти выход! Сейчас ты в самой дальней от него, но и самой безопасной точке входа. Удачи, мой друг!\");'+
              'AddEvent( );'+
              'AddEvent(\"В слабом свете факелов ты с трудом разбираешь текст:\");'+
@@ -806,18 +824,13 @@ const
              'AddEvent(\"В голове пустота, сердце сжимается от ощущение утраты.\");'+
              'AddEvent(\"Ты открываешь глаза в полумраке на каменном полу.\");'+
 
-             'AddEvent( );'+
-             'AddEvent( );'+
-             'AddEvent( );'+
-
-             'AddEvent(    Gained 100 000 Gold);'+
-             'AddEvent( );'+
+             'If(GetLang() = ENG, 13);'+
              'AddEvent(\"FIGHT!\");'+
              'AddEvent(\"The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
              'AddEvent(\"Nearby, behind heaps of rubbish, there was a stirring and a low growl.\");'+
              'AddEvent(\"After rereading the message several times, you still do not understand its meaning. But you were not allowed to think about it for a long time.\");'+
              'AddEvent( );'+
-             'AddEvent(\"This is for the first time. I can not help you anymore. I know that now you are confused and do not remember anything, '+
+             'AddEvent(\"There is gold and some things. This is for the first time. I can not help you anymore. I know that now you are confused and do not remember anything, '+
                  'but it was necessary to do it. Later you will understand everything yourself. And whatever happens in the Tower, remember: you need to find a way out! Now you are at the farthest from him, but also the safest entry point. Good luck my friend!\");'+
              'AddEvent( );'+
              'AddEvent(\"In the faint light of torches, you can hardly make out the text:\");'+
@@ -830,8 +843,8 @@ const
              'AddEvent(..................);'+
 
              'SetNextTarget();'
-        +'"},'+
-        '{level: 2,script:"'+
+        +'",'+
+        'floor2:"'+
              'SetBreak(Tower);'+
              'SetVar(gold, Rand(100000));'+
              'AddEvent(..................);'+
@@ -872,8 +885,8 @@ const
              'AllowMode(Think, 1);'+
              'ChangePlayerItemCount(Gold, GetVar(gold));'+
              'SetNextTarget();'
-        +'"},'+
-        '{level: 3,script:"'+
+        +'",'+
+        'floor3:"'+
              'SetBreak(Tower);'+
              'SetVar(count, 10);'+
              'AddEvent(..................);'+
@@ -890,8 +903,8 @@ const
 
              'ChangePlayerItemCount(AutoAction, GetVar(count));'+
              'SetNextTarget();'
-        +'"},'+
-        '{level: 4,script:"'+
+        +'",'+
+        'floor4:"'+
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
@@ -939,8 +952,8 @@ const
 
              'AddEvent(..................);'+
              'SetNextTarget();'
-        +'"},'+
-        '{level: 5,script:"'+
+        +'",'+
+        'floor5:"'+
              'SetBreak(Tower);'+
 
              'SetCreature('+
@@ -961,8 +974,8 @@ const
              'SetCreatureScript(OnDeath,\"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);AddEvent( );AddEvent(    Игрок получил артефакт Меч!);AllowTool(Sword);SetNextTarget();\");'+
 
              'AddEvent(..................);'
-        +'"},'+
-        '{level: 7,script:"'+
+        +'",'+
+        'floor7:"'+
              'SetBreak(Tower);'+
 
              'SetCreature('+
@@ -984,8 +997,8 @@ const
 
              'AddEvent(..................);'+
              'SetNextTarget();'
-        +'"},'+
-        '{level: 10,script:"'+
+        +'",'+
+        'floor10:"'+
              'SetBreak(Tower);'+
 
              'AddEvent(..................);'+
@@ -1007,8 +1020,8 @@ const
 
              'AddEvent(..................);'+
              'SetNextTarget();'
-        +'"},'+
-        '{level: 11,script:"'+
+        +'",'+
+        'floor11:"'+
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
              'IF(GetLang() = ENG, 2);'+
@@ -1021,8 +1034,8 @@ const
              'AddEvent(..................);'+
 
              'CurrentLevel(1);InitCreatures();'
-        +'"}'+
-    '],'+
+        +'",'+
+    '},'+
 
 
 
@@ -1071,10 +1084,8 @@ const
 
     '}';
 
-
 var
     DIR_DATA :string;
-
 
 implementation
 
