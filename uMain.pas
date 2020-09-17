@@ -79,31 +79,31 @@ type
     tModes: TTabControl;
     tabTower: TTabItem;
     wbLog: TWebBrowser;
-    Label24: TLabel;
+    labelHP: TLabel;
     Image3: TImage;
-    Label25: TLabel;
+    labelMP: TLabel;
     Image2: TImage;
     Image4: TImage;
-    Label26: TLabel;
+    labelATK: TLabel;
     Image5: TImage;
-    Label27: TLabel;
+    labelDEF: TLabel;
     Image6: TImage;
-    Label28: TLabel;
+    labelMDEF: TLabel;
     Image7: TImage;
-    Label29: TLabel;
+    labelREG: TLabel;
     Image8: TImage;
-    Label30: TLabel;
+    labelLVL: TLabel;
     bMenu: TRectangle;
-    rExpBG: TRectangle;
-    rExp: TRectangle;
-    lExp: TLabel;
+    rectBGEXP: TRectangle;
+    rectEXP: TRectangle;
+    labelEXP: TLabel;
     bTowerMode: TRectangle;
     Image9: TImage;
     bThinkMode: TRectangle;
     Image10: TImage;
     iPlayer: TImage;
     iAutoBG: TImage;
-    Label31: TLabel;
+    labelAutoAction: TLabel;
     iPlayerBG: TImage;
     tabThink: TTabItem;
     Label32: TLabel;
@@ -135,7 +135,8 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject;
+    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject,
+    uGameInterface;
 
 var
    Script : TScriptDrive;
@@ -179,6 +180,23 @@ begin
     Menu.LinkSkillComponent( 'Tower4', iTower4 );
 
     Menu.Init;
+
+
+
+    /////////////////////////////////////////
+    ///    настройка основного интерфейса
+    /////////////////////////////////////////
+    GameInterface.LinkControl('AutoAction', labelAutoAction);
+    GameInterface.LinkControl('LVL', labelLVL);
+    GameInterface.LinkControl('EXP', labelEXP);
+    GameInterface.LinkControl('rectEXP', rectEXP);
+    GameInterface.LinkControl('rectBGEXP', rectBGEXP);
+    GameInterface.LinkControl('HP', labelHP);
+    GameInterface.LinkControl('MP', labelMP);
+    GameInterface.LinkControl('ATK', labelATK);
+    GameInterface.LinkControl('DEF', labelDEF);
+    GameInterface.LinkControl('MDEF', labelMDEF);
+    GameInterface.LinkControl('REG', labelREG);
 
 
 
@@ -254,6 +272,7 @@ begin
     GameDrive.NewGame( Menu.NewLevel );
     GameDrive.SetLang( Menu.Lang );
     GameDrive.SetActiveMode('Tower');
+    tabsGame.ActiveTab := tabGame;
 end;
 
 procedure TfMain.bResumeClick(Sender: TObject);
@@ -261,6 +280,7 @@ begin
     GameDrive.LoadGame;
     GameDrive.SetLang( Menu.Lang );
     GameDrive.SetActiveMode('Tower');
+    tabsGame.ActiveTab := tabGame;
 end;
 
 procedure TfMain.bThinkModeClick(Sender: TObject);

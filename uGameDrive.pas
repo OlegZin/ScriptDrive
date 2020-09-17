@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils,
-    uTowerMode, uThinkMode;
+    uTowerMode, uThinkMode, uGameInterface;
 
 type
 
@@ -36,6 +36,7 @@ type
 
         function GetRandomItemName: string;
         procedure ChangePlayerItemCount(name, delta: variant);
+        function NeedExp(lvl: variant): string;
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
         function GetRandItemName: string;          // внутреннее имя случайного предмета
@@ -80,9 +81,11 @@ begin
     InitItemsCraftCost;         // генерация рецептов предметов
     InitFloorObjects;           // генерация объектов на этажах
 
+    GameData.I['state.player.params.NeedExp'] := StrToInt(NeedExp(1));
+
     /// генерим первоначальные ресурсы, исходя из уровня игры
     /// автодействия
-    GameData.I['state.AutoActions'] := 500 + 500 * level;
+    GameData.I['state.player.params.AutoAction'] := 500 + 500 * level;
 
     /// генерим предметы
     for i := 1 to level do
@@ -96,6 +99,8 @@ begin
 
     /// проверяем состояние игровых объектов
     GameDrive.CheckStatus;
+
+    GameDrive.UpdateInterface;
 end;
 
 function TGameDrive.SaveGame: string;
@@ -129,6 +134,11 @@ begin
         if Assigned(state) then
         GameData.O['state'] := state;
     end;
+
+    /// проверяем состояние игровых объектов
+    GameDrive.CheckStatus;
+
+    GameDrive.UpdateInterface;
 end;
 
 function TGameDrive.GetLang: string;
@@ -147,7 +157,7 @@ end;
 procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима
 begin
-
+    GameInterface.Update( GameData.O['state.player.params']);
 end;
 
 procedure TGameDrive.SetActiveMode(name: string);
@@ -323,6 +333,27 @@ procedure TGameDrive.ChangePlayerItemCount(name, delta: variant);
 /// но не ниже нуля.
 begin
     GameData.I['state.items.'+name+'.count'] := Max(GameData.I['state.items.'+name+'.count'] + delta, 0);
+end;
+
+
+function TGameDrive.NeedExp(lvl: variant): string;
+var
+    prev, cost, buff, // переменные для вычисления стоимости
+    i: integer;
+begin
+
+    prev := 0;
+    cost := 10;
+
+    /// получаем значение с нужным индексом в ряду фиббоначи - это стоимость левелапа
+    for I := 0 to lvl do
+    begin
+        buff := cost;
+        cost := cost + prev;
+        prev := buff;
+    end;
+
+    result := IntToStr(cost);
 end;
 
 

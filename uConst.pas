@@ -43,7 +43,6 @@ const
     '{'+
     'state: {'+
         'Lang:"ENG",'+
-        'AutoActions: 0,'+
         'CurrStep: 1,'+
         'CurrFloor: 1,'+
         'resources:{'+
@@ -59,7 +58,7 @@ const
             'essence:{count: 0}'+
         '},'+
         'player: {'+
-            'params: {LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, REG:1, EXP:0},'+
+            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, REG:1, EXP:0, NeedExp:0 },'+
             'skills: {},'+
             'items: {},'+
             'buffs: {},'+
