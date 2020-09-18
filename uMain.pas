@@ -117,10 +117,9 @@ type
     procedure bTowerModeClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
     procedure bResumeClick(Sender: TObject);
-    procedure tabsGameChange(Sender: TObject);
     procedure bThinkModeClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-  private
+    procedure bMenuClick(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -269,18 +268,22 @@ begin
     Close;
 end;
 
+procedure TfMain.bMenuClick(Sender: TObject);
+begin
+    SaveData;
+    tabsGame.ActiveTab := tabMenu;
+end;
+
 procedure TfMain.bNewClick(Sender: TObject);
 begin
-    GameDrive.NewGame( Menu.NewLevel );
-    GameDrive.SetLang( Menu.Lang );
+    GameDrive.NewGame( Menu.NewLevel, Menu.Lang );
     GameDrive.SetActiveMode('Tower');
     tabsGame.ActiveTab := tabGame;
 end;
 
 procedure TfMain.bResumeClick(Sender: TObject);
 begin
-    GameDrive.LoadGame;
-    GameDrive.SetLang( Menu.Lang );
+    GameDrive.LoadGame( Menu.Lang );
     GameDrive.SetActiveMode('Tower');
     tabsGame.ActiveTab := tabGame;
 end;
@@ -327,11 +330,6 @@ procedure TfMain.SaveData;
 begin
     Menu.SaveData;
     GameDrive.SaveGame;
-end;
-
-procedure TfMain.tabsGameChange(Sender: TObject);
-begin
-//    if tabsGame.ActiveTab = tabMenu then SaveData;
 end;
 
 end.

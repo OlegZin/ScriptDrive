@@ -348,7 +348,7 @@ unit uDocCreater;
 interface
 
 uses
-    StrUtils, SysUtils, Classes, ShellApi, Windows, ComObj, Variants, Word2013;
+    StrUtils, SysUtils, Classes, ShellApi, Windows, ComObj, Variants;
 
 const
 
@@ -630,7 +630,7 @@ var
     f: string;
     ff: pwidechar;
 begin
-    SaveToFile(_FileName);
+{    SaveToFile(_FileName);
 
     f:= ReplaceStr( _FileName, '.doc', '.pdf');
     ff:= pwidechar(f);
@@ -653,7 +653,7 @@ begin
         w.quit(false);
         w:=unassigned;
     end;
-
+}
 end;
 
 function TDocCreater.SaveToFile(FileName: string): boolean;

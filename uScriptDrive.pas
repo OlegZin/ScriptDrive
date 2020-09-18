@@ -229,8 +229,11 @@ begin
         until match.Value = '';
 
         /// если идет отсчет пропускаемых команд - уменьшаем счетчик
-        if passCount > 0
-        then Dec(PassCount);
+        if passCount > 0 then
+        begin
+            line := '';
+            Dec(PassCount);
+        end;
 
     end;
     prs.Free;

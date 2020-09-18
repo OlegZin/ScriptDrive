@@ -23,8 +23,8 @@ type
         constructor Create;
         destructor Destroy;
 
-        function NewGame(level: integer): string;
-        function LoadGame: string;
+        function NewGame(level: integer; lang: string): string;
+        function LoadGame( lang: string ): string;
         function SaveGame: string;
 
         procedure CheckStatus;
@@ -43,6 +43,8 @@ type
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
+        procedure SetNextTarget;
+
         procedure UpdateInterface;
         procedure SetActiveMode(name: string);
 
@@ -71,12 +73,12 @@ procedure TGameDrive.CheckStatus;
 /// пересчет игрового статуса исходя из текущего состояния игроовых объектов
 begin
     /// проверяем достижение цели (целевого этажа). если так - выполняем скрипт
-    if   GameData.I['state.CurrFloor'] = GameData.I['state.NextTarget']
-    then Script.Exec(GameData.S['targetFloor.floor'+GameData.S['state.CurrFloor']]);
+    if   'floor' + GameData.S['state.CurrFloor'] = GameData.S['state.CurrTarget']
+    then Script.Exec(GameData.S['targetFloor.'+GameData.S['state.CurrTarget'] + '.script']);
 end;
 
 
-function TGameDrive.NewGame(level: integer): string;
+function TGameDrive.NewGame(level: integer; lang: string): string;
 var
     i : integer;
     name: string;
@@ -84,6 +86,8 @@ begin
     result := '';
     InitItemsCraftCost;         // генерация рецептов предметов
     InitFloorObjects;           // генерация объектов на этажах
+
+    GameData.S['state.Lang'] := lang;
 
     GameData.I['state.player.params.NeedExp'] := StrToInt(NeedExp(1));
 
@@ -123,7 +127,7 @@ begin
     );
 end;
 
-function TGameDrive.LoadGame: string;
+function TGameDrive.LoadGame( lang: string ): string;
 /// загрузка состояния игры
 var
     state: ISuperObject;
@@ -138,6 +142,8 @@ begin
         if Assigned(state) then
         GameData.O['state'] := state;
     end;
+
+    GameData.S['state.Lang'] := lang;
 
     /// проверяем состояние игровых объектов
     GameDrive.CheckStatus;
@@ -162,6 +168,13 @@ end;
 
 
 
+
+procedure TGameDrive.SetNextTarget;
+/// метод переключает текущую цель на следующий элемент массива targetFloor
+begin
+    GameData.S['state.CurrTarget'] :=
+        GameData.S['targetFloor.'+GameData.S['state.CurrTarget']+'.next'];
+end;
 
 procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима

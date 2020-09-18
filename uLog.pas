@@ -17,14 +17,14 @@ const
               'body{margin:0;padding:10px;border:0;}'+
               '.danger{color:red;}'+
               '.note{'+
-                'padding:20px;'+
+                'padding:20px;margin:20px;'+
                 'font-weight:bold;'+
                 'line-height:150%;'+
                 'background-image:url("data:image/jpeg;base64,#IMAGE_NOTE_BG#")'+
               '}'+
             '</style>'+
           '</head>'+
-        '<body>'+
+        '<body onload="window.scrollTo(0,1000)">'+
           '#CONTENT#'+
         '</body>'+
         '</html>';
@@ -152,10 +152,4 @@ finalization
     Log.Free;
 
 end.
-{
-var
-  window: IHTMLWindow2;
 
-window := (WebBrowser1.Document as IHTMLDocument2).parentWindow;
-window.scroll(0, 0);
-}
