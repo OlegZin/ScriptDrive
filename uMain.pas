@@ -76,8 +76,6 @@ type
     Label15: TLabel;
     layPlayerPanel: TLayout;
     layScreen: TLayout;
-    tModes: TTabControl;
-    tabTower: TTabItem;
     wbLog: TWebBrowser;
     labelHP: TLabel;
     Image3: TImage;
@@ -101,19 +99,15 @@ type
     Image9: TImage;
     bThinkMode: TRectangle;
     Image10: TImage;
-    iPlayer: TImage;
     iAutoBG: TImage;
     labelAutoAction: TLabel;
-    iPlayerBG: TImage;
-    tabThink: TTabItem;
-    Label32: TLabel;
-    Label33: TLabel;
+    Layout2: TLayout;
+    Layout3: TLayout;
+    Splitter1: TSplitter;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bTowerModeMouseEnter(Sender: TObject);
     procedure bTowerModeMouseLeave(Sender: TObject);
-    procedure iPlayerMouseEnter(Sender: TObject);
-    procedure iPlayerMouseLeave(Sender: TObject);
     procedure bTowerModeClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
     procedure bResumeClick(Sender: TObject);
@@ -212,16 +206,16 @@ begin
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
-    Tower.tcModes := tModes;
-    Tower.page := tabTower;
+//    Tower.tcModes := tModes;
+//    Tower.page := tabTower;
 
 
 
     /////////////////////////////////////////
     ///    настройка экрана размышлений
     /////////////////////////////////////////
-    Think.tcModes := tModes;
-    Think.page := tabThink;
+//    Think.tcModes := tModes;
+//    Think.page := tabThink;
 
 
 
@@ -290,7 +284,7 @@ end;
 
 procedure TfMain.bThinkModeClick(Sender: TObject);
 begin
-    GameDrive.SetActiveMode('Think');
+//    GameDrive.SetActiveMode('Think');
 end;
 
 procedure TfMain.bTowerModeClick(Sender: TObject);
@@ -313,18 +307,6 @@ begin
     SaveData;
 end;
 
-
-procedure TfMain.iPlayerMouseEnter(Sender: TObject);
-begin
-    iPlayerBG.Opacity := 0;
-    iPlayer.Opacity := 0.5;
-end;
-
-procedure TfMain.iPlayerMouseLeave(Sender: TObject);
-begin
-    iPlayerBG.Opacity := 0.5;
-    iPlayer.Opacity := 0;
-end;
 
 procedure TfMain.SaveData;
 begin

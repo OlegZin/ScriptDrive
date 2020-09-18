@@ -185,11 +185,12 @@ end;
 
 procedure TGameDrive.SetActiveMode(name: string);
 begin
-    Tower.SetUnactive;
+{    Tower.SetUnactive;
     Think.SetUnactive;
 
     if name = 'Tower' then Tower.SetActive;
     if name = 'Think' then Think.SetActive;
+}
 end;
 
 { PRIVATE METHODS }

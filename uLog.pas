@@ -15,6 +15,7 @@ const
             '<meta http-equiv=Content-Type content="text/html; charset=windows-1251">'+
             '<style>'+
               'body{margin:0;padding:10px;border:0;}'+
+              'body{ scrollbar-base-color: #fff; scrollbar-track-color: #fff; }'+
               '.danger{color:red;}'+
               '.note{'+
                 'padding:20px;margin:20px;'+
