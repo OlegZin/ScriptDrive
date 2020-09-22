@@ -75,7 +75,7 @@ type
     Rectangle6: TRectangle;
     Label15: TLabel;
     layPlayerPanel: TLayout;
-    layScreen: TLayout;
+    layMain: TLayout;
     wbLog: TWebBrowser;
     labelHP: TLabel;
     Image3: TImage;
@@ -102,7 +102,7 @@ type
     iAutoBG: TImage;
     labelAutoAction: TLabel;
     Layout2: TLayout;
-    Layout3: TLayout;
+    layScreen: TLayout;
     Splitter1: TSplitter;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
@@ -128,8 +128,8 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uTowerMode, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject,
-    uGameInterface;
+    uMenu, uConst, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject,
+    uGameInterface, uTower;
 
 var
    Script : TScriptDrive;
@@ -206,9 +206,9 @@ begin
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
-//    Tower.tcModes := tModes;
-//    Tower.page := tabTower;
+    fTower.onAttack := GameDrive.onPlayerAttack;
 
+    fTower.layTower.Parent := fMain.layScreen;
 
 
     /////////////////////////////////////////

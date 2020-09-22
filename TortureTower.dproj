@@ -124,7 +124,6 @@
         <DCCReference Include="SuperObject\supertypes.pas"/>
         <DCCReference Include="SuperObject\superxmlparser.pas"/>
         <DCCReference Include="uConst.pas"/>
-        <DCCReference Include="uTowerMode.pas"/>
         <DCCReference Include="uThinkMode.pas"/>
         <DCCReference Include="uLog.pas"/>
         <DCCReference Include="uGameDrive.pas"/>
@@ -132,6 +131,10 @@
         <DCCReference Include="uGameInterface.pas"/>
         <DCCReference Include="uAtlas.pas">
             <Form>fAtlas</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="uTower.pas">
+            <Form>fTower</Form>
             <FormType>fmx</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
@@ -656,13 +659,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="OSX32">True</Platform>

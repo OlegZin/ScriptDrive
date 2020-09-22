@@ -4,6 +4,9 @@ interface
 
 uses SysUtils;
 
+type
+    TEvent = procedure of object;
+
 const
     FOLDER_DATA = 'DATA\';
 

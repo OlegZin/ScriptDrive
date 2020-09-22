@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils,
-    uTowerMode, uThinkMode, uGameInterface, uLog;
+    uThinkMode, uGameInterface, uLog, uTower;
 
 type
 
@@ -50,6 +50,9 @@ type
 
         /// работа с логом
         procedure Log(kind, text: string);
+
+        //// обработчики событий
+        procedure onPlayerAttack;
     private
         Script : TScriptDrive;
 
@@ -109,6 +112,11 @@ begin
     GameDrive.CheckStatus;
 
     GameDrive.UpdateInterface;
+end;
+
+procedure TGameDrive.onPlayerAttack;
+begin
+
 end;
 
 function TGameDrive.SaveGame: string;
@@ -180,6 +188,7 @@ procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима
 begin
     GameInterface.Update( GameData.O['state.player.params']);
+//    fTower.Update( '{params:'+GameData.O['state.creature.params'].AsJSon+'},' );
     uLog.Log.Update;
 end;
 
