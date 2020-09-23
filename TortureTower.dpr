@@ -17,7 +17,8 @@ uses
   uScriptDrive in 'uScriptDrive.pas',
   uGameInterface in 'uGameInterface.pas',
   uAtlas in 'uAtlas.pas' {fAtlas},
-  uTower in 'uTower.pas' {fTower};
+  uTower in 'uTower.pas' {fTower},
+  uNotes in 'uNotes.pas';
 
 {$R *.res}
 
