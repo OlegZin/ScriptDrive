@@ -95,23 +95,27 @@ type
     rectBGEXP: TRectangle;
     rectEXP: TRectangle;
     labelEXP: TLabel;
-    bTowerMode: TRectangle;
-    Image9: TImage;
-    bThinkMode: TRectangle;
+    Tower: TRectangle;
+    Floor: TRectangle;
     Image10: TImage;
     iAutoBG: TImage;
     labelAutoAction: TLabel;
     Layout2: TLayout;
     layScreen: TLayout;
     Splitter1: TSplitter;
+    Rectangle1: TRectangle;
+    Layout3: TLayout;
+    Image9: TImage;
+    Research: TRectangle;
+    Image11: TImage;
+    Craft: TRectangle;
+    Image12: TImage;
+    Think: TRectangle;
+    Image13: TImage;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
-    procedure bTowerModeMouseEnter(Sender: TObject);
-    procedure bTowerModeMouseLeave(Sender: TObject);
-    procedure bTowerModeClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
     procedure bResumeClick(Sender: TObject);
-    procedure bThinkModeClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure bMenuClick(Sender: TObject);  private
     { Private declarations }
@@ -190,8 +194,14 @@ begin
     GameInterface.LinkControl('DEF', labelDEF);
     GameInterface.LinkControl('MDEF', labelMDEF);
     GameInterface.LinkControl('REG', labelREG);
+    /// кнопки переключения режимов
+    GameInterface.LinkControl('tabTower', Tower);
+    GameInterface.LinkControl('tabFloor', Floor);
+    GameInterface.LinkControl('tabThink', Think);
+    GameInterface.LinkControl('tabResearch', Research);
+    GameInterface.LinkControl('tabCraft', Craft);
 
-
+    GameInterface.Init;
 
     /////////////////////////////////////////
     ///    настройка лога
@@ -271,36 +281,17 @@ end;
 procedure TfMain.bNewClick(Sender: TObject);
 begin
     GameDrive.NewGame( Menu.NewLevel, Menu.Lang );
-    GameDrive.SetActiveMode('Tower');
+    GameDrive.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
 end;
 
 procedure TfMain.bResumeClick(Sender: TObject);
 begin
     GameDrive.LoadGame( Menu.Lang );
-    GameDrive.SetActiveMode('Tower');
+    GameDrive.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
 end;
 
-procedure TfMain.bThinkModeClick(Sender: TObject);
-begin
-//    GameDrive.SetActiveMode('Think');
-end;
-
-procedure TfMain.bTowerModeClick(Sender: TObject);
-begin
-    GameDrive.SetActiveMode('Tower');
-end;
-
-procedure TfMain.bTowerModeMouseEnter(Sender: TObject);
-begin
-    (sender as TControl).Opacity := 1;
-end;
-
-procedure TfMain.bTowerModeMouseLeave(Sender: TObject);
-begin
-    (sender as TControl).Opacity := 0.25;
-end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin

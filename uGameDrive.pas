@@ -46,7 +46,7 @@ type
         procedure SetNextTarget;
 
         procedure UpdateInterface;
-        procedure SetActiveMode(name: string);
+        procedure SetMode(name: string);
 
         /// работа с логом
         procedure Log(kind, text: string);
@@ -60,7 +60,7 @@ type
         procedure InitFloorObjects;   /// генерация предметов на этажах
         function GetRandObjName: string;
 
-        function GetInLang(text: string; lang: string = ''): string; /// получение строки в текущем языке из мультиязычной строки
+        function GetInLang(text: string; lang: string = ''): string;
     end;
 
 Var
@@ -177,6 +177,16 @@ end;
 
 
 
+procedure TGameDrive.SetMode(name: string);
+begin
+{    Tower.SetUnactive;
+    Think.SetUnactive;
+
+    if name = 'Tower' then Tower.SetActive;
+    if name = 'Think' then Think.SetActive;
+}
+end;
+
 procedure TGameDrive.SetNextTarget;
 /// метод переключает текущую цель на следующий элемент массива targetFloor
 begin
@@ -192,15 +202,6 @@ begin
     uLog.Log.Update;
 end;
 
-procedure TGameDrive.SetActiveMode(name: string);
-begin
-{    Tower.SetUnactive;
-    Think.SetUnactive;
-
-    if name = 'Tower' then Tower.SetActive;
-    if name = 'Think' then Think.SetActive;
-}
-end;
 
 { PRIVATE METHODS }
 
