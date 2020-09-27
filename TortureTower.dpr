@@ -16,9 +16,9 @@ uses
   uGameDrive in 'uGameDrive.pas',
   uScriptDrive in 'uScriptDrive.pas',
   uGameInterface in 'uGameInterface.pas',
-  uAtlas in 'uAtlas.pas' {fAtlas},
   uTower in 'uTower.pas' {fTower},
-  uNotes in 'uNotes.pas';
+  uNotes in 'uNotes.pas',
+  uAtlas in 'uAtlas.pas' {fAtlas};
 
 {$R *.res}
 
@@ -27,5 +27,6 @@ begin
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TfAtlas, fAtlas);
   Application.CreateForm(TfTower, fTower);
+  Application.CreateForm(TfAtlas, fAtlas);
   Application.Run;
 end.
