@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects, FMX.Memo,
-  System.NetEncoding;
+  System.NetEncoding, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts;
 
 type
   TfAtlas = class(TForm)
@@ -52,6 +52,13 @@ type
     Image40: TImage;
     Image41: TImage;
     Image42: TImage;
+    Layout5: TLayout;
+    Label24: TLabel;
+    Image43: TImage;
+    Layout9: TLayout;
+    Image44: TImage;
+    Label27: TLabel;
+    Image45: TImage;
   private
     { Private declarations }
   public

@@ -39,7 +39,7 @@ object fMain: TfMain
           Anchors = [akLeft, akTop, akRight]
           StyledSettings = [Family]
           Position.X = 8.000000000000000000
-          Position.Y = 133.000000000000000000
+          Position.Y = 148.000000000000000000
           Size.Width = 55.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
@@ -103,7 +103,7 @@ object fMain: TfMain
             end>
           Opacity = 0.200000002980232200
           Position.X = 8.000000000000000000
-          Position.Y = 167.000000000000000000
+          Position.Y = 178.000000000000000000
           Size.Width = 41.000000000000000000
           Size.Height = 42.000000000000000000
           Size.PlatformDefault = False
@@ -112,7 +112,7 @@ object fMain: TfMain
           Anchors = [akLeft, akTop, akRight]
           StyledSettings = [Family]
           Position.X = 8.000000000000000000
-          Position.Y = 183.000000000000000000
+          Position.Y = 194.000000000000000000
           Size.Width = 55.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
@@ -177,229 +177,10 @@ object fMain: TfMain
             end>
           Opacity = 0.200000002980232200
           Position.X = 8.000000000000000000
-          Position.Y = 119.000000000000000000
+          Position.Y = 134.000000000000000000
           Size.Width = 41.000000000000000000
           Size.Height = 41.000000000000000000
           Size.PlatformDefault = False
-        end
-        object Image4: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                02A1494441545847E5D85BC80D5118C6F18D487141397C8EB940724139E4504A
-                2951442452242294523EE1C25911391637C895C205225C2892129212452857CA
-                21B9201724FE4FDF5AF5F6B6769F993D33763CF56BEDBDF6CCACB73D6BD6CCDE
-                B5FF254B43DB94D9835FA16DBACC818A8B6E63389A222DF8015BA05C43378CC1
-                5FCD3DF8E2DE6022E6E235E6A1D274C46A74C7101CC057C40257A237BE9BBE0D
-                A82C1BA1419F61330660244EE028949B88C5452B507AA6E233ECC0EFB0172A72
-                1076E02DEC36A7A05CC088B697C54793FE0AECC0D64F9CC464F4C376A8D0A750
-                F45EDBBD82E667E1D90A5F543D97D107BA60066201FC36C7505866C20FA0C17D
-                5FB41ECB30033AF51FE0B7D98242D20B7EDEC973A8085FA8DE2B0B43AB85DB7E
-                2EE7A09CC1BAB697F973097E00798F1815AA6F6D31A6A923E438FC7E2FA02B5F
-                4B4FEC3B884EC81C0D6A0F6EE90E321B369342ABAC456ABF5998EEFA44CB96A6
-                43A668277F204FCBCC210C866E71FBA14C803FFDDBD01F2F4D5F14A744A6E8A6
-                EF0F548F4EE7A2F0FA31FA42CBCDD9D0A7A9A25C84DD4F76237736C11FB01EE5
-                2EF4FA1B3437152DE49DB1137E1F2D490DE701FC81535AB1CAF569F156526BA1
-                1E267AA2E1E8AAF3074FF988AE7862FA44DFEA780CC3F5D027535058B45ED941
-                EB990F7D93BE5F8BB59E8274AA0F630D74FB2C34B7E007F61E22DEE6529FABB8
-                5898EE5085A60752837A7A92DEE5FAAC1BD072A4A95378962335A8751E43F1C9
-                F479F7515AAE2235A8A5ABF388EBB34EA3B468A2A706B5F641A73AF5A34A96A0
-                D4E8D6941AF84FE842293DBA95A5066FCF1D7441E9493D91B4E70BF4933453F4
-                33324F4685364B1E21F3D55B6581B992B7C0D1A12D3DFFE437A807D1CA92A7C0
-                B1A1AD24790A1C17DA4A92A7C04AFFF76BFA53DC21B459A27FB0F2A6917D9B31
-                B5DA6F647B88E575F0191C0000000049454E44AE426082}
-              FileName = '\\ntm.grouphms.local\fs\UserFolders\zinovev\Downloads\fist.png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 8.000000000000000000
-          Position.Y = 215.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object labelATK: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 8.000000000000000000
-          Position.Y = 231.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '999'
-        end
-        object Image5: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                01E5494441545847ED98BF2F044118861711258542ABE53FD0F8514A14088942
-                43A2D0A844894EED5F50483468442368442711A19448241289444922BCEFCECE
-                E6CB77B3777337F676C33EC99399DD9B9B79EF6E7766E7A2B2D39194962D386A
-                AA29DBF0C25453CE9352329E9412DDEE12720CC918DC34D514D798317CF3B792
-                1D6838B06CE30A4C641BAAC311F6AFDBA56376266569A90286E21B90D784D485
-                6EE3DBAE295C374911A6C14BFF13EB797016EEC3EEF8C8300F5F4DD50B7E7A3D
-                AF35C32D5C80F7F1918349F80EE5573E077D09B94CAEE1206CC8047C81F2CDBE
-                215B0DC8C97E007A33021FA1ECC427642B014F602FACA1DE4D720567E0437C64
-                184ECADFE4104E435E563534BA8B6FE0AAA9E6C62EFC30D55AFECC4A521855C0
-                50AA80A1E8B5D805D756FB48EFDC2728D846B7D3E370ADB64F2CDCCBF8F49B09
-                3B72CDFE59BAF61D1AB9A7491FAD5C54D7602855C0508A08C847B6BA3786A4DD
-                0119EEC054639EE19BA986B108E55452CFAC6986E1745BEF6FD28715A80770E9
-                0A987B38CB1AD4036965C02EB803759B21981B1B500F28B501B9A7E1DF6DF2B5
-                3B986B380BD75239B09401D7E19738474F615BC259A62037D732043D729CE3CF
-                5C083D700FEA40D627C81D5BE12CC14F28C31DC352AD547DF00C32DC324F9495
-                FEA4FC0F44D10F1B0CF785243281CB0000000049454E44AE426082}
-              FileName = 
-                '\\ntm.grouphms.local\fs\UserFolders\zinovev\Downloads\crenulated' +
-                '-shield.png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 8.000000000000000000
-          Position.Y = 263.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object labelDEF: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 8.000000000000000000
-          Position.Y = 279.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '999'
-        end
-        object Image6: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                0396494441545847DD9849E84D511CC7FF862832B330A6841065581822B23165
-                214A220A250B91052965832C91A49421D38285294A519450C6C4029142E6B10C
-                11DFCFB9E7F89FFF7DF7DCE1FDDF7BFEF9D4A773CE7DE7DDFBBBF7DC33DDBAA6
-                4E339B3686D6B293EC6C5378EFF98D03E59237C00172A4A70B86B4AD4CE3ABF4
-                03BE2F6F5A6FC81F324828C05972841C6EED2EE1BAF5917C1BF39D4D39A70BDE
-                D9C5A63DA4BBC97692E06E596FCBCB369FCA44F95B72877BE44A7BACA3CC0375
-                B3682947C92572BBBC243FCB0B32131760B9ACB56951AEC9E351B69EE6364DC2
-                BDF045E0B51813650BD35E7E8AB2F5543AC0D1726C942D4C4D02E4E97595FD4C
-                A918B9037495B8505126DBB468333396325CBD36258FA4009FD9B4974DF3D24D
-                BAE168824DF3E2AEE5AEFD97A4005FCA5FB2B729E5C77F6A536CEA93D6ECEE5A
-                B902042A663DC1C532141417A4D9A08564E861700FE1AEF5DCA69930A29F8DB2
-                A95C950CE67D2501307E3AA7C9B99299877C1ADC00FF713795C90EF92ACAA642
-                009CF88B4D7D4FD9941BC8E2A8BC1B65F3B14072F241A6940E4FDA0FCC97C079
-                BA593C91BBA36C3E86492EB0D4944A6175B35A3277C6838A7B476E92A1A1A7BF
-                A4DE32532A004DBC33CA9A9507CDB94F723C1E445E7FCA9372B9744F769EE4B7
-                C419286D26E1E5666E850E929905F3AE6A92A047335E3209B88980E9F18DE449
-                176295E4CEC69B523D2C95E6C843F2A3F49F50C82B728DA439E33C9085DE3FC7
-                10C9C9B7985218028D07E4CBBA2FC454499D19A6540617E5BD289BC842190FC8
-                E9DED58332C43659687889B35E7291D01DF2DB01C99360BFE182C3F992F194FC
-                249904CDBB31CA96079D849E77CC941AB24BFAEFE711E907486700F61F27A26C
-                03D84A502FED15C8C556C989FCBD06178DB348BAE018A0E3F8ADC0AA87C1999B
-                6A3403E507C9189806AB15172053571A743CEA4D37A50AC07BC209B39A834D3A
-                F5188843F0DA7C97B9767079E9299FCAC3A614865D1901BA013E89FD923A2CD7
-                2ACA0AC98999F242B06C62B11B8226E51C59AF40D9D02C7CAE68634AA5D091D2
-                9AEE9C7C21079B5215704F60832995C2827373942D81AF08FC37B442AA18CC9B
-                5C880B2631D3A63E0CE4748CBDA654655AC9D392209336476E8076B08C62B5C2
-                7FF86F4DE04B151F7C0832ED63D150F9585297FFD4943E924F6504B98E033168
-                EA87923AD4FD27D01B996709D29F6FE9441C3B23ABD6638BC062944EC07E9AE5
-                13C1B10F69528C93E725FBE3D91C68AAC47BF1FF4C5DDD1F8FFAFD0A70AB2443
-                0000000049454E44AE426082}
-              FileName = 
-                '\\ntm.grouphms.local\fs\UserFolders\zinovev\Downloads\rosa-shiel' +
-                'd (2).png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 8.000000000000000000
-          Position.Y = 311.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object labelMDEF: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 8.000000000000000000
-          Position.Y = 327.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '999'
-        end
-        object Image7: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                0135494441545847ED98610E82300C85C73C84D1D3C0918C07500E603C929E46
-                E2211CB25182E2D6AD2B31FBD12F59C6C8681E83F63194C0A4829EC6715B2BA3
-                4F304A439B565D9E771825A3A1A7A3AB1A8EE250E6AE825DC1E3BE8711CE34D7
-                F619E4AFE09F285E209E24E863D9DCD4E5114F32176398AB5E0D9CF905491E7C
-                055DA6DAE0BE46C517636846A3EFA6BC835C442097E2058E65C2968290B76236
-                452A33014CEF2F31D7CE95A559A04BF9BE75E354AEDD198EC28C378F96921F74
-                75FABE791B84E197AB3269012449B888402E22908B08E4B27412DAB610EC0865
-                7412E21675B0577092790543E2ECE4504BC577EDD47C7C68C1CDFEB0BB058358
-                D6F95868314F9724E12202B9142F308FC54725CA34D765331D79C45C8A171877
-                021F3177F0F26A727E01E70B246F25CD3D4760E128F50654B06620454876CF00
-                00000049454E44AE426082}
-              FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Downloads\hospital-cross (1).png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 8.000000000000000000
-          Position.Y = 359.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object labelREG: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 8.000000000000000000
-          Position.Y = 375.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '999'
         end
         object Image8: TImage
           MultiResBitmap.Height = 40
@@ -440,7 +221,7 @@ object fMain: TfMain
             end>
           Opacity = 0.200000002980232200
           Position.X = 8.000000000000000000
-          Position.Y = 55.000000000000000000
+          Position.Y = 60.000000000000000000
           Size.Width = 41.000000000000000000
           Size.Height = 42.000000000000000000
           Size.PlatformDefault = False
@@ -449,7 +230,7 @@ object fMain: TfMain
           Anchors = [akLeft, akTop, akRight]
           StyledSettings = [Family]
           Position.X = 8.000000000000000000
-          Position.Y = 71.000000000000000000
+          Position.Y = 76.000000000000000000
           Size.Width = 55.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
@@ -504,7 +285,7 @@ object fMain: TfMain
         object rectBGEXP: TRectangle
           Fill.Color = claWhite
           Position.X = 4.000000000000000000
-          Position.Y = 96.000000000000000000
+          Position.Y = 101.000000000000000000
           Size.Width = 65.000000000000000000
           Size.Height = 13.000000000000000000
           Size.PlatformDefault = False
@@ -568,7 +349,7 @@ object fMain: TfMain
             end>
           Opacity = 0.200000002980232200
           Position.X = 8.000000000000000000
-          Position.Y = 5.000000000000000000
+          Position.Y = 7.000000000000000000
           Size.Width = 41.000000000000000000
           Size.Height = 41.000000000000000000
           Size.PlatformDefault = False
@@ -577,7 +358,7 @@ object fMain: TfMain
           Anchors = [akLeft, akTop, akRight]
           StyledSettings = [Family]
           Position.X = 8.000000000000000000
-          Position.Y = 21.000000000000000000
+          Position.Y = 23.000000000000000000
           Size.Width = 55.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
@@ -586,567 +367,6 @@ object fMain: TfMain
           TextSettings.FontColor = claDarkslategray
           TextSettings.HorzAlign = Trailing
           Text = '999'
-        end
-        object Layout4: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 153.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 6
-          object Label25: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 36.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image16: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363201B886E55FF0FC2502E1C304169B00228130EB089C101
-                  2E131941045E9D40F0DAFB2623DC6A92012EABA9EF192201030300161A1B4829
-                  5CCF9F0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\regen.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout5: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 203.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 5
-          object Label24: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 36.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image14: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363201B886E55FF0FC2502E1C304169B00228130EB089C101
-                  2E131941045E9D40F0DAFB2623DC6A92012EABA9EF192201030300161A1B4829
-                  5CCF9F0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\regen.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout6: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 251.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 4
-          object Image15: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003649444154285363C0002DFFFF83311A6084D21080AEA086112E8F5088C514
-                  30802A8628C4A50806808A89B69A094A1304835F21030300593F11139BE9A4E0
-                  0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\up.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 26.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-          object Label26: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 23.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image17: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363644002FFC108018092707926284D100C0585605FA1FB16
-                  1D807C0FF73E2EC5B020822B040174C5304558014831A6E90C0C001B330C0B0D
-                  4C131B0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\down.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout9: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 299.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 3
-          object Image18: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003649444154285363C0002DFFFF83311A6084D21080AEA086112E8F5088C514
-                  30802A8628C4A50806808A89B69A094A1304835F21030300593F11139BE9A4E0
-                  0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\up.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 26.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-          object Label27: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 23.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image19: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363644002FFC108018092707926284D100C0585605FA1FB16
-                  1D807C0FF73E2EC5B020822B040174C5304558014831A6E90C0C001B330C0B0D
-                  4C131B0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\down.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout10: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 347.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 2
-          object Image20: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003649444154285363C0002DFFFF83311A6084D21080AEA086112E8F5088C514
-                  30802A8628C4A50806808A89B69A094A1304835F21030300593F11139BE9A4E0
-                  0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\up.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 26.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-          object Label28: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 23.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image21: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363644002FFC108018092707926284D100C0585605FA1FB16
-                  1D807C0FF73E2EC5B020822B040174C5304558014831A6E90C0C001B330C0B0D
-                  4C131B0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\down.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout11: TLayout
-          Position.X = 13.000000000000000000
-          Position.Y = 395.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 1
-          object Image22: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003649444154285363C0002DFFFF83311A6084D21080AEA086112E8F5088C514
-                  30802A8628C4A50806808A89B69A094A1304835F21030300593F11139BE9A4E0
-                  0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\up.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 26.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-          object Label29: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 23.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image23: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363644002FFC108018092707926284D100C0585605FA1FB16
-                  1D807C0FF73E2EC5B020822B040174C5304558014831A6E90C0C001B330C0B0D
-                  4C131B0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\down.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Layout12: TLayout
-          Position.X = 14.000000000000000000
-          Position.Y = 110.000000000000000000
-          Size.Width = 49.000000000000000000
-          Size.Height = 10.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 0
-          object Image24: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003649444154285363C0002DFFFF83311A6084D21080AEA086112E8F5088C514
-                  30802A8628C4A50806808A89B69A094A1304835F21030300593F11139BE9A4E0
-                  0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\up.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 26.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-          object Label30: TLabel
-            Align = Client
-            StyledSettings = [Family]
-            Size.Width = 23.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = claDarkslategray
-            TextSettings.HorzAlign = Trailing
-            Text = '999   '
-          end
-          object Image25: TImage
-            MultiResBitmap = <
-              item
-                Width = 10
-                Height = 10
-                PNG = {
-                  89504E470D0A1A0A0000000D494844520000000A0000000A08060000008D32CF
-                  BD000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  003949444154285363644002FFC108018092707926284D100C0585605FA1FB16
-                  1D807C0FF73E2EC5B020822B040174C5304558014831A6E90C0C001B330C0B0D
-                  4C131B0000000049454E44AE426082}
-                FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Desktop\down.png'
-              end>
-            Align = Right
-            Margins.Left = 3.000000000000000000
-            Position.X = 39.000000000000000000
-            Size.Width = 10.000000000000000000
-            Size.Height = 10.000000000000000000
-            Size.PlatformDefault = False
-          end
-        end
-        object Image26: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                0303494441545847EDD7ED990C411405E0250221C8800CC8800CC8800CC80011
-                900119900122400464C07DC79C75B754F7CE9AD9353FF63CCFD9E9AECF733FEA
-                56EFC935AEF19F7163FB7B51DC2ADE297E2BFE28BE28DE2E069F8ADA5F6D7FAF
-                04043C297E2CFEDC52DBD3F63EF27BF16111EE1719767010F1BA38136053FDBD
-                8DC7FA3B91F0B2E879F4F65EE0318BF60D3BDF16C1868FB7BF338FC2F3626F7B
-                56DC0B33AFF19890C9B1B411F9A0786FFBFBBED8E7BC29C2D88E5F8AD6FC278C
-                8B21D1778B72690CE58CC4194B847773847A1C973CDD09B1684900ABE14371EC
-                D326D4C94DF09C34D147F09836E6ED047942804578CA3BF690A66C8C9E785704
-                73855BFE8E612596C8DE86D6027356419C094A493C09F22C8B4548F720D18409
-                D5DAA17280A0CF8D3873FBFB1499B4C684AFB7E520C4C02512DF0D0F7A1AE06C
-                CC067DB1198507BA47511A8CA2BF169326633E9BAFCC602FFCA1D43803E181A5
-                5B818792F4B3F24304F436DE5476AC6D6ECFE35DC8B8537069BC633142731A03
-                EDB35A86C9CB9908426D8663DF1A63F406395929BA162368E934CE68BC79B3F2
-                248C302B4D8C9A1916A33758BBF0772511C289AC1FFBA1B713C52810A93E1637
-                026FFA533078093EA93EFF7E5C05EF11290239D54BB026518C111D1F1023CE68
-                3270B4403DD20E330BD738D6C208CE89CDFB5ACD8C774FD1F32309FAA8282F7B
-                7D9363C4132D356679D5A9DC30B41B393BF59DD362DDAF204865EF244E282107
-                09967298F88CB13E61988AD173325CBD492C8830F34C26F7E29ACDFA7809BEEB
-                170A431968FC5F611D2114B3BB368C4061EBED36B1018F64136BF514D955F0B9
-                48087BC8431B8D07261F0A81FEB16EAE866D1F386D7DA391BC1D8F11D60F5378
-                5EC9B9306C68B38027855B58D526CF3D94338F8572EB5240844D15DD25E8CB87
-                8330F7EBCA7B37F2E0908736C986C476A63DE46579E8B997A24B050F74914BE4
-                6D1076E3CF2D158704AFCC6E0B42928B108F5F89E72E0206E49FFB83D5B94341
-                2873D95F5A9DDB07B947F33170744851CE5D7C74202E27F828E1741F6568AFF1
-                072727BF00B61210FB218B48C50000000049454E44AE426082}
-              FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Downloads\brain (1).png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 10.000000000000000000
-          Position.Y = 421.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object Label31: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 10.000000000000000000
-          Position.Y = 437.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '1'
-        end
-        object Image27: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                0306494441545847D5984BC80E511C875F944B52D8880D911285924B4A111B91
-                A25CCAAD2465A76CEC281B25B7A29405361225AC2865C18262A18852A4888DBB
-                A42C787E33EFBFFEDF71CE5CDE99EFC553CF377366DE33F39B9933E79CF93AFF
-                3AC3BA4BCF389C85A3F0A3360C12B371252EC51FF80E4BD98FBF9CB77001B689
-                02DD437F9E4B58CA7AF495CC2FA87D6D7000C3E3570A371EC38AA14D43C66E40
-                A57062218695633609791BFDB1CAC24DEB2E3366A0AF5C642F214763789C7998
-                E204AECD577346E2630C0F92B26EC8F9E8EB3FC0141751BF517BED0CD51FD06B
-                BE215FAD841E4F9D90BA839EAFDD65889AC1C67C35CE72F4575A66D59053B0AC
-                6ED846F76094D5E87F58E453ACC2758CD5BF867A9437DD36732E26D1E30E2BA4
-                5C84459CC758BD22B3F657C6768C550EBD8329CE62AC4E917AD495D989B18384
-                DEC535A8DEC0D08B14FB6DCA37F8C79D1BD25D16B10DF598AAA0015F77F472D7
-                F7A8512A869AD1709C8E4F5017F9167B6213EA85885D794CDD0D114E0ACC5E3A
-                FB4AE88508BB83987A5413836DE6A085F36824889D5C5A3BD232DCD797706217
-                862797164E41C27D7D0B2734747D471F40935D110BD9D770866F8B3E9CCA87B2
-                521EECAF84139ABABF44DFE66CA990C7B3D25F60261ECD57333411B050BBB501
-                AC7C3A2BF51185B379E3078CBDCD5B5058C87359A90FF870297FE23A342CA426
-                A1ADA369D75ED478ACF65616EE1BAEC2100B79352BB5C00E2CEA88636ACC5D81
-                29EC7BFB46566A805D6D1D35EE2EC1322C64ADE994C777AC557D8175FEF3D028
-                E473F4277F84A7F08ADBE6D5EC660ED6A5A7909AFFFB936BB239010DBD247EBF
-                D4B65EF121F5F27DC663986433DA89535FFC17D07E23D55E9B106BEFCB7000F6
-                5DAC59ADD02C38F57DFCBABB34F42DDD04DF5F1A87714CBE3A90C598BA7386BA
-                087FB59A6537E113FAE39907B136E1E350A7AC31B80927D11FD3AB0FB0CAC4DA
-                CA116C033DE667181E5F1F5093B09458B8873802DB622C9E417F8EB2E6961186
-                D388B10FDB0CE7D98AF77140B8D477B1FE5FA811626A56CA513FA5FE6A30998C
-                AFF2D5FF824EE73767BDD2606C0AE9E30000000049454E44AE426082}
-              FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Downloads\tinker (1).png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 10.000000000000000000
-          Position.Y = 465.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object Label32: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 10.000000000000000000
-          Position.Y = 481.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '1'
-        end
-        object Image28: TImage
-          MultiResBitmap.Height = 40
-          MultiResBitmap.Width = 40
-          MultiResBitmap.LoadSize = 2
-          MultiResBitmap = <
-            item
-              Width = 40
-              Height = 40
-              PNG = {
-                89504E470D0A1A0A0000000D49484452000000280000002808060000008CFEB8
-                6D000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                0452494441545847DD9869A8755318800F3F881F9279E8933226649E95948C09
-                25F221532244E1FB81506426F3185232669E12F1C3F721448644949279281943
-                E179F659EFF5DE75F739E7EE7B4EB979EAB96BED7DD75E7B9DBDD7F0AEDD9BEF
-                2C55D271D80C57EE677B7FE277F87D49E715CBE199F82AFE5DBC05F7C679C7A1
-                F826464317E3FE9859BEA413C727720FBE859FE11FF8093E8597E1BEB81ADA80
-                F3301AA9B7636693928ECD0A78367E84F986C37C19F7C10DD3397D0083AD70EC
-                469E88EF63BE4917EF42C9E772239FC43937F27CB4C2DBD0A7B13AEE812F62BE
-                E128DFC605D5B9452887E17BB86E73D4011B77423FDB7016E61BCCC58353DEBE
-                BB2BCAA778673F3B3B362DA96C8E4F60BE51EDB3783FDE8C17E235781F8E7AD2
-                8FA3DC8B1E1FD51C756037FC1CEB8A4347EEEE380C07C255F81BB6D5B11F9E5C
-                F28F61B04A490762E3EACAC2A7F158ECC216F821D675F914772AF99F3138A7A4
-                ADAC857545E107D8B94327DEC05CDF2FB8413AF6C12C8BBEB9565CB25EC25C49
-                F82DEE8CE3623DB9DE1553FE343CA3E45B714A89C2B5F5723557AC27D79B571C
-                47F30F253F83BADF7D93F2F6BB49E2641D755F90F22EA1A6CF616F69FF244E29
-                A9D83756ED671B9E29E928EC9F97E2C3F8317AB31FD16EE3241F3C5852F9ABA4
-                E26092E74B3AC5F618BF426FA88ED7C751388F3912F37559FBDE4618C4F9B6F9
-                726B9C462C6B7A2AE6D7FB0E8EC25521CA0FD33931F80ADBCA4CBDADFC8AF72A
-                E9D5E8DA995FEFEF251D8493EAA3FD6CC317256D63CB92CAD725AD8900630A63
-                375B6E0775C8D7AFD7306B18C681B9FC0BD571F6260CF240095FC119B81CF9CF
-                039AA3E9AF57ED3BC370C9CBE50D605D09F2B93087564E29F5FF5BD7E385F85A
-                3FDB6C80EA8BDC0C0DC306D5D738E8AE4537501EFB649CC632F57503239AEBD1
-                0D8FB84B8B0B3C177917F541FC84512E7C04838D4B9AC983526DECC025F4468C
-                CE9B276B83D4C84768D4C6128C72D98BB08D23B12E6BAC280EB843FAD97F3917
-                6344E706FA8B72253B601B76FC5C2E7B379E846EB6EC5FF59353BB828B847DF9
-                3A9CC1F12595DC404774AC8B6A10DA860D8F325DCD1BB1BC5799461D0444C73E
-                10EB68FA566CE338CCE5BAE820BC0407B25D49035F8B17FAB8F34009AFC03622
-                74EFA25B856D7128EB943470DAF1625714E748373875C5F69B35B0C601E09EB8
-                2E9F35B4773BEB8C312B962969B012C66B76545D59F2B5F69FA3B10DBF2EF895
-                C100D420D72061E43EA330AB7DF2E568230E4247F3A0855DEDDC3BE2386C8306
-                AE9D703BE9172A390273A35CBFEBFDC59768D060BFB56B0CC227E9533D067D10
-                6EDCF7C4CEF8A8BD78CDE668E61C6670E91CF86B3A97350A7253FE3ABA94BA5A
-                E478D18DD1C5E8B79F3963234FEF671BEAE0F270F403911B767F4CFEDF205D79
-                FCB16BE35066FB85D546FA0129B803F3E070E36D8826967533EF56D26F396A34
-                14DA5F735D13A31E59F557AF87B08E56FE73E2BBE1BB180D75DBBA0B4E84497C
-                440FD6433F61F86A8D29D5F8CE99E0FF4AAFF70F6B753A68C71C214B00000000
-                49454E44AE426082}
-              FileName = 'C:\Users\'#1042#1083#1072#1076#1077#1083#1077#1094' '#1055#1050'\Downloads\rolling-energy.png'
-            end>
-          Opacity = 0.200000002980232200
-          Position.X = 10.000000000000000000
-          Position.Y = 509.000000000000000000
-          Size.Width = 41.000000000000000000
-          Size.Height = 42.000000000000000000
-          Size.PlatformDefault = False
-        end
-        object Label33: TLabel
-          Anchors = [akLeft, akTop, akRight]
-          StyledSettings = [Family]
-          Position.X = 10.000000000000000000
-          Position.Y = 525.000000000000000000
-          Size.Width = 55.000000000000000000
-          Size.Height = 17.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.FontColor = claDarkslategray
-          TextSettings.HorzAlign = Trailing
-          Text = '1'
         end
         object Rectangle2: TRectangle
           Cursor = crHandPoint
@@ -1279,7 +499,7 @@ object fMain: TfMain
           Padding.Right = 1.000000000000000000
           Padding.Bottom = 1.000000000000000000
           Position.X = 16.000000000000000000
-          Position.Y = 612.000000000000000000
+          Position.Y = 286.000000000000000000
           Size.Width = 40.000000000000000000
           Size.Height = 22.000000000000000000
           Size.PlatformDefault = False
@@ -1348,7 +568,7 @@ object fMain: TfMain
           Padding.Right = 2.000000000000000000
           Padding.Bottom = 2.000000000000000000
           Position.X = 11.000000000000000000
-          Position.Y = 567.000000000000000000
+          Position.Y = 241.000000000000000000
           Size.Width = 50.000000000000000000
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
