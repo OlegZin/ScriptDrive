@@ -129,11 +129,11 @@ type
     Label15: TLabel;
     Label16: TLabel;
     Image60: TImage;
+    procedure Image9Click(Sender: TObject);
   private
     { Private declarations }
+    data: ISuperObject;
   public
-    { Public declarations }
-    onAttack: TEvent;
 
     procedure Update(data: ISuperObject);
   end;
@@ -145,7 +145,14 @@ implementation
 
 {$R *.fmx}
 
+uses uGameDrive;
+
 { TfTower }
+
+procedure TfTower.Image9Click(Sender: TObject);
+begin
+    GameDrive.PlayerAttack;
+end;
 
 procedure TfTower.Update(data: ISuperObject);
 begin

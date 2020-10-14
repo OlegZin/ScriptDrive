@@ -113,6 +113,7 @@ type
     Image32: TImage;
     Rectangle10: TRectangle;
     Image33: TImage;
+    flEffects: TFlowLayout;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);

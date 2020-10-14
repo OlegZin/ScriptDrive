@@ -24,41 +24,75 @@ type
         destructor Destroy;
 
         function NewGame(level: integer; lang: string): string;
-        function LoadGame( lang: string ): string;
-        function SaveGame: string;
+        function LoadGame( lang: string ): string; /// загрузка состояния игры
+        function SaveGame: string;        /// сохранение текущего состояния игры
+        procedure UpdateInterface;        /// перерисовка состояния интерфейса
+        procedure SetMode(name: string);  /// переключение на окно указанного режима
 
-        procedure CheckStatus;
 
+/// ключевой метод
+        procedure CheckStatus;             // проверка состояния игры и отработка событий
+
+// работа с целями и их параметрами, инвентарем и прочим
+        procedure SetPlayerAsTarget;   /// установка игрока целью методов работы с параметрами и прочего
+        procedure SetCreatureAsTarget; /// установка монстра целью методов работы с параметрами и прочего
+
+        procedure SetParam(name, value: string);    /// устанавливаем значение укакзанного параметра
+        procedure ChangeParam(name, delta: string); /// изменене значения параметра на дельту
+        function GetParam(name: string): string;    /// получение значение параметра
+
+        procedure PlayEvent(name: string); /// выполнение скриптов цели, привязанных к указанному событию.
+                                           /// например, "onAttack"
+
+/// работа с языком
         function GetLang: string;          // возврат стрки с именем текущего языка ENG|RU
         procedure SetLang(lang: string);   // возврат стрки с именем текущего языка ENG|RU
-        function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
-        function GetCurrFloor: string;     // текущий этаж
 
+/// работа с этажами
+        procedure SetCurrFloor(val: string); // установить текущий этаж
+        function GetCurrFloor: string;       // текущий этаж
+
+        procedure SetCurrStep(val: string);  // устанвить текущий шаг
+        function GetCurrStep: string;        // текущий шаг
+        function GetMaxStep: string;         // максимальный шаг для текущего этажа
+
+/// работа с предметами
         function GetRandItemName: string;          // внутреннее имя случайного предмета
         procedure ChangePlayerItemCount(name, delta: variant);
-        function NeedExp(lvl: variant): string;
+
+/// работа с ресурсами
+        function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
+
+/// работа с целями на этажах.
+/// при первом входе на целевой этаж срабатывает сюжетный скрипт.
+        function GetCurrTarget: string;
+        procedure SetNextTarget;
+
+/// работа с логом
+        procedure Log(kind, text: string);
+
+/// работа с переменными
+        procedure SetVar(name, value: string);
+        function GetVar(name: string): string;
+
+/// основные игровые методы
+        procedure PlayerMakeAttack; /// выполняет цикл взаимной атаки игрока и текущего монстра в башне
+                                    /// с отработкой событий и привязанных на них скриптов
+
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
         procedure AllowMode(name: string);
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
-        procedure SetNextTarget;
 
-        procedure UpdateInterface;
-        procedure SetMode(name: string);
-
-        /// работа с логом
-        procedure Log(kind, text: string);
-
-        //// обработчики событий
-        procedure onPlayerAttack;
     private
         Script : TScriptDrive;
 
         procedure InitItemsCraftCost; /// генерация стоимости предметов в ресурсах. стоимость будет различной в каждой игре, сохраняя интригу
         procedure InitFloorObjects;   /// генерация предметов на этажах
-        function GetRandObjName: string;
+        function GetRandObjName: string; /// случайный объект, который может находиться на этаже, с учетом редкости и доступного количества
+        function NeedExp(lvl: variant): string;
 
         function GetInLang(text: string; lang: string = ''): string;
     end;
@@ -114,10 +148,7 @@ begin
     GameDrive.UpdateInterface;
 end;
 
-procedure TGameDrive.onPlayerAttack;
-begin
 
-end;
 
 function TGameDrive.SaveGame: string;
 begin
@@ -169,6 +200,16 @@ begin
     result := GameData.S['state.Lang'];
 end;
 
+function TGameDrive.GetMaxStep: string;
+begin
+    result := IntToStr(GameData.I['state.CurrFloor'] * STEPS_BY_FLOOR);
+end;
+
+function TGameDrive.GetParam(name: string): string;
+begin
+    result := GameData.S[Target + 'params.' + name];
+end;
+
 procedure TGameDrive.SetLang(lang: string);
 begin
     GameData.S['state.Lang'] := lang;
@@ -190,8 +231,23 @@ end;
 procedure TGameDrive.SetNextTarget;
 /// метод переключает текущую цель на следующий элемент массива targetFloor
 begin
-    GameData.S['state.CurrTarget'] :=
-        GameData.S['targetFloor.'+GameData.S['state.CurrTarget']+'.next'];
+    GameData.S['state.CurrTargetFloor'] :=
+        GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.next'];
+end;
+
+procedure TGameDrive.SetParam(name, value: string);
+begin
+    GameData.S[Target + 'params.' + name] := value;
+end;
+
+procedure TGameDrive.SetPlayerAsTarget;
+begin
+    Target := 'state.player.';
+end;
+
+procedure TGameDrive.SetVar(name, value: string);
+begin
+    GameData.S['state.vars.'+name] := value;
 end;
 
 procedure TGameDrive.UpdateInterface;
@@ -233,6 +289,33 @@ end;
 function TGameDrive.GetCurrFloor: string;
 begin
     result := GameData.S['state.CurrFloor'];
+end;
+
+function TGameDrive.GetCurrStep: string;
+begin
+    result := GameData.S['state.CurrStep'];
+end;
+
+function TGameDrive.GetCurrTarget: string;
+begin
+    result := GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.floor'];
+end;
+
+procedure TGameDrive.SetCreatureAsTarget;
+begin
+    Target := 'state.creature.';
+end;
+
+procedure TGameDrive.SetCurrFloor(val: string);
+begin
+    GameData.S['state.CurrFloor'] := val;
+end;
+
+
+
+procedure TGameDrive.SetCurrStep(val: string);
+begin
+    GameData.S['state.CurrStep'] := val;
 end;
 
 function TGameDrive.GetInLang(text: string; lang: string = ''): string;
@@ -308,6 +391,11 @@ begin
     end;
 end;
 
+function TGameDrive.GetVar(name: string): string;
+begin
+    result := GameData.S['state.vars.'+name];
+end;
+
 procedure TGameDrive.InitItemsCraftCost;
 /// генерим рецепты предметов. в каждой игре - разные
 /// отталкиваемся от условной стоимости в ресурсах
@@ -362,6 +450,12 @@ begin
 end;
 
 
+procedure TGameDrive.ChangeParam(name, delta: string);
+begin
+    GameData.D[Target + 'params.' + name] :=
+        GameData.D[Target + 'params.' + name] + StrToFloatDef(delta, 0);
+end;
+
 procedure TGameDrive.ChangePlayerItemCount(name, delta: variant);
 /// изменяем количество указанного предмета на указанную дельту (в + или - ),
 /// но не ниже нуля.
@@ -403,9 +497,58 @@ begin
     inherited;
 end;
 
+/// скриптовые команды
+
+procedure TGameDrive.PlayerMakeAttack;
+/// обработка взаимной атаки игрока и монстра в башне
+/// алгоритм:
+///     1. из текущих характеристик монстра и игрока инициализируются переменные боя:
+///         mc_DMG - выкинутый монстром урон
+///         mc_BLK - вычисленная величина блока урона от игрока
+///         mc_GEM - количество полученных монстром кристаллов
+///         pl_DMG - вычисленный урон игрока по монстру
+///         pl_BLK - вычисленная величина блока урона от монстра
+///         gm_RED - количество выпавших из монстра красных кристаллов
+///         gm_WHT - количество выпавших из монстра белых кристаллов
+///         gm_BLU - количество выпавших из монстра синих кристаллов
+///         gm_GRN - количество выпавших из монстра зеленых кристаллов
+///         gm_PRP - количество выпавших из монстра фиолетовых кристаллов
+///         gm_YLW - количество выпавших из монстра желтых кристаллов
+///     2. отыгрываются скрипты на событие onAttack у монстра и игрока, котрые могут модифицировать значения
+///     3. определяется список изменяемых параметров игрока и монстра
+///     4. на изменение каждого параметра игрока и монстра:
+///           4.1 инициализируются переменные:
+///               prm_Action - имя события в рамках которого изменилось. в данном случае "onAttack"
+///                            может использоваться для отсечения изменений,
+///                            например блочить урон от атаки, но получать от магии
+///               prm_Name - имя изменяемого параметра, например HP
+///               prm_Delta - целая/дробная величина изменеия, может быть как в плюс, так и в минус
+///           4.2 отыгрывается событие onParamChange
+///           4.3 параметр prm_Name модифицируется согласно текущему значению prm_Delta
+///     5. вызывается метод проверки статуса игры.
+///        например, игрок мог нанести смертельный урон монстру или погибнуть сам.
+///     6. вызывается метод обновления интерфейса
+var
+    CreatureHP: integer;
+    CreatureDEF: integer;
+    PlayerATK: integer;
+    DMG, BLOCK : integer;
+    ATKbuff: integer;
+    bustedBySword: integer;
+
+    Player: ISuperObject;
+    Creature: ISuperObject;
+begin
+
+    ///
+end;
 
 
 
+procedure TGameDrive.PlayEvent(name: string);
+begin
+///
+end;
 
 initialization
    GameDrive := TGameDrive.Create;

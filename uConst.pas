@@ -4,15 +4,15 @@ interface
 
 uses SysUtils;
 
-type
-    TEvent = procedure of object;
-
 const
     FOLDER_DATA = 'DATA\';
 
     FILE_MENU_DATA = '\menu.dat';
     FILE_GAME_DATA = '\toto.dat';
     FILE_GAME_DATA_TEST = '\test_toto.dat';
+
+    STEPS_BY_FLOOR = 5; /// констранта для вычисления количества шагов.
+                        /// умножается на номер текущего этажа
 
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
@@ -48,7 +48,7 @@ const
         'Lang:"ENG",'+
         'CurrStep: 1,'+
         'CurrFloor: 1,'+
-        'CurrTarget: "floor1",'+
+        'CurrTargetFloor: "1",'+
         'resources:{'+
             'wood:   {count: 0},'+
             'stone:  {count: 0},'+
@@ -62,13 +62,19 @@ const
             'essence:{count: 0}'+
         '},'+
         'player: {'+
-            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, REG:1, EXP:0, NeedExp:0 },'+
+            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, NeedExp:0 },'+
             'skills: {},'+
             'items: {},'+
             'buffs: {},'+
             'autobuffs: {},'+
             'loot: {},'+
-            'events: {OnAttack:"DoDamageToCreature(GetPlayerAttr(ATK));"},'+
+            'events: {'+
+                'onAttack:{'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
+///                   'default:""'+  с крипт имеет имя и команды. имя используется для идентификации каким эффектом
+///                                  эффектом он был повешен и при снятии эффекта можно было дропнуть и скрипт
+
+                '}'+
+            '},'+
         '},'+
         'creature: {'+
             'name: {RU:"", ENG:""},'+
@@ -121,8 +127,34 @@ const
             'resist:       {isAllow: false,lvl: 0},'+
             'expStone:     {isAllow: false,lvl: 0}'+
         '},'+
-        //// набор объектов на каждом этаже
+
+        //// набор объектов на каждом этаже. заполняется при старте новой игры
         'floors:{'+
+        '},'+
+
+        /// набор глобальных переменных, используемых в рамках скриптов на различные события.
+        /// например, установленные переменные боя, перед вызовом события onAttack.
+        /// так же здесь хранятся мусорные переменные из скриптов
+        'vars:{'+
+            // переменне, инициализируемые перед вызоваом скриптов на onAttack
+            'mc_DMG: 0,'+ // выкинутый монстром урон
+            'mc_BLK: 0,'+ // вычисленная величина блока урона от игрока
+            'mc_GEM: 0,'+ // количество полученных монстром кристаллов
+            'pl_DMG: 0,'+ // вычисленный урон игрока по монстру
+            'pl_BLK: 0,'+ // вычисленная величина блока урона от монстра
+            'gm_RED: 0,'+ // количество выпавших из монстра красных кристаллов
+            'gm_WHT: 0,'+ // количество выпавших из монстра белых кристаллов
+            'gm_BLU: 0,'+ // количество выпавших из монстра синих кристаллов
+            'gm_GRN: 0,'+ // количество выпавших из монстра зеленых кристаллов
+            'gm_PRP: 0,'+ // количество выпавших из монстра фиолетовых кристаллов
+            'gm_YLW: 0,'+ // количество выпавших из монстра желтых кристаллов
+
+            // переменне, инициализируемые перед вызоваом скриптов на onParamChange
+            'prm_Action: "",'+ // имя события в рамках которого изменилось. в данном случае "onAttack"
+                               // может использоваться для отсечения изменений,
+                               // например блочить урон от атаки, но получать от магии
+            'prm_Name: "",'+   // имя изменяемого параметра, например HP
+            'prm_Delta: 0,'+   //целая/дробная величина изменеия, может быть как в плюс, так и в минус
         '},'+
     '},'+
 
@@ -152,76 +184,76 @@ const
         'Diary: {name:"Diary", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'OpenThink(Diary);'+
-            'IF(GetLang() = RU, 2);'+
-            'AddEvent(\"Похоже, он зашифрован, придется поработать над расшифровкой...\");'+
-            'AddEvent(!!! Обнаружен Дневник !!!);'+
-            'IF(GetLang() = ENG, 2);'+
-            'AddEvent(\"It looks like it is encrypted, we will have to work on decryption ...\");'+
-            'AddEvent(!!! The player discovered the Diary !!!);'+
+                'OpenThink(Diary);'+
+                'IF(GetLang() = RU, 2);'+
+                'AddEvent(\"Похоже, он зашифрован, придется поработать над расшифровкой...\");'+
+                'AddEvent(!!! Обнаружен Дневник !!!);'+
+                'IF(GetLang() = ENG, 2);'+
+                'AddEvent(\"It looks like it is encrypted, we will have to work on decryption ...\");'+
+                'AddEvent(!!! The player discovered the Diary !!!);'+
         '"},'+
         'Shovel: {name:"Shovel", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'AllowTool(Shovel);' +
-            'IF(GetLang() = RU, 1);'+
-            'AddEvent(!!! Обнаружен артефакт Лопата !!!);'+
-            'IF(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player discovered the Shovel artifact !!!);'+
+                'AllowTool(Shovel);' +
+                'IF(GetLang() = RU, 1);'+
+                'AddEvent(!!! Обнаружен артефакт Лопата !!!);'+
+                'IF(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player discovered the Shovel artifact !!!);'+
         '"},'+
         'Pick: {name:"Pick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'AllowTool(Pick);' +
-            'IF(GetLang() = RU, 1);'+
-            'AddEvent(!!! Игрок обнаружил артефакт Кирка !!!);'+
-            'IF(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player discovered the Pick artifact !!!);'+
+                'AllowTool(Pick);' +
+                'IF(GetLang() = RU, 1);'+
+                'AddEvent(!!! Игрок обнаружил артефакт Кирка !!!);'+
+                'IF(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player discovered the Pick artifact !!!);'+
         '"},'+
         'Axe: {name:"Axe", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'AllowTool(Axe);' +
-            'IF(GetLang() = RU}, 1);'+
-            'AddEvent(!!! Игрок обнаружил артефакт Топор !!!);'+
-            'IF(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player discovered the Axe artifact !!!);'+
+                'AllowTool(Axe);' +
+                'IF(GetLang() = RU}, 1);'+
+                'AddEvent(!!! Игрок обнаружил артефакт Топор !!!);'+
+                'IF(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player discovered the Axe artifact !!!);'+
         '"},'+
         'lockpick: {name:"lockpick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'AllowTool(lockpick);' +
-            'IF(GetLang() = RU, 1);'+
-            'AddEvent(!!! Игрок обнаружил артифакт Отмычка !!!);'+
-            'IF(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player discovered the Lock pick artifact !!!);'+
+                'AllowTool(lockpick);' +
+                'IF(GetLang() = RU, 1);'+
+                'AddEvent(!!! Игрок обнаружил артифакт Отмычка !!!);'+
+                'IF(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player discovered the Lock pick artifact !!!);'+
         '"},'+
         'TimeSand: {name:"TimeSand", caption:{RU:"Сундук",ENG:"Chest"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 80) + 200",'+
             'script:"'+
-            'AllowTool(TimeSand);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(!!! Найден артефакт Пески времени !!!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player found Sand of Time artifact !!!);'+
+                'AllowTool(TimeSand);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(!!! Найден артефакт Пески времени !!!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player found Sand of Time artifact !!!);'+
         '"},'+
         'leggings: {name:"leggings", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
             'script:"'+
-            'AllowTool(leggings);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(!!! Найден артефакт Поножи !!!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player found the leggings artifact !!!);'+
+                'AllowTool(leggings);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(!!! Найден артефакт Поножи !!!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player found the leggings artifact !!!);'+
         '"},'+
         'LifeAmulet: {name:"LifeAmulet", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:1,'+
             'hpCalc:"Rand(GetCurrFloor() * 70) + 150",'+
             'script:"'+
-            'AllowTool(LifeAmulet);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(!!! Найден артефакт Амулет Жизни !!!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(!!! The player found the Amulet of Life artifact !!!);'+
+                'AllowTool(LifeAmulet);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(!!! Найден артефакт Амулет Жизни !!!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(!!! The player found the Amulet of Life artifact !!!);'+
         '"},'+
 
 
@@ -229,140 +261,140 @@ const
         'Cache: {name:"Cache", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 70) + 150",'+
             'script:"'+
-            'SetVar(gold, Rand(GetCurrFloor() * 10000) + 1);'+
-            'ChangePlayerItemCount(Gold, GetVar(gold));'+
+                'SetVar(gold, Rand(GetCurrFloor() * 10000) + 1);'+
+                'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Получено GetVar(gold) золота);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(Gained GetVar(gold) gold);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Получено GetVar(gold) золота);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(Gained GetVar(gold) gold);'+
         '"},'+
         'Spider: {name:"Spider", caption:{RU:"Паук",ENG:"Spider"}, rarity:2, allowCount:-1,'+
             'hpCalc:"1",'+
             'script:"'+
-            'SetVar(val, Rand(100));'+
+                'SetVar(val, Rand(100));'+
 
-            'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
-            'SetPlayerAutoBuff(HP, -Rand(GetCurrFloor() * 100));'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Ядовитый паук укусил тебя!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(The poisonous spider bit you!);'+
+                'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
+                'SetPlayerAutoBuff(HP, -Rand(GetCurrFloor() * 100));'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Ядовитый паук укусил тебя!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(The poisonous spider bit you!);'+
 
-            'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Ядовитый паук пытался укусить, но Поножи спасли от яда!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
+                'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Ядовитый паук пытался укусить, но Поножи спасли от яда!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
         '"},'+
         'Trap: {name:"Trap", caption:{RU:"Ловушка",ENG:"Trap"}, rarity:2, allowCount:-1,'+
             'hpCalc:"1",'+
             'script:"'+
-            'SetVar(case, Rand(3));'+
-            'IF(GetVar(case) = 0, 1);'+
-            'SetVar(param, ATK);'+
-            'IF(GetVar(case) = 1, 1);'+
-            'SetVar(param, DEF);'+
-            'IF(GetVar(case) = 2, 1);'+
-            'SetVar(param, MDEF);'+
+                'SetVar(case, Rand(3));'+
+                'IF(GetVar(case) = 0, 1);'+
+                'SetVar(param, ATK);'+
+                'IF(GetVar(case) = 1, 1);'+
+                'SetVar(param, DEF);'+
+                'IF(GetVar(case) = 2, 1);'+
+                'SetVar(param, MDEF);'+
 
-            'SetVar(val, Rand(100));'+
+                'SetVar(val, Rand(100));'+
 
-            'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
-            'ChangePlayerParam(GetVar(param), -1);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Ловушка нанесла травму! Потеряно 1 GetVar(param)!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(The trap hurt! Lost 1 GetVar(param)!);'+
+                'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
+                'ChangePlayerParam(GetVar(param), -1);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Ловушка нанесла травму! Потеряно 1 GetVar(param)!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(The trap hurt! Lost 1 GetVar(param)!);'+
 
-            'IF([GetVar(val) <= GetArtLvl(leggings)], 4);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
+                'IF([GetVar(val) <= GetArtLvl(leggings)], 4);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
         '"},'+
         'StoneBlockage: {name:"StoneBlockage", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:2, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
             'script:"'+
-            'SetVar(count, Rand(GetCurrFloor() * 100) + 10]);'+
-            'SetPlayerRes(Stone, GetVar(count));' +
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Получено GetVar(count) камня);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(Gained GetVar(count) stone);'+
+                'SetVar(count, Rand(GetCurrFloor() * 100) + 10]);'+
+                'SetPlayerRes(Stone, GetVar(count));' +
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Получено GetVar(count) камня);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(Gained GetVar(count) stone);'+
         '"},'+
         'WoodBlockage: {name:"WoodBlockage", caption:{RU:"Деревянный завал",ENG:"Wood blockage"}, rarity:2, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
             'script:"'+
-            'SetVar(count, Rand(GetCurrFloor() * 100) + 10);'+
-            'SetPlayerRes(Wood, GetVar(count));' +
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Получено GetVar(count) дерева);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(Gained GetVar(count) wood);'+
+                'SetVar(count, Rand(GetCurrFloor() * 100) + 10);'+
+                'SetPlayerRes(Wood, GetVar(count));' +
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Получено GetVar(count) дерева);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(Gained GetVar(count) wood);'+
         '"},'+
         'Chest: {name:"Chest", caption:{RU:"Сундук",ENG:"Chest"}, rarity:2, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 80) + 200",'+
             'script:"'+
-            'SetVar(iName, GetRandItemName());'+
-            'SetVar(iCount, Rand(GetCurrFloor()) + 1);'+
-            'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
+                'SetVar(iName, GetRandItemName());'+
+                'SetVar(iCount, Rand(GetCurrFloor()) + 1);'+
+                'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
 
-            'SetVar(lName, GetRandResName());'+
-            'SetVar(lCount, Random(GetCurrFloor() * 2) + 1);'+
-            'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
+                'SetVar(lName, GetRandResName());'+
+                'SetVar(lCount, Random(GetCurrFloor() * 2) + 1);'+
+                'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 
-            'SetVar(gold, Rand(GetCurrFloor() * 1000) + 1);'+
-            'ChangePlayerItemCount(Gold, GetVar(gold));'+
+                'SetVar(gold, Rand(GetCurrFloor() * 1000) + 1);'+
+                'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
-            'If(GetLang() = RU, 3);'+
-            'AddEvent(Получено GetVar(gold) золота);'+
-            'AddEvent(Получено GetVar(lCount) GetVar(lName)!);'+
-            'AddEvent(Получено GetVar(iCount) GetVar(iName)!);'+
-            'If(GetLang() = ENG, 3);'+
-            'AddEvent(Gained GetVar(gold) Gold!);'+
-            'AddEvent(Gained GetVar(lCount) GetVar(lName)!);'+
-            'AddEvent(Gained GetVar(iCount) GetVar(iName)!);'+
+                'If(GetLang() = RU, 3);'+
+                'AddEvent(Получено GetVar(gold) золота);'+
+                'AddEvent(Получено GetVar(lCount) GetVar(lName)!);'+
+                'AddEvent(Получено GetVar(iCount) GetVar(iName)!);'+
+                'If(GetLang() = ENG, 3);'+
+                'AddEvent(Gained GetVar(gold) Gold!);'+
+                'AddEvent(Gained GetVar(lCount) GetVar(lName)!);'+
+                'AddEvent(Gained GetVar(iCount) GetVar(iName)!);'+
         '"},'+
         'Box: {name:"Box", caption:{RU:"Ящик",ENG:"Box"}, rarity:3, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 60) + 100",'+
             'script:"'+
-            'SetVar(iName, GetRandItemName());'+
-            'ChangePlayerItemCount(GetVar(iName), 1);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Получено GetVar(iName));'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(Gained GetVar(iName));'+
+                'SetVar(iName, GetRandItemName());'+
+                'ChangePlayerItemCount(GetVar(iName), 1);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Получено GetVar(iName));'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(Gained GetVar(iName));'+
         '"},'+
         'Rat: {name:"Rat", caption:{RU:"Крыса",ENG:"Rat"}, rarity:5, allowCount:-1,'+
             'hpCalc:"1",'+
             'script:"'+
-            'SetVar(val, Rand(100));'+
+                'SetVar(val, Rand(100));'+
 
-            'IF(GetVar(val) > GetArtLvl(leggings), 6);'+
-            'SetVar(dmg, Rand(GetCurrFloor() * 25) + 20);'+
-            'ChangePlayerParam(HP, -GetVar(dmg));'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Из кучи мусора выскочила крыса и укусила на GetVar(dmg) HP!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
+                'IF(GetVar(val) > GetArtLvl(leggings), 6);'+
+                'SetVar(dmg, Rand(GetCurrFloor() * 25) + 20);'+
+                'ChangePlayerParam(HP, -GetVar(dmg));'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Из кучи мусора выскочила крыса и укусила на GetVar(dmg) HP!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
 
-            'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
-            'If(GetLang() = RU, 1);'+
-            'AddEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
-            'If(GetLang() = ENG, 1);'+
-            'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
+                'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
+                'If(GetLang() = RU, 1);'+
+                'AddEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
+                'If(GetLang() = ENG, 1);'+
+                'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
         '"},'+
         'Trash: {name:"Trash", caption:{RU:"Мусор",ENG:"Trash"}, rarity:10, allowCount:-1,'+
             'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
             'script:"'+
-            'SetVar(obj, GetRandResName());'+
-            'SetVar(count, Rand(GetCurrFloor() * 10) + 1);'+
-            'SetPlayerRes(GetVar(obj), GetVar(count));' +
-            'IF(GetLang() = RU, 1);'+
-            'AddEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
-            'IF(GetLang() = ENG, 1);'+
-            'AddEvent(Player found GetVar(count) GetVar(obj)!);'+
+                'SetVar(obj, GetRandResName());'+
+                'SetVar(count, Rand(GetCurrFloor() * 10) + 1);'+
+                'SetPlayerRes(GetVar(obj), GetVar(count));' +
+                'IF(GetLang() = RU, 1);'+
+                'AddEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
+                'IF(GetLang() = ENG, 1);'+
+                'AddEvent(Player found GetVar(count) GetVar(obj)!);'+
         '"},'+
     '},'+
 
@@ -789,7 +821,7 @@ const
 
     /// список целей по уровням
     'targetFloor:{'+
-        'floor1:{ next:"floor2", script:"'+
+        '1:{ floor: 1, next:2, script:"'+
              'If(GetLang() = RU, 6);'+
              'Log(normal,\"Ты открываешь глаза в полумраке на каменном полу. В голове пустота, сердце сжимается от ощущение утраты.\");'+
              'Log(normal,\"Немного оглядевшись, ты понимаешь, что находишься в каком-то большом пустом помещении, заваленном различным хламом. Окна отсутствуют. Только факела коптят по стенам. '+
@@ -812,7 +844,7 @@ const
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
         '"},'+
-        'floor2:{ next:"floor3", script:"'+
+        '2:{ floor: 2, next:3, script:"'+
              'SetBreak(Tower);'+
              'SetVar(gold, Rand(100000));'+
              'AddEvent(..................);'+
@@ -854,7 +886,7 @@ const
              'ChangePlayerItemCount(Gold, GetVar(gold));'+
              'SetNextTarget();'
         +'"},'+
-        'floor3:{ next:"floor4", script:"'+
+        '3:{ floor: 3, next:4, script:"'+
              'SetBreak(Tower);'+
              'SetVar(count, 10);'+
              'AddEvent(..................);'+
@@ -872,7 +904,7 @@ const
              'ChangePlayerItemCount(AutoAction, GetVar(count));'+
              'SetNextTarget();'
         +'"},'+
-        'floor4:{ next:"floor5", script:"'+
+        '4:{ floor: 1, next:5, script:"'+
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
 
@@ -921,7 +953,7 @@ const
              'AddEvent(..................);'+
              'SetNextTarget();'
         +'"},'+
-        'floor5:{ next:"floor7", script:"'+
+        '5:{ floor: 5, next:7, script:"'+
              'SetBreak(Tower);'+
 
              'SetCreature('+
@@ -943,7 +975,7 @@ const
 
              'AddEvent(..................);'
         +'"},'+
-        'floor7:{ next:"floor10", script:"'+
+        '7:{ floor: 7, next:10, script:"'+
              'SetBreak(Tower);'+
 
              'SetCreature('+
@@ -966,7 +998,7 @@ const
              'AddEvent(..................);'+
              'SetNextTarget();'
         +'"},'+
-        'floor10:{ next:"floor11", script:"'+
+        '10:{ floor: 10, next:11, script:"'+
              'SetBreak(Tower);'+
 
              'AddEvent(..................);'+
@@ -989,7 +1021,7 @@ const
              'AddEvent(..................);'+
              'SetNextTarget();'
         +'"},'+
-        'floor11:{ next:"floor11", script:"'+
+        '11:{ floor: 11, next:11, script:"'+
              'SetBreak(Tower);'+
              'AddEvent(..................);'+
              'IF(GetLang() = ENG, 2);'+
