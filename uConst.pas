@@ -14,6 +14,24 @@ const
     STEPS_BY_FLOOR = 5; /// констранта для вычисления количества шагов.
                         /// умножается на номер текущего этажа
 
+    MONSTER_IMAGE_COUNT = 30;
+
+    CREATURE_SHABLON = '{'+
+        'name: {RU:"", ENG:""},'+
+        'params: {LVL:1, HP:0, MP:0, ATK:0, DEF:0, MDEF:0, REG:0},'+
+        'skills: {},'+
+        'items: {},'+
+        'buffs: {},'+
+        'autobuffs: {},'+
+        'loot: {},'+
+        'events: {'+
+            'OnAttack:{},'+
+            'onParamChange:{},'+
+            'onDeath:{},'+
+            'onRestore:{},'+
+        '},'+
+    '},';
+
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
     '{Gold:0, '+
@@ -47,6 +65,7 @@ const
     'state: {'+
         'Lang:"ENG",'+
         'CurrStep: 1,'+
+        'MaxStep: 1,'+
         'CurrFloor: 1,'+
         'CurrTargetFloor: "1",'+
         'resources:{'+
@@ -69,11 +88,13 @@ const
             'autobuffs: {},'+
             'loot: {},'+
             'events: {'+
-                'onAttack:{'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
+                'onAttack:{},'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
+                'onParamChange:{},'+
+                'onDeath:{},'+
+                'onRestore:{},'+
 ///                   'default:""'+  с крипт имеет имя и команды. имя используется для идентификации каким эффектом
 ///                                  эффектом он был повешен и при снятии эффекта можно было дропнуть и скрипт
 
-                '}'+
             '},'+
         '},'+
         'creature: {'+
@@ -84,7 +105,12 @@ const
             'buffs: {},'+
             'autobuffs: {},'+
             'loot: {},'+
-            'events: {OnAttack:"DoDamageToPlayer(GetCreatureAttr(ATK));"},'+
+            'events: {'+
+                'OnAttack:{},'+
+                'onParamChange:{},'+
+                'onDeath:{},'+
+                'onRestore:{},'+
+            '},'+
         '},'+
         'items:{'+
             'gold:         { count: 0, cost:    0, craft: {}, isCraftAllow: false, isUseAllow: true},'+
@@ -182,7 +208,7 @@ const
     'objRaritySumm: 50,'+
     'floorObjects:{'+
         'Diary: {name:"Diary", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'OpenThink(Diary);'+
                 'IF(GetLang() = RU, 2);'+
@@ -193,7 +219,7 @@ const
                 'AddEvent(!!! The player discovered the Diary !!!);'+
         '"},'+
         'Shovel: {name:"Shovel", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'AllowTool(Shovel);' +
                 'IF(GetLang() = RU, 1);'+
@@ -202,7 +228,7 @@ const
                 'AddEvent(!!! The player discovered the Shovel artifact !!!);'+
         '"},'+
         'Pick: {name:"Pick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'AllowTool(Pick);' +
                 'IF(GetLang() = RU, 1);'+
@@ -211,7 +237,7 @@ const
                 'AddEvent(!!! The player discovered the Pick artifact !!!);'+
         '"},'+
         'Axe: {name:"Axe", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'AllowTool(Axe);' +
                 'IF(GetLang() = RU}, 1);'+
@@ -220,7 +246,7 @@ const
                 'AddEvent(!!! The player discovered the Axe artifact !!!);'+
         '"},'+
         'lockpick: {name:"lockpick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'AllowTool(lockpick);' +
                 'IF(GetLang() = RU, 1);'+
@@ -229,7 +255,7 @@ const
                 'AddEvent(!!! The player discovered the Lock pick artifact !!!);'+
         '"},'+
         'TimeSand: {name:"TimeSand", caption:{RU:"Сундук",ENG:"Chest"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 80) + 200",'+
+            'hpCalc:"Rand(CurrFloor() * 80) + 200",'+
             'script:"'+
                 'AllowTool(TimeSand);'+
                 'If(GetLang() = RU, 1);'+
@@ -238,7 +264,7 @@ const
                 'AddEvent(!!! The player found Sand of Time artifact !!!);'+
         '"},'+
         'leggings: {name:"leggings", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
+            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
             'script:"'+
                 'AllowTool(leggings);'+
                 'If(GetLang() = RU, 1);'+
@@ -247,7 +273,7 @@ const
                 'AddEvent(!!! The player found the leggings artifact !!!);'+
         '"},'+
         'LifeAmulet: {name:"LifeAmulet", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 70) + 150",'+
+            'hpCalc:"Rand(CurrFloor() * 70) + 150",'+
             'script:"'+
                 'AllowTool(LifeAmulet);'+
                 'If(GetLang() = RU, 1);'+
@@ -259,9 +285,9 @@ const
 
 
         'Cache: {name:"Cache", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 70) + 150",'+
+            'hpCalc:"Rand(CurrFloor() * 70) + 150",'+
             'script:"'+
-                'SetVar(gold, Rand(GetCurrFloor() * 10000) + 1);'+
+                'SetVar(gold, Rand(CurrFloor() * 10000) + 1);'+
                 'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
                 'If(GetLang() = RU, 1);'+
@@ -275,7 +301,7 @@ const
                 'SetVar(val, Rand(100));'+
 
                 'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
-                'SetPlayerAutoBuff(HP, -Rand(GetCurrFloor() * 100));'+
+                'SetPlayerAutoBuff(HP, -Rand(CurrFloor() * 100));'+
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Ядовитый паук укусил тебя!);'+
                 'If(GetLang() = ENG, 1);'+
@@ -314,9 +340,9 @@ const
                 'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
         '"},'+
         'StoneBlockage: {name:"StoneBlockage", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
+            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
             'script:"'+
-                'SetVar(count, Rand(GetCurrFloor() * 100) + 10]);'+
+                'SetVar(count, Rand(CurrFloor() * 100) + 10]);'+
                 'SetPlayerRes(Stone, GetVar(count));' +
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Получено GetVar(count) камня);'+
@@ -324,9 +350,9 @@ const
                 'AddEvent(Gained GetVar(count) stone);'+
         '"},'+
         'WoodBlockage: {name:"WoodBlockage", caption:{RU:"Деревянный завал",ENG:"Wood blockage"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 250) + 1000",'+
+            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
             'script:"'+
-                'SetVar(count, Rand(GetCurrFloor() * 100) + 10);'+
+                'SetVar(count, Rand(CurrFloor() * 100) + 10);'+
                 'SetPlayerRes(Wood, GetVar(count));' +
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Получено GetVar(count) дерева);'+
@@ -334,17 +360,17 @@ const
                 'AddEvent(Gained GetVar(count) wood);'+
         '"},'+
         'Chest: {name:"Chest", caption:{RU:"Сундук",ENG:"Chest"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 80) + 200",'+
+            'hpCalc:"Rand(CurrFloor() * 80) + 200",'+
             'script:"'+
                 'SetVar(iName, GetRandItemName());'+
-                'SetVar(iCount, Rand(GetCurrFloor()) + 1);'+
+                'SetVar(iCount, Rand(CurrFloor()) + 1);'+
                 'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
 
                 'SetVar(lName, GetRandResName());'+
                 'SetVar(lCount, Random(GetCurrFloor() * 2) + 1);'+
                 'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 
-                'SetVar(gold, Rand(GetCurrFloor() * 1000) + 1);'+
+                'SetVar(gold, Rand(CurrFloor() * 1000) + 1);'+
                 'ChangePlayerItemCount(Gold, GetVar(gold));'+
 
                 'If(GetLang() = RU, 3);'+
@@ -357,7 +383,7 @@ const
                 'AddEvent(Gained GetVar(iCount) GetVar(iName)!);'+
         '"},'+
         'Box: {name:"Box", caption:{RU:"Ящик",ENG:"Box"}, rarity:3, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 60) + 100",'+
+            'hpCalc:"Rand(CurrFloor() * 60) + 100",'+
             'script:"'+
                 'SetVar(iName, GetRandItemName());'+
                 'ChangePlayerItemCount(GetVar(iName), 1);'+
@@ -372,7 +398,7 @@ const
                 'SetVar(val, Rand(100));'+
 
                 'IF(GetVar(val) > GetArtLvl(leggings), 6);'+
-                'SetVar(dmg, Rand(GetCurrFloor() * 25) + 20);'+
+                'SetVar(dmg, Rand(CurrFloor() * 25) + 20);'+
                 'ChangePlayerParam(HP, -GetVar(dmg));'+
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Из кучи мусора выскочила крыса и укусила на GetVar(dmg) HP!);'+
@@ -386,10 +412,10 @@ const
                 'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
         '"},'+
         'Trash: {name:"Trash", caption:{RU:"Мусор",ENG:"Trash"}, rarity:10, allowCount:-1,'+
-            'hpCalc:"Rand(GetCurrFloor() * 50) + 50",'+
+            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
             'script:"'+
                 'SetVar(obj, GetRandResName());'+
-                'SetVar(count, Rand(GetCurrFloor() * 10) + 1);'+
+                'SetVar(count, Rand(CurrFloor() * 10) + 1);'+
                 'SetPlayerRes(GetVar(obj), GetVar(count));' +
                 'IF(GetLang() = RU, 1);'+
                 'AddEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+

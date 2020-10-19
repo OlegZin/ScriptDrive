@@ -59,11 +59,34 @@ type
     Image44: TImage;
     Label27: TLabel;
     Image45: TImage;
+    Rectangle12: TRectangle;
+    Rectangle7: TRectangle;
+    Layout3: TLayout;
+    Image46: TImage;
+    Image47: TImage;
+    Image48: TImage;
+    Image49: TImage;
+    Image50: TImage;
+    Image51: TImage;
+    Layout1: TLayout;
+    Label5: TLabel;
+    Label11: TLabel;
+    Image52: TImage;
+    Rectangle6: TRectangle;
+    Label4: TLabel;
+    Layout2: TLayout;
+    Image53: TImage;
+    Image54: TImage;
+    Image55: TImage;
+    Image56: TImage;
+    Image57: TImage;
+    Image58: TImage;
   private
     { Private declarations }
   public
     { Public declarations }
     function EncodeToBase64(name: string): string;
+    function GetBitmap(index: integer): TBitmap;
   end;
 
 var
@@ -106,6 +129,15 @@ begin
     result := Memo.Text;
 
     Memo.Free;
+end;
+
+function TfAtlas.GetBitmap(index: integer): TBitmap;
+var
+    i: integer;
+begin
+    for I := 0 to ComponentCount-1 do
+    if Components[i].Tag = index then
+    result := (Components[i] as TImage).Bitmap;
 end;
 
 end.

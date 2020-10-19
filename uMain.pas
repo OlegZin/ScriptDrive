@@ -214,8 +214,6 @@ begin
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
-    fTower.onAttack := GameDrive.onPlayerAttack;
-
     fTower.layTower.Parent := fMain.layScreen;
 
 
