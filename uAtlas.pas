@@ -81,6 +81,7 @@ type
     Image56: TImage;
     Image57: TImage;
     Image58: TImage;
+    ICON_GOLD: TImage;
   private
     { Private declarations }
   public

@@ -84,7 +84,9 @@ type
         procedure SetNextTarget;
 
 /// работа с логом
-        procedure Log(kind, text: string);   // используется в скриптах
+        procedure Log(kind, text: string);   // добавляет строку указанного типа в лог игры. типы - имена css стилей из EMPTY_HTML из модуля uLog
+        procedure LogAdd(text: string);      // приклеивает текст в конец текущей строки лога
+        function Icon(name: string): string;         // подставляет в лог иконку с указанным именем
 
 /// работа с переменными
         procedure SetVar(name, value: variant);
@@ -327,6 +329,11 @@ begin
     uLog.Log.Add(kind, text);
 end;
 
+procedure TGameDrive.LogAdd(text: string);
+begin
+    uLog.Log.Append(text);
+end;
+
 function TGameDrive.GetLang: string;
 begin
     result := GameData.S['state.Lang'];
@@ -415,6 +422,11 @@ end;
 { PRIVATE METHODS }
 
 
+
+function TGameDrive.Icon(name: string): string;
+begin
+    result := uLog.Log.Icon(name);
+end;
 
 procedure TGameDrive.InitFloorObjects;
 var

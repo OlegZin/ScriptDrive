@@ -850,6 +850,8 @@ const
     /// список целей по уровням
     'targetFloor:{'+
         '1:{ floor: 1, next:2, script:"'+
+             'Log(icon_gold,\"1\");'+
+
              'If(GetLang() = RU, 6);'+
              'Log(normal,\"Ты открываешь глаза в полумраке на каменном полу. В голове пустота, сердце сжимается от ощущение утраты.\");'+
              'Log(normal,\"Немного оглядевшись, ты понимаешь, что находишься в каком-то большом пустом помещении, заваленном различным хламом. Окна отсутствуют. Только факела коптят по стенам. '+
@@ -876,39 +878,37 @@ const
              'SetBreak(Tower);'+
              'SetVar(gold, Rand(100000));'+
 
-             'IF(GetLang() = RU, 9);'+
+             'IF(GetLang() = RU, 11);'+
              'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота.\");'+
              'Log(normal,\"Так же, в сундуке лежит несколько смятых листов:\");'+
              'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
              'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки, прихвостень Темного Мастера.\");'+
              'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
-             'Log(normal,\"Подождите. Какая башня, какой Темный мастер? Что я здесь делаю?\");'+
-             'Log(normal,\"Следует как следует подумать об этом!\");'+
-             'Log(normal,\"Доступен режим Раздумий!\");'+
-             'Log(normal,\"Получено GetVar(gold) золота\");'+
-{
+             'Log(think,\"Подождите. Какая башня, какой Темный мастер? Что я здесь делаю?\");'+
+             'Log(think,\"Следует как следует подумать об этом!\");'+
 
-             'IF(GetLang() = ENG, 14);'+
-             'AddEvent(    Gained GetVar(gold) Gold);'+
-             'AddEvent(    Think mode available!);'+
-             'AddEvent( );'+
-             'AddEvent(\"Think about it well!\");'+
-             'AddEvent(\"Wait. Which tower, which Dark master? What am I doing here?\");'+
-             'AddEvent( );'+
-             'AddEvent(\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
-             'AddEvent( );'+
-             'AddEvent(\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that this damned Ikki, the Dark Master henchman, brought them up.\");'+
-             'AddEvent( );'+
-             'AddEvent(\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+             'AddEvent( );'+
-             'AddEvent(\"Also, there are several crumpled sheets in the chest:\");'+
-             'AddEvent(\"There was some gold in a rusty chest between floors.\");'+
+             'Log(event,\"Доступен режим Раздумий!\");'+
+             'Log(event,\"Получено \");'+
+             'LogAdd(GetVar(gold));'+
+             'LogAdd(Icon(gold));'+
 
-             'AddEvent(..................);'+
+             'IF(GetLang() = ENG, 11);'+
+             'Log(normal,\"There was some gold in a rusty chest between floors.\");'+
+             'Log(normal,\"Also, there are several crumpled sheets in the chest:\");'+
+             'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+             'AddEvent( );'+
+             'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that this damned Ikki, the Dark Master henchman, brought them up.\");'+
+             'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
+             'Log(think,\"Wait. Which tower, which Dark master? What am I doing here?\");'+
+             'Log(think,\"Think about it well!\");'+
+             'Log(event,\"Think mode available!\");'+
+             'Log(event,\"Gained \");'+
+             'LogAdd(GetVar(gold) );'+
+             'LogAdd(Icon(gold));'+
 
              'AllowMode(Think, 1);'+
-             'ChangePlayerItemCount(Gold, GetVar(gold));'+
+             'SetPlayerAsTarget();'+
+             'ChangeItemCount(Gold, GetVar(gold));'+
              'SetNextTarget();'+
-}
         '"},'+
         '3:{ floor: 3, next:4, script:"'+
              'SetBreak(Tower);'+

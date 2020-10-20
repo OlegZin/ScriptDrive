@@ -29,12 +29,19 @@ const
                 'line-height:150%;'+
                 'background-image:url("data:image/jpeg;base64,#IMAGE_NOTE_BG#")'+
               '}'+
+              '.icon_gold{'+
+                'height: 20px;'+
+                'width: 20px;'+
+                'background-image:url("data:image/jpeg;base64,#IMAGE_GOLD#");}'+
             '</style>'+
           '</head>'+
         '<body onload="window.scrollTo(0,100000)">'+
           '#CONTENT#'+
         '</body>'+
         '</html>';
+
+    ///
+    ICON_TEMPLATE = '<div class=icon_%s></div>';
 
     /// набор стандартных фраз
     PHRASES_LIST =
@@ -119,7 +126,7 @@ type
         procedure Prepend(text: string);   // приклеить текст к началу самой свежей строки
         procedure Replace(text: string);  // заменить текст к самой свежей строке
         procedure Update;                 // обновление содержимого wbLog
-
+        function Icon(name: string): string;
     end;
 
 var
@@ -134,6 +141,7 @@ uses
 
 var
     IMAGE_NOTE_BG
+   ,IMAGE_GOLD
     : string;
 
 
@@ -173,6 +181,7 @@ begin
     Doc.AddHTML( BuildLine );
 
     Doc.SetValue('IMAGE_NOTE_BG', IMAGE_NOTE_BG);
+    Doc.SetValue('IMAGE_GOLD', IMAGE_GOLD);
 
     Doc.ClearMarks;
 
@@ -189,6 +198,11 @@ end;
 procedure TLog.GenerateImages;
 begin
     if IMAGE_NOTE_BG = '' then IMAGE_NOTE_BG :=  fAtlas.EncodeToBase64('NOTE_BG');
+    if IMAGE_GOLD = '' then IMAGE_GOLD :=  fAtlas.EncodeToBase64('ICON_GOLD');
+end;
+
+function TLog.Icon(name: string): string;
+begin
 end;
 
 procedure TLog.Phrase(name, lang: string; params: array of TVarRec);

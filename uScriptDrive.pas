@@ -80,6 +80,7 @@ begin
 
     /// полученный набор команд разбиваем на строки и выполняем по отдельности
     prs.Text := StringReplace(scrt, ';',#13#10,[rfReplaceAll, rfIgnoreCase]);
+
     for I := 0 to prs.Count-1 do
     begin
 
