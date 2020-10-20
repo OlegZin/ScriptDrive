@@ -19,7 +19,6 @@ type
     Rectangle1: TRectangle;
     Rectangle2: TRectangle;
     Progress: TRoundRect;
-    iFlag: TImage;
     HP: TLabel;
     Image3: TImage;
     REG: TLabel;

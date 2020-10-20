@@ -49,12 +49,12 @@ const
             'ENG:"Player is killed..."},'+
         'monster_killed:{'+
             'kind:"normal",'+
-            'RU:"Монстр %s убит! Получено %s exp", '+
-           'ENG:"Monster %s is killed! Got %s exp"},'+
+            'RU:"Монстр убит!", '+
+           'ENG:"Monster is killed!"},'+
         'next_floor:{'+
             'kind:"normal",'+
-            'RU:"Поднимаемся на %d этаж Башни...", '+
-           'ENG:"Go up %d Tower floor..."},'+
+            'RU:"Поднимаемся на %s этаж Башни...", '+
+           'ENG:"Go up %s Tower floor..."},'+
         'skill_overcost:{'+
             'kind:"danger",'+
             'RU:"Использование %s стоит %d MP!", '+

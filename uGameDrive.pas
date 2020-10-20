@@ -29,6 +29,7 @@ type
         procedure UpdateInterface;        /// перерисовка состояния интерфейса
         procedure SetMode(name: string);  /// переключение на окно указанного режима
 
+        function AllowLevelUp: boolean;
 
 /// ключевой метод
         procedure CheckStatus;             // проверка состояния игры и отработка событий
@@ -44,10 +45,16 @@ type
         procedure ChangeItemCount(name, delta: variant);  // изменение количества предметов в инвентаре текущей цели
         procedure SetItemCount(name, value: variant);     // установка количества предметов в инвентаре текущей цели
 
+        function GetLoot: ISuperObject;
+        function GetItems: ISuperObject;
 
         procedure SetParam(name, value: variant);    /// устанавливаем значение укакзанного параметра
         procedure ChangeParam(name, delta: variant); /// изменене значения параметра на дельту
         function GetParam(name: string): string;    /// получение значение параметра
+
+        procedure Collect(name: string; objects: ISuperObject);
+           // добавление в указанный раздел текущей цели всех элементов
+           // списка objects
 
         procedure PlayEvent(name: string); /// выполнение скриптов цели, привязанных к указанному событию.
                                            /// например, "onAttack"
@@ -77,7 +84,7 @@ type
         procedure SetNextTarget;
 
 /// работа с логом
-        procedure Log(kind, text: string);
+        procedure Log(kind, text: string);   // используется в скриптах
 
 /// работа с переменными
         procedure SetVar(name, value: variant);
@@ -120,7 +127,8 @@ implementation
 procedure TGameDrive.CheckStatus;
 /// пересчет игрового статуса исходя из текущего состояния игроовых объектов
 var
-    HP : integer;
+    HP, LVL : integer;
+    loot, items: ISuperObject;
 begin
     /// проверяем состояние игрока
     SetPlayerAsTarget;
@@ -152,11 +160,82 @@ begin
     end;
 
 
+    /// проверяем монстра
+    SetCreatureAsTarget;
+    if StrToInt(GetParam('HP')) <= 0 then
+    begin
+        /// отрабатываем событие на гибель монстра
+        PlayEvent('onDeath');
+
+        /// если после события хитов все еще мало - возраждаемся
+        if StrToInt(GetParam('HP')) <= 0 then
+        begin
+
+            loot := GetLoot;
+            items := GetItems;
+
+            SetPlayerAsTarget;
+            ChangeParam('EXP', CurrFloor);
+
+            uLog.Log.Phrase('monster_killed', GetLang, []);
+
+            // игрок получает предметы и лут
+            Collect('loot', loot);
+            Collect('items', items);
+
+            // проверяем на возможность левелапа
+            if AllowLevelUp then
+            begin
+                /// апаем игрока
+                LVL := StrToInt(GetParam('LVL'));
+
+                ChangeParam( 'HP', LVL * 100);
+                ChangeParam( 'MP', LVL * 20);
+                ChangeParam( 'ATK', LVL );
+                ChangeParam( 'DEF', 1 );
+                ChangeParam( 'EXP', -StrToInt(GetParam('NEEDEXP')));
+                ChangeParam( 'LVL', 1);
+                ChangeParam( 'NEEDEXP', NeedExp(LVL+1));
+
+                PlayEvent('onLevelUp');
+                uLog.Log.Phrase('level_up', GetLang, []);
+            end;
+
+            // переходим к следующему монстру
+            SetCurrStep( StrToInt(CurrStep) + 1 );
+            CreateRegularMonster;
+        end;
+    end;
+
+    // проверка на окончание уровня
+    if CurrStep > MaxStep then
+    begin
+        // переходим на новый уровень подземелья
+        SetCurrFloor(CurrFloor + 1);
+        SetCurrStep(1);
+
+        // генерим новую пачку монстров
+        CreateRegularMonster;
+        uLog.Log.Phrase('next_floor', GetLang, [CurrFloor]);
+    end;
+
+
     /// проверяем достижение цели (целевого этажа). если так - выполняем скрипт
     if   GameData.S['state.CurrFloor'] = GameData.S['state.CurrTargetFloor']
     then Script.Exec(GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor'] + '.script']);
 end;
 
+
+procedure TGameDrive.Collect(name: string; objects: ISuperObject);
+var
+    obj: TSuperAvlEntry;
+begin
+    for obj in objects.AsObject do
+    begin
+        GameData.I[Target + name + '.' + obj.Name] :=
+        GameData.I[Target + name + '.' + obj.Name] + obj.Value.AsInteger;
+    end;
+end;
 
 function TGameDrive.NewGame(level: integer; lang: string): string;
 var
@@ -194,10 +273,10 @@ begin
     CreateRegularMonster;
 
     /// проверяем состояние игровых объектов
-    GameDrive.CheckStatus;
+    CheckStatus;
 
     /// обновляем интерфейс
-    GameDrive.UpdateInterface;
+    UpdateInterface;
 end;
 
 
@@ -217,6 +296,7 @@ begin
 //       ,false  // не преобразовывать русские буквы в эскейп последовательности
     );
 end;
+
 
 function TGameDrive.LoadGame( lang: string ): string;
 /// загрузка состояния игры
@@ -250,6 +330,11 @@ end;
 function TGameDrive.GetLang: string;
 begin
     result := GameData.S['state.Lang'];
+end;
+
+function TGameDrive.GetLoot: ISuperObject;
+begin
+    result := GameData.O[Target + 'loot'];
 end;
 
 function TGameDrive.MaxStep: string;
@@ -367,6 +452,11 @@ end;
 function TGameDrive.GetCurrTarget: string;
 begin
     result := GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.floor'];
+end;
+
+function TGameDrive.GetItems: ISuperObject;
+begin
+    result := GameData.O[Target + 'items'];
 end;
 
 procedure TGameDrive.SetCreatureAsTarget;
@@ -517,6 +607,16 @@ procedure TGameDrive.ChangeParam(name, delta: variant);
 begin
     GameData.D[Target + 'params.' + name] :=
         GameData.D[Target + 'params.' + name] + StrToFloatDef(delta, 0);
+end;
+
+function TGameDrive.AllowLevelUp: boolean;
+var
+    exp : integer;
+    need: integer;
+begin
+    exp := GameData.I[ Target + 'params.EXP' ];
+    need := StrToInt(NeedExp( GameData.I[ Target + 'params.LVL' ] ));
+    result := exp >= need;
 end;
 
 procedure TGameDrive.ChangeItemCount(name, delta: variant);

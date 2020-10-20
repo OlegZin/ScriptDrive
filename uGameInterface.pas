@@ -78,7 +78,7 @@ begin
       then (item.Value as TLabel).Text := data.S[item.key];
 
     /// обновляем прогресс набора опыта для уровня
-    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['EXP'] / data.I['NeedExp'] );
+    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['EXP'] / data.I['NEEDEXP'] );
 end;
 
 procedure TGameInterface.TabClick(Sender: TObject);
