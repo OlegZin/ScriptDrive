@@ -492,7 +492,7 @@ type
 
        function SetBaseStyle: boolean;
        function SetStyle(style: string): boolean;
-       function SetValue(Marker, Value: string): boolean;
+       function SetValue(Marker, Value: string; withQ: boolean = true): boolean;
        function AddParagraph(Text: string; Style: string = ''): boolean;
        function AddTable(TableName, Style: string; Values: TArray; Styles: TArray = nil): boolean;
        function AddRow(TableName: string; Values: TArray; Styles: TArray = nil): boolean;
@@ -525,14 +525,20 @@ begin
     InsToMarker( MARKER_STYLE, Style );
 end;
 
-function TDocCreater.SetValue(Marker, Value: string): boolean;
+function TDocCreater.SetValue(Marker, Value: string; withQ: boolean = true): boolean;
+var
+    Q: string;
 begin
     if Template.html = '' then Template.InitPortrait;
 
-    Template.html := ReplaceStr( Template.html, QUOTE + Marker + QUOTE, Value );
-    Colontitul.WordFullHTML := ReplaceStr( Colontitul.WordFullHTML, QUOTE + Marker + QUOTE, Value );
-    Colontitul.WordHeaderHTML := ReplaceStr( Colontitul.WordHeaderHTML, QUOTE + Marker + QUOTE, Value );
-    Colontitul.WordFooterHTML := ReplaceStr( Colontitul.WordFooterHTML, QUOTE + Marker + QUOTE, Value );
+    if withQ
+    then Q := QUOTE
+    else Q := '';
+
+    Template.html := ReplaceStr( Template.html, Q + Marker + Q, Value );
+    Colontitul.WordFullHTML := ReplaceStr( Colontitul.WordFullHTML, Q + Marker + Q, Value );
+    Colontitul.WordHeaderHTML := ReplaceStr( Colontitul.WordHeaderHTML, Q + Marker + Q, Value );
+    Colontitul.WordFooterHTML := ReplaceStr( Colontitul.WordFooterHTML, Q + Marker + Q, Value );
 end;
 
 function TDocCreater.AddHTML(html: string): boolean;

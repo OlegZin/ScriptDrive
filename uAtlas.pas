@@ -82,6 +82,33 @@ type
     Image57: TImage;
     Image58: TImage;
     ICON_GOLD: TImage;
+    ICON_SWORD: TImage;
+    ICON_SHIELD: TImage;
+    Image59: TImage;
+    Image60: TImage;
+    Image61: TImage;
+    Image62: TImage;
+    ICON_BLUESHIELD: TImage;
+    Image64: TImage;
+    ICON_HEART: TImage;
+    Image66: TImage;
+    ICON_MANA: TImage;
+    Image68: TImage;
+    ICON_AUTO: TImage;
+    Image70: TImage;
+    ICON_LEVEL: TImage;
+    Image63: TImage;
+    ICON_EXP: TImage;
+    Image65: TImage;
+    Image67: TImage;
+    Image69: TImage;
+    ICON_FIGHT: TImage;
+    ICON_CHEST: TImage;
+    ICON_UNLOCK: TImage;
+    Image71: TImage;
+    Image72: TImage;
+    Image73: TImage;
+    Image74: TImage;
   private
     { Private declarations }
   public

@@ -4,7 +4,7 @@ interface
 
 uses
     uScriptDrive, superobject, uConst,
-    System.SysUtils, Generics.Collections, Classes, Math, StrUtils,
+    System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
     uThinkMode, uGameInterface, uLog, uTower;
 
 type
@@ -26,6 +26,7 @@ type
         function NewGame(level: integer; lang: string): string;
         function LoadGame( lang: string ): string; /// загрузка состояния игры
         function SaveGame: string;        /// сохранение текущего состояния игры
+        procedure SaveTestData;           /// сохранение тек состояния игры в красивом файле
         procedure UpdateInterface;        /// перерисовка состояния интерфейса
         procedure SetMode(name: string);  /// переключение на окно указанного режима
 
@@ -86,7 +87,6 @@ type
 /// работа с логом
         procedure Log(kind, text: string);   // добавляет строку указанного типа в лог игры. типы - имена css стилей из EMPTY_HTML из модуля uLog
         procedure LogAdd(text: string);      // приклеивает текст в конец текущей строки лога
-        function Icon(name: string): string;         // подставляет в лог иконку с указанным именем
 
 /// работа с переменными
         procedure SetVar(name, value: variant);
@@ -195,9 +195,9 @@ begin
                 ChangeParam( 'MP', LVL * 20);
                 ChangeParam( 'ATK', LVL );
                 ChangeParam( 'DEF', 1 );
-                ChangeParam( 'EXP', -StrToInt(GetParam('NEEDEXP')));
+                ChangeParam( 'EXP', -StrToInt(GetParam(PRM_NEEDEXP)));
                 ChangeParam( 'LVL', 1);
-                ChangeParam( 'NEEDEXP', NeedExp(LVL+1));
+                ChangeParam( PRM_NEEDEXP, NeedExp(LVL+1));
 
                 PlayEvent('onLevelUp');
                 uLog.Log.Phrase('level_up', GetLang, []);
@@ -251,7 +251,7 @@ begin
 
     SetLang(lang);
 
-    GameData.I['state.player.params.NeedExp'] := StrToInt(NeedExp(1));
+    GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
                                 // считаем опыт необходимый для левелапа
 
     InitItemsCraftCost;         // генерация рецептов предметов
@@ -259,17 +259,19 @@ begin
 
     /// генерим первоначальные ресурсы, исходя из уровня игры
     SetPlayerAsTarget;
+
     /// автодействия
     SetParam('AutoAction', 500 + 500 * level);
-//    GameData.I['state.player.params.AutoAction'] := 500 + 500 * level;
+
     /// генерим предметы в инвентаре
     for i := 1 to level do
     begin
         name := GetRandItemName;
         ChangeItemCount(name, level);
     end;
+
     /// золото
-    ChangeItemCount('gold', 100000 + 10000 * level);
+    ChangeItemCount(ITEM_GOLD, 100000 + 10000 * level);
 
     /// инициализируем монстра
     CreateRegularMonster;
@@ -290,15 +292,20 @@ begin
 //       ,false // не использовать красивое форматирование
 //       ,false  // не преобразовывать русские буквы в эскейп последовательности
     );
+end;
 
+
+procedure TGameDrive.SaveTestData;
+begin
     /// "красивая" версия для тестового контроля
     GameData.O['state'].SaveTo(
         DIR_DATA + FILE_GAME_DATA_TEST
        ,true // не использовать красивое форматирование
-//       ,false  // не преобразовывать русские буквы в эскейп последовательности
+       ,false  // не преобразовывать русские буквы в эскейп последовательности
     );
-end;
 
+    ShellExecute(0,'open',PCHAR(DIR_DATA + FILE_GAME_DATA_TEST),nil,nil,5{SW_SHOW});
+end;
 
 function TGameDrive.LoadGame( lang: string ): string;
 /// загрузка состояния игры
@@ -422,11 +429,6 @@ end;
 { PRIVATE METHODS }
 
 
-
-function TGameDrive.Icon(name: string): string;
-begin
-    result := uLog.Log.Icon(name);
-end;
 
 procedure TGameDrive.InitFloorObjects;
 var
@@ -565,8 +567,7 @@ procedure TGameDrive.InitItemsCraftCost;
 /// генерим рецепты предметов. в каждой игре - разные
 /// отталкиваемся от условной стоимости в ресурсах
 var
-    i
-   ,cost     // условная остаточная стоимость предмета в ресурсах
+    cost     // условная остаточная стоимость предмета в ресурсах
    ,part     // условная суммарная стоимость текущего генерируемого компонента
    ,resCount // количество требуемого ресурса
             : integer;
@@ -634,7 +635,7 @@ end;
 procedure TGameDrive.ChangeItemCount(name, delta: variant);
 /// изменяем количество указанного предмета на указанную дельту (в + или - ),
 begin
-    GameData.I[Target + 'items.'+name] := GameData.I[Target + 'items.'+name+'.count'] + delta;
+    GameData.I[Target + 'items.'+name] := GameData.I[Target + 'items.'+name] + delta;
 end;
 procedure TGameDrive.SetImage(index: integer);
 begin
@@ -687,7 +688,7 @@ begin
     ResetTargetState;
     SetImage;
 
-//    if CurrStep < MaxStep then
+    if CurrStep < MaxStep then
     begin
         SetName('RU',
             GameData.S['names.first[' +IntToStr(Random( GameData.I['names.count'] ))+'].RU'] + ' ' +
@@ -701,7 +702,7 @@ begin
         );
 
         /// золото
-        SetItemCount('GOLD', Random( CurrFloor*2 ) + CurrFloor);
+        SetItemCount(ITEM_GOLD, Random( CurrFloor*2 ) + CurrFloor);
 
         /// ресурсы (шанс на один вид)
         lootCount := Random(CurrFloor div 2);
@@ -715,6 +716,43 @@ begin
         SetParam('ATK',   Random( CurrFloor*5 )  + CurrFloor*2);
         SetParam('DEF',   CurrFloor*2);
     end;
+
+    if CurrStep = MaxStep then
+    begin
+
+        SetName('RU',
+            'БОСС '+
+            GameData.S['names.first[' +IntToStr(Random( GameData.I['names.count'] ))+'].RU'] + ' ' +
+            GameData.S['names.middle['+IntToStr(Random( GameData.I['names.count'] ))+'].RU'] + ' ' +
+            GameData.S['names.last['  +IntToStr(Random( GameData.I['names.count'] ))+'].RU']
+        );
+        SetName('ENG',
+            'BOSS '+
+            GameData.S['names.first[' +IntToStr(Random( GameData.I['names.count'] ))+'].ENG'] + ' ' +
+            GameData.S['names.middle['+IntToStr(Random( GameData.I['names.count'] ))+'].ENG'] + ' ' +
+            GameData.S['names.last['  +IntToStr(Random( GameData.I['names.count'] ))+'].ENG']
+        );
+
+        /// золото
+        SetItemCount(ITEM_GOLD, Random( CurrFloor*5 ) + CurrFloor*2);
+
+        // шанс на выпадение дополнительногь предмета
+        if Random(2) > 0
+        then SetItemCount(GetRandItemName, 1);
+
+        /// ресурсы (шанс на три вида, но могут повторяться и будут складываться)
+        lootCount := Random( 4 );
+        for I := 0 to lootCount do
+            ChangeItemCount(GetRandResName, Random( CurrFloor ) + 1);
+
+        // параметры
+        count := Random( CurrFloor*50 ) + CurrFloor*30;
+        SetParam('HP',    count);
+        SetParam('MAXHP', count);
+        SetParam('ATK',   Random( CurrFloor*25 )  + CurrFloor*10);
+        SetParam('DEF',   CurrFloor*6);
+    end;
+
 end;
 
 destructor TGameDrive.Destroy;
@@ -810,10 +848,12 @@ begin
     DMG := StrToInt(GetVar('mc_DMG'))- BLOCK;
     ChangeParam('HP', -DMG); /// списываем хиты
 
+    uLog.Log.Append('...ICON_FIGHT...');
+
     /// пишем событие в лог
     if BLOCK > 0
-    then uLog.Log.Phrase('monster_strike_block', GetLang, [DMG, BLOCK])
-    else uLog.Log.Phrase('monster_strike', GetLang, [DMG]);
+    then uLog.Log.PhraseAppend('monster_strike_block', GetLang, [DMG, BLOCK])
+    else uLog.Log.PhraseAppend('monster_strike', GetLang, [DMG]);
 
 end;
 

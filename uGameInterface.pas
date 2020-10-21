@@ -28,7 +28,7 @@ var
 implementation
 
 uses
-    uGameDrive;
+    uGameDrive, uConst;
 
 { TGameInterface }
 
@@ -78,7 +78,7 @@ begin
       then (item.Value as TLabel).Text := data.S[item.key];
 
     /// обновляем прогресс набора опыта для уровня
-    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['EXP'] / data.I['NEEDEXP'] );
+    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['EXP'] / data.I[PRM_NEEDEXP] );
 end;
 
 procedure TGameInterface.TabClick(Sender: TObject);

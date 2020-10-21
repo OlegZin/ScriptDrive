@@ -132,7 +132,7 @@ begin
             for I := 0 to Cnt.ControlsCount-1 do
             if (Cnt.Controls[i] is TRectangle) then
                (Cnt.Controls[i] as TRectangle).Visible :=
-                   need <= data.I['Gold'];
+                   need <= data.I[ITEM_GOLD];
 
         end;
     end;
@@ -199,7 +199,7 @@ begin
 
             /// если золота достаточно для постройки (с учетом бонуса удешевления стройки)
             /// показываем кнопку постройки
-            bBuild.Visible := data.I['Gold'] >= Max(data.I['Objects.' + item.name + '.BuildCost'] - data.I['Skills.BuildEconomy.Level'], 1);
+            bBuild.Visible := data.I[ITEM_GOLD] >= Max(data.I['Objects.' + item.name + '.BuildCost'] - data.I['Skills.BuildEconomy.Level'], 1);
         end;
 
     end;
@@ -209,13 +209,13 @@ begin
     /// пишем в лэйбл текущее золото
     for I := 0 to layGold.ControlsCount-1 do
     if (layGold.Controls[i] is TLabel)
-    then (layGold.Controls[i] as TLabel).Text := data.S['Gold'];
+    then (layGold.Controls[i] as TLabel).Text := data.S[ITEM_GOLD];
 
     /// показываем лэйбл с золотом, если не нулевое
-    layGold.Visible := data.I['Gold'] > 0;
+    layGold.Visible := data.I[ITEM_GOLD] > 0;
 
     /// отслеживаем первоначальный показ навыка науки
-    if (data.I['Gold'] >= data.I['Skills.Research.NeedGold']) and
+    if (data.I[ITEM_GOLD] >= data.I['Skills.Research.NeedGold']) and
        (data.I['Skills.Research.Level'] = 0)
     then data.I['Skills.Research.Level'] := 1;
 
@@ -264,7 +264,7 @@ end;
 
 procedure TMenu.AddCoin;
 begin
-    data.I['Gold'] := data.I['Gold'] + data.I['Skills.MoneyEaring.Level'];
+    data.I[ITEM_GOLD] := data.I[ITEM_GOLD] + data.I['Skills.MoneyEaring.Level'];
 end;
 
 
@@ -284,7 +284,7 @@ begin
     if data.I['Skills.AutoMoney.Level'] > 0 then
     begin
       /// добавляем
-      data.I['Gold'] := data.I['Gold'] + data.I['Skills.AutoMoney.Level'];
+      data.I[ITEM_GOLD] := data.I[ITEM_GOLD] + data.I['Skills.AutoMoney.Level'];
       UpdateInterface;
     end;
 
@@ -398,7 +398,7 @@ end;
 procedure TMenu.OnBuildClick(Sender: TObject);
 begin
     /// списываем золото за апгрейд
-    data.I['Gold'] := data.I['Gold'] - data.I['Objects.' + WorkKey + '.BuildCost'];
+    data.I[ITEM_GOLD] := data.I[ITEM_GOLD] - data.I['Objects.' + WorkKey + '.BuildCost'];
     /// уменьшаем количество необходимых попыток, с учетом бонуса
     data.I['Objects.' + WorkKey + '.Attempts'] := data.I['Objects.' + WorkKey + '.Attempts'] + 1 + data.I['Skills.BuildSpeed.Level'];
 
@@ -461,8 +461,8 @@ begin
       if hash = tag then
       begin
           /// списываем золото
-          data.I['Gold'] :=
-              data.I['Gold'] -
+          data.I[ITEM_GOLD] :=
+              data.I[ITEM_GOLD] -
                   Max(data.I['Skills.' + item.name + '.NeedGold'] * data.I['Skills.' + item.name + '.Level'],
                       data.I['Skills.' + item.name + '.NeedGold']
                   );

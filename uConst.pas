@@ -9,12 +9,18 @@ const
 
     FILE_MENU_DATA = '\menu.dat';
     FILE_GAME_DATA = '\toto.dat';
-    FILE_GAME_DATA_TEST = '\test_toto.dat';
+    FILE_GAME_DATA_TEST = '\test_toto.txt';
 
     STEPS_BY_FLOOR = 5; /// констранта для вычисления количества шагов.
                         /// умножается на номер текущего этажа
 
     MONSTER_IMAGE_COUNT = 30;
+
+    /// синонимы имен предметов для единообразия упоминания,
+    /// поскольку имена регистрочувствительны в json
+    ITEM_GOLD = 'gold';
+
+    PRM_NEEDEXP = 'needexp';
 
     CREATURE_SHABLON = '{'+
         'name: {RU:"", ENG:""},'+
@@ -34,7 +40,7 @@ const
 
     /// состояние меню при первом запуске
     MENU_DATA_DEF =
-    '{Gold:0, '+
+    '{gold:0, '+
      'Lang:ENG, '+
      'NewLevel:1, '+
      'IntroOver:0, '+
@@ -81,7 +87,7 @@ const
             'essence:{count: 0}'+
         '},'+
         'player: {'+
-            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, NEEDEXP:10 },'+
+            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, needexp:0 },'+
             'skills: {},'+
             'items: {},'+
             'buffs: {},'+
@@ -373,7 +379,7 @@ const
                 'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 
                 'SetVar(gold, Rand(CurrFloor() * 1000) + 1);'+
-                'ChangePlayerItemCount(Gold, GetVar(gold));'+
+                'ChangePlayerItem(gold, GetVar(gold));'+
 
                 'If(GetLang() = RU, 3);'+
                 'AddEvent(Получено GetVar(gold) золота);'+
@@ -443,17 +449,17 @@ const
             '},'+
             'script:"'+
                 'SetTarget(Player);' +
-                'If(GetItemCount(Gold) < 10000, 5);'+
+                'If(GetItemCount(gold) < 10000, 5);'+
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Не достаточно золота!);'+
                 'If(GetLang() = ENG, 1);'+
                 'AddEvent(You do not have enougth Gold!);'+
-                'ChangeItemCount(Gold, 1);'+
+                'ChangeItemCount(gold, 1);'+
 
                 'If(GetItemCount(Gold) > 9999, 7);'+
                 'SetVar(iName, GetRandItemName());'+
                 'ChangeItemCount(GetVar(iName), 1);'+
-                'ChangeItemCount(Gold, -9999);'+
+                'ChangeItemCount(gold, -9999);'+
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Получено GetVar(iName)!);'+
                 'If(GetLang() = ENG, 1);'+
@@ -850,8 +856,6 @@ const
     /// список целей по уровням
     'targetFloor:{'+
         '1:{ floor: 1, next:2, script:"'+
-             'Log(icon_gold,\"1\");'+
-
              'If(GetLang() = RU, 6);'+
              'Log(normal,\"Ты открываешь глаза в полумраке на каменном полу. В голове пустота, сердце сжимается от ощущение утраты.\");'+
              'Log(normal,\"Немного оглядевшись, ты понимаешь, что находишься в каком-то большом пустом помещении, заваленном различным хламом. Окна отсутствуют. Только факела коптят по стенам. '+
@@ -862,6 +866,7 @@ const
              'Log(normal,\"Несколько раз перечитав послание, ты так и не понял его смысла. Но долго думать об этом тебе не дали. Неподалеку, за кучами мусора, послышалось шевеление и тихое рычание. '+
                  'Рука непроизвольно стиснула рукоять непонятно откуда взявшегося кинжала и выбросила его навстречу летящему на тебя монстру.\");'+
              'Log(danger,\"БОЙ!\");'+
+
              'If(GetLang() = ENG, 6);'+
              'Log(normal,\"You open your eyes in the twilight on the stone floor. There is emptiness in my head, my heart squeezes from the feeling of loss.\");'+
              'Log(normal,\"Looking around a little, you realize that you are in some large empty room littered with various rubbish. '+
@@ -878,36 +883,34 @@ const
              'SetBreak(Tower);'+
              'SetVar(gold, Rand(100000));'+
 
-             'IF(GetLang() = RU, 11);'+
+             'IF(GetLang() = RU, 9);'+
              'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота.\");'+
              'Log(normal,\"Так же, в сундуке лежит несколько смятых листов:\");'+
              'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
              'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки, прихвостень Темного Мастера.\");'+
              'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
-             'Log(think,\"Подождите. Какая башня, какой Темный мастер? Что я здесь делаю?\");'+
-             'Log(think,\"Следует как следует подумать об этом!\");'+
-
+             'Log(think,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю?\");'+
+             'Log(think,\" - Следует как следует подумать об этом!\");'+
              'Log(event,\"Доступен режим Раздумий!\");'+
              'Log(event,\"Получено \");'+
-             'LogAdd(GetVar(gold));'+
-             'LogAdd(Icon(gold));'+
 
-             'IF(GetLang() = ENG, 11);'+
+             'IF(GetLang() = ENG, 9);'+
              'Log(normal,\"There was some gold in a rusty chest between floors.\");'+
              'Log(normal,\"Also, there are several crumpled sheets in the chest:\");'+
-             'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+             'AddEvent( );'+
+             'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+
              'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that this damned Ikki, the Dark Master henchman, brought them up.\");'+
              'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
-             'Log(think,\"Wait. Which tower, which Dark master? What am I doing here?\");'+
-             'Log(think,\"Think about it well!\");'+
+             'Log(think,\" - Wait. Which tower, which Dark master? What am I doing here?\");'+
+             'Log(think,\" - Think about it well!\");'+
              'Log(event,\"Think mode available!\");'+
              'Log(event,\"Gained \");'+
-             'LogAdd(GetVar(gold) );'+
-             'LogAdd(Icon(gold));'+
+
+             'LogAdd(GetVar(gold));'+
+             'LogAdd(ICON_GOLD);'+
 
              'AllowMode(Think, 1);'+
              'SetPlayerAsTarget();'+
-             'ChangeItemCount(Gold, GetVar(gold));'+
+             'ChangeItemCount(gold, GetVar(gold));'+
              'SetNextTarget();'+
         '"},'+
         '3:{ floor: 3, next:4, script:"'+

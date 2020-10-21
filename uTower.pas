@@ -21,8 +21,6 @@ type
     Progress: TRoundRect;
     HP: TLabel;
     Image3: TImage;
-    REG: TLabel;
-    Image7: TImage;
     MDEF: TLabel;
     Image6: TImage;
     DEF: TLabel;
@@ -76,7 +74,6 @@ begin
     ATK.Text  := data.S['params.ATK'];
     DEF.Text  := data.S['params.DEF'];
     MDEF.Text := data.S['params.MDEF'];
-    REG.Text  := data.S['params.REG'];
     Monster.MultiResBitmap[0].Bitmap.Assign(  fAtlas.GetBitmap(data.I['image']) );
 end;
 

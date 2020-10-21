@@ -119,7 +119,8 @@ type
     procedure bNewClick(Sender: TObject);
     procedure bResumeClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure bMenuClick(Sender: TObject);  private
+    procedure bMenuClick(Sender: TObject);
+    procedure iAutoBGClick(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -261,6 +262,11 @@ begin
 //    UpdateInterface;
 
     tabsGame.ActiveTab := tabMenu;
+end;
+
+procedure TfMain.iAutoBGClick(Sender: TObject);
+begin
+    GameDrive.SaveTestData;
 end;
 
 procedure TfMain.bExitClick(Sender: TObject);
