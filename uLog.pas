@@ -32,7 +32,7 @@ const
               '}'+
               '.icon_gold,.icon_sword,.icon_shield,.icon_blueshield,'+
               '.icon_heart,.icon_mana,.icon_auto,.icon_level,.icon_exp'+
-              '.icon_fight,.icon_chest,.icon_unlock'+
+              '.icon_fight,.icon_chest,.icon_unlock,.icon_monster,.icon_knight'+
               '{'+
                 'display: inline;'+
                 'height: 20px;'+
@@ -49,6 +49,8 @@ const
               '.icon_fight{background:url("data:image/jpeg;base64,#IMAGE_FIGHT#");}'+
               '.icon_chest{background:url("data:image/jpeg;base64,#IMAGE_CHEST#");}'+
               '.icon_unlock{background:url("data:image/jpeg;base64,#IMAGE_UNLOCK#");}'+
+              '.icon_monster{background:url("data:image/jpeg;base64,#IMAGE_MONSTER#");}'+
+              '.icon_knight{background:url("data:image/jpeg;base64,#IMAGE_KNIGHT#");}'+
             '</style>'+
           '</head>'+
         '<body onload="window.scrollTo(0,100000)">'+
@@ -76,8 +78,8 @@ const
            'ENG:"Monster is killed!"},'+
         'next_floor:{'+
             'kind:"normal",'+
-            'RU:"Поднимаемся на %s этаж Башни...", '+
-           'ENG:"Go up %s Tower floor..."},'+
+            'RU:"Поднимаемся на %s этаж...", '+
+           'ENG:"Go up %s floor..."},'+
         'skill_overcost:{'+
             'kind:"danger",'+
             'RU:"Использование %s стоит %d MP!", '+
@@ -92,25 +94,30 @@ const
            'ENG:"Level up skill %s is cost %d exp!"},'+
         'player_strike:{'+
             'kind:"fight",'+
-            'RU:"Монстр -%dICON_HEART", '+
-           'ENG:"Monster -%dICON_HEART"},'+
+            'RU:"-%d", '+
+           'ENG:"-%d"},'+
         'monster_strike:{'+
             'kind:"fight",'+
-            'RU:"-%dICON_HEART Игрок", '+
-           'ENG:"-%dICON_HEART Player"},'+
+            'RU:"-%d", '+
+           'ENG:"-%d"},'+
         'player_strike_block:{'+
             'kind:"fight",'+
-            'RU:"Монстр -%dICON_HEART ( %dICON_SHIELD )", '+
-           'ENG:"Monster -%dICON_HEART ( %dICON_SHIELD )"},'+
+            'RU:"-%d ( %dICON_SHIELD )", '+
+           'ENG:"-%d ( %dICON_SHIELD )"},'+
         'monster_strike_block:{'+
             'kind:"fight",'+
-            'RU:"-%dICON_HEART ( %dICON_SHIELD ) Игрок", '+
-           'ENG:"-%dICON_HEART ( %dICON_SHIELD ) Player"},'+
+            'RU:"-%d ( %dICON_SHIELD )", '+
+           'ENG:"-%d ( %dICON_SHIELD )"},'+
         'get_loot:{'+
             'kind:"normal",'+
             'RU:"Получено %s %s", '+
            'ENG:"Got %s %s"},'+
+        'attack_pool_empty:{'+
+            'kind:"normal",'+
+            'RU:"Стек атак пуст...", '+
+           'ENG:"Attack pool is empty..."},'+
     '},';
+
 type
     TLog = class
     private
@@ -153,7 +160,7 @@ implementation
 { TLog }
 
 uses
-    uAtlas;
+    uAtlas, uGameDrive;
 
 var
     IMAGE_NOTE_BG
@@ -169,6 +176,8 @@ var
    ,IMAGE_FIGHT
    ,IMAGE_CHEST
    ,IMAGE_UNLOCK
+   ,IMAGE_MONSTER
+   ,IMAGE_KNIGHT
     : string;
 
 
@@ -186,6 +195,8 @@ begin
     /// обновляем инфу активной строки
     lastKind := kind;
     lastText := text;
+
+    GameDrive.SetModeToUpdate(INT_LOG);
 end;
 
 procedure TLog.Append(text: string);
@@ -221,6 +232,8 @@ begin
     Doc.SetValue('IMAGE_FIGHT', IMAGE_FIGHT);
     Doc.SetValue('IMAGE_CHEST', IMAGE_CHEST);
     Doc.SetValue('IMAGE_UNLOCK', IMAGE_UNLOCK);
+    Doc.SetValue('IMAGE_MONSTER', IMAGE_MONSTER);
+    Doc.SetValue('IMAGE_KNIGHT', IMAGE_KNIGHT);
 
     Doc.SetValue('ICON_GOLD', Format(ICON_TEMPLATE, ['gold']), false);
     Doc.SetValue('ICON_SWORD', Format(ICON_TEMPLATE, ['sword']), false);
@@ -234,6 +247,8 @@ begin
     Doc.SetValue('ICON_FIGHT', Format(ICON_TEMPLATE, ['fight']), false);
     Doc.SetValue('ICON_CHEST', Format(ICON_TEMPLATE, ['chest']), false);
     Doc.SetValue('ICON_UNLOCK', Format(ICON_TEMPLATE, ['unlock']), false);
+    Doc.SetValue('ICON_MONSTER', Format(ICON_TEMPLATE, ['monster']), false);
+    Doc.SetValue('ICON_KNIGHT', Format(ICON_TEMPLATE, ['knight']), false);
 
     Doc.ClearMarks;
 
@@ -262,6 +277,8 @@ begin
     if IMAGE_FIGHT = '' then IMAGE_FIGHT :=  fAtlas.EncodeToBase64('ICON_FIGHT');
     if IMAGE_CHEST = '' then IMAGE_CHEST :=  fAtlas.EncodeToBase64('ICON_CHEST');
     if IMAGE_UNLOCK = '' then IMAGE_UNLOCK :=  fAtlas.EncodeToBase64('ICON_UNLOCK');
+    if IMAGE_MONSTER = '' then IMAGE_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
+    if IMAGE_KNIGHT = '' then IMAGE_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
 end;
 
 procedure TLog.Phrase(name, lang: string; params: array of TVarRec);

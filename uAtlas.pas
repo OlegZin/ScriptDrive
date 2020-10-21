@@ -106,9 +106,9 @@ type
     ICON_CHEST: TImage;
     ICON_UNLOCK: TImage;
     Image71: TImage;
-    Image72: TImage;
+    ICON_MONSTER: TImage;
     Image73: TImage;
-    Image74: TImage;
+    ICON_KNIGHT: TImage;
   private
     { Private declarations }
   public

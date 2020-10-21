@@ -34,10 +34,16 @@ type
     Rectangle4: TRectangle;
     Rectangle5: TRectangle;
     Monster: TImage;
+    Image65: TImage;
+    lAttackPool: TLabel;
+    Image68: TImage;
+    Rectangle8: TRectangle;
     procedure MonsterClick(Sender: TObject);
   private
     { Private declarations }
     data: ISuperObject;
+
+    lastImage : integer;
   public
 
     procedure Update(data: ISuperObject);
@@ -60,21 +66,51 @@ begin
 end;
 
 procedure TfTower.Update(data: ISuperObject);
+var
+    w: real;
 begin
+    self.BeginUpdate;
+
     if not Assigned(data) then exit;
 
-    lCurrFloor.Text := data.S['floor'];
-    lCurrStep.Text := data.S['step'];
-    lTargetFloor.Text := data.S['targetfloor'];
+    if   lCurrFloor.Text <> data.S['floor']
+    then lCurrFloor.Text := data.S['floor'];
 
-    Progress.Width := (data.I['step'] / data.I['maxstep']) * ProgressBG.Width;
+    if   lCurrStep.Text <> data.S['step']
+    then lCurrStep.Text := data.S['step'];
 
-    HP.Text   := data.S['params.HP'];
-    MP.Text   := data.S['params.MP'];
-    ATK.Text  := data.S['params.ATK'];
-    DEF.Text  := data.S['params.DEF'];
-    MDEF.Text := data.S['params.MDEF'];
-    Monster.MultiResBitmap[0].Bitmap.Assign(  fAtlas.GetBitmap(data.I['image']) );
+    if   lTargetFloor.Text <> data.S['targetfloor']
+    then lTargetFloor.Text := data.S['targetfloor'];
+
+    if   lAttackPool.Text <> data.S['attackpool']
+    then lAttackPool.Text := data.S['attackpool'];
+
+    w := (data.I['step'] / data.I['maxstep']) * ProgressBG.Width;
+    if   w <> Progress.Width
+    then Progress.Width := w;
+
+    if   HP.Text <> data.S['params.HP']
+    then HP.Text := data.S['params.HP'];
+
+    if   MP.Text <> data.S['params.MP']
+    then MP.Text := data.S['params.MP'];
+
+    if   ATK.Text <> data.S['params.ATK']
+    then ATK.Text := data.S['params.ATK'];
+
+    if   DEF.Text <> data.S['params.DEF']
+    then DEF.Text := data.S['params.DEF'];
+
+    if   MDEF.Text <> data.S['params.MDEF']
+    then MDEF.Text := data.S['params.MDEF'];
+
+    if lastImage <> data.I['image'] then
+    begin
+        Monster.MultiResBitmap[0].Bitmap.Assign(  fAtlas.GetBitmap(data.I['image']) );
+        lastImage := data.I['image'];
+    end;
+
+    self.EndUpdate;
 end;
 
 end.

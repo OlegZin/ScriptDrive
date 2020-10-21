@@ -114,13 +114,15 @@ type
     Rectangle10: TRectangle;
     Image33: TImage;
     flEffects: TFlowLayout;
+    Timer: TTimer;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
     procedure bResumeClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure bMenuClick(Sender: TObject);
-    procedure iAutoBGClick(Sender: TObject);  private
+    procedure iAutoBGClick(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -143,6 +145,8 @@ var
 
 procedure TfMain.FormShow(Sender: TObject);
 begin
+
+    GameDrive.l_drop;
 
     /// создаем папку хранения данных (сейвы)
     if not DirectoryExists( DIR_DATA ) then
@@ -206,7 +210,7 @@ begin
     ///    настройка лога
     /////////////////////////////////////////
     Log.wbLog := wbLog;
-    Log.linesCount := 100;  /// максимум отображаемых строк в логе
+    Log.linesCount := 20;  /// максимум отображаемых строк в логе
     Log.GenerateImages;
     Log.Clear;
 
@@ -276,6 +280,7 @@ end;
 
 procedure TfMain.bMenuClick(Sender: TObject);
 begin
+    Timer.Enabled := false;
     SaveData;
     tabsGame.ActiveTab := tabMenu;
 end;
@@ -285,6 +290,7 @@ begin
     GameDrive.NewGame( Menu.NewLevel, Menu.Lang );
     GameDrive.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
+    Timer.Enabled := true;
 end;
 
 procedure TfMain.bResumeClick(Sender: TObject);
@@ -292,6 +298,7 @@ begin
     GameDrive.LoadGame( Menu.Lang );
     GameDrive.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
+    Timer.Enabled := true;
 end;
 
 
@@ -305,6 +312,12 @@ procedure TfMain.SaveData;
 begin
     Menu.SaveData;
     GameDrive.SaveGame;
+end;
+
+procedure TfMain.TimerTimer(Sender: TObject);
+begin
+    GameDrive.CheckStatus;
+    GameDrive.UpdateInterface;
 end;
 
 end.

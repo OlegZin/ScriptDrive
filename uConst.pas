@@ -10,6 +10,7 @@ const
     FILE_MENU_DATA = '\menu.dat';
     FILE_GAME_DATA = '\toto.dat';
     FILE_GAME_DATA_TEST = '\test_toto.txt';
+    FILE_GAME_LOG = '\log.txt';
 
     STEPS_BY_FLOOR = 5; /// констранта для вычисления количества шагов.
                         /// умножается на номер текущего этажа
@@ -20,7 +21,14 @@ const
     /// поскольку имена регистрочувствительны в json
     ITEM_GOLD = 'gold';
 
+    /// синонимы параметров
     PRM_NEEDEXP = 'needexp';
+
+    /// флаги частей интерфейса
+    INT_MAIN  = 1;
+    INT_LOG   = 2;
+    INT_TOWER = 4;
+    INT_ALL   = MaxInt;
 
     CREATURE_SHABLON = '{'+
         'name: {RU:"", ENG:""},'+
@@ -74,6 +82,9 @@ const
         'MaxStep: 1,'+
         'CurrFloor: 1,'+
         'CurrTargetFloor: "1",'+
+        'AttackPool: 0,'+          /// накопленный локальный пул атак
+        'AutoFight: false, '+     /// включен ли режим автоатак за автодействия
+        'AutoThink: false, '+      /// включен ли режим разышлений за автодействия
         'resources:{'+
             'wood:   {count: 0},'+
             'stone:  {count: 0},'+
