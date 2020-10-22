@@ -21,7 +21,12 @@ type
         InterfModes : integer;
             // набор флагов, показывающих какие части интерфейса обновлять при
             // вызове метода UpdateInterface
+
         doLog: boolean;
+            // логировать ли действия программы в текстовый файл
+
+        silentChange : boolean;
+            // флаг "тихого" следующего изменения параметра, чтобы не засорять лог
     public
 
         constructor Create;
@@ -63,9 +68,12 @@ type
         function GetLoot: ISuperObject;
         function GetItems: ISuperObject;
 
+        procedure SilentParamChange;                 /// следующее изменение параметра не будет выводить автоматическое сообщение в лог
         procedure SetParam(name, value: variant);    /// устанавливаем значение укакзанного параметра
         procedure ChangeParam(name, delta: variant); /// изменене значения параметра на дельту
         function GetParam(name: string): string;    /// получение значение параметра
+
+        procedure ChangePlayerParam(name, value: variant);
 
         procedure Collect(name: string; objects: ISuperObject);
            // добавление в указанный раздел текущей цели всех элементов
@@ -109,17 +117,24 @@ type
 /// работа с монстрами
         procedure CreateRegularMonster;  // создание обычного проходного монстра на основе текущего этажа
 
-/// основные игровые методы
-        procedure ChangePoolAttack(val: variant);             // добавляет атаку в пул
-        function GetPoolAttack: integer;     // текущее количество атак в пуле
-        procedure PlayerAttack;
+/// методы работы с пулами действий (накопленных игроком локальных автоматических действий)
+        procedure ChangePool(name, val: variant);             // добавляет атаку в пул
+        function GetPool(name: string): integer;     // текущее количество атак в пуле
 
+/// автодействия различных режимов
+        procedure BreakAuto(name: string);  /// прерывает автодействия указанного режима
+        procedure RunAuto(name: string);    /// запускает автодействия указанного режима
+        function  GetAuto(name: string): boolean;    /// возвращает состояние указанного режима
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
         procedure AllowMode(name: string);
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
+
+/// основные игровые методы
+        procedure PlayerAttack;
+
 
     private
         Script : TScriptDrive;
@@ -140,37 +155,6 @@ implementation
 
 { TData }
 
-{PUBLIC // Script allow}
-
-procedure TGameDrive.l(text: string);
-var
-    f: TextFile;
-begin
-    if not doLog then exit;
-
-
-    AssignFile(f, ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG);
-
-    if not FileExists(ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG)
-    then Rewrite(f)
-    else Append(f);
-
-    WriteLn(f, text);
-    CloseFile(f);
-end;
-
-procedure TGameDrive.l_drop;
-begin
-    if FileExists(ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG)
-    then DeleteFile( ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG );
-end;
-
-
-
-procedure TGameDrive.l_set(val: boolean);
-begin
-    doLog := val;
-end;
 
 procedure TGameDrive.CheckStatus;
 /// пересчет игрового статуса исходя из текущего состояния игроовых объектов
@@ -258,19 +242,25 @@ begin
                 l('-> CheckStatus: апаем игрока');
                 LVL := StrToInt(GetParam('LVL'));
 
+                uLog.Log.Phrase('level_up', GetLang, []);
+
                 ChangeParam( 'HP', LVL * 100);
                 ChangeParam( 'MP', LVL * 20);
                 ChangeParam( 'ATK', LVL );
                 ChangeParam( 'DEF', 1 );
-                ChangeParam( 'EXP', -StrToInt(GetParam(PRM_NEEDEXP)));
+
+                SilentParamChange;
                 ChangeParam( 'LVL', 1);
-                ChangeParam( PRM_NEEDEXP, NeedExp(LVL));
+
+                SilentParamChange;
+                ChangeParam( 'EXP', -StrToInt(GetParam(PRM_NEEDEXP)));
+
+                SilentParamChange;
+                ChangeParam( PRM_NEEDEXP, NeedExp(LVL+1));
 
                 l('-> CheckStatus: отыгрываем события на левелап');
                 PlayEvent('onLevelUp');
 
-                l('-> CheckStatus: пишем в чат про левелап');
-                uLog.Log.Phrase('level_up', GetLang, []);
             end;
 
             // переходим к следующему монстру
@@ -339,7 +329,8 @@ begin
 
     SetLang(lang);
 
-    GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
+    GameData.I['state.player.params.'+PRM_NEEDEXP] := 1;
+//    GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
                                 // считаем опыт необходимый для левелапа
 
     InitItemsCraftCost;         // генерация рецептов предметов
@@ -463,13 +454,17 @@ begin
     result := GameData.S[Target + 'params.' + name];
 end;
 
-function TGameDrive.GetPoolAttack: integer;
+function TGameDrive.GetPool(name: string): integer;
 begin
-    l('-> GetPoolAttack');
-    if GameData.B['AutoFight']
-    then result := GameData.I['state.player.params.AutoAction']
-    else result := GameData.I['state.AttackPool'];
+    name := LowerCase(name);
+    /// если для указанного игрового режима включены автодействия
+    ///  пулом действий являются автодействия,
+    ///  иначе - локальный пул
+    if GetAuto(name)
+    then result := GameData.I['state.player.params.AutoAction'] // прямое обращение, чтобы не переключать цель
+    else result := GameData.I['state.pool.'+name];
 end;
+
 
 procedure TGameDrive.SetLang(lang: string);
 begin
@@ -511,14 +506,28 @@ begin
 end;
 
 procedure TGameDrive.SetParam(name, value: variant);
+var
+    old, change: integer;
+
 begin
     l('-> SetParam('+name+','+String(value)+')');
 
+    /// в зависимости от цели, нужно обновлять разные куски интерфейса
     if pos('player', Target) > 0
     then InterfModes := InterfModes or INT_MAIN
     else InterfModes := InterfModes or INT_TOWER;
 
-    GameData.S[Target + 'params.' + name] := value;
+    old := GameData.I[Target + 'params.' + name];
+    GameData.I[Target + 'params.' + name] := value;
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not silentChange then
+    begin
+        change := value - old;
+        uLog.Log.Phrase('change_param', GetLang, [name, ifthen(change >= 0, '+', '' ) + IntToStr(change), Integer(value)]);
+    end;
+
+    silentChange := false;
 end;
 
 procedure TGameDrive.SetPlayerAsTarget;
@@ -531,6 +540,11 @@ procedure TGameDrive.SetVar(name, value: variant);
 begin
     l('-> SetVar('+name+','+String(value)+')');
     GameData.S['state.vars.'+name] := value;
+end;
+
+procedure TGameDrive.SilentParamChange;
+begin
+    silentChange := true;
 end;
 
 procedure TGameDrive.UpdateInterface;
@@ -552,7 +566,9 @@ begin
         data.S['maxstep']     := MaxStep;
         data.I['targetfloor'] := GameData.I['state.CurrTargetFloor'];
         data.I['image']       := GameData.I['state.creature.image'];
-        data.I['attackpool']  := GetPoolAttack;
+        data.I['attackpool']  := GetPool('Tower');
+        data.S['name']        := GameData.S['state.creature.name.'+GetLang];
+        data.B['auto']        := GetAuto('Tower');
         fTower.Update( data );
     end;
 
@@ -603,6 +619,12 @@ function TGameDrive.CurrStep: string;
 begin
     l('-> CurrStep');
     result := GameData.S['state.CurrStep'];
+end;
+
+function TGameDrive.GetAuto(name: string): boolean;
+begin
+    name := LowerCase(name);
+    result := GameData.B['state.auto.'+name];
 end;
 
 function TGameDrive.GetCurrTarget: string;
@@ -779,29 +801,47 @@ begin
     then InterfModes := InterfModes or INT_MAIN
     else InterfModes := InterfModes or INT_TOWER;
 
-    GameData.D[Target + 'params.' + name] :=
-        GameData.D[Target + 'params.' + name] + StrToFloatDef(delta, 0);
+    GameData.I[Target + 'params.' + name] :=
+        GameData.I[Target + 'params.' + name] + StrToIntDef(delta, 0);
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not silentChange
+    then uLog.Log.Phrase('change_param', GetLang, [name, ifthen(delta >= 0, '+','') + String(delta), GameData.I[Target + 'params.' + name]]);
+
+    silentChange := false;
 end;
 
-procedure TGameDrive.ChangePoolAttack(val: variant);
+procedure TGameDrive.ChangePlayerParam(name, value: variant);
 begin
-    l('-> ChangePoolAttack('+String(val)+')');
+    GameData.D['state.player.params.' + name] :=
+        GameData.D['state.player.params.' + name] + StrToFloatDef(value, 0);
 
-    InterfModes := InterfModes or INT_TOWER;
+    InterfModes := InterfModes or INT_MAIN;
+end;
 
-    GameData.I['state.AttackPool'] := GameData.I['state.AttackPool'] + val;
+procedure TGameDrive.ChangePool(name, val: variant);
+begin
+    name := LowerCase(name);
+    GameData.I['state.pool.'+name] := GameData.I['state.pool.'+name] + val;
+
+    if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;
 
 function TGameDrive.AllowLevelUp: boolean;
-var
-    exp : integer;
-    need: integer;
 begin
     l('-> AllowLevelUp');
 
-    exp := GameData.I[ Target + 'params.EXP' ];
-    need := StrToInt(NeedExp( GameData.I[ Target + 'params.LVL' ] ));
-    result := exp >= need;
+    result := GameData.I[ Target + 'params.EXP' ] >= GameData.I[ Target + 'params.'+PRM_NEEDEXP ];
+end;
+
+procedure TGameDrive.BreakAuto(name: string);
+begin
+     name := LowerCase(name);
+
+     GameData.B['state.auto.'+name] := false;  // останавливаем автодействия
+     GameData.I['state.pool.'+name] := 0;      // сбрасываем накликанное честным трудом
+
+     if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;
 
 procedure TGameDrive.ChangeItemCount(name, delta: variant);
@@ -947,8 +987,8 @@ procedure TGameDrive.PlayerAttack;
 begin
     l('-> PlayerAttack');
 
-    ChangePoolAttack(1);
-    SetModeToUpdate(INT_TOWER);
+    ChangePool('Tower', 1);
+
     UpdateInterface;
 end;
 
@@ -1030,9 +1070,10 @@ begin
     // 1 DEF = -0.1% dmg
     BLOCK := Round(StrToInt(GetVar('mc_DMG')) * ((StrToInt(GetVar('pl_DEF')) / 10) / 100));
     DMG := StrToInt(GetVar('mc_DMG'))- BLOCK;
+    SilentParamChange;
     ChangeParam('HP', -DMG); /// списываем хиты
 
-    uLog.Log.Append('...ICON_MONSTER ICON_FIGHT ICON_KNIGHT...');
+    uLog.Log.PhraseAppend('fight_swords', GetLang, []);
 
     /// пишем событие в лог
     if BLOCK > 0
@@ -1052,16 +1093,22 @@ procedure TGameDrive.ProcessAttack;
 begin
     l('-> ProcessAttack');
 
-    if GetPoolAttack > 0 then
+    if GetPool('Tower') > 0 then  // если есть действия авто ли пула башни
     begin
         PlayerMakeAttack;  // проводим взаимную атаку монтра и игрока
-        ChangePoolAttack(-1);
-//        SetModeToUpdate(INT_ALL);
 
-        if GetPoolAttack = 0
+        // если не установлен режим авто, будем снимать с локального пула
+        if not GetAuto('Tower')
+        then ChangePool('Tower', -1);
+
+        // если установлен режим авто, будем снимать с автодействий
+        if GetAuto('Tower')
+        then ChangePlayerParam('AutoAction', -1);
+
+        if GetPool('Tower') = 0
         then uLog.Log.Phrase('attack_pool_empty', GetLang, []);
-
     end;
+
 end;
 
 procedure TGameDrive.ResetTargetState;
@@ -1072,6 +1119,46 @@ begin
 
     t := Copy(Target, 1, Length(Target)-1);
     GameData.O[t] := SO(CREATURE_SHABLON);
+end;
+
+
+procedure TGameDrive.RunAuto(name: string);
+begin
+     name := LowerCase(name);
+     GameData.B['state.auto.'+name] := true;
+
+     if name = 'tower' then SetModeToUpdate(INT_TOWER);
+end;
+
+
+procedure TGameDrive.l(text: string);
+var
+    f: TextFile;
+begin
+    if not doLog then exit;
+
+
+    AssignFile(f, ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG);
+
+    if not FileExists(ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG)
+    then Rewrite(f)
+    else Append(f);
+
+    WriteLn(f, text);
+    CloseFile(f);
+end;
+
+procedure TGameDrive.l_drop;
+begin
+    if FileExists(ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG)
+    then DeleteFile( ExtractFilePath( paramstr(0) ) + FILE_GAME_LOG );
+end;
+
+
+
+procedure TGameDrive.l_set(val: boolean);
+begin
+    doLog := val;
 end;
 
 initialization

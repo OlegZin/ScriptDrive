@@ -82,9 +82,14 @@ const
         'MaxStep: 1,'+
         'CurrFloor: 1,'+
         'CurrTargetFloor: "1",'+
-        'AttackPool: 0,'+          /// накопленный локальный пул атак
-        'AutoFight: false, '+     /// включен ли режим автоатак за автодействия
-        'AutoThink: false, '+      /// включен ли режим разышлений за автодействия
+        'pool: {'+            ///
+          'tower: 0,'+        /// накопленный локальный пул атак
+          'think: 0,'+        /// накопленный локальный пул раздумий
+        '},'+
+        'auto:{'+                 /// флаги использования автодействий в режимах
+          'tower: false,'+        /// включен ли режим автоатак за автодействия
+          'think: false,'+        /// включен ли режим разышлений за автодействия
+        '},'+
         'resources:{'+
             'wood:   {count: 0},'+
             'stone:  {count: 0},'+
@@ -891,7 +896,7 @@ const
              'SetNextTarget();'+
         '"},'+
         '2:{ floor: 2, next:3, script:"'+
-             'SetBreak(Tower);'+
+             'BreakAuto(Tower);'+
              'SetVar(gold, Rand(100000));'+
 
              'IF(GetLang() = RU, 9);'+
@@ -1087,36 +1092,36 @@ const
     'names:{'+
         'count: 40,'+
         'first:['+
-            '{RU:"Упоротый",ENG:"Stoned"},{RU:"Сильный",ENG:"Strong"},{RU:"Отважный",ENG:"Brave"},{RU:"Северный",ENG:"Northern"},{RU:"Обреченный",ENG:"Doomed"},'+
-            '{RU:"Местный",ENG:"Local"},{RU:"Коварный",ENG:"Insidious"},{RU:"Великолепный",ENG:"Great"},{RU:"Смертоносный",ENG:"Deadly"},{RU:"Точный",ENG:"Accurate"},'+
-            '{RU:"Голодный",ENG:"Hungry"},{RU:"Тяжелый",ENG:"Heavy"},{RU:"Сонный",ENG:"Sleepy"},{RU:"Святой",ENG:"Holy"},{RU:"Лысый",ENG:"Bold"},'+
-            '{RU:"Газовый",ENG:"Gas"},{RU:"Красивый",ENG:"Beautiful"},{RU:"Аналогичный",ENG:"Similar"},{RU:"Безобразный",ENG:"Ugly"},{RU:"Стеклянный",ENG:"Glassy"},'+
-            '{RU:"Теплый",ENG:"Warm"},{RU:"Современный",ENG:"Modern"},{RU:"Узкий",ENG:"Narrow"},{RU:"Неприятный",ENG:"Unpleasant"},{RU:"Мертвый",ENG:"Dead"},'+
-            '{RU:"Конечный",ENG:"Finite"},{RU:"Основной",ENG:"Main"},{RU:"Возможный",ENG:"Possible"},{RU:"Вечерний",ENG:"Evening"},{RU:"Материальный",ENG:"Physical"},'+
-            '{RU:"Предыдущий",ENG:"Previous"},{RU:"Холодный",ENG:"Cold"},{RU:"Удобный",ENG:"Convenient"},{RU:"Эффективный",ENG:"Efficient"},{RU:"Истинный",ENG:"Genuine"},'+
-            '{RU:"Хороший",ENG:"Good"},{RU:"Чудовищный",ENG:"Monstrous"},{RU:"Зеленый",ENG:"Green"},{RU:"Любой",ENG:"Any"},{RU:"Видный",ENG:"Prominent"}'+
+            '{RU:"Упоротый",  ENG:"Stoned"},  {RU:"Сильный",    ENG:"Strong"},   {RU:"Отважный",    ENG:"Brave"},     {RU:"Северный",    ENG:"Northern"},  {RU:"Обреченный",  ENG:"Doomed"},'+
+            '{RU:"Местный",   ENG:"Local"},   {RU:"Коварный",   ENG:"Insidious"},{RU:"Великолепный",ENG:"Great"},     {RU:"Смертоносный",ENG:"Deadly"},    {RU:"Точный",      ENG:"Accurate"},'+
+            '{RU:"Голодный",  ENG:"Hungry"},  {RU:"Тяжелый",    ENG:"Heavy"},    {RU:"Сонный",      ENG:"Sleepy"},    {RU:"Святой",      ENG:"Holy"},      {RU:"Лысый",       ENG:"Bold"},'+
+            '{RU:"Газовый",   ENG:"Gas"},     {RU:"Красивый",   ENG:"Beautiful"},{RU:"Аналогичный", ENG:"Similar"},   {RU:"Безобразный", ENG:"Ugly"},      {RU:"Стеклянный",  ENG:"Glassy"},'+
+            '{RU:"Теплый",    ENG:"Warm"},    {RU:"Современный",ENG:"Modern"},   {RU:"Узкий",       ENG:"Narrow"},    {RU:"Неприятный",  ENG:"Unpleasant"},{RU:"Мертвый",     ENG:"Dead"},'+
+            '{RU:"Конечный",  ENG:"Finite"},  {RU:"Основной",   ENG:"Main"},     {RU:"Возможный",   ENG:"Possible"},  {RU:"Вечерний",    ENG:"Evening"},   {RU:"Материальный",ENG:"Physical"},'+
+            '{RU:"Предыдущий",ENG:"Previous"},{RU:"Холодный",   ENG:"Cold"},     {RU:"Удобный",     ENG:"Convenient"},{RU:"Эффективный", ENG:"Efficient"}, {RU:"Истинный",    ENG:"Genuine"},'+
+            '{RU:"Хороший",   ENG:"Good"},    {RU:"Чудовищный", ENG:"Monstrous"},{RU:"Зеленый",     ENG:"Green"},     {RU:"Любой",       ENG:"Any"},       {RU:"Видный",      ENG:"Prominent"}'+
         '],'+
         'middle:['+
-            '{RU:"Урод",ENG:"Freak"},{RU:"Майор",ENG:"Major"},{RU:"Искатель",ENG:"Seeker"},{RU:"Житель",ENG:"Dweller"},{RU:"Крушитель",ENG:"Crusher"},'+
-            '{RU:"Барьер",ENG:"Wall"},{RU:"Тюфяк",ENG:"Mattress"},{RU:"Министр",ENG:"Minister"},{RU:"Жадина",ENG:"Greedy"},{RU:"Армия",ENG:"Army"},'+
-            '{RU:"Выпивоха",ENG:"Drinker"},{RU:"Результат",ENG:"Result"},{RU:"Пептид",ENG:"Peptide"},{RU:"Солдат",ENG:"Soldier"},{RU:"Отсекатель",ENG:"Cutter"},'+
-            '{RU:"Воздух",ENG:"Air"},{RU:"НяшМяш",ENG:"Kawaii"},{RU:"Птиц",ENG:"Bird"},{RU:"Крутыш",ENG:"Winner"},{RU:"Последователь",ENG:"Follower"},'+
-            '{RU:"Хвост",ENG:"Tail"},{RU:"Подарок",ENG:"Gift"},{RU:"Чемодан",ENG:"Bag"},{RU:"Закрыватель",ENG:"System"},{RU:"Танк",ENG:"Tank"},'+
-            '{RU:"Кризис",ENG:"Crisis"},{RU:"Массив",ENG:"Mass"},{RU:"Разжигатель",ENG:"Dream"},{RU:"Призрак",ENG:"Future"},{RU:"Фаталист",ENG:"Fate"},'+
-            '{RU:"Костюм",ENG:"Suit"},{RU:"Разрушитель",ENG:"Doom"},{RU:"Образ",ENG:"Word"},{RU:"Властитель",ENG:"Power"},{RU:"Родственник",ENG:"Relative"},'+
-            '{RU:"Аппарат",ENG:"Machine"},{RU:"Мозг",ENG:"Brain"},{RU:"Ужас",ENG:"Horror"},{RU:"Дым",ENG:"Smoke"},{RU:"Металл",ENG:"Steel"}'+
+            '{RU:"Урод",    ENG:"Freak"},  {RU:"Майор",      ENG:"Major"},   {RU:"Искатель",   ENG:"Seeker"},  {RU:"Житель",     ENG:"Dweller"},{RU:"Крушитель",    ENG:"Crusher"},'+
+            '{RU:"Барьер",  ENG:"Wall"},   {RU:"Тюфяк",      ENG:"Mattress"},{RU:"Министр",    ENG:"Minister"},{RU:"Жадина",     ENG:"Greedy"}, {RU:"Армия",        ENG:"Army"},'+
+            '{RU:"Выпивоха",ENG:"Drinker"},{RU:"Результат",  ENG:"Result"},  {RU:"Пептид",     ENG:"Peptide"}, {RU:"Солдат",     ENG:"Soldier"},{RU:"Отсекатель",   ENG:"Cutter"},'+
+            '{RU:"Воздух",  ENG:"Air"},    {RU:"НяшМяш",     ENG:"Kawaii"},  {RU:"Птах",       ENG:"Bird"},    {RU:"Крутыш",     ENG:"Winner"}, {RU:"Последователь",ENG:"Follower"},'+
+            '{RU:"Хвост",   ENG:"Tail"},   {RU:"Подарок",    ENG:"Gift"},    {RU:"Чемодан",    ENG:"Bag"},     {RU:"Закрыватель",ENG:"System"}, {RU:"Танк",         ENG:"Tank"},'+
+            '{RU:"Кризис",  ENG:"Crisis"}, {RU:"Массив",     ENG:"Mass"},    {RU:"Разжигатель",ENG:"Dream"},   {RU:"Призрак",    ENG:"Future"}, {RU:"Фаталист",     ENG:"Fate"},'+
+            '{RU:"Костюм",  ENG:"Suit"},   {RU:"Разрушитель",ENG:"Doom"},    {RU:"Образ",      ENG:"Word"},    {RU:"Властитель", ENG:"Power"},  {RU:"Родственник",  ENG:"Relative"},'+
+            '{RU:"Аппарат", ENG:"Machine"},{RU:"Мозг",       ENG:"Brain"},   {RU:"Ужас",       ENG:"Horror"},  {RU:"Дым",        ENG:"Smoke"},  {RU:"Металл",       ENG:"Steel"}'+
         '],'+
         'last:['+
-            '{RU:"Поликлиники",ENG:"of Hospital"},{RU:"Предательства",ENG:"of Betrayal"},{RU:"of Hell",ENG:"of Hell"},{RU:"Блаженства",ENG:"of Bliss"},'+
-            '{RU:"Иных миров",ENG:"of Worlds"},{RU:"Недоразумения",ENG:"of Misunderstanding"},{RU:"Подземелий",ENG:"of Dungeons"},{RU:"Бесконечности",ENG:"of Infinity"},'+
-            '{RU:"Лесов",ENG:"of Forest"},{RU:"Богатства",ENG:"of Wealth"},{RU:"Безумия",ENG:"of Madness"},{RU:"Нищеты",ENG:"of Poverty"},'+
-            '{RU:"Тайн",ENG:"of Mistery"},{RU:"Праздника",ENG:"of Holiday"},{RU:"Безнадежности",ENG:"of Hopeless"},{RU:"Уныния",ENG:"of Despondency"},'+
-            '{RU:"Героизма",ENG:"of Heroism"},{RU:"Удачи",ENG:"of Luck"},{RU:"Коварства",ENG:"of Deceit"},{RU:"Повтора",ENG:"of Replay"},'+
-            '{RU:"Договора",ENG:"of Agreement"},{RU:"Оружия",ENG:"of Weapon"},{RU:"Crisis",ENG:"of Кризиса"},{RU:"Весны",ENG:"of Spring"},'+
-            '{RU:"Сердца",ENG:"of Heart"},{RU:"Тела",ENG:"of Body"},{RU:"Подруги",ENG:"of Girlfriend"},{RU:"Детства",ENG:"of Childhood"},'+
-            '{RU:"Сознания",ENG:"of Conscious"},{RU:"Воспоминаний",ENG:"of Memory"},{RU:"Поддержки",ENG:"of Support"},{RU:"Звезды",ENG:"of Stars"},'+
-            '{RU:"Сути",ENG:"of Essence"},{RU:"Сцены",ENG:"of Scene"},{RU:"Сомнений",ENG:"of Doubt"},{RU:"Риска",ENG:"of Risk"},'+
-            '{RU:"Реальности",ENG:"of Reality"},{RU:"Охраны",ENG:"of Guard"},{RU:"Убийства",ENG:"of Murders"},{RU:"Пути",ENG:"of Path"}'+
+            '{RU:"Поликлиники",ENG:"of Hospital"}, {RU:"Предательства",ENG:"of Betrayal"},        {RU:"Преисподней",  ENG:"of Hell"},      {RU:"Блаженства",   ENG:"of Bliss"},'+
+            '{RU:"Иных миров", ENG:"of Worlds"},   {RU:"Недоразумения",ENG:"of Misunderstanding"},{RU:"Подземелий",   ENG:"of Dungeons"},  {RU:"Бесконечности",ENG:"of Infinity"},'+
+            '{RU:"Лесов",      ENG:"of Forest"},   {RU:"Богатства",    ENG:"of Wealth"},          {RU:"Безумия",      ENG:"of Madness"},   {RU:"Нищеты",       ENG:"of Poverty"},'+
+            '{RU:"Тайн",       ENG:"of Mistery"},  {RU:"Праздника",    ENG:"of Holiday"},         {RU:"Безнадежности",ENG:"of Hopeless"},  {RU:"Уныния",       ENG:"of Despondency"},'+
+            '{RU:"Героизма",   ENG:"of Heroism"},  {RU:"Удачи",        ENG:"of Luck"},            {RU:"Коварства",    ENG:"of Deceit"},    {RU:"Повтора",      ENG:"of Replay"},'+
+            '{RU:"Договора",   ENG:"of Agreement"},{RU:"Оружия",       ENG:"of Weapon"},          {RU:"Кризиса",      ENG:"of Crisis"},    {RU:"Весны",        ENG:"of Spring"},'+
+            '{RU:"Сердца",     ENG:"of Heart"},    {RU:"Тела",         ENG:"of Body"},            {RU:"Подруги",      ENG:"of Girlfriend"},{RU:"Детства",      ENG:"of Childhood"},'+
+            '{RU:"Сознания",   ENG:"of Conscious"},{RU:"Воспоминаний", ENG:"of Memory"},          {RU:"Поддержки",    ENG:"of Support"},   {RU:"Звезды",       ENG:"of Stars"},'+
+            '{RU:"Сути",       ENG:"of Essence"},  {RU:"Сцены",        ENG:"of Scene"},           {RU:"Сомнений",     ENG:"of Doubt"},     {RU:"Риска",        ENG:"of Risk"},'+
+            '{RU:"Реальности", ENG:"of Reality"},  {RU:"Охраны",       ENG:"of Guard"},           {RU:"Убийства",     ENG:"of Murders"},   {RU:"Пути",         ENG:"of Path"}'+
         ']'+
     '},'+
 

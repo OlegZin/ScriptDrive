@@ -95,7 +95,7 @@ type
     ICON_MANA: TImage;
     Image68: TImage;
     ICON_AUTO: TImage;
-    Image70: TImage;
+    IMAGE_LEVEL: TImage;
     ICON_LEVEL: TImage;
     Image63: TImage;
     ICON_EXP: TImage;

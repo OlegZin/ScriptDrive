@@ -36,9 +36,11 @@ type
     Monster: TImage;
     Image65: TImage;
     lAttackPool: TLabel;
-    Image68: TImage;
+    iAuto: TImage;
     Rectangle8: TRectangle;
+    lName: TLabel;
     procedure MonsterClick(Sender: TObject);
+    procedure Rectangle8Click(Sender: TObject);
   private
     { Private declarations }
     data: ISuperObject;
@@ -46,7 +48,7 @@ type
     lastImage : integer;
   public
 
-    procedure Update(data: ISuperObject);
+    procedure Update(_data: ISuperObject);
   end;
 
 var
@@ -65,13 +67,30 @@ begin
     GameDrive.PlayerAttack;
 end;
 
-procedure TfTower.Update(data: ISuperObject);
+procedure TfTower.Rectangle8Click(Sender: TObject);
+begin
+    if data.B['auto']
+    then GameDrive.BreakAuto('Tower')
+    else GameDrive.RunAuto('Tower');
+end;
+
+procedure TfTower.Update(_data: ISuperObject);
 var
     w: real;
 begin
+    data := _data;
+
     self.BeginUpdate;
 
     if not Assigned(data) then exit;
+
+    if data.B['auto']
+    then iAuto.Opacity := 1
+    else iAuto.Opacity := 0.3;
+
+
+    if   lName.Text <> data.S['name']
+    then lName.Text := data.S['name'];
 
     if   lCurrFloor.Text <> data.S['floor']
     then lCurrFloor.Text := data.S['floor'];

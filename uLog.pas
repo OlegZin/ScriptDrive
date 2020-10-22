@@ -30,92 +30,120 @@ const
                 'line-height:150%;'+
                 'background-image:url("data:image/jpeg;base64,#IMAGE_NOTE_BG#")'+
               '}'+
-              '.icon_gold,.icon_sword,.icon_shield,.icon_blueshield,'+
-              '.icon_heart,.icon_mana,.icon_auto,.icon_level,.icon_exp'+
-              '.icon_fight,.icon_chest,.icon_unlock,.icon_monster,.icon_knight'+
-              '{'+
+
+              '.fight{padding:5px;}'+
+
+              '.change_param,.change_item{'+
+                'padding:5px; '+
+                'font-weight:bold;'+
+                'line-height:150%;'+
+              '}'+
+              '.change_param{ background-color: #f8ffac; }'+
+              '.change_item{ background-color: #acecff; }'+
+
+              '.lvl_up{'+
+                'padding-left: 70px;'+
+                'display: block;'+
+                'height: 50px;'+
+                'background:url("data:image/jpeg;base64,#IMAGE_LEVEL#") no-repeat;'+
+                'text-weight: bold;'+
+                'color: red;'+
+                'font-size: 150%;'+
+                'background-color: #f8ffac;'+
+              '}'+
+              '.lvl_up .text{'+
+                'position: relative;'+
+                'top: 50%;'+
+                'transform: translateY(-50%);'+
+              '}'+
+
+              '.icon{'+
                 'display: inline;'+
                 'height: 20px;'+
                 'width: 20px;}'+
-              '.icon_gold{background:url("data:image/jpeg;base64,#IMAGE_GOLD#");}'+
-              '.icon_sword{background:url("data:image/jpeg;base64,#IMAGE_SWORD#");}'+
-              '.icon_shield{background:url("data:image/jpeg;base64,#IMAGE_SHIELD#");}'+
-              '.icon_blueshield{background:url("data:image/jpeg;base64,#IMAGE_BLUESHIELD#");}'+
-              '.icon_heart{background:url("data:image/jpeg;base64,#IMAGE_HEART#");}'+
-              '.icon_mana{background:url("data:image/jpeg;base64,#IMAGE_MANA#");}'+
-              '.icon_auto{background:url("data:image/jpeg;base64,#IMAGE_AUTO#");}'+
-              '.icon_level{background:url("data:image/jpeg;base64,#IMAGE_LEVEL#");}'+
-              '.icon_exp{background:url("data:image/jpeg;base64,#IMAGE_EXP#");}'+
-              '.icon_fight{background:url("data:image/jpeg;base64,#IMAGE_FIGHT#");}'+
-              '.icon_chest{background:url("data:image/jpeg;base64,#IMAGE_CHEST#");}'+
-              '.icon_unlock{background:url("data:image/jpeg;base64,#IMAGE_UNLOCK#");}'+
-              '.icon_monster{background:url("data:image/jpeg;base64,#IMAGE_MONSTER#");}'+
-              '.icon_knight{background:url("data:image/jpeg;base64,#IMAGE_KNIGHT#");}'+
+              '.icon_gold{background:url("data:image/jpeg;base64,#ICON_GOLD#");}'+
+              '.ATK,.icon_sword{background:url("data:image/jpeg;base64,#ICON_SWORD#");}'+
+              '.DEF,.icon_shield{background:url("data:image/jpeg;base64,#ICON_SHIELD#");}'+
+              '.MDEF,.icon_blueshield{background:url("data:image/jpeg;base64,#ICON_BLUESHIELD#");}'+
+              '.HP,.icon_heart{background:url("data:image/jpeg;base64,#ICON_HEART#");}'+
+              '.MP,.icon_mana{background:url("data:image/jpeg;base64,#ICON_MANA#");}'+
+              '.AutoAction,.icon_auto{background:url("data:image/jpeg;base64,#ICON_AUTO#");}'+
+              '.LVL,.icon_level{background:url("data:image/jpeg;base64,#ICON_LEVEL#");}'+
+              '.EXP,.icon_exp{background:url("data:image/jpeg;base64,#ICON_EXP#");}'+
+              '.icon_fight{background:url("data:image/jpeg;base64,#ICON_FIGHT#");}'+
+              '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
+              '.icon_unlock{background:url("data:image/jpeg;base64,#ICON_UNLOCK#");}'+
+              '.icon_monster{background:url("data:image/jpeg;base64,#ICON_MONSTER#");}'+
+              '.icon_knight{background:url("data:image/jpeg;base64,#ICON_KNIGHT#");}'+
             '</style>'+
           '</head>'+
-        '<body onload="window.scrollTo(0,100000)">'+
+        '<body onload="window.scrollTo(0,10000)">'+
           '#CONTENT#'+
         '</body>'+
         '</html>';
 
     ///
-    ICON_TEMPLATE = '<div class=icon_%s></div>';
+    ICON_TEMPLATE = '<div class="icon icon_%s"></div>';
 
     /// набор стандартных фраз
     PHRASES_LIST =
     '{'+
         'level_up:{'+
-            'kind:"normal",'+
-            'RU:"Получен новый уровень!",'+
-            'ENG:"Player is level up!"},'+
+            'kind:"lvl_up",'+
+            'RU:"<div class=text>НОВЫЙ УРОВЕНЬ!</div>",'+
+           'ENG:"<div class=text>LEVEL UP!</div>"},'+
         'killed_by:{'+
             'kind:"danger",'+
-            'RU:"Игрок убит...", '+
-            'ENG:"Player is killed..."},'+
+            'RU:"Игрок побежден...", '+
+            'ENG:"Player defeated..."},'+
         'monster_killed:{'+
             'kind:"normal",'+
-            'RU:"Монстр убит!", '+
-           'ENG:"Monster is killed!"},'+
+            'RU:"Монстр побежден!", '+
+           'ENG:"Monster defeated!"},'+
         'next_floor:{'+
             'kind:"normal",'+
             'RU:"Поднимаемся на %s этаж...", '+
            'ENG:"Go up %s floor..."},'+
         'skill_overcost:{'+
             'kind:"danger",'+
-            'RU:"Использование %s стоит %d MP!", '+
-           'ENG:"Using of %s is cost %d MP!"},'+
+            'RU:"Использование %s стоит %d ICON_MANA!", '+
+           'ENG:"Using of %s is cost %d ICON_MANA!"},'+
         'skill_up:{'+
             'kind:"normal",'+
             'RU:"Умение %s улучшено до %d уровня!", '+
            'ENG:"Skill %s is up to %d level!"},'+
         'skill_overup:{'+
             'kind:"danger",'+
-            'RU:"Улучшение умения %s стоит %d exp", '+
-           'ENG:"Level up skill %s is cost %d exp!"},'+
+            'RU:"Улучшение умения %s стоит %d ICON_EXP", '+
+           'ENG:"Level up skill %s is cost %d ICON_EXP!"},'+
         'player_strike:{'+
             'kind:"fight",'+
-            'RU:"-%d", '+
-           'ENG:"-%d"},'+
+            'RU:"ICON_MONSTER&emsp;-%d", '+
+           'ENG:"ICON_MONSTER&emsp;-%d"},'+
         'monster_strike:{'+
             'kind:"fight",'+
-            'RU:"-%d", '+
-           'ENG:"-%d"},'+
+            'RU:"-%d&emsp;ICON_KNIGHT", '+
+           'ENG:"-%d&emsp;ICON_KNIGHT"},'+
         'player_strike_block:{'+
             'kind:"fight",'+
-            'RU:"-%d ( %dICON_SHIELD )", '+
-           'ENG:"-%d ( %dICON_SHIELD )"},'+
+            'RU:"ICON_MONSTER&emsp;-%d ( %dICON_SHIELD )", '+
+           'ENG:"ICON_MONSTER&emsp;-%d ( %dICON_SHIELD )"},'+
         'monster_strike_block:{'+
             'kind:"fight",'+
-            'RU:"-%d ( %dICON_SHIELD )", '+
-           'ENG:"-%d ( %dICON_SHIELD )"},'+
-        'get_loot:{'+
-            'kind:"normal",'+
-            'RU:"Получено %s %s", '+
-           'ENG:"Got %s %s"},'+
+            'RU:"-%d ( %dICON_SHIELD )&emsp;ICON_KNIGHT", '+
+           'ENG:"-%d ( %dICON_SHIELD )&emsp;ICON_KNIGHT"},'+
+        'fight_swords:{'+
+            'kind:"fight",'+
+            'RU:"&emsp;ICON_FIGHT&emsp;", '+
+           'ENG:"&emsp;ICON_FIGHT&emsp;"},'+
         'attack_pool_empty:{'+
             'kind:"normal",'+
             'RU:"Стек атак пуст...", '+
            'ENG:"Attack pool is empty..."},'+
+        'change_param:{'+
+            'kind:"change_param",'+
+            'RU:"<div class=\"icon %s\"></div>&emsp;%s&emsp;( =%d )", '+
+           'ENG:"<div class=\"icon %s\"></div>&emsp;%s&emsp;( =%d )"},'+
     '},';
 
 type
@@ -164,20 +192,22 @@ uses
 
 var
     IMAGE_NOTE_BG
-   ,IMAGE_GOLD
-   ,IMAGE_SWORD
-   ,IMAGE_SHIELD
-   ,IMAGE_BLUESHIELD
-   ,IMAGE_HEART
-   ,IMAGE_MANA
-   ,IMAGE_AUTO
    ,IMAGE_LEVEL
-   ,IMAGE_EXP
-   ,IMAGE_FIGHT
-   ,IMAGE_CHEST
-   ,IMAGE_UNLOCK
-   ,IMAGE_MONSTER
-   ,IMAGE_KNIGHT
+
+   ,ICON_GOLD
+   ,ICON_SWORD
+   ,ICON_SHIELD
+   ,ICON_BLUESHIELD
+   ,ICON_HEART
+   ,ICON_MANA
+   ,ICON_AUTO
+   ,ICON_LEVEL
+   ,ICON_EXP
+   ,ICON_FIGHT
+   ,ICON_CHEST
+   ,ICON_UNLOCK
+   ,ICON_MONSTER
+   ,ICON_KNIGHT
     : string;
 
 
@@ -220,20 +250,22 @@ begin
     Doc.AddHTML( BuildLine );
 
     Doc.SetValue('IMAGE_NOTE_BG', IMAGE_NOTE_BG);
-    Doc.SetValue('IMAGE_GOLD', IMAGE_GOLD);
-    Doc.SetValue('IMAGE_SWORD', IMAGE_SWORD);
-    Doc.SetValue('IMAGE_SHIELD', IMAGE_SHIELD);
-    Doc.SetValue('IMAGE_BLUESHIELD', IMAGE_BLUESHIELD);
-    Doc.SetValue('IMAGE_HEART', IMAGE_HEART);
-    Doc.SetValue('IMAGE_MANA', IMAGE_MANA);
-    Doc.SetValue('IMAGE_AUTO', IMAGE_AUTO);
     Doc.SetValue('IMAGE_LEVEL', IMAGE_LEVEL);
-    Doc.SetValue('IMAGE_EXP', IMAGE_EXP);
-    Doc.SetValue('IMAGE_FIGHT', IMAGE_FIGHT);
-    Doc.SetValue('IMAGE_CHEST', IMAGE_CHEST);
-    Doc.SetValue('IMAGE_UNLOCK', IMAGE_UNLOCK);
-    Doc.SetValue('IMAGE_MONSTER', IMAGE_MONSTER);
-    Doc.SetValue('IMAGE_KNIGHT', IMAGE_KNIGHT);
+
+    Doc.SetValue('ICON_GOLD', ICON_GOLD);
+    Doc.SetValue('ICON_SWORD', ICON_SWORD);
+    Doc.SetValue('ICON_SHIELD', ICON_SHIELD);
+    Doc.SetValue('ICON_BLUESHIELD', ICON_BLUESHIELD);
+    Doc.SetValue('ICON_HEART', ICON_HEART);
+    Doc.SetValue('ICON_MANA', ICON_MANA);
+    Doc.SetValue('ICON_AUTO', ICON_AUTO);
+    Doc.SetValue('ICON_LEVEL', ICON_LEVEL);
+    Doc.SetValue('ICON_EXP', ICON_EXP);
+    Doc.SetValue('ICON_FIGHT', ICON_FIGHT);
+    Doc.SetValue('ICON_CHEST', ICON_CHEST);
+    Doc.SetValue('ICON_UNLOCK', ICON_UNLOCK);
+    Doc.SetValue('ICON_MONSTER', ICON_MONSTER);
+    Doc.SetValue('ICON_KNIGHT', ICON_KNIGHT);
 
     Doc.SetValue('ICON_GOLD', Format(ICON_TEMPLATE, ['gold']), false);
     Doc.SetValue('ICON_SWORD', Format(ICON_TEMPLATE, ['sword']), false);
@@ -265,20 +297,22 @@ end;
 procedure TLog.GenerateImages;
 begin
     if IMAGE_NOTE_BG = '' then IMAGE_NOTE_BG :=  fAtlas.EncodeToBase64('NOTE_BG');
-    if IMAGE_GOLD = '' then IMAGE_GOLD :=  fAtlas.EncodeToBase64('ICON_GOLD');
-    if IMAGE_SWORD = '' then IMAGE_SWORD :=  fAtlas.EncodeToBase64('ICON_SWORD');
-    if IMAGE_SHIELD = '' then IMAGE_SHIELD :=  fAtlas.EncodeToBase64('ICON_SHIELD');
-    if IMAGE_BLUESHIELD = '' then IMAGE_BLUESHIELD :=  fAtlas.EncodeToBase64('ICON_BLUESHIELD');
-    if IMAGE_HEART = '' then IMAGE_HEART :=  fAtlas.EncodeToBase64('ICON_HEART');
-    if IMAGE_MANA = '' then IMAGE_MANA :=  fAtlas.EncodeToBase64('ICON_MANA');
-    if IMAGE_AUTO = '' then IMAGE_AUTO :=  fAtlas.EncodeToBase64('ICON_AUTO');
-    if IMAGE_LEVEL = '' then IMAGE_LEVEL :=  fAtlas.EncodeToBase64('ICON_LEVEL');
-    if IMAGE_EXP = '' then IMAGE_EXP :=  fAtlas.EncodeToBase64('ICON_EXP');
-    if IMAGE_FIGHT = '' then IMAGE_FIGHT :=  fAtlas.EncodeToBase64('ICON_FIGHT');
-    if IMAGE_CHEST = '' then IMAGE_CHEST :=  fAtlas.EncodeToBase64('ICON_CHEST');
-    if IMAGE_UNLOCK = '' then IMAGE_UNLOCK :=  fAtlas.EncodeToBase64('ICON_UNLOCK');
-    if IMAGE_MONSTER = '' then IMAGE_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
-    if IMAGE_KNIGHT = '' then IMAGE_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
+    if IMAGE_LEVEL = '' then IMAGE_LEVEL :=  fAtlas.EncodeToBase64('IMAGE_LEVEL');
+
+    if ICON_GOLD = '' then ICON_GOLD :=  fAtlas.EncodeToBase64('ICON_GOLD');
+    if ICON_SWORD = '' then ICON_SWORD :=  fAtlas.EncodeToBase64('ICON_SWORD');
+    if ICON_SHIELD = '' then ICON_SHIELD :=  fAtlas.EncodeToBase64('ICON_SHIELD');
+    if ICON_BLUESHIELD = '' then ICON_BLUESHIELD :=  fAtlas.EncodeToBase64('ICON_BLUESHIELD');
+    if ICON_HEART = '' then ICON_HEART :=  fAtlas.EncodeToBase64('ICON_HEART');
+    if ICON_MANA = '' then ICON_MANA :=  fAtlas.EncodeToBase64('ICON_MANA');
+    if ICON_AUTO = '' then ICON_AUTO :=  fAtlas.EncodeToBase64('ICON_AUTO');
+    if ICON_LEVEL = '' then ICON_LEVEL :=  fAtlas.EncodeToBase64('ICON_LEVEL');
+    if ICON_EXP = '' then ICON_EXP :=  fAtlas.EncodeToBase64('ICON_EXP');
+    if ICON_FIGHT = '' then ICON_FIGHT :=  fAtlas.EncodeToBase64('ICON_FIGHT');
+    if ICON_CHEST = '' then ICON_CHEST :=  fAtlas.EncodeToBase64('ICON_CHEST');
+    if ICON_UNLOCK = '' then ICON_UNLOCK :=  fAtlas.EncodeToBase64('ICON_UNLOCK');
+    if ICON_MONSTER = '' then ICON_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
+    if ICON_KNIGHT = '' then ICON_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
 end;
 
 procedure TLog.Phrase(name, lang: string; params: array of TVarRec);
