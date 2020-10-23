@@ -110,11 +110,16 @@ type
     Rectangle8: TRectangle;
     Image31: TImage;
     Rectangle9: TRectangle;
-    Image32: TImage;
-    Rectangle10: TRectangle;
+    iCurrItem: TImage;
+    bUseItem: TRectangle;
     Image33: TImage;
     flEffects: TFlowLayout;
     Timer: TTimer;
+    ICON_EXP: TImage;
+    Layout4: TLayout;
+    lCountBG: TLabel;
+    lCount: TLabel;
+    Rectangle12: TRectangle;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
@@ -122,7 +127,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure bMenuClick(Sender: TObject);
     procedure iAutoBGClick(Sender: TObject);
-    procedure TimerTimer(Sender: TObject);  private
+    procedure TimerTimer(Sender: TObject);
+    procedure bUseItemClick(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -197,6 +203,10 @@ begin
     GameInterface.LinkControl('rectBGEXP', rectBGEXP);
     GameInterface.LinkControl('HP', labelHP);
     GameInterface.LinkControl('MP', labelMP);
+    GameInterface.LinkControl('CurrItem', iCurrItem);
+    GameInterface.LinkControl('CurrCountBG', lCountBG);
+    GameInterface.LinkControl('CurrCount', lCount);
+
     /// кнопки переключения режимов
     GameInterface.LinkControl('tabTower', Tower);
     GameInterface.LinkControl('tabFloor', Floor);
@@ -301,6 +311,11 @@ begin
     Timer.Enabled := true;
 end;
 
+
+procedure TfMain.bUseItemClick(Sender: TObject);
+begin
+    GameDrive.UseCurrItem;
+end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin

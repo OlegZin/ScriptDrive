@@ -3,7 +3,7 @@ unit uGameInterface;
 interface
 
 uses
-    Generics.Collections, FMX.Controls, superobject, FMX.StdCtrls;
+    Generics.Collections, FMX.Controls, superobject, FMX.StdCtrls, FMX.Objects, SysUtils;
 
 type
 
@@ -28,7 +28,7 @@ var
 implementation
 
 uses
-    uGameDrive, uConst;
+    uGameDrive, uConst, uAtlas;
 
 { TGameInterface }
 
@@ -74,11 +74,28 @@ begin
     /// ключи компонент совпадают с именами полей data
     ///  потому простым перебором распихиваем значения в лейблы
     for item in Controls do
-      if   Assigned(data[item.key])
-      then (item.Value as TLabel).Text := data.S[item.key];
+      if   Assigned(data.O['params.'+item.key])
+      then (item.Value as TLabel).Text := data.S['params.'+item.key];
 
     /// обновляем прогресс набора опыта для уровня
-    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['EXP'] / data.I[PRM_NEEDEXP] );
+    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['params.EXP'] / data.I['params.'+PRM_NEEDEXP] );
+
+    /// выставляем видимость вкладок режима
+    if Assigned(data.O['modes']) then
+    begin
+        Controls['tabTower'].Visible := Assigned(data.O['modes.tower.allow']) and data.B['modes.tower.allow'];
+        Controls['tabFloor'].Visible := Assigned(data.O['modes.floor.allow']) and data.B['modes.floor.allow'];
+        Controls['tabThink'].Visible := Assigned(data.O['modes.think.allow']) and data.B['modes.think.allow'];
+        Controls['tabResearch'].Visible := Assigned(data.O['modes.research.allow']) and data.B['modes.research.allow'];
+        Controls['tabCraft'].Visible := Assigned(data.O['modes.craft.allow']) and data.B['modes.craft.allow'];
+    end;
+
+    if data.S['CurrItem'] <> ''
+    then (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('item_'+data.S['CurrItem']) )
+    else (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( nil );
+
+    (Controls['CurrCountBG'] as TLabel).Text := data.S['CurrCount'];
+    (Controls['CurrCount'] as TLabel).Text := data.S['CurrCount'];
 end;
 
 procedure TGameInterface.TabClick(Sender: TObject);

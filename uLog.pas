@@ -33,13 +33,18 @@ const
 
               '.fight{padding:5px;}'+
 
-              '.change_param,.change_item{'+
+              '.change_param,.change_item, .change_loot{'+
                 'padding:5px; '+
+                'padding-left:20px; '+
                 'font-weight:bold;'+
                 'line-height:150%;'+
               '}'+
-              '.change_param{ background-color: #f8ffac; }'+
-              '.change_item{ background-color: #acecff; }'+
+              '.change_param{ background-color: #fff8dc; }'+
+              '.change_item{ background-color: #f0f8ff; }'+
+              '.change_loot{ background-color: #f5f5dc; }'+
+              '.allow{'+
+                  'padding:20px;'+
+                  'background-color: #adff2f;}'+
 
               '.lvl_up{'+
                 'padding-left: 70px;'+
@@ -49,7 +54,7 @@ const
                 'text-weight: bold;'+
                 'color: red;'+
                 'font-size: 150%;'+
-                'background-color: #f8ffac;'+
+                'background-color: #fff8dc;'+
               '}'+
               '.lvl_up .text{'+
                 'position: relative;'+
@@ -61,7 +66,8 @@ const
                 'display: inline;'+
                 'height: 20px;'+
                 'width: 20px;}'+
-              '.icon_gold{background:url("data:image/jpeg;base64,#ICON_GOLD#");}'+
+
+              '.gold, .icon_gold{background:url("data:image/jpeg;base64,#ICON_GOLD#");}'+
               '.ATK,.icon_sword{background:url("data:image/jpeg;base64,#ICON_SWORD#");}'+
               '.DEF,.icon_shield{background:url("data:image/jpeg;base64,#ICON_SHIELD#");}'+
               '.MDEF,.icon_blueshield{background:url("data:image/jpeg;base64,#ICON_BLUESHIELD#");}'+
@@ -71,10 +77,16 @@ const
               '.LVL,.icon_level{background:url("data:image/jpeg;base64,#ICON_LEVEL#");}'+
               '.EXP,.icon_exp{background:url("data:image/jpeg;base64,#ICON_EXP#");}'+
               '.icon_fight{background:url("data:image/jpeg;base64,#ICON_FIGHT#");}'+
-              '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
               '.icon_unlock{background:url("data:image/jpeg;base64,#ICON_UNLOCK#");}'+
               '.icon_monster{background:url("data:image/jpeg;base64,#ICON_MONSTER#");}'+
               '.icon_knight{background:url("data:image/jpeg;base64,#ICON_KNIGHT#");}'+
+              '.icon_brain{background:url("data:image/jpeg;base64,#ICON_BRAIN#");}'+
+
+              '.wood,.stone,.herbal,.wheat,.meat,.blood,.bone,.skin,.ore,.essence,'+
+              '.potionAuto,.buffREG,.buffEXP,.buffMDEF,.buffDEF,.buffATK,.regenMP,'+
+              '.regenHP,.potionexp,.PermanentMDEF,.permanentDEF,.permanentATK,'+
+              '.restoreMana,.restoreHealth,'+
+              '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
             '</style>'+
           '</head>'+
         '<body onload="window.scrollTo(0,10000)">'+
@@ -83,7 +95,7 @@ const
         '</html>';
 
     ///
-    ICON_TEMPLATE = '<div class="icon icon_%s"></div>';
+    ICON_TEMPLATE = '<div class="%s"></div>';
 
     /// набор стандартных фраз
     PHRASES_LIST =
@@ -144,6 +156,18 @@ const
             'kind:"change_param",'+
             'RU:"<div class=\"icon %s\"></div>&emsp;%s&emsp;( =%d )", '+
            'ENG:"<div class=\"icon %s\"></div>&emsp;%s&emsp;( =%d )"},'+
+        'change_item:{'+
+            'kind:"change_item",'+
+            'RU:"<div class=\"icon %s\"></div>&emsp;%s&emsp;%s&emsp;( =%d )", '+
+           'ENG:"<div class=\"icon %s\"></div>&emsp;%s&emsp;%s&emsp;( =%d )"},'+
+        'change_loot:{'+
+            'kind:"change_loot",'+
+            'RU:"<div class=\"icon %s\"></div>&emsp;%s&emsp;%s&emsp;( =%d )", '+
+           'ENG:"<div class=\"icon %s\"></div>&emsp;%s&emsp;%s&emsp;( =%d )"},'+
+        'allow_think:{'+
+            'kind:"allow",'+
+            'RU:"<div class=\"icon icon_unlock\"></div>&emsp;Доступен режим <b>Раздумий</b>!", '+
+           'ENG:"<div class=\"icon icon_unlock\"></div>&emsp;<b>Think</b> mode available!"},'+
     '},';
 
 type
@@ -208,6 +232,7 @@ var
    ,ICON_UNLOCK
    ,ICON_MONSTER
    ,ICON_KNIGHT
+   ,ICON_BRAIN
     : string;
 
 
@@ -266,21 +291,23 @@ begin
     Doc.SetValue('ICON_UNLOCK', ICON_UNLOCK);
     Doc.SetValue('ICON_MONSTER', ICON_MONSTER);
     Doc.SetValue('ICON_KNIGHT', ICON_KNIGHT);
+    Doc.SetValue('ICON_BRAIN', ICON_BRAIN);
 
-    Doc.SetValue('ICON_GOLD', Format(ICON_TEMPLATE, ['gold']), false);
-    Doc.SetValue('ICON_SWORD', Format(ICON_TEMPLATE, ['sword']), false);
-    Doc.SetValue('ICON_SHIELD', Format(ICON_TEMPLATE, ['shield']), false);
-    Doc.SetValue('ICON_BLUESHIELD', Format(ICON_TEMPLATE, ['blueshield']), false);
-    Doc.SetValue('ICON_HEART', Format(ICON_TEMPLATE, ['heart']), false);
-    Doc.SetValue('ICON_MANA', Format(ICON_TEMPLATE, ['mana']), false);
-    Doc.SetValue('ICON_AUTO', Format(ICON_TEMPLATE, ['auto']), false);
-    Doc.SetValue('ICON_LEVEL', Format(ICON_TEMPLATE, ['level']), false);
-    Doc.SetValue('ICON_EXP', Format(ICON_TEMPLATE, ['exp']), false);
-    Doc.SetValue('ICON_FIGHT', Format(ICON_TEMPLATE, ['fight']), false);
-    Doc.SetValue('ICON_CHEST', Format(ICON_TEMPLATE, ['chest']), false);
-    Doc.SetValue('ICON_UNLOCK', Format(ICON_TEMPLATE, ['unlock']), false);
-    Doc.SetValue('ICON_MONSTER', Format(ICON_TEMPLATE, ['monster']), false);
-    Doc.SetValue('ICON_KNIGHT', Format(ICON_TEMPLATE, ['knight']), false);
+    Doc.SetValue('ICON_GOLD', Format(ICON_TEMPLATE, ['icon icon_gold']), false);
+    Doc.SetValue('ICON_SWORD', Format(ICON_TEMPLATE, ['icon icon_sword']), false);
+    Doc.SetValue('ICON_SHIELD', Format(ICON_TEMPLATE, ['icon icon_shield']), false);
+    Doc.SetValue('ICON_BLUESHIELD', Format(ICON_TEMPLATE, ['icon icon_blueshield']), false);
+    Doc.SetValue('ICON_HEART', Format(ICON_TEMPLATE, ['icon icon_heart']), false);
+    Doc.SetValue('ICON_MANA', Format(ICON_TEMPLATE, ['icon icon_mana']), false);
+    Doc.SetValue('ICON_AUTO', Format(ICON_TEMPLATE, ['icon icon_auto']), false);
+    Doc.SetValue('ICON_LEVEL', Format(ICON_TEMPLATE, ['icon icon_level']), false);
+    Doc.SetValue('ICON_EXP', Format(ICON_TEMPLATE, ['icon icon_exp']), false);
+    Doc.SetValue('ICON_FIGHT', Format(ICON_TEMPLATE, ['icon icon_fight']), false);
+    Doc.SetValue('ICON_CHEST', Format(ICON_TEMPLATE, ['icon icon_chest']), false);
+    Doc.SetValue('ICON_UNLOCK', Format(ICON_TEMPLATE, ['icon icon_unlock']), false);
+    Doc.SetValue('ICON_MONSTER', Format(ICON_TEMPLATE, ['icon icon_monster']), false);
+    Doc.SetValue('ICON_KNIGHT', Format(ICON_TEMPLATE, ['icon icon_knight']), false);
+    Doc.SetValue('ICON_BRAIN', Format(ICON_TEMPLATE, ['icon icon_brain']), false);
 
     Doc.ClearMarks;
 
@@ -313,6 +340,7 @@ begin
     if ICON_UNLOCK = '' then ICON_UNLOCK :=  fAtlas.EncodeToBase64('ICON_UNLOCK');
     if ICON_MONSTER = '' then ICON_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
     if ICON_KNIGHT = '' then ICON_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
+    if ICON_BRAIN = '' then ICON_BRAIN :=  fAtlas.EncodeToBase64('ICON_BRAIN');
 end;
 
 procedure TLog.Phrase(name, lang: string; params: array of TVarRec);

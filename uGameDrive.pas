@@ -25,7 +25,7 @@ type
         doLog: boolean;
             // логировать ли действия программы в текстовый файл
 
-        silentChange : boolean;
+        fSilentChange : boolean;
             // флаг "тихого" следующего изменения параметра, чтобы не засорять лог
     public
 
@@ -64,16 +64,18 @@ type
 
         procedure ChangeItemCount(name, delta: variant);  // изменение количества предметов в инвентаре текущей цели
         procedure SetItemCount(name, value: variant);     // установка количества предметов в инвентаре текущей цели
+        function  GetItemCount(name: string): string;     // получение количества предметов в инвентаре текущей цели
 
-        function GetLoot: ISuperObject;
-        function GetItems: ISuperObject;
+        procedure ChangeLootCount(name, delta: variant);  // изменение количества предметов в инвентаре текущей цели
+        procedure SetLootCount(name, value: variant);     // установка количества предметов в инвентаре текущей цели
 
-        procedure SilentParamChange;                 /// следующее изменение параметра не будет выводить автоматическое сообщение в лог
+        procedure SilentChange;                      /// следующее изменение параметра не будет выводить автоматическое сообщение в лог
         procedure SetParam(name, value: variant);    /// устанавливаем значение укакзанного параметра
         procedure ChangeParam(name, delta: variant); /// изменене значения параметра на дельту
         function GetParam(name: string): string;    /// получение значение параметра
 
         procedure ChangePlayerParam(name, value: variant);
+        procedure ChangePlayerItemCount(name, value: variant);
 
         procedure Collect(name: string; objects: ISuperObject);
            // добавление в указанный раздел текущей цели всех элементов
@@ -125,27 +127,35 @@ type
         procedure BreakAuto(name: string);  /// прерывает автодействия указанного режима
         procedure RunAuto(name: string);    /// запускает автодействия указанного режима
         function  GetAuto(name: string): boolean;    /// возвращает состояние указанного режима
+
+/// разлокировка различных типов объектов
+        procedure AllowMode(name: string);
+
 {
         function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
-        procedure AllowMode(name: string);
         procedure AllowTool(name: string);
         procedure OpenThink(name: string);
 }
 
 /// основные игровые методы
-        procedure PlayerAttack;
-
+        procedure PlayerAttack;  /// проведение взаимной атаки игрока и монстра в башне
+        procedure UseCurrItem;   /// использование текущего выбранного предмета
 
     private
         Script : TScriptDrive;
+
+        function GetLoot: ISuperObject;
+        function GetItems: ISuperObject;
 
         procedure InitItemsCraftCost; /// генерация стоимости предметов в ресурсах. стоимость будет различной в каждой игре, сохраняя интригу
         procedure InitFloorObjects;   /// генерация предметов на этажах
         function GetRandObjName: string; /// случайный объект, который может находиться на этаже, с учетом редкости и доступного количества
         function NeedExp(lvl: variant): string;
 
-        procedure PlayerMakeAttack;
-        procedure ProcessAttack;
+        procedure ProcessAttack;     /// оболочка для PlayerMakeAttack, учитываюшая расход автодействий или локального пула
+        procedure PlayerMakeAttack;  /// непосредственное проведение атаки со всеми событиями
+
+        function CompactDigit(val: variant): string;
     end;
 
 Var
@@ -222,12 +232,12 @@ begin
             loot := GetLoot;
             items := GetItems;
 
+            l('-> CheckStatus: пишем в чат, что монстр убит');
+            uLog.Log.Phrase('monster_killed', GetLang, []);
+
             l('-> CheckStatus: добавляем игроку опыт');
             SetPlayerAsTarget;
             ChangeParam('EXP', CurrFloor);
-
-            l('-> CheckStatus: пишем в чат, что монстр убит');
-            uLog.Log.Phrase('monster_killed', GetLang, []);
 
             // игрок получает предметы и лут
             l('-> CheckStatus: игрок получает предметы и лут');
@@ -249,13 +259,13 @@ begin
                 ChangeParam( 'ATK', LVL );
                 ChangeParam( 'DEF', 1 );
 
-                SilentParamChange;
+                SilentChange;
                 ChangeParam( 'LVL', 1);
 
-                SilentParamChange;
+                SilentChange;
                 ChangeParam( 'EXP', -StrToInt(GetParam(PRM_NEEDEXP)));
 
-                SilentParamChange;
+                SilentChange;
                 ChangeParam( PRM_NEEDEXP, NeedExp(LVL+1));
 
                 l('-> CheckStatus: отыгрываем события на левелап');
@@ -310,8 +320,32 @@ begin
 
     for obj in objects.AsObject do
     begin
-        GameData.I[Target + name + '.' + obj.Name] :=
-        GameData.I[Target + name + '.' + obj.Name] + obj.Value.AsInteger;
+        if name = 'items'
+        then ChangeItemCount(obj.Name, obj.Value.AsInteger);
+
+        if name = 'loot'
+        then ChangeLootCount(obj.Name, obj.Value.AsInteger);
+    end;
+end;
+
+function TGameDrive.CompactDigit(val: variant): string;
+/// приводим обычное число к компактону текстовому виду. типа: 4300000 => 4,3кк
+begin
+    result := val;
+
+    /// проверяем, работаем с числом или текстом
+    try StrToInt(val);
+    except exit;
+    end;
+
+    /// если речь о тысячах
+    if val div 1000 > 9 then
+    begin
+        result := IntToStr(val div 1000);
+
+        if val mod 1000 > 100 then result := result + ',' + IntToStr((val mod 1000) div 100);
+
+        result := result + 'к';
     end;
 end;
 
@@ -329,8 +363,8 @@ begin
 
     SetLang(lang);
 
-    GameData.I['state.player.params.'+PRM_NEEDEXP] := 1;
-//    GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
+//    GameData.I['state.player.params.'+PRM_NEEDEXP] := 1;
+    GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
                                 // считаем опыт необходимый для левелапа
 
     InitItemsCraftCost;         // генерация рецептов предметов
@@ -462,7 +496,7 @@ begin
     ///  иначе - локальный пул
     if GetAuto(name)
     then result := GameData.I['state.player.params.AutoAction'] // прямое обращение, чтобы не переключать цель
-    else result := GameData.I['state.pool.'+name];
+    else result := GameData.I['state.modes.'+name+'.pool'];
 end;
 
 
@@ -471,7 +505,6 @@ begin
     l('-> SetLang');
     GameData.S['state.Lang'] := lang;
 end;
-
 
 
 
@@ -521,13 +554,13 @@ begin
     GameData.I[Target + 'params.' + name] := value;
 
     /// пишем изменение в лог, если не "тихий" режим
-    if (pos('player', Target) > 0) and not silentChange then
+    if (pos('player', Target) > 0) and not fSilentChange then
     begin
         change := value - old;
         uLog.Log.Phrase('change_param', GetLang, [name, ifthen(change >= 0, '+', '' ) + IntToStr(change), Integer(value)]);
     end;
 
-    silentChange := false;
+    fSilentChange := false;
 end;
 
 procedure TGameDrive.SetPlayerAsTarget;
@@ -542,20 +575,39 @@ begin
     GameData.S['state.vars.'+name] := value;
 end;
 
-procedure TGameDrive.SilentParamChange;
+procedure TGameDrive.SilentChange;
 begin
-    silentChange := true;
+    fSilentChange := true;
 end;
 
 procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима
 var
-    data: ISuperobject;
+    data, item: ISuperobject;
 begin
     l('-> UpdateInterface('+IntToStr(InterfModes)+')');
 
-    if InterfModes and INT_MAIN <> 0
-    then GameInterface.Update( GameData.O['state.player.params']);
+    if InterfModes and INT_MAIN <> 0 then
+    begin
+        data := SO();
+
+        data.O['params'] := SO();
+        data.S['params.AutoAction'] := CompactDigit(GameData.I['state.player.params.AutoAction']);
+        data.S['params.LVL'] := CompactDigit(GameData.I['state.player.params.LVL']);
+        data.S['params.EXP'] := CompactDigit(GameData.I['state.player.params.EXP']);
+        data.S['params.HP'] := CompactDigit(GameData.I['state.player.params.HP']);
+        data.S['params.MP'] := CompactDigit(GameData.I['state.player.params.MP']);
+        data.I['params.needexp'] := GameData.I['state.player.params.needexp'];
+
+        data.O['modes'] := GameData.O['state.modes'];
+        data.S['CurrItem'] := GameData.S['state.CurrItem'];
+
+        if data.S['CurrItem'] <> ''
+        then data.S['CurrCount'] := CompactDigit( GameData.I['state.player.items.'+GameData.S['state.CurrItem']] )
+        else data.S['CurrCount'] := '0';
+
+        GameInterface.Update( data );
+    end;
 
     if InterfModes and INT_TOWER <> 0 then
     begin
@@ -578,6 +630,32 @@ begin
     InterfModes := 0;
 end;
 
+
+procedure TGameDrive.UseCurrItem;
+/// применяем текущий выбранный предмет в интерфейсе игрока
+var
+    name: string;
+begin
+    if GameData.S['state.CurrItem'] = '' then exit;
+
+    name := GameData.S['state.CurrItem'];
+
+    /// выполняем скрипт эффекта
+    Script.Exec( GameData.S['items.'+name+'.script'] );
+
+    /// уменьшаем количество у игрока
+    SilentChange;
+    ChangePlayerItemCount(name, -1);
+
+    /// если пердметы кончились
+    if GameData.I['state.player.items.'+name] <= 0
+    then GameData.S['state.CurrItem'] := '';   // сбрасываем текущий выбранный
+
+    SetModeToUpdate(INT_MAIN);      // говорим, что нужно обновить интерфейс игрока
+
+//    CheckStatus;
+    UpdateInterface;
+end;
 
 { PRIVATE METHODS }
 
@@ -624,12 +702,21 @@ end;
 function TGameDrive.GetAuto(name: string): boolean;
 begin
     name := LowerCase(name);
-    result := GameData.B['state.auto.'+name];
+    result := GameData.B['state.modes.'+name+'.auto'];
 end;
 
 function TGameDrive.GetCurrTarget: string;
 begin
     result := GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.floor'];
+end;
+
+function TGameDrive.GetItemCount(name: string): string;
+begin
+    result := '0';
+
+    if not assigned(GameData.O[Target + 'items.'+name]) then exit;
+
+    result := GameData.S[Target + 'items.'+name];
 end;
 
 function TGameDrive.GetItems: ISuperObject;
@@ -805,24 +892,40 @@ begin
         GameData.I[Target + 'params.' + name] + StrToIntDef(delta, 0);
 
     /// пишем изменение в лог, если не "тихий" режим
-    if (pos('player', Target) > 0) and not silentChange
+    if (pos('player', Target) > 0) and not fSilentChange
     then uLog.Log.Phrase('change_param', GetLang, [name, ifthen(delta >= 0, '+','') + String(delta), GameData.I[Target + 'params.' + name]]);
 
-    silentChange := false;
+    fSilentChange := false;
+end;
+
+procedure TGameDrive.ChangePlayerItemCount(name, value: variant);
+var
+    trg: String;
+begin
+    trg := Target;
+
+    SetPlayerAsTarget;
+    ChangeItemCount(name, value);
+
+    Target := trg;
 end;
 
 procedure TGameDrive.ChangePlayerParam(name, value: variant);
+var
+    trg: String;
 begin
-    GameData.D['state.player.params.' + name] :=
-        GameData.D['state.player.params.' + name] + StrToFloatDef(value, 0);
+    trg := Target;
 
-    InterfModes := InterfModes or INT_MAIN;
+    SetPlayerAsTarget;
+    ChangeParam(name, StrToInt(value));
+
+    Target := trg;
 end;
 
 procedure TGameDrive.ChangePool(name, val: variant);
 begin
     name := LowerCase(name);
-    GameData.I['state.pool.'+name] := GameData.I['state.pool.'+name] + val;
+    GameData.I['state.modes.'+name+'.pool'] := GameData.I['state.modes.'+name+'.pool'] + val;
 
     if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;
@@ -834,22 +937,48 @@ begin
     result := GameData.I[ Target + 'params.EXP' ] >= GameData.I[ Target + 'params.'+PRM_NEEDEXP ];
 end;
 
+procedure TGameDrive.AllowMode(name: string);
+begin
+     name := LowerCase(name);
+
+     GameData.B['state.modes.'+name+'.allow'] := true;
+
+     if name = 'think' then uLog.Log.Phrase('allow_think', GetLang, []);
+
+     /// выставляем флаг, что нужно обновить основную часть интерфейса
+     SetModeToUpdate(INT_MAIN);
+end;
+
 procedure TGameDrive.BreakAuto(name: string);
 begin
      name := LowerCase(name);
 
-     GameData.B['state.auto.'+name] := false;  // останавливаем автодействия
-     GameData.I['state.pool.'+name] := 0;      // сбрасываем накликанное честным трудом
+     GameData.B['state.modes.'+name+'.auto'] := false;  // останавливаем автодействия
+     GameData.I['state.modes.'+name+'.pool'] := 0;      // сбрасываем накликанное честным трудом
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;
 
 procedure TGameDrive.ChangeItemCount(name, delta: variant);
 /// изменяем количество указанного предмета на указанную дельту (в + или - ),
+var
+    old : integer;
 begin
     l('-> ChangeItemCount('+name+','+String(delta)+')');
 
+    old := GameData.I[Target + 'items.' + name];
     GameData.I[Target + 'items.'+name] := GameData.I[Target + 'items.'+name] + delta;
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not fSilentChange
+    then uLog.Log.Phrase( 'change_item',  GetLang, [
+            name,                                             /// внутреннее имя для подстновки иконки
+            GameData.S['items.'+name+'.caption.'+GetLang],    /// внешнее имя в текущем языке
+            ifthen(delta >= 0, '+','') + String(delta),       /// строка с величиной изменения
+            GameData.I[Target + 'items.' + name]              /// текущее количество
+        ]);
+
+    fSilentChange := false;
 end;
 procedure TGameDrive.SetImage(index: integer);
 begin
@@ -860,11 +989,73 @@ begin
 end;
 
 procedure TGameDrive.SetItemCount(name, value: variant);
+var
+    change, old : integer;
 begin
     l('-> SetItemCount('+name+','+String(value)+')');
 
     GameData.I[Target + 'items.'+name] := value;
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not fSilentChange then
+    begin
+        change := value - old;
+        uLog.Log.Phrase('change_item', GetLang, [
+            name,
+            GameData.S['items.'+name+'.caption.'+GetLang],
+            ifthen(change >= 0, '+', '' ) + IntToStr(change),
+            Integer(value)
+        ]);
+    end;
+
+    fSilentChange := false;
 end;
+
+
+procedure TGameDrive.SetLootCount(name, value: variant);
+var
+    change, old: integer;
+begin
+    l('-> SetLootCount('+name+','+String(value)+')');
+
+    GameData.I[Target + 'loot.'+name] := value;
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not fSilentChange then
+    begin
+        change := value - old;
+        uLog.Log.Phrase('change_loot', GetLang, [
+            name,
+            GameData.S['resources.'+name+'.caption.'+GetLang],
+            ifthen(change >= 0, '+', '' ) + IntToStr(change),
+            Integer(value)
+        ]);
+    end;
+
+    fSilentChange := false;
+
+end;
+procedure TGameDrive.ChangeLootCount(name, delta: variant);
+var
+    old: integer;
+begin
+    l('-> ChangeLootCount('+name+','+String(delta)+')');
+
+    old := GameData.I[Target + 'loot.' + name];
+    GameData.I[Target + 'loot.'+name] := GameData.I[Target + 'loot.'+name] + delta;
+
+    /// пишем изменение в лог, если не "тихий" режим
+    if (pos('player', Target) > 0) and not fSilentChange
+    then uLog.Log.Phrase( 'change_loot',  GetLang, [
+            name,                                             /// внутреннее имя для подстновки иконки
+            GameData.S['resources.'+name+'.caption.'+GetLang],    /// внешнее имя в текущем языке
+            ifthen(delta >= 0, '+','') + String(delta),       /// строка с величиной изменения
+            GameData.I[Target + 'loot.' + name]              /// текущее количество
+        ]);
+
+    fSilentChange := false;
+end;
+
 
 
 function TGameDrive.NeedExp(lvl: variant): string;
@@ -922,12 +1113,12 @@ begin
         );
 
         /// золото
-        SetItemCount(ITEM_GOLD, Random( CurrFloor*2 ) + CurrFloor);
+        ChangeItemCount(ITEM_GOLD, Random( CurrFloor*2 ) + CurrFloor);
 
         /// ресурсы (шанс на один вид)
         lootCount := Random(CurrFloor div 2);
-        if   lootCount > 0
-        then SetItemCount(GetRandResName, lootCount);
+        for I := 1 to lootCount do
+            ChangeLootCount( GetRandResName, Random( CurrFloor div 2 ) +1 );
 
         // параметры
         count := Random( CurrFloor*10 ) + CurrFloor*5;
@@ -954,16 +1145,20 @@ begin
         );
 
         /// золото
-        SetItemCount(ITEM_GOLD, Random( CurrFloor*5 ) + CurrFloor*2);
+        ChangeItemCount(ITEM_GOLD, Random( CurrFloor*5 ) + CurrFloor*2);
 
         // шанс на выпадение дополнительногь предмета
-        if Random(2) > 0
-        then SetItemCount(GetRandItemName, 1);
+        if Random(2) > 0 then
+        begin
+//            Log('normal', 'Monster has an item!');
+            ChangeItemCount(GetRandItemName, 1);
+//            BreakAuto('Tower');
+        end;
 
         /// ресурсы (шанс на три вида, но могут повторяться и будут складываться)
-        lootCount := Random( 4 );
+        lootCount := Random( CurrFloor );
         for I := 0 to lootCount do
-            ChangeItemCount(GetRandResName, Random( CurrFloor ) + 1);
+            ChangeLootCount(GetRandResName, Random( CurrFloor ) + 1);
 
         // параметры
         count := Random( CurrFloor*50 ) + CurrFloor*30;
@@ -1070,7 +1265,7 @@ begin
     // 1 DEF = -0.1% dmg
     BLOCK := Round(StrToInt(GetVar('mc_DMG')) * ((StrToInt(GetVar('pl_DEF')) / 10) / 100));
     DMG := StrToInt(GetVar('mc_DMG'))- BLOCK;
-    SilentParamChange;
+    SilentChange;
     ChangeParam('HP', -DMG); /// списываем хиты
 
     uLog.Log.PhraseAppend('fight_swords', GetLang, []);
@@ -1102,11 +1297,13 @@ begin
         then ChangePool('Tower', -1);
 
         // если установлен режим авто, будем снимать с автодействий
-        if GetAuto('Tower')
-        then ChangePlayerParam('AutoAction', -1);
+        if GetAuto('Tower') then
+        begin
+            SilentChange;
+            ChangePlayerParam('AutoAction', -1);
+        end;
 
-        if GetPool('Tower') = 0
-        then uLog.Log.Phrase('attack_pool_empty', GetLang, []);
+//        if GetPool('Tower') = 0 then uLog.Log.Phrase('attack_pool_empty', GetLang, []);
     end;
 
 end;
@@ -1125,7 +1322,7 @@ end;
 procedure TGameDrive.RunAuto(name: string);
 begin
      name := LowerCase(name);
-     GameData.B['state.auto.'+name] := true;
+     GameData.B['state.modes.'+name+'.auto'] := true;
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;

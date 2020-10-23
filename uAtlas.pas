@@ -85,7 +85,7 @@ type
     ICON_SWORD: TImage;
     ICON_SHIELD: TImage;
     Image59: TImage;
-    Image60: TImage;
+    item_gold: TImage;
     Image61: TImage;
     Image62: TImage;
     ICON_BLUESHIELD: TImage;
@@ -109,12 +109,14 @@ type
     ICON_MONSTER: TImage;
     Image73: TImage;
     ICON_KNIGHT: TImage;
+    ICON_BRAIN: TImage;
   private
     { Private declarations }
   public
     { Public declarations }
     function EncodeToBase64(name: string): string;
     function GetBitmap(index: integer): TBitmap;
+    function GetBitmapByName(name: string): TBitmap;
   end;
 
 var
@@ -165,6 +167,15 @@ var
 begin
     for I := 0 to ComponentCount-1 do
     if Components[i].Tag = index then
+    result := (Components[i] as TImage).Bitmap;
+end;
+
+function TfAtlas.GetBitmapByName(name: string): TBitmap;
+var
+    i: integer;
+begin
+    for I := 0 to ComponentCount-1 do
+    if UpperCase(Components[i].Name) = UpperCase(name) then
     result := (Components[i] as TImage).Bitmap;
 end;
 

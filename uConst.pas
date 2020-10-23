@@ -21,6 +21,11 @@ const
     /// поскольку имена регистрочувствительны в json
     ITEM_GOLD = 'gold';
 
+
+    /// синонимы имен
+    /// поскольку имена регистрочувствительны в json
+
+
     /// синонимы параметров
     PRM_NEEDEXP = 'needexp';
 
@@ -81,26 +86,19 @@ const
         'CurrStep: 1,'+
         'MaxStep: 1,'+
         'CurrFloor: 1,'+
-        'CurrTargetFloor: "1",'+
-        'pool: {'+            ///
-          'tower: 0,'+        /// накопленный локальный пул атак
-          'think: 0,'+        /// накопленный локальный пул раздумий
-        '},'+
-        'auto:{'+                 /// флаги использования автодействий в режимах
-          'tower: false,'+        /// включен ли режим автоатак за автодействия
-          'think: false,'+        /// включен ли режим разышлений за автодействия
-        '},'+
-        'resources:{'+
-            'wood:   {count: 0},'+
-            'stone:  {count: 0},'+
-            'herbal: {count: 0},'+
-            'wheat:  {count: 0},'+
-            'meat:   {count: 0},'+
-            'blood:  {count: 0},'+
-            'bone:   {count: 0},'+
-            'skin:   {count: 0},'+
-            'ore:    {count: 0},'+
-            'essence:{count: 0}'+
+        'CurrTargetFloor: 1,'+
+        'CurrItem: "gold",'+
+        'modes:{'+            /// флаги доступности различных игровых режмов
+          'tower: {'+         /// режим башни
+              'allow: true,'+ /// достпен ли режим
+              'pool: 0,'+     /// сколько действий в локальном пуле
+              'auto: false,'+ /// включен ли режим автодействий за внешние очки действий
+          '},'+
+          'think: {'+         /// режим раздумий
+              'allow: false,'+
+              'pool: 0,'+
+              'auto: false,'+
+          '},'+
         '},'+
         'player: {'+
             'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, needexp:0 },'+
@@ -464,22 +462,21 @@ const
                 'ENG:"Full-weight gold coins. For 10,000 coins, you can get a random item. Lets try our luck?"'+
             '},'+
             'script:"'+
-                'SetTarget(Player);' +
-                'If(GetItemCount(gold) < 10000, 5);'+
+                'SetPlayerAsTarget();' +
+
+                'If(GetItemCount(gold) < 10000, 4);'+
                 'If(GetLang() = RU, 1);'+
-                'AddEvent(Не достаточно золота!);'+
+                'Log(normal,\"Требуется 10 000 ICON_GOLD\");'+
                 'If(GetLang() = ENG, 1);'+
-                'AddEvent(You do not have enougth Gold!);'+
+                'Log(normal,\"Need 10 000 ICON_GOLD\");'+
+
+                'SilentChange();'+
                 'ChangeItemCount(gold, 1);'+
 
-                'If(GetItemCount(Gold) > 9999, 7);'+
-                'SetVar(iName, GetRandItemName());'+
-                'ChangeItemCount(GetVar(iName), 1);'+
-                'ChangeItemCount(gold, -9999);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(iName)!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(iName)!);'+
+                'If(GetItemCount(gold) > 9999, 3);'+
+                'SilentChange();'+
+                'ChangeItemCount(gold, -10000);'+
+                'ChangeItemCount(GetRandItemName(), 1);'+
         '"},'+
         'restoreHealth:{'+
             'name:"restoreHealth",'+
@@ -553,8 +550,8 @@ const
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Получено +1 магической защиты!);'+
         '"},'+
-        'exp:{'+
-            'name:"exp",'+
+        'potionexp:{'+
+            'name:"potionexp",'+
             'caption: {RU:"Зелье опыта", ENG:"Potion of experience"},'+
             'description:{'+
                 'RU:"Мгновенно дает бесплатный опыт. Количество от 0 до 100 умноженное на текущий уровень игрока.",'+
@@ -631,8 +628,8 @@ const
             '},'+
             'script:"SetPlayerBuff(REG,Rand(GetPlayerAttr(LVL) * 10) + 10);'+
         '"},'+
-        'autoAction:{'+
-            'name:"autoAction",'+
+        'potionAuto:{'+
+            'name:"potionAuto",'+
             'caption: {RU:"Зелье автодействий", ENG:"Potion of autoactions"},'+
             'description:{'+
                 'RU:"Добавляет автодействия. Эффект от 0 до 100 умноженное на уровень игрока, но не больше 2000.",'+
@@ -897,107 +894,55 @@ const
         '"},'+
         '2:{ floor: 2, next:3, script:"'+
              'BreakAuto(Tower);'+
-             'SetVar(gold, Rand(100000));'+
 
-             'IF(GetLang() = RU, 9);'+
-             'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота.\");'+
-             'Log(normal,\"Так же, в сундуке лежит несколько смятых листов:\");'+
+             'IF(GetLang() = RU, 5);'+
+             'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота. Так же, в сундуке лежит несколько смятых листов:\");'+
              'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
-             'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки, прихвостень Темного Мастера.\");'+
+             'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки.\");'+
              'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
-             'Log(think,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю?\");'+
-             'Log(think,\" - Следует как следует подумать об этом!\");'+
-             'Log(event,\"Доступен режим Раздумий!\");'+
-             'Log(event,\"Получено \");'+
+             'Log(think,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю? Нужно как следует подумать об этом...\");'+
 
-             'IF(GetLang() = ENG, 9);'+
-             'Log(normal,\"There was some gold in a rusty chest between floors.\");'+
-             'Log(normal,\"Also, there are several crumpled sheets in the chest:\");'+
+             'IF(GetLang() = ENG, 5);'+
+             'Log(normal,\"There was some gold in a rusty chest between floors. Also, there are several crumpled sheets in the chest:\");'+
              'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+
-             'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that this damned Ikki, the Dark Master henchman, brought them up.\");'+
+             'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that damn Ikki got them going.\");'+
              'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
-             'Log(think,\" - Wait. Which tower, which Dark master? What am I doing here?\");'+
-             'Log(think,\" - Think about it well!\");'+
-             'Log(event,\"Think mode available!\");'+
-             'Log(event,\"Gained \");'+
+             'Log(think,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
 
-             'LogAdd(GetVar(gold));'+
-             'LogAdd(ICON_GOLD);'+
-
-             'AllowMode(Think, 1);'+
-             'SetPlayerAsTarget();'+
-             'ChangeItemCount(gold, GetVar(gold));'+
+             'AllowMode(Think);'+
+             'ChangePlayerItemCount(gold, Rand(100000));'+
              'SetNextTarget();'+
         '"},'+
         '3:{ floor: 3, next:4, script:"'+
-             'SetBreak(Tower);'+
-             'SetVar(count, 10);'+
-             'AddEvent(..................);'+
+             'BreakAuto(Tower);'+
 
-             'IF(GetLang() = RU, 2);'+
-             'AddEvent(Получено GetVar(count) зелий AutoAction);'+
-             'AddEvent(В ржавом сундуке между этажами нашлось немного зелий.);'+
+             'IF(GetLang() = RU, 1);'+
+             'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
 
-             'IF(GetLang() = ENG, 2);'+
-             'AddEvent(Gained GetVar(count) AutoAction items);'+
-             'AddEvent(Some potions were found in a rusty chest between floors.);'+
+             'IF(GetLang() = ENG, 1);'+
+             'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
 
-             'AddEvent(..................);'+
-
-             'ChangePlayerItemCount(AutoAction, GetVar(count));'+
+             'ChangePlayerItemCount(potionAuto, 10);'+
              'SetNextTarget();'
         +'"},'+
         '4:{ floor: 1, next:5, script:"'+
-             'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If(GetLang() = RU, 1);'+
-             'AddEvent(Получено GetVar(iName)!);'+
-             'If(GetLang() = ENG, 1);'+
-             'AddEvent(Gained GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If(GetLang() = RU, 1);'+
-             'AddEvent(Получено GetVar(iName)!);'+
-             'If(GetLang() = ENG, 1);'+
-             'AddEvent(Gained GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If(GetLang() = RU, 1);'+
-             'AddEvent(Получено GetVar(iName)!);'+
-             'If(GetLang() = ENG, 1);'+
-             'AddEvent(Gained GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If(GetLang() = RU, 1);'+
-             'AddEvent(Получено GetVar(iName)!);'+
-             'If(GetLang() = ENG, 1);'+
-             'AddEvent(Gained GetVar(iName)!);'+
-
-             'SetVar(iName, GetRandItemName());'+
-             'ChangePlayerItemCount(GetVar(iName), 1);'+
-             'If(GetLang() = RU, 1);'+
-             'AddEvent(Получено GetVar(iName)!);'+
-             'If(GetLang() = ENG, 1);'+
-             'AddEvent(Gained GetVar(iName)!);'+
-
-             'AddEvent( );'+
+             'BreakAuto(Tower);'+
 
              'If(GetLang() = RU, 1);'+
-             'AddEvent(Огромный сундк! Замок поддается не с первого раза...);'+
+             'Log(normal,\"Огромный сундк! Замок поддается не с первого раза...\");'+
              'If(GetLang() = ENG, 1);'+
-             'AddEvent(You have found a huge chest! The lock does not give in the first time ...);'+
+             'Log(normal,\"You have found a huge chest! The lock does not give in the first time ...\");'+
 
-             'AddEvent(..................);'+
+             'ChangePlayerItemCount(GetRandItemName(), 1);'+
+             'ChangePlayerItemCount(GetRandItemName(), 1);'+
+             'ChangePlayerItemCount(GetRandItemName(), 1);'+
+             'ChangePlayerItemCount(GetRandItemName(), 1);'+
+             'ChangePlayerItemCount(GetRandItemName(), 1);'+
+
              'SetNextTarget();'
         +'"},'+
         '5:{ floor: 5, next:7, script:"'+
-             'SetBreak(Tower);'+
+             'BreakAuto(Tower);'+
 
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
