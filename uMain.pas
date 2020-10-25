@@ -120,6 +120,9 @@ type
     lCountBG: TLabel;
     lCount: TLabel;
     Rectangle12: TRectangle;
+    lItemPanel: TLayout;
+    Rectangle10: TRectangle;
+    flowItems: TFlowLayout;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
@@ -128,6 +131,7 @@ type
     procedure bMenuClick(Sender: TObject);
     procedure iAutoBGClick(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
+    procedure Rectangle9Click(Sender: TObject);
     procedure bUseItemClick(Sender: TObject);  private
     { Private declarations }
   public
@@ -207,6 +211,9 @@ begin
     GameInterface.LinkControl('CurrCountBG', lCountBG);
     GameInterface.LinkControl('CurrCount', lCount);
 
+    GameInterface.LinkControl('ItemPanel', lItemPanel);
+    GameInterface.LinkControl('ItemsFlow', flowItems);
+
     /// кнопки переключения режимов
     GameInterface.LinkControl('tabTower', Tower);
     GameInterface.LinkControl('tabFloor', Floor);
@@ -283,6 +290,11 @@ begin
     GameDrive.SaveTestData;
 end;
 
+procedure TfMain.Rectangle9Click(Sender: TObject);
+begin
+    GameDrive.UseCurrItem;
+end;
+
 procedure TfMain.bExitClick(Sender: TObject);
 begin
     Close;
@@ -314,7 +326,7 @@ end;
 
 procedure TfMain.bUseItemClick(Sender: TObject);
 begin
-    GameDrive.UseCurrItem;
+    GameInterface.OpenItemPanel(true);
 end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

@@ -20,6 +20,7 @@ type
         procedure Update(data: ISuperObject);
         procedure Init;
         procedure SetMode(name: string);
+        procedure OpenItemPanel(mode: boolean);
     end;
 
 var
@@ -46,8 +47,13 @@ begin
         control.OnMouseEnter := TabMouseEnter;
         control.OnMouseLeave := TabMouseLeave;
         control.OnClick      := TabClick;
-        control.Opacity := 0.5;
+        control.Opacity := 0.3;
     end;
+
+end;
+
+procedure TGameInterface.OpenItemPanel(mode: boolean);
+begin
 
 end;
 
@@ -59,7 +65,7 @@ begin
     begin
       if   pos('tab', item.key) > 0 then
       if item.Value.Name <> name
-      then item.Value.Opacity := 0.5
+      then item.Value.Opacity := 0.3
       else begin
           item.Value.Opacity := 1;
           selected := item.Value;
@@ -71,6 +77,11 @@ procedure TGameInterface.Update(data: ISuperObject);
 var
     item: TPair<String, TControl>;
 begin
+
+    if assigned(data.O['isOpenItemPanel'])
+    then Controls['ItemPanel'].Visible := data.B['isOpenItemPanel']
+    else Controls['ItemPanel'].Visible := false;
+
     /// ключи компонент совпадают с именами полей data
     ///  потому простым перебором распихиваем значения в лейблы
     for item in Controls do
@@ -90,9 +101,17 @@ begin
         Controls['tabCraft'].Visible := Assigned(data.O['modes.craft.allow']) and data.B['modes.craft.allow'];
     end;
 
-    if data.S['CurrItem'] <> ''
-    then (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('item_'+data.S['CurrItem']) )
-    else (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( nil );
+    if data.S['CurrItem'] <> '' then
+    begin
+        (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('item_'+data.S['CurrItem']) );
+        (Controls['CurrCountBG'] as TLabel).Visible:=true;
+        (Controls['CurrCountBG'] as TLabel).Text := data.S['CurrCount'];
+        (Controls['CurrCount'] as TLabel).Text := data.S['CurrCount'];
+    end else
+    begin
+        (Controls['CurrItem'] as TImage).MultiResBitmap[0].Bitmap.Assign( nil );
+        (Controls['CurrCountBG'] as TLabel).Visible:=false;
+    end;
 
     (Controls['CurrCountBG'] as TLabel).Text := data.S['CurrCount'];
     (Controls['CurrCount'] as TLabel).Text := data.S['CurrCount'];
@@ -107,13 +126,13 @@ end;
 procedure TGameInterface.TabMouseEnter(Sender: TObject);
 begin
     if   sender <> selected
-    then (sender as TControl).Opacity := 0.8;
+    then (sender as TControl).Opacity := 0.7;
 end;
 
 procedure TGameInterface.TabMouseLeave(Sender: TObject);
 begin
     if   sender <> selected
-    then (sender as TControl).Opacity := 0.5;
+    then (sender as TControl).Opacity := 0.3;
 end;
 
 initialization

@@ -621,7 +621,7 @@ const
         '"},'+
         'buffREG:{'+
             'name:"buffREG",'+
-            'caption: {RU:"Порошок регенерации", ENG:"Powder of regeneration"},'+
+            'caption: {RU:"Зелье регенерации", ENG:"Potion of regeneration"},'+
             'description:{'+
                 'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации.",'+
                 'ENG:"Temporarily increases the strength of the regeneration effect. Decreases after each regeneration."'+

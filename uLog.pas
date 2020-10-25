@@ -80,12 +80,34 @@ const
               '.icon_unlock{background:url("data:image/jpeg;base64,#ICON_UNLOCK#");}'+
               '.icon_monster{background:url("data:image/jpeg;base64,#ICON_MONSTER#");}'+
               '.icon_knight{background:url("data:image/jpeg;base64,#ICON_KNIGHT#");}'+
-              '.icon_brain{background:url("data:image/jpeg;base64,#ICON_BRAIN#");}'+
+              '.icon_think{background:url("data:image/jpeg;base64,#ICON_THINK#");}'+
 
-              '.wood,.stone,.herbal,.wheat,.meat,.blood,.bone,.skin,.ore,.essence,'+
-              '.potionAuto,.buffREG,.buffEXP,.buffMDEF,.buffDEF,.buffATK,.regenMP,'+
-              '.regenHP,.potionexp,.PermanentMDEF,.permanentDEF,.permanentATK,'+
-              '.restoreMana,.restoreHealth,'+
+              '.wood{background:url("data:image/jpeg;base64,#ICON_WOOD#");}'+
+              '.stone{background:url("data:image/jpeg;base64,#ICON_STONE#");}'+
+              '.herbal{background:url("data:image/jpeg;base64,#ICON_HERBAL#");}'+
+              '.wheat{background:url("data:image/jpeg;base64,#ICON_WHEAT#");}'+
+              '.meat{background:url("data:image/jpeg;base64,#ICON_MEAT#");}'+
+              '.blood{background:url("data:image/jpeg;base64,#ICON_BLOOD#");}'+
+              '.bone{background:url("data:image/jpeg;base64,#ICON_BONE#");}'+
+              '.skin{background:url("data:image/jpeg;base64,#ICON_SKIN#");}'+
+              '.ore{background:url("data:image/jpeg;base64,#ICON_ORE#");}'+
+              '.essence{background:url("data:image/jpeg;base64,#ICON_ESSENCE#");}'+
+
+              '.potionAuto{background:url("data:image/jpeg;base64,#ICON_AUTOACTION#");}'+
+              '.buffREG{background:url("data:image/jpeg;base64,#ICON_BUFFREG#");}'+
+              '.buffEXP{background:url("data:image/jpeg;base64,#ICON_EXPBUFF#");}'+
+              '.buffMDEF{background:url("data:image/jpeg;base64,#ICON_MDEFBUFF#");}'+
+              '.buffDEF{background:url("data:image/jpeg;base64,#ICON_DEFBUFF#");}'+
+              '.buffATK{background:url("data:image/jpeg;base64,#ICON_ATKBUFF#");}'+
+              '.regenMP{background:url("data:image/jpeg;base64,#ICON_MPREG#");}'+
+              '.regenHP{background:url("data:image/jpeg;base64,#ICON_HPREG#");}'+
+              '.potionexp{background:url("data:image/jpeg;base64,#ICON_EXPGET#");}'+
+              '.PermanentMDEF{background:url("data:image/jpeg;base64,#ICON_MDEFGET#");}'+
+              '.permanentDEF{background:url("data:image/jpeg;base64,#ICON_DEFGET#");}'+
+              '.permanentATK{background:url("data:image/jpeg;base64,#ICON_ATKGET#");}'+
+              '.restoreHealth{background:url("data:image/jpeg;base64,#ICON_HPGET#");}'+
+              '.restoreMana{background:url("data:image/jpeg;base64,#ICON_MPGET#");}'+
+
               '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
             '</style>'+
           '</head>'+
@@ -233,9 +255,33 @@ var
    ,ICON_MONSTER
    ,ICON_KNIGHT
    ,ICON_BRAIN
+
+   ,ICON_WOOD
+   ,ICON_STONE
+   ,ICON_HERBAL
+   ,ICON_WHEAT
+   ,ICON_MEAT
+   ,ICON_BLOOD
+   ,ICON_BONE
+   ,ICON_SKIN
+   ,ICON_ORE
+   ,ICON_ESSENCE
+
+   ,ICON_AUTOACTION
+   ,ICON_BUFFREG
+   ,ICON_EXPBUFF
+   ,ICON_MDEFBUFF
+   ,ICON_DEFBUFF
+   ,ICON_ATKBUFF
+   ,ICON_MPREG
+   ,ICON_HPREG
+   ,ICON_EXPGET
+   ,ICON_MDEFGET
+   ,ICON_DEFGET
+   ,ICON_ATKGET
+   ,ICON_HPGET
+   ,ICON_MPGET
     : string;
-
-
 
 procedure TLog.Add(kind, text: string);
 begin
@@ -292,6 +338,32 @@ begin
     Doc.SetValue('ICON_MONSTER', ICON_MONSTER);
     Doc.SetValue('ICON_KNIGHT', ICON_KNIGHT);
     Doc.SetValue('ICON_BRAIN', ICON_BRAIN);
+    Doc.SetValue('ICON_WOOD', ICON_WOOD);
+    Doc.SetValue('ICON_STONE', ICON_STONE);
+    Doc.SetValue('ICON_HERBAL', ICON_HERBAL);
+    Doc.SetValue('ICON_WHEAT', ICON_WHEAT);
+    Doc.SetValue('ICON_MEAT', ICON_MEAT);
+    Doc.SetValue('ICON_BLOOD', ICON_BLOOD);
+    Doc.SetValue('ICON_BONE', ICON_BONE);
+    Doc.SetValue('ICON_SKIN', ICON_SKIN);
+    Doc.SetValue('ICON_ORE', ICON_ORE);
+    Doc.SetValue('ICON_ESSENCE', ICON_ESSENCE);
+
+    Doc.SetValue('ICON_AUTOACTION', ICON_AUTOACTION);
+    Doc.SetValue('ICON_BUFFREG', ICON_BUFFREG);
+    Doc.SetValue('ICON_EXPBUFF', ICON_EXPBUFF);
+    Doc.SetValue('ICON_MDEFBUFF', ICON_MDEFBUFF);
+    Doc.SetValue('ICON_DEFBUFF', ICON_DEFBUFF);
+    Doc.SetValue('ICON_ATKBUFF', ICON_ATKBUFF);
+    Doc.SetValue('ICON_MPREG', ICON_MPREG);
+    Doc.SetValue('ICON_HPREG', ICON_HPREG);
+    Doc.SetValue('ICON_EXPGET', ICON_EXPGET);
+    Doc.SetValue('ICON_MDEFGET', ICON_MDEFGET);
+    Doc.SetValue('ICON_DEFGET', ICON_DEFGET);
+    Doc.SetValue('ICON_ATKGET', ICON_ATKGET);
+    Doc.SetValue('ICON_HPGET', ICON_HPGET);
+    Doc.SetValue('ICON_MPGET', ICON_MPGET);
+
 
     Doc.SetValue('ICON_GOLD', Format(ICON_TEMPLATE, ['icon icon_gold']), false);
     Doc.SetValue('ICON_SWORD', Format(ICON_TEMPLATE, ['icon icon_sword']), false);
@@ -308,6 +380,32 @@ begin
     Doc.SetValue('ICON_MONSTER', Format(ICON_TEMPLATE, ['icon icon_monster']), false);
     Doc.SetValue('ICON_KNIGHT', Format(ICON_TEMPLATE, ['icon icon_knight']), false);
     Doc.SetValue('ICON_BRAIN', Format(ICON_TEMPLATE, ['icon icon_brain']), false);
+
+    Doc.SetValue('ICON_WOOD', Format(ICON_TEMPLATE, ['icon wood']), false);
+    Doc.SetValue('ICON_STONE', Format(ICON_TEMPLATE, ['icon stone']), false);
+    Doc.SetValue('ICON_HERBAL', Format(ICON_TEMPLATE, ['icon herbal']), false);
+    Doc.SetValue('ICON_WHEAT', Format(ICON_TEMPLATE, ['icon wheat']), false);
+    Doc.SetValue('ICON_MEAT', Format(ICON_TEMPLATE, ['icon meat']), false);
+    Doc.SetValue('ICON_BLOOD', Format(ICON_TEMPLATE, ['icon blood']), false);
+    Doc.SetValue('ICON_BONE', Format(ICON_TEMPLATE, ['icon bone']), false);
+    Doc.SetValue('ICON_SKIN', Format(ICON_TEMPLATE, ['icon skin']), false);
+    Doc.SetValue('ICON_ORE', Format(ICON_TEMPLATE, ['icon ore']), false);
+    Doc.SetValue('ICON_ESSENCE', Format(ICON_TEMPLATE, ['icon essence']), false);
+
+    Doc.SetValue('ICON_AUTOACTION', Format(ICON_TEMPLATE, ['icon potionAuto']), false);
+    Doc.SetValue('ICON_BUFFREG', Format(ICON_TEMPLATE, ['icon buffREG']), false);
+    Doc.SetValue('ICON_EXPBUFF', Format(ICON_TEMPLATE, ['icon buffEXP']), false);
+    Doc.SetValue('ICON_MDEFBUFF', Format(ICON_TEMPLATE, ['icon buffMDEF']), false);
+    Doc.SetValue('ICON_DEFBUFF', Format(ICON_TEMPLATE, ['icon buffDEF']), false);
+    Doc.SetValue('ICON_ATKBUFF', Format(ICON_TEMPLATE, ['icon buffATK']), false);
+    Doc.SetValue('ICON_MPREG', Format(ICON_TEMPLATE, ['icon regenMP']), false);
+    Doc.SetValue('ICON_HPREG', Format(ICON_TEMPLATE, ['icon regenHP']), false);
+    Doc.SetValue('ICON_EXPGET', Format(ICON_TEMPLATE, ['icon potionexp']), false);
+    Doc.SetValue('ICON_MDEFGET', Format(ICON_TEMPLATE, ['icon PermanentMDEF']), false);
+    Doc.SetValue('ICON_DEFGET', Format(ICON_TEMPLATE, ['icon permanentDEF']), false);
+    Doc.SetValue('ICON_ATKGET', Format(ICON_TEMPLATE, ['icon permanentATK']), false);
+    Doc.SetValue('ICON_HPGET', Format(ICON_TEMPLATE, ['icon restoreMana']), false);
+    Doc.SetValue('ICON_MPGET', Format(ICON_TEMPLATE, ['icon restoreHealth']), false);
 
     Doc.ClearMarks;
 
@@ -331,7 +429,7 @@ begin
     if ICON_SHIELD = '' then ICON_SHIELD :=  fAtlas.EncodeToBase64('ICON_SHIELD');
     if ICON_BLUESHIELD = '' then ICON_BLUESHIELD :=  fAtlas.EncodeToBase64('ICON_BLUESHIELD');
     if ICON_HEART = '' then ICON_HEART :=  fAtlas.EncodeToBase64('ICON_HEART');
-    if ICON_MANA = '' then ICON_MANA :=  fAtlas.EncodeToBase64('ICON_MANA');
+    if ICON_MANA = '' then ICON_MANA :=  fAtlas.EncodeToBase64('ICON_POWER');
     if ICON_AUTO = '' then ICON_AUTO :=  fAtlas.EncodeToBase64('ICON_AUTO');
     if ICON_LEVEL = '' then ICON_LEVEL :=  fAtlas.EncodeToBase64('ICON_LEVEL');
     if ICON_EXP = '' then ICON_EXP :=  fAtlas.EncodeToBase64('ICON_EXP');
@@ -341,6 +439,33 @@ begin
     if ICON_MONSTER = '' then ICON_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
     if ICON_KNIGHT = '' then ICON_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
     if ICON_BRAIN = '' then ICON_BRAIN :=  fAtlas.EncodeToBase64('ICON_BRAIN');
+
+    if ICON_WOOD = '' then ICON_WOOD :=  fAtlas.EncodeToBase64('ICON_WOOD');
+    if ICON_STONE = '' then ICON_STONE :=  fAtlas.EncodeToBase64('ICON_STONE');
+    if ICON_HERBAL = '' then ICON_HERBAL :=  fAtlas.EncodeToBase64('ICON_HERBAL');
+    if ICON_WHEAT = '' then ICON_WHEAT :=  fAtlas.EncodeToBase64('ICON_WHEAT');
+    if ICON_MEAT = '' then ICON_MEAT :=  fAtlas.EncodeToBase64('ICON_MEAT');
+    if ICON_BLOOD = '' then ICON_BLOOD :=  fAtlas.EncodeToBase64('ICON_BLOOD');
+    if ICON_BONE = '' then ICON_BONE :=  fAtlas.EncodeToBase64('ICON_BONE');
+    if ICON_SKIN = '' then ICON_SKIN :=  fAtlas.EncodeToBase64('ICON_SKIN');
+    if ICON_ORE = '' then ICON_ORE :=  fAtlas.EncodeToBase64('ICON_ORE');
+    if ICON_ESSENCE = '' then ICON_ESSENCE :=  fAtlas.EncodeToBase64('ICON_ESSENCE');
+
+    if ICON_AUTOACTION = '' then ICON_AUTOACTION :=  fAtlas.EncodeToBase64('ICON_AUTOACTION');
+    if ICON_BUFFREG = '' then ICON_BUFFREG :=  fAtlas.EncodeToBase64('ICON_BUFFREG');
+    if ICON_EXPBUFF = '' then ICON_EXPBUFF :=  fAtlas.EncodeToBase64('ICON_EXPBUFF');
+    if ICON_MDEFBUFF = '' then ICON_MDEFBUFF :=  fAtlas.EncodeToBase64('ICON_MDEFBUFF');
+    if ICON_DEFBUFF = '' then ICON_DEFBUFF :=  fAtlas.EncodeToBase64('ICON_DEFBUFF');
+    if ICON_ATKBUFF = '' then ICON_ATKBUFF :=  fAtlas.EncodeToBase64('ICON_ATKBUFF');
+    if ICON_MPREG = '' then ICON_MPREG :=  fAtlas.EncodeToBase64('ICON_MPREG');
+    if ICON_HPREG = '' then ICON_HPREG :=  fAtlas.EncodeToBase64('ICON_HPREG');
+    if ICON_EXPGET = '' then ICON_EXPGET :=  fAtlas.EncodeToBase64('ICON_EXPGET');
+    if ICON_MDEFGET = '' then ICON_MDEFGET :=  fAtlas.EncodeToBase64('ICON_MDEFGET');
+    if ICON_DEFGET = '' then ICON_DEFGET :=  fAtlas.EncodeToBase64('ICON_DEFGET');
+    if ICON_ATKGET = '' then ICON_ATKGET :=  fAtlas.EncodeToBase64('ICON_ATKGET');
+    if ICON_HPGET = '' then ICON_HPGET :=  fAtlas.EncodeToBase64('ICON_HPGET');
+    if ICON_MPGET = '' then ICON_MPGET :=  fAtlas.EncodeToBase64('ICON_MPGET');
+
 end;
 
 procedure TLog.Phrase(name, lang: string; params: array of TVarRec);
