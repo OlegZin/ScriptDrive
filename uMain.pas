@@ -326,7 +326,7 @@ end;
 
 procedure TfMain.bUseItemClick(Sender: TObject);
 begin
-    GameInterface.OpenItemPanel(true);
+    GameInterface.OpenItemPanel;
 end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

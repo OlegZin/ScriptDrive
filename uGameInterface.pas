@@ -11,6 +11,8 @@ type
     private
         selected: TControl;
 
+        fPanelOpened: boolean; // показывать ли панель с предметами в инвентаре
+
         Controls: TDictionary<String, TControl>;
         procedure TabClick(Sender: TObject);
         procedure TabMouseEnter(Sender: TObject);
@@ -20,7 +22,7 @@ type
         procedure Update(data: ISuperObject);
         procedure Init;
         procedure SetMode(name: string);
-        procedure OpenItemPanel(mode: boolean);
+        procedure OpenItemPanel;
     end;
 
 var
@@ -52,9 +54,11 @@ begin
 
 end;
 
-procedure TGameInterface.OpenItemPanel(mode: boolean);
+procedure TGameInterface.OpenItemPanel;
 begin
+    fPanelOpened := not fPanelOpened;
 
+    Controls['ItemPanel'].Visible := fPanelOpened;
 end;
 
 procedure TGameInterface.SetMode(name: string);
@@ -78,9 +82,7 @@ var
     item: TPair<String, TControl>;
 begin
 
-    if assigned(data.O['isOpenItemPanel'])
-    then Controls['ItemPanel'].Visible := data.B['isOpenItemPanel']
-    else Controls['ItemPanel'].Visible := false;
+    Controls['ItemPanel'].Visible := fPanelOpened;
 
     /// ключи компонент совпадают с именами полей data
     ///  потому простым перебором распихиваем значения в лейблы
@@ -138,6 +140,7 @@ end;
 initialization
     GameInterface := TGameInterface.Create;
     GameInterface.Controls := TDictionary<String, TControl>.Create;
+    GameInterface.fPanelOpened := false;
 
 finalization
     GameInterface.Free;

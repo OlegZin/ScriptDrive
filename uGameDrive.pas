@@ -602,6 +602,9 @@ begin
         data.O['modes'] := GameData.O['state.modes'];
         data.S['CurrItem'] := GameData.S['state.CurrItem'];
 
+        // предметы в инвентаре
+        data.O['items'] := GameData.O['state.player.items'];
+
         if data.S['CurrItem'] <> ''
         then data.S['CurrCount'] := CompactDigit( GameData.I['state.player.items.'+GameData.S['state.CurrItem']] )
         else data.S['CurrCount'] := '0';
