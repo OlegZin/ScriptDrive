@@ -113,7 +113,6 @@ type
     iCurrItem: TImage;
     bUseItem: TRectangle;
     Image33: TImage;
-    flEffects: TFlowLayout;
     Timer: TTimer;
     ICON_EXP: TImage;
     Layout4: TLayout;
@@ -123,6 +122,11 @@ type
     lItemPanel: TLayout;
     Rectangle10: TRectangle;
     flowItems: TFlowLayout;
+    lItemInfo: TLayout;
+    lItemCaption: TLabel;
+    lItemDescription: TLabel;
+    Rectangle11: TRectangle;
+    layEffects: TLayout;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure bExitClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
@@ -211,8 +215,13 @@ begin
     GameInterface.LinkControl('CurrCountBG', lCountBG);
     GameInterface.LinkControl('CurrCount', lCount);
 
-    GameInterface.LinkControl('ItemPanel', lItemPanel);
+    GameInterface.LinkControl('ItemsPanel', lItemPanel);
     GameInterface.LinkControl('ItemsFlow', flowItems);
+    GameInterface.LinkControl('ItemInfo', lItemInfo);
+    GameInterface.LinkControl('ItemCaption', lItemCaption);
+    GameInterface.LinkControl('ItemDescription', lItemDescription);
+
+    GameInterface.LinkControl('EffectsPanel', layEffects);
 
     /// кнопки переключения режимов
     GameInterface.LinkControl('tabTower', Tower);

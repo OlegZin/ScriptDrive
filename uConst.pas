@@ -37,11 +37,10 @@ const
 
     CREATURE_SHABLON = '{'+
         'name: {RU:"", ENG:""},'+
-        'params: {LVL:1, HP:0, MP:0, ATK:0, DEF:0, MDEF:0, REG:0},'+
+        'params: {LVL:1, HP:0, MP:0, ATK:0, DEF:0, MDEF:0, BODY:0},'+
         'skills: {},'+
         'items: {},'+
-        'buffs: {},'+
-        'autobuffs: {},'+
+        'effects: {},'+
         'loot: {},'+
         'events: {'+
             'OnAttack:{},'+
@@ -103,10 +102,9 @@ const
         'player: {'+
             'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, needexp:0 },'+
             'skills: {},'+
-            'items: {},'+
-            'buffs: {},'+
-            'autobuffs: {},'+
-            'loot: {},'+
+            'items: {},'+    // инвентарь
+            'effects: {},'+  // временные эффекты (бафы и дебафы)
+            'loot: {},'+     // ресурсы
             'events: {'+
                 'onAttack:{},'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
                 'onParamChange:{},'+
@@ -120,11 +118,10 @@ const
         '},'+
         'creature: {'+
             'name: {RU:"", ENG:""},'+
-            'params: {LVL:1, HP:0, MP:0, ATK:0, DEF:0, MDEF:0, REG:0},'+
+            'params: {LVL:1, HP:0, MP:0, ATK:0, DEF:0, MDEF:0, BODY:0},'+
             'skills: {},'+
             'items: {},'+
-            'buffs: {},'+
-            'autobuffs: {},'+
+            'effects: {},'+
             'loot: {},'+
             'events: {'+
                 'OnAttack:{},'+
@@ -486,27 +483,19 @@ const
                 'ENG:"Instantly adds health. The amount is random: from zero to 100 multiplied by the players current level."'+
             '},'+
             'script:"'+
-                'SetVar(IncHP,Rand(GetPlayerAttr(LVL) * 100));'+
-                'ChangePlayerParam(HP,GetVar(IncHP));'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(IncHP) health);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(IncHP) здоровья);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(HP,Rand(GetParam(LVL) * 100));'+
         '"},'+
         'restoreMana:{'+
             'name:"restoreMana",'+
             'caption: {RU:"Зелье маны", ENG:"Potion of mana"},'+
             'description:{'+
-                'RU:"Мгновенно добавляет ману. Количество случайно: от нуля до 50 умноженного на текущий уровень игрока.",'+
-                'ENG:"Instantly adds mana. The amount is random: from zero to 50 multiplied by the players current level."'+
+                'RU:"Мгновенно добавляет энергию. Количество случайно: от нуля до 50 умноженного на текущий уровень игрока.",'+
+                'ENG:"Instantly adds energy. The amount is random: from zero to 50 multiplied by the players current level."'+
             '},'+
             'script:"'+
-                'SetVar(IncMP,Rand(GetPlayerAttr(LVL) * 50));'+
-                'ChangePlayerParam(MP,GetVar(IncMP));'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(IncMP) mana);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(IncMP) маны);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(MP,Rand(GetParam(LVL) * 50));'+
         '"},'+
         'permanentATK:{'+
             'name:"permanentATK",'+
@@ -516,11 +505,8 @@ const
                 'ENG:"Increases attack potential. Permanent effect."'+
             '},'+
             'script:"'+
-                'ChangePlayerParam(ATK,1);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained +1 attack!);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено +1 к атаке!);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(ATK,1);'+
         '"},'+
         'permanentDEF:{'+
             'name:"permanentDEF",'+
@@ -530,25 +516,19 @@ const
                 'ENG:"Increases physical protection. Permanent effect."'+
             '},'+
             'script:"'+
-                'ChangePlayerParam(DEF,1);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained +1 defence!);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено +1 к защите!);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(DEF,1);'+
         '"},'+
         'PermanentMDEF:{'+
             'name:"PermanentMDEF",'+
             'caption: {RU:"Зелье магической защиты", ENG:"Potion of magic defence"},'+
             'description:{'+
-                'RU:"Повышает защиту от магии и энергитических воздействий. Постоянный эффект.",'+
-                'ENG:"Increases protection against magic and energetic influences. Permanent effect."'+
+                'RU:"Повышает защиту от энергитических воздействий. Постоянный эффект.",'+
+                'ENG:"Increases protection against energetic influences. Permanent effect."'+
             '},'+
             'script:"'+
-                'ChangePlayerParam(MDEF,1);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained +1 magic defence!);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено +1 магической защиты!);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(MDEF,1);'+
         '"},'+
         'potionexp:{'+
             'name:"potionexp",'+
@@ -558,12 +538,8 @@ const
                 'ENG:"Gives you a free experience instantly. A number between 0 and 100 multiplied by the players current level."'+
             '},'+
             'script:"'+
-                'SetVar(EXP,Rand(GetPlayerAttr(LVL) * 100));'+
-                'ChangePlayerParam(EXP,GetVar(EXP));'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(EXP) experience!);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(EXP) опыта!);'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(EXP,Rand(GetParam(LVL) * 100));'+
         '"},'+
         'regenHP:{'+
             'name:"regenHP",'+
@@ -572,16 +548,20 @@ const
                 'RU:"Постепенно восстанавливает здоровье. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
                 'ENG:"Restores health over time. Recovery potential from 0 to 500 multiplied by the players current level."'+
             '},'+
-            'script:"SetPlayerAutoBuff(HP,Rand(GetPlayerAttr(LVL) * 500));'+
+            'script:"'+
+                'SetPlayerAsTarget();' +
+                'AddEffect(RegenPlayerHP, Rand(GetParam(LVL) * 500));'+
         '"},'+
         'regenMP:{'+
             'name:"regenMP",'+
             'caption: {RU:"Мазь энергии", ENG:"Ointment of mana"},'+
             'description:{'+
-                'RU:"Постепенно восстанавливает ману. Потенциал восстановления от 0 до 500 умноженное на текущий уровень игрока.",'+
-                'ENG:"Restores mana over time. Recovery potential from 0 to 500 multiplied by the players current level."'+
+                'RU:"Постепенно восстанавливает энергию. Потенциал восстановления от 0 до 250 умноженное на текущий уровень игрока.",'+
+                'ENG:"Restores energy over time. Recovery potential from 0 to 250 multiplied by the players current level."'+
             '},'+
-            'script:"SetPlayerAutoBuff(MP,Rand(GetPlayerAttr(LVL) * 50));'+
+            'script:"'+
+                'SetPlayerAsTarget();' +
+                'AddEffect(RegenPlayerMP, Rand(GetParam(LVL) * 250));'+
         '"},'+
         'buffATK:{'+
             'name:"buffATK",'+
@@ -590,7 +570,9 @@ const
                 'RU:"Временно повышает потенциал атаки. Снижается после каждой атаки игрока.",'+
                 'ENG:"Temporarily increases attack potential. Decreases after each player attack."'+
             '},'+
-            'script:"SetPlayerBuff(ATK,Rand(GetPlayerAttr(LVL)) + 1);'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(PlayerATKFBuff, Rand(GetParam(LVL)) + 1);'+
         '"},'+
         'buffDEF:{'+
             'name:"buffDEF",'+
@@ -599,7 +581,9 @@ const
                 'RU:"Временно повышает потенциал защиты. Снижается после каждой атаки по игроку.",'+
                 'ENG:"Temporarily increases attack potential. Decreases after each attack on the player."'+
             '},'+
-            'script:"SetPlayerBuff(DEF,Rand(GetPlayerAttr(LVL)) + 1);'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(PlayerDEFBuff, Rand(GetParam(LVL)) + 1);'+
         '"},'+
         'buffMDEF:{'+
             'name:"buffMDEF",'+
@@ -608,7 +592,9 @@ const
                 'RU:"Временно повышает потенциал магической защиты. Снижается после каждого магического или энергетического воздействия на игрока.",'+
                 'ENG:"Temporarily increases the potential of magic protection. Decreases after each magical or energy impact on the player."'+
             '},'+
-            'script:"SetPlayerBuff(MDEF,Rand(GetPlayerAttr(LVL)) + 1);'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(PlayerMDEFBuff, Rand(GetParam(LVL)) + 1);'+
         '"},'+
         'buffEXP:{'+
             'name:"buffEXP",'+
@@ -617,7 +603,9 @@ const
                 'RU:"Временно повышает потенциал получения опыта. Снижается после каждого получения опыта игроком.",'+
                 'ENG:"Temporarily increases the potential for gaining experience. Decreased after each player gains experience."'+
             '},'+
-            'script:"SetPlayerBuff(EXP,Rand(GetPlayerAttr(LVL)) + 1);'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(PlayerEXPBuff, Rand(GetParam(LVL)) + 1);'+
         '"},'+
         'buffREG:{'+
             'name:"buffREG",'+
@@ -626,16 +614,20 @@ const
                 'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации.",'+
                 'ENG:"Temporarily increases the strength of the regeneration effect. Decreases after each regeneration."'+
             '},'+
-            'script:"SetPlayerBuff(REG,Rand(GetPlayerAttr(LVL) * 10) + 10);'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(PlayerREGBuff, Rand(GetParam(LVL) * 10) + 10);'+
         '"},'+
         'potionAuto:{'+
             'name:"potionAuto",'+
             'caption: {RU:"Зелье автодействий", ENG:"Potion of autoactions"},'+
             'description:{'+
-                'RU:"Добавляет автодействия. Эффект от 0 до 100 умноженное на уровень игрока, но не больше 2000.",'+
-                'ENG:"Adds auto-actions. The effect is from 0 to 100 multiplied by the players level, but not more than 2000."'+
+                'RU:"Добавляет автодействия. Эффект от 500 до 1000.",'+
+                'ENG:"Adds auto-actions. The effect is from 500 to 1000."'+
             '},'+
-            'script:"ChangeAutoATK(Rand(Min(GetPlayerAttr(LVL) * 100, 2000)));'+
+            'script:"'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(AutoAction,Rand(500) + 500);'+
         '"}'+
     '},'+
 
@@ -795,12 +787,122 @@ const
             '},'+
             'script:"'+
                 'SetVar(value,Rand(GetSkillLvl(metabolism) * 5) + 10);'+
-                'SetTargetBuff(REG,GetVar(value));'+
+                'SetTargetBuff(BODY,GetVar(value));'+
                 'If(GetLang() = ENG, 1);'+
                 'AddEvent(Target speed up regeneration by GetVar(value));'+
                 'If(GetLang() = RU, 1);'+
                 'AddEvent(Регенерация цели увеличена на GetVar(value));'+
         '"}'+
+    '},'+
+
+
+
+    /// временные эффекты, которые могут быть наложены на цель (игрока, монстра,...)
+    ///    каждый эффект имеет одноименную переменную в общем пуле и может иметь два скрипта
+    ///    auto - вызывается методом CheckStatus для каждого активного эффекта (state.player.effects)
+    ///           и позволяет реализовать эффекты по таймеру. например, постепенная регенерация энергии или хитов
+    ///    use - срабатывает каждый раз, когда обращаются к значению переменной через GetEffect,
+    ///          при этом используется автоматическая переменная LastValue,
+    ///          чтобы не входить в бесконечную рекурсию запрашивая текущее значение через GetEffect
+    'effects:{'+
+        'PlayerREGBuff:{'+
+            'name:"PlayerREGBuff",'+
+            'script:{'+
+                'auto:"",'+
+                'use:"'+
+                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeBuff(PlayerREGBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                        'RemoveEffect(PlayerREGBuff);'+                         /// снимаем эффект
+                '",'+
+            '},'+
+        '},'+
+
+        'PlayerEEXPBuff:{'+
+            'name:"PlayerEXPBuff",'+
+            'script:{'+
+                'auto:"",'+
+                'use:"'+
+                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeBuff(PlayerEXPBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                        'RemoveEffect(PlayerEXPBuff);'+                         /// снимаем эффект
+                '",'+
+            '},'+
+        '},'+
+
+        'PlayerMDEFBuff:{'+
+            'name:"PlayerMDEFBuff",'+
+            'script:{'+
+                'auto:"",'+
+                'use:"'+
+                    'IF(LastValue > 1, 1);'+                               /// если висит бафф на величину регена
+                        'ChangeBuff(PlayerMDEFBuff, -1);'+                      /// уменьшаем эффективность регена
+                    'IF(LastValue <= 1, 1);'+                              /// если реген нулевой
+                        'RemoveEffect(PlayerMDEFBuff);'+                        /// снимаем эффект
+                '",'+
+            '},'+
+        '},'+
+
+        'PlayerDEFBuff:{'+
+            'name:"PlayerDEFBuff",'+
+            'script:{'+
+                'auto:"",'+
+                'use:"'+
+                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeBuff(PlayerDEFBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                        'RemoveEffect(PlayerDEFBuff);'+                         /// снимаем эффект
+                '",'+
+            '},'+
+        '},'+
+
+        'PlayerATKBuff:{'+
+            'name:"PlayerATKBuff",'+
+            'script:{'+
+                'auto:"",'+
+                'use:"'+
+                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeBuff(PlayerATKBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                        'RemoveEffect(PlayerATKBuff);'+                         /// снимаем эффект
+                '",'+
+            '},'+
+        '},'+
+
+        'RegenPlayerHP:{'+
+            'name:"RegenPlayerHP",'+
+            'script:{'+
+                'auto:"'+
+                    'SetPlayerAsTarget();'+                                     /// целимся в игрока
+                    'IF(GetEffect(RegenPlayerHP) > 0, 4);'+                     /// если величина остатака регенерации не нулевая
+                        'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                        'SilentChange();'+
+                        'ChangeParam(HP, GetParam(BODY) + GetVar(tmp));'+                /// перекачиваем в здоровье с учетом возможного бафа на реген
+                        'ChangeEffect(RegenPlayerHP, -GetParam(BODY) - GetVar(tmp));'+    /// списываем с пула регена здоровья
+                    'IF(GetEffect(RegenPlayerHP) <= 0, 1);'+                    /// если величина остатака регенерации нулевая
+                        'RemoveEffect(RegenPlayerHP);'+                         /// снимаем эффект
+                '",'+
+                'use:"",'+
+            '},'+
+        '},'+
+
+        'RegenPlayerMP:{'+
+            'name:"RegenPlayerMP",'+
+            'script:{'+
+                'auto:"'+
+                    'SetPlayerAsTarget();'+                                     /// целимся в игрока
+                    'IF(GetEffect(RegenPlayerMP) > 0, 4);'+                     /// если величина остатака регенерации не нулевая
+                        'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                        'SilentChange();'+
+                        'ChangeParam(MP, GetParam(MIND) + GetVar(tmp));'+                /// перекачиваем в энергию с учетом возможного бафа на реген
+                        'ChangeEffect(RegenPlayerMP, -GetParam(MIND) - GetVar(tmp));'+    /// списываем с пула регена энергии
+                    'IF(GetEffect(RegenPlayerMP) <= 0, 1);'+                    /// если величина остатака регенерации нулевая
+                        'RemoveEffect(RegenPlayerMP);'+                         /// снимаем эффект
+                    '",'+
+                'use:"",'+
+            '},'+
+        '},'+
     '},'+
 
 
@@ -891,6 +993,9 @@ const
                  'The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
+
+             'ChangePlayerItemCount(regenMP, Rand(100000));'+
+             'ChangePlayerItemCount(regenHP, Rand(100000));'+
         '"},'+
         '2:{ floor: 2, next:3, script:"'+
              'BreakAuto(Tower);'+
@@ -946,7 +1051,7 @@ const
 
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:9999, ATK:100, DEF:0, MAXHP:9999, MP:0, MDEF:0, REG:0},'+
+                 '{HP:9999, ATK:100, DEF:0, MAXHP:9999, MP:0, MDEF:0},'+
                  '{SpiritBless:1}, );'+
 
              'AddEvent(..................);'+
@@ -968,7 +1073,7 @@ const
 
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:99999, ATK:1000, DEF:0, MAXHP:99999, MP:0, MDEF:0, REG:0},'+
+                 '{HP:99999, ATK:1000, DEF:0, MAXHP:99999, MP:0, MDEF:0},'+
                  '{SpiritBless:1}, );'+
 
              'AddEvent(..................);'+
@@ -1003,7 +1108,7 @@ const
 
              'SetCreature('+
                  '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:999999, ATK:10000, DEF:0, MAXHP:999999, MP:0, MDEF:0, REG:0},'+
+                 '{HP:999999, ATK:10000, DEF:0, MAXHP:999999, MP:0, MDEF:0},'+
                  '{SpiritBless:1}, );'+
 
              'AddEvent(..................);'+

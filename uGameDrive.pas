@@ -53,6 +53,7 @@ type
 
 /// ключевой метод
         procedure CheckStatus;             // проверка состояния игры и отработка событий
+        procedure ProcessEffects;          // отыгрывает все автоматические эффекты на всех целях
 
 // работа с целями и их параметрами, инвентарем и прочим
         procedure SetPlayerAsTarget;   /// установка игрока целью методов работы с параметрами и прочего
@@ -84,6 +85,12 @@ type
         procedure PlayEvent(name: string); /// выполнение скриптов цели, привязанных к указанному событию.
                                            /// например, "onAttack"
 
+/// работа с эффектами. ориентированы на текущую цель!
+        procedure AddEffect(name, value: variant); /// вешает на цель временный эффект
+        function GetEffect(name: string): string;
+        procedure ChangeEffect(name, value: variant);
+        procedure RemoveEffect(name: string);
+
 /// работа с языком
         function GetLang: string;          // возврат стрки с именем текущего языка ENG|RU
         procedure SetLang(lang: string);   // возврат стрки с именем текущего языка ENG|RU
@@ -98,12 +105,12 @@ type
 
 /// работа с предметами
         function GetRandItemName: string;          // внутреннее имя случайного предмета
+        procedure SetCurrItem(name: string);   // устанавливает текущий выбранный предмет по его имени
 
 /// работа с ресурсами
         function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
 
 /// работа с целями на этажах.
-/// при первом входе на целевой этаж срабатывает сюжетный скрипт.
         function GetCurrTarget: string;
         procedure SetCurrTarget(val: string);
         procedure SetNextTarget;
@@ -114,6 +121,7 @@ type
 
 /// работа с переменными
         procedure SetVar(name, value: variant);
+        procedure ChangeVar(name, value: variant);
         function GetVar(name: string): string;
 
 /// работа с монстрами
@@ -173,6 +181,10 @@ var
     loot, items: ISuperObject;
 begin
     l('-> CheckStatus');
+
+    /// отыгрываем атоматические эффекты
+    SetPlayerAsTarget;
+    ProcessEffects;
 
     /// пытаемся проатаковать, если пул атак не нулевой
     l('-> CheckStatus: пытаемся проатаковать, если пул атак не нулевой');
@@ -486,6 +498,7 @@ function TGameDrive.GetParam(name: string): string;
 begin
     l('-> GetParam('+name+')');
     result := GameData.S[Target + 'params.' + name];
+    if result = '' then result := '0';
 end;
 
 function TGameDrive.GetPool(name: string): integer;
@@ -583,7 +596,8 @@ end;
 procedure TGameDrive.UpdateInterface;
 /// обновяем состояние окна активного режима
 var
-    data, item: ISuperobject;
+    data, elem: ISuperobject;
+    item: TSuperAvlEntry;
 begin
     l('-> UpdateInterface('+IntToStr(InterfModes)+')');
 
@@ -599,11 +613,25 @@ begin
         data.S['params.MP'] := CompactDigit(GameData.I['state.player.params.MP']);
         data.I['params.needexp'] := GameData.I['state.player.params.needexp'];
 
-        data.O['modes'] := GameData.O['state.modes'];
-        data.S['CurrItem'] := GameData.S['state.CurrItem'];
+
+        /// текущие временные эффекты на игроке
+        data.O['effects'] := GameData.O['state.player.effects'].Clone;
+        for elem in data.O['effects'] do
+        elem.S['value'] := CompactDigit(elem.S['value']); /// значения могут быть впечатляющими
+
+
+        data.O['modes'] := GameData.O['state.modes'];      /// статус доступа к игровым режимам
+        data.S['CurrItem'] := GameData.S['state.CurrItem'];  /// текущий выбранный для быстрого использования предмет
 
         // предметы в инвентаре
-        data.O['items'] := GameData.O['state.player.items'];
+        data.O['items'] := SO();
+        for item in GameData['state.player.items'].AsObject do
+        begin
+            data.S['items.'+item.Name+'.name'] := item.Name;
+            data.S['items.'+item.Name+'.count'] := CompactDigit(item.Value.AsInteger);
+            data.S['items.'+item.Name+'.caption'] := GameData.S['items.'+item.Name+'.caption.'+GetLang];
+            data.S['items.'+item.Name+'.description'] := GameData.S['items.'+item.Name+'.description.'+GetLang];
+        end;
 
         if data.S['CurrItem'] <> ''
         then data.S['CurrCount'] := CompactDigit( GameData.I['state.player.items.'+GameData.S['state.CurrItem']] )
@@ -713,6 +741,7 @@ begin
     result := GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.floor'];
 end;
 
+
 function TGameDrive.GetItemCount(name: string): string;
 begin
     result := '0';
@@ -742,6 +771,14 @@ end;
 
 
 
+procedure TGameDrive.SetCurrItem(name: string);
+begin
+    GameData.S['state.CurrItem'] := name;
+
+    SetModeToUpdate( INT_MAIN );
+    UpdateInterface;
+end;
+
 procedure TGameDrive.SetCurrStep(val: variant);
 begin
     l('-> SetCurrStep('+String(val)+')');
@@ -753,6 +790,57 @@ begin
     l('-> SetCurrTarget('+val+')');
     GameData.S['state.CurrTargetFloor'] := val;
 end;
+
+
+
+procedure TGameDrive.AddEffect(name, value: variant);
+begin
+    /// создаем или модифицируем текущее значение эффекта на цели
+    if assigned( GameData.O[Target+'effects.'+name] )
+    then
+        GameData.I[Target+'effects.'+name+'.value'] := GameData.I[Target+'.effects.'+name+'.value'] + Integer(value)
+    else
+    begin
+        GameData.S[Target+'effects.'+name+'.name'] := name;
+        GameData.I[Target+'effects.'+name+'.value'] := Integer(value);
+    end;
+
+    SetModeToUpdate( INT_TOWER + INT_MAIN );
+end;
+
+function TGameDrive.GetEffect(name: string): string;
+begin
+     result := '0';
+
+     if assigned( GameData.O[Target+'effects.'+name] ) then
+     begin
+         result := GameData.S[Target+'effects.'+name+'.value'];
+         SetVar('LastVlue', result);
+     end;
+end;
+
+procedure TGameDrive.ChangeEffect(name, value: variant);
+begin
+     /// модифицируем текущее значение эффекта на цели
+     if assigned( GameData.O[Target+'effects.'+name] ) then
+     begin
+         GameData.I[Target+'effects.'+name+'.value'] := GameData.I[Target+'effects.'+name+'.value'] + Integer(value);
+         SetModeToUpdate( INT_MAIN + INT_TOWER );
+     end;
+end;
+
+procedure TGameDrive.RemoveEffect(name: string);
+begin
+     if assigned( GameData.O[Target+'effects.'+name] ) then
+     begin
+         GameData.Delete(Target+'effects.'+name);
+         SetModeToUpdate( INT_MAIN + INT_TOWER );
+     end;
+end;
+
+
+
+
 
 
 
@@ -933,6 +1021,12 @@ begin
     if name = 'tower' then SetModeToUpdate(INT_TOWER);
 end;
 
+procedure TGameDrive.ChangeVar(name, value: variant);
+begin
+    l('-> ChangeVar('+name+','+String(value)+')');
+    GameData.I['state.vars.'+name] := GameData.I['state.vars.'+name] + Integer(value);
+end;
+
 function TGameDrive.AllowLevelUp: boolean;
 begin
     l('-> AllowLevelUp');
@@ -971,6 +1065,10 @@ begin
 
     old := GameData.I[Target + 'items.' + name];
     GameData.I[Target + 'items.'+name] := GameData.I[Target + 'items.'+name] + delta;
+
+    /// предметы с нулевым количеством - удаляем, чтобы не забивать интерфейс инвентаря
+    if GameData.I[Target + 'items.'+name] = 0
+    then GameData.Delete(Target + 'items.'+name);
 
     /// пишем изменение в лог, если не "тихий" режим
     if (pos('player', Target) > 0) and not fSilentChange
@@ -1309,6 +1407,25 @@ begin
 //        if GetPool('Tower') = 0 then uLog.Log.Phrase('attack_pool_empty', GetLang, []);
     end;
 
+end;
+
+procedure TGameDrive.ProcessEffects;
+var
+    item, tmp: isuperobject;
+
+begin
+    if not assigned(GameData.O[Target+'effects']) then exit;
+
+    /// для каждого висящего на игроке эффекта отыгрываем его auto скрипт, если прописан
+    /// тонкость в том, что при выполнении автоскриптов некоторые эффекты могут самоудаляться как
+    /// отработавшие и при попытке дальнейшего перебора GameData.O[Target+'effects'] вылетит
+    /// аксес. потому мы делаем слепок перед перебором и спокойно его обрабатываем
+    tmp := GameData.O[Target+'effects'].Clone;
+    for item in tmp do
+    begin
+        if Assigned(item) then
+            Script.Exec( GameData.S['effects.'+item.S['name']+'.script.auto'] );
+    end;
 end;
 
 procedure TGameDrive.ResetTargetState;
