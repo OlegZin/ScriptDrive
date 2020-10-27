@@ -519,8 +519,8 @@ const
                 'SetPlayerAsTarget();' +
                 'ChangeParam(DEF,1);'+
         '"},'+
-        'PermanentMDEF:{'+
-            'name:"PermanentMDEF",'+
+        'permanentMDEF:{'+
+            'name:"permanentMDEF",'+
             'caption: {RU:"Зелье магической защиты", ENG:"Potion of magic defence"},'+
             'description:{'+
                 'RU:"Повышает защиту от энергитических воздействий. Постоянный эффект.",'+
@@ -567,52 +567,52 @@ const
             'name:"buffATK",'+
             'caption: {RU:"Порошок атаки", ENG:"Powder of attack"},'+
             'description:{'+
-                'RU:"Временно повышает потенциал атаки. Снижается после каждой атаки игрока.",'+
-                'ENG:"Temporarily increases attack potential. Decreases after each player attack."'+
+                'RU:"Временно повышает потенциал атаки. Снижается после каждой атаки игрока. Эффект от 1 до 10 умноженное на текущий уровнь игрока.",'+
+                'ENG:"Temporarily increases attack potential. Decreases after each player attack. Potential from 1 to 10 multiplied by the players current level."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();'+
-                'AddEffect(PlayerATKFBuff, Rand(GetParam(LVL)) + 1);'+
+                'AddEffect(PlayerATKBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffDEF:{'+
             'name:"buffDEF",'+
             'caption: {RU:"Порошок защиты", ENG:"Powder of defence"},'+
             'description:{'+
-                'RU:"Временно повышает потенциал защиты. Снижается после каждой атаки по игроку.",'+
-                'ENG:"Temporarily increases attack potential. Decreases after each attack on the player."'+
+                'RU:"Временно повышает потенциал защиты. Снижается после каждой атаки по игроку. Эффект от 1 до 10 умноженное на текущий уровнь игрока.",'+
+                'ENG:"Temporarily increases attack potential. Decreases after each attack on the player. Potential from 1 to 10 multiplied by the players current level."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();'+
-                'AddEffect(PlayerDEFBuff, Rand(GetParam(LVL)) + 1);'+
+                'AddEffect(PlayerDEFBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffMDEF:{'+
             'name:"buffMDEF",'+
             'caption: {RU:"Порошок магической защиты", ENG:"Powder of magic defence"},'+
             'description:{'+
-                'RU:"Временно повышает потенциал магической защиты. Снижается после каждого магического или энергетического воздействия на игрока.",'+
-                'ENG:"Temporarily increases the potential of magic protection. Decreases after each magical or energy impact on the player."'+
+                'RU:"Временно повышает потенциал магической защиты. Снижается после каждого магического или энергетического воздействия на игрока. Эффект от 1 до 10 умноженного на текущий уровнь игрока.",'+
+                'ENG:"Temporarily increases the potential of magic protection. Decreases after each magical or energy impact on the player. Potential from 1 to 10 multiplied by the players level."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();'+
-                'AddEffect(PlayerMDEFBuff, Rand(GetParam(LVL)) + 1);'+
+                'AddEffect(PlayerMDEFBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffEXP:{'+
             'name:"buffEXP",'+
             'caption: {RU:"Порошок опыта", ENG:"Powder of experience"},'+
             'description:{'+
-                'RU:"Временно повышает потенциал получения опыта. Снижается после каждого получения опыта игроком.",'+
-                'ENG:"Temporarily increases the potential for gaining experience. Decreased after each player gains experience."'+
+                'RU:"Временно повышает потенциал получения опыта. Эффект от 1 до 5 умноженного на текущий уровнь игрока.",'+
+                'ENG:"Temporarily increases the potential for gaining experience. Potential from 1 to 5 multiplied by the players current level."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();'+
-                'AddEffect(PlayerEXPBuff, Rand(GetParam(LVL)) + 1);'+
+                'AddEffect(PlayerEXPBuff, Rand(GetParam(LVL) * 5) + 1);'+
         '"},'+
         'buffREG:{'+
             'name:"buffREG",'+
             'caption: {RU:"Зелье регенерации", ENG:"Potion of regeneration"},'+
             'description:{'+
-                'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации.",'+
-                'ENG:"Temporarily increases the strength of the regeneration effect. Decreases after each regeneration."'+
+                'RU:"Временно повышает силу эффекта регенерации. Снижается после каждой регенерации. Эффект от 1 до 10 умноженного на текущий уровень игрока.",'+
+                'ENG:"Temporarily increases the strength of the regeneration effect. Potential ftom 10 to 10 multiplied by the players current level."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();'+
@@ -810,22 +810,22 @@ const
             'script:{'+
                 'auto:"",'+
                 'use:"'+
-                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
-                        'ChangeBuff(PlayerREGBuff, -1);'+                       /// уменьшаем эффективность регена
-                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                    'IF(GetVar(LastValue) > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeEffect(PlayerREGBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(GetVar(LastValue) <= 1, 1);'+                               /// если реген нулевой
                         'RemoveEffect(PlayerREGBuff);'+                         /// снимаем эффект
                 '",'+
             '},'+
         '},'+
 
-        'PlayerEEXPBuff:{'+
+        'PlayerEXPBuff:{'+
             'name:"PlayerEXPBuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
-                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
-                        'ChangeBuff(PlayerEXPBuff, -1);'+                       /// уменьшаем эффективность регена
-                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                    'IF(GetVar(LastValue) > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeEffect(PlayerEXPBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(GetVar(LastValue) <= 1, 1);'+                               /// если реген нулевой
                         'RemoveEffect(PlayerEXPBuff);'+                         /// снимаем эффект
                 '",'+
             '},'+
@@ -836,9 +836,9 @@ const
             'script:{'+
                 'auto:"",'+
                 'use:"'+
-                    'IF(LastValue > 1, 1);'+                               /// если висит бафф на величину регена
-                        'ChangeBuff(PlayerMDEFBuff, -1);'+                      /// уменьшаем эффективность регена
-                    'IF(LastValue <= 1, 1);'+                              /// если реген нулевой
+                    'IF(GetVar(LastValue) > 1, 1);'+                               /// если висит бафф на величину регена
+                        'ChangeEffect(PlayerMDEFBuff, -1);'+                      /// уменьшаем эффективность регена
+                    'IF(GetVar(LastValue) <= 1, 1);'+                              /// если реген нулевой
                         'RemoveEffect(PlayerMDEFBuff);'+                        /// снимаем эффект
                 '",'+
             '},'+
@@ -849,9 +849,9 @@ const
             'script:{'+
                 'auto:"",'+
                 'use:"'+
-                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
-                        'ChangeBuff(PlayerDEFBuff, -1);'+                       /// уменьшаем эффективность регена
-                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                    'IF(GetVar(LastValue) > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeEffect(PlayerDEFBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(GetVar(LastValue) <= 1, 1);'+                               /// если реген нулевой
                         'RemoveEffect(PlayerDEFBuff);'+                         /// снимаем эффект
                 '",'+
             '},'+
@@ -862,9 +862,9 @@ const
             'script:{'+
                 'auto:"",'+
                 'use:"'+
-                    'IF(LastValue > 1, 1);'+                                /// если висит бафф на величину регена
-                        'ChangeBuff(PlayerATKBuff, -1);'+                       /// уменьшаем эффективность регена
-                    'IF(LastValue <= 1, 1);'+                               /// если реген нулевой
+                    'IF(GetVar(LastValue) > 1, 1);'+                                /// если висит бафф на величину регена
+                        'ChangeEffect(PlayerATKBuff, -1);'+                       /// уменьшаем эффективность регена
+                    'IF(GetVar(LastValue) <= 1, 1);'+                               /// если реген нулевой
                         'RemoveEffect(PlayerATKBuff);'+                         /// снимаем эффект
                 '",'+
             '},'+
@@ -994,8 +994,20 @@ const
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
 
-             'ChangePlayerItemCount(regenMP, Rand(100000));'+
+             'ChangePlayerItemCount(restoreHealth, Rand(100000));'+
+             'ChangePlayerItemCount(restoreMana, Rand(100000));'+
+             'ChangePlayerItemCount(permanentATK, Rand(100000));'+
+             'ChangePlayerItemCount(permanentDEF, Rand(100000));'+
+             'ChangePlayerItemCount(permanentMDEF, Rand(100000));'+
+             'ChangePlayerItemCount(potionexp, Rand(100000));'+
              'ChangePlayerItemCount(regenHP, Rand(100000));'+
+             'ChangePlayerItemCount(regenMP, Rand(100000));'+
+             'ChangePlayerItemCount(buffATK, Rand(100000));'+
+             'ChangePlayerItemCount(buffDEF, Rand(100000));'+
+             'ChangePlayerItemCount(buffMDEF, Rand(100000));'+
+             'ChangePlayerItemCount(buffEXP, Rand(100000));'+
+             'ChangePlayerItemCount(buffREG, Rand(100000));'+
+             'ChangePlayerItemCount(potionAuto, Rand(100000));'+
         '"},'+
         '2:{ floor: 2, next:3, script:"'+
              'BreakAuto(Tower);'+

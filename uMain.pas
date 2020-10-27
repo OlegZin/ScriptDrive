@@ -151,7 +151,7 @@ implementation
 {$R *.fmx}
 
 uses
-    uMenu, uConst, uLog, uThinkMode, uScriptDrive, uGameDrive, superobject,
+    uMenu, uConst, uLog, uScriptDrive, uGameDrive, superobject,
     uGameInterface, uTower;
 
 var

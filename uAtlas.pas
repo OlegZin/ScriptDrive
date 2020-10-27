@@ -168,7 +168,13 @@ type
     Rectangle13: TRectangle;
     Label25: TLabel;
     ICON_POWER: TImage;
-    EFFECT_: TImage;
+    EFFECT_PlayerEXPBuff: TImage;
+    EFFECT_RegenPlayerHP: TImage;
+    EFFECT_RegenPlayerMP: TImage;
+    EFFECT_PlayerDEFBuff: TImage;
+    EFFECT_PlayerMDEFBuff: TImage;
+    EFFECT_PlayerATKBuff: TImage;
+    EFFECT_PlayerREGBuff: TImage;
   private
     { Private declarations }
   public

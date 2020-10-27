@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
-    uThinkMode, uGameInterface, uLog, uTower;
+    uGameInterface, uLog, uTower;
 
 type
 
@@ -564,6 +564,10 @@ begin
     else InterfModes := InterfModes or INT_TOWER;
 
     old := GameData.I[Target + 'params.' + name];
+
+    /// отрабатываем случаи эффектов
+    if name = 'EXP' then value := Integer(value) + StrToInt(GetEffect('PlayerEXPBuff'));
+
     GameData.I[Target + 'params.' + name] := value;
 
     /// пишем изменение в лог, если не "тихий" режим
@@ -815,8 +819,13 @@ begin
      if assigned( GameData.O[Target+'effects.'+name] ) then
      begin
          result := GameData.S[Target+'effects.'+name+'.value'];
-         SetVar('LastVlue', result);
+         SetVar('LastValue', result);
+
+         /// после запроса значения отыгрываем соответствующий скрипт
+         if Assigned( GameData.O['effects.'+name+'.script.use'] ) then
+            Script.Exec( GameData.S['effects.'+name+'.script.use'] );
      end;
+
 end;
 
 procedure TGameDrive.ChangeEffect(name, value: variant);
@@ -978,6 +987,9 @@ begin
     if pos('player', Target) > 0
     then InterfModes := InterfModes or INT_MAIN
     else InterfModes := InterfModes or INT_TOWER;
+
+    /// отрабатываем случаи эффектов
+    if name = 'EXP' then delta := Integer(delta) + StrToInt(GetEffect('PlayerEXPBuff'));
 
     GameData.I[Target + 'params.' + name] :=
         GameData.I[Target + 'params.' + name] + StrToIntDef(delta, 0);
@@ -1319,8 +1331,8 @@ begin
 
     /// установка переменных с параметрами боя
     SetPlayerAsTarget;
-    PlayerATK := StrToInt(GetParam('ATK'));
-    PlayerDEF := StrToInt(GetParam('DEF'));;
+    PlayerATK := StrToInt(GetParam('ATK')) + StrToInt(GetEffect('PlayerATKBuff'));
+    PlayerDEF := StrToInt(GetParam('DEF')) + StrToInt(GetEffect('PlayerDEFBuff'));;
     SetVar('pl_DMG', Random(PlayerATK));
     SetVar('pl_DEF', PlayerDEF);
 

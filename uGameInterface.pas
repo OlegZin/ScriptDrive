@@ -117,6 +117,7 @@ var
     elem: ISuperObject;
     obj: TControl;
     i, itemCount : integer;
+    shift: real;
 begin
 
     /// отображение и наполнение панели имеющихся предметов
@@ -179,7 +180,7 @@ begin
       then (item.Value as TLabel).Text := data.S['params.'+item.key];
 
     /// обновляем прогресс набора опыта для уровня
-    Controls['rectEXP'].Width := Controls['rectBGEXP'].Width * ( data.I['params.EXP'] / data.I['params.'+PRM_NEEDEXP] );
+    Controls['rectEXP'].Width := Min(Controls['rectBGEXP'].Width * ( data.I['params.EXP'] / data.I['params.'+PRM_NEEDEXP] ), Controls['rectBGEXP'].Width);
 
     /// выставляем видимость вкладок режима
     if Assigned(data.O['modes']) then
@@ -212,6 +213,16 @@ begin
     if not assigned(fdata.O['effects']) or (fdata.O['effects'].AsJSon <> data.O['effects'].AsJSon) then
     begin
 
+        /// считаем общее количество текущих эффектов
+        itemCount := 0;
+        for elem in data.O['effects'] do
+        Inc(itemCount);
+
+        obj := fAtlas.ItemSlotShablon.Clone( Controls['EffectsPanel'] ) as TControl;
+        if itemCount * (obj.height + 1) > Controls['EffectsPanel'].Height
+        then shift := Controls['EffectsPanel'].Height / itemCount
+        else shift := obj.height + 1;
+
         /// чистим список предметов на панели инветаря
         for i := Controls['EffectsPanel'].ControlsCount-1 downto 0 do
         Controls['EffectsPanel'].Controls[i].Free;
@@ -222,16 +233,16 @@ begin
             obj := fAtlas.ItemSlotShablon.Clone( Controls['EffectsPanel'] ) as TControl;
             obj.Parent := Controls['EffectsPanel'];
             obj.Position.X := 0;
-            obj.Position.Y := itemCount * (obj.height + 1);
+            obj.Position.Y := itemCount * shift;
+            obj.SendToBack;
 
             for I := 0 to obj.ComponentCount-1 do
             begin
                 if obj.Components[i] is Tlabel then (obj.Components[i] as Tlabel).Text := elem.S['value'];
-//                if obj.Components[i] is TImage then (obj.Components[i] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('effect_'+elem.S['name']) );
-                if obj.Components[i] is TImage then (obj.Components[i] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('effect_') );
+                if obj.Components[i] is TImage then (obj.Components[i] as TImage).MultiResBitmap[0].Bitmap.Assign( fAtlas.GetBitmapByName('effect_'+elem.S['name']) );
             end;
 
-            Inc(itemCount); /// считаем общее количество предметов
+            Inc(itemCount);
         end;
 
     end;
