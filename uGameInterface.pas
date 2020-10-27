@@ -109,6 +109,12 @@ begin
           selected := item.Value;
       end;
     end;
+
+    Controls['ScreenTower'].Parent := nil;
+    Controls['ScreenThink'].Parent := nil;
+
+    if LowerCase(name) = 'tower' then Controls['ScreenTower'].Parent := Controls['Screen'];
+    if LowerCase(name) = 'think' then Controls['ScreenThink'].Parent := Controls['Screen'];
 end;
 
 procedure TGameInterface.Update(data: ISuperObject);

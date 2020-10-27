@@ -52,13 +52,6 @@ type
     Image40: TImage;
     Image41: TImage;
     Image42: TImage;
-    Layout5: TLayout;
-    Label24: TLabel;
-    Image43: TImage;
-    Layout9: TLayout;
-    Image44: TImage;
-    Label27: TLabel;
-    Image45: TImage;
     Rectangle12: TRectangle;
     Rectangle7: TRectangle;
     Layout3: TLayout;
@@ -175,6 +168,13 @@ type
     EFFECT_PlayerMDEFBuff: TImage;
     EFFECT_PlayerATKBuff: TImage;
     EFFECT_PlayerREGBuff: TImage;
+    ThinkShablon: TRectangle;
+    Rectangle11: TRectangle;
+    Label2: TLabel;
+    Rectangle8: TRectangle;
+    Rectangle9: TRectangle;
+    Label6: TLabel;
+    procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -242,6 +242,11 @@ begin
     for I := 0 to ComponentCount-1 do
     if UpperCase(Components[i].Name) = UpperCase(name) then
     result := (Components[i] as TImage).Bitmap;
+end;
+
+procedure TfAtlas.ThinkShablonClick(Sender: TObject);
+begin
+    (Sender as TControl).BringToFront;
 end;
 
 end.

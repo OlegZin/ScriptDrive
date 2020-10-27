@@ -136,7 +136,9 @@ type
     procedure iAutoBGClick(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     procedure Rectangle9Click(Sender: TObject);
-    procedure bUseItemClick(Sender: TObject);  private
+    procedure bUseItemClick(Sender: TObject);
+    procedure TowerClick(Sender: TObject);
+    procedure ThinkClick(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -152,7 +154,7 @@ implementation
 
 uses
     uMenu, uConst, uLog, uScriptDrive, uGameDrive, superobject,
-    uGameInterface, uTower;
+    uGameInterface, uTower, uThink;
 
 var
    Script : TScriptDrive;
@@ -230,6 +232,10 @@ begin
     GameInterface.LinkControl('tabResearch', Research);
     GameInterface.LinkControl('tabCraft', Craft);
 
+    GameInterface.LinkControl('Screen', layScreen);
+    GameInterface.LinkControl('ScreenTower', fTower.layTower);
+    GameInterface.LinkControl('ScreenThink', fThink.layThink);
+
     GameInterface.Init;
 
     /////////////////////////////////////////
@@ -245,7 +251,7 @@ begin
     /////////////////////////////////////////
     ///    настройка экрана башни
     /////////////////////////////////////////
-    fTower.layTower.Parent := fMain.layScreen;
+//    fTower.layTower.Parent := fMain.layScreen;
 
 
     /////////////////////////////////////////
@@ -320,6 +326,7 @@ procedure TfMain.bNewClick(Sender: TObject);
 begin
     GameDrive.NewGame( Menu.NewLevel, Menu.Lang );
     GameDrive.SetMode('Tower');
+    GameInterface.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
     Timer.Enabled := true;
 end;
@@ -328,6 +335,7 @@ procedure TfMain.bResumeClick(Sender: TObject);
 begin
     GameDrive.LoadGame( Menu.Lang );
     GameDrive.SetMode('Tower');
+    GameInterface.SetMode('Tower');
     tabsGame.ActiveTab := tabGame;
     Timer.Enabled := true;
 end;
@@ -350,10 +358,20 @@ begin
     GameDrive.SaveGame;
 end;
 
+procedure TfMain.ThinkClick(Sender: TObject);
+begin
+    GameInterface.SetMode('Think');
+end;
+
 procedure TfMain.TimerTimer(Sender: TObject);
 begin
     GameDrive.CheckStatus;
     GameDrive.UpdateInterface;
+end;
+
+procedure TfMain.TowerClick(Sender: TObject);
+begin
+    GameInterface.SetMode('Tower');
 end;
 
 end.
