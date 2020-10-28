@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
-    uGameInterface, uLog, uTower;
+    uGameInterface, uLog, uTower, uThink;
 
 type
 
@@ -94,6 +94,9 @@ type
 /// работа с языком
         function GetLang: string;          // возврат стрки с именем текущего языка ENG|RU
         procedure SetLang(lang: string);   // возврат стрки с именем текущего языка ENG|RU
+
+/// работа с размышлениями
+        procedure AllowThink(name: string); // переводит
 
 /// работа с этажами
         procedure SetCurrFloor(val: variant); // установить текущий этаж
@@ -659,6 +662,27 @@ begin
         fTower.Update( data );
     end;
 
+    if InterfModes and INT_THINK <> 0 then
+    begin
+        data := SO();
+
+        //  текущая активная мысль
+        data.S['CurrThink'] := GameData.S['state.CurrThink'];
+
+        data.O['thinks'] := SO();
+        /// данные по всем активным мыслям
+        for item in GameData['state.thinks'].AsObject do
+        begin
+            data.S['thinks.' + item.Name + '.name']    := item.Name;
+            data.I['thinks.' + item.Name + '.value']   := item.Value.AsInteger;
+            data.I['thinks.' + item.Name + '.max']     := GameData.I['thinks.'+item.Name+'.cost'];
+            data.S['thinks.' + item.Name + '.kind']    := GameData.S['thinks.'+item.Name+'.kind'];
+            data.S['thinks.' + item.Name + '.caption'] := GameData.S['thinks.'+item.Name+'.caption.'+GetLang];
+            data.S['thinks.' + item.Name + '.body']    := GameData.S['thinks.'+item.Name+'.body.'+GetLang];
+        end;
+        fThink.Update( data );
+    end;
+
     if InterfModes and INT_LOG <> 0
     then uLog.Log.Update;
 
@@ -1052,10 +1076,24 @@ begin
 
      GameData.B['state.modes.'+name+'.allow'] := true;
 
-     if name = 'think' then uLog.Log.Phrase('allow_think', GetLang, []);
+     if name = 'think' then
+     begin
+         uLog.Log.Phrase('allow_think', GetLang, []);
+         SetModeToUpdate(INT_THINK);
+     end;
 
      /// выставляем флаг, что нужно обновить основную часть интерфейса
      SetModeToUpdate(INT_MAIN);
+end;
+
+procedure TGameDrive.AllowThink(name: string);
+begin
+    /// открываем доступ к  раздумию. координаты карточки будут подставлены при апдейте интерфейса
+    if assigned( GameData.O['thinks.'+name] ) then
+    GameData.I['state.thinks.'+name] :=
+        GameData.I['thinks.'+name+'.cost'];
+
+    SetModeToUpdate( INT_THINK );
 end;
 
 procedure TGameDrive.BreakAuto(name: string);

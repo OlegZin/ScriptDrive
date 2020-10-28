@@ -33,6 +33,7 @@ const
     INT_MAIN  = 1;
     INT_LOG   = 2;
     INT_TOWER = 4;
+    INT_THINK = 8;
     INT_ALL   = MaxInt;
 
     CREATURE_SHABLON = '{'+
@@ -87,6 +88,11 @@ const
         'CurrFloor: 1,'+
         'CurrTargetFloor: 1,'+
         'CurrItem: "gold",'+
+        'CurrThink: "",'+      /// мыслишка, на которую будут начисляться очки
+        'thinks:{'+
+//          'wakeup: 100,'+        /// совпадает с именем из объекта раздумий. наличие означает, что доступно для исследования
+                                   /// количество - остаток до завершения. при нуле - отображается в дневнике
+        '},'+
         'modes:{'+            /// флаги доступности различных игровых режмов
           'tower: {'+         /// режим башни
               'allow: true,'+ /// достпен ли режим
@@ -994,6 +1000,9 @@ const
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
 
+             'AllowMode(Think);'+
+             'AllowThink(wakeup);'+
+{
              'ChangePlayerItemCount(restoreHealth, Rand(100000));'+
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+
              'ChangePlayerItemCount(permanentATK, Rand(100000));'+
@@ -1008,7 +1017,7 @@ const
              'ChangePlayerItemCount(buffEXP, Rand(100000));'+
              'ChangePlayerItemCount(buffREG, Rand(100000));'+
              'ChangePlayerItemCount(potionAuto, Rand(100000));'+
-        '"},'+
+}        '"},'+
         '2:{ floor: 2, next:3, script:"'+
              'BreakAuto(Tower);'+
 
@@ -1017,14 +1026,14 @@ const
              'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
              'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки.\");'+
              'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
-             'Log(think,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю? Нужно как следует подумать об этом...\");'+
+             'Log(normal,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю? Нужно как следует подумать об этом...\");'+
 
              'IF(GetLang() = ENG, 5);'+
              'Log(normal,\"There was some gold in a rusty chest between floors. Also, there are several crumpled sheets in the chest:\");'+
              'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+
              'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that damn Ikki got them going.\");'+
              'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
-             'Log(think,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
+             'Log(normal,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
 
              'AllowMode(Think);'+
              'ChangePlayerItemCount(gold, Rand(100000));'+
@@ -1146,6 +1155,87 @@ const
 
     /// размышлялки
     'thinks:{'+
+      'wakeup:{'+
+        'name: "wakeup",'+         /// уникальный идентификатор
+        'cost: 100,'+              /// сколько очков обдумывания для получения статуса redy
+        'kind: "tower",'+          /// за оформление карточки и раздел в дневнике, где будет отображаться
+        'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
+/// кусок с сообщением должен выводиться автоматом при завершении обдумывания
+          'IF(GetLang() = RU, 1);'+
+          'Log(think,\"Завершено обдумывание: Где я?\");'+
+          'IF(GetLang() = ENG, 1);'+
+          'Log(think,\"Finished thinking: Where i am?\");'+
+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 10);'+
+//          'AllowThink(tower);'+
+//          'AllowThink(monsters);'+
+//          'AllowThink(potions);'+
+//          'AllowThink(floors);'+
+//          'AllowThink(darmaster);'+
+//          'AllowThink(old_skills);'+
+        '",'+
+        'caption:{'+               /// текст для отображения на карточке
+          'ENG:"Where i am?",'+
+          'RU:"Где я?"},'+
+        'body:{'+                  /// текст (возможен html) для отображения в дневнике
+          'ENG:"'+
+            '<p>Not much time has passed since waking up in this terrible place. '+
+               'It is frightening and ridiculous that I do not remember anything about myself at all! '+
+               'This Tower, a strange note, cramped floors packed with monsters, some ridiculous Dark Master ...</p>'+
+            '<p>My head is spinning from all this. And also from the fact that from the moment I woke up I was tormented by a wild headache.</p>'+
+            '<p>However, despite all this, there are pleasant little things. I don’t know how and why, but I can imagine quite well how to fight with melee weapons. '+
+               'At the moment of the first inspiration, there was no time to be surprised that this thin graceful dagger, '+
+               'which I have in my hands, appeared practically out of thin air! '+
+               'And how clever and convenient it is for them to chop and stab, as if I had been doing this for more than one year.</p>'+
+            '<p>But the feeling that a different kind of weapon is closer to me does not leave me ... '+
+               'My hands remember something more weighty and much more deadly ... And it certainly was not a sword or a bow ... '+
+               'When trying to remember the pain in my head begins to throb and squeeze consciousness into nothingness.</p>'+
+          '",'+
+          'RU:"'+
+            '<p>Совсем немного времени прошло с момента пробуждения в этом ужасном месте. Пугающе и нелепо, что я соврешенно ничего не помню о себе! '+
+               'Эта Башня, странная записка, тесные этажи забитые монстрами, какой-то нелепый Темный Мастер... </p>'+
+            '<p>Голова идет кругом от всего этого. И еще от того, что с момента пробуждения меня мучает дикая головная боль.</p>'+
+            '<p>Однако, не смотря на все это, есть приятные мелочи. Не знаю как и почему, но я вполне сносно представляю как драться холодным оружием. '+
+               'В момент первого наподения не было времени удивляться тому, что этот тонкий изящный кинжал, '+
+               'который у меня в руках, появился практически из воздуха! И как же ловко и удобно им рубить и колоть, словно я занимался этим уже не один год.</p>'+
+            '<p>Но меня не покидает ощущение, что мне ближе оружие иного рода... Руки помнят что-то более увесистое и гораздо более смертоносное... '+
+               'И это точно не было мечом или луком... При попытках вспомнить боль в голове начинает пульсировать и выдавливать сознание в небытие.</p>'+
+        '"},'+
+      '},'+
+
+      '"":{'+
+        'name: "",'+           /// уникальный идентификатор
+        'cost: 0,'+                /// сколько очков обдумывания для получения статуса redy
+        'kind: "",'+                /// за оформление карточки и раздел в дневнике, где будет отображаться
+        'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
+          '",'+
+        'caption:{'+               /// текст для отображения на карточке
+          'ENG:"",'+
+          'RU:""},'+
+        'body:{'+                  /// текст (возможен html) для отображения в дневнике
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+
+      '"name":{'+
+        'name: "name",'+           /// уникальный идентификатор
+        'cost: 0,'+                /// сколько очков обдумывания для получения статуса redy
+        'kind: "",'+                /// за оформление карточки и раздел в дневнике, где будет отображаться
+        'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
+          '",'+
+        'caption:{'+               /// текст для отображения на карточке
+          'ENG:"",'+
+          'RU:""},'+
+        'body:{'+                  /// текст (возможен html) для отображения в дневнике
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
     '},'+
 
 

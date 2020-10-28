@@ -7,6 +7,12 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects, FMX.Memo,
   System.NetEncoding, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts;
 
+const
+    THINK_CAPTION     = 1;
+    THINK_VALUE       = 2;
+    THINK_PROGRESS    = 3;
+    THINK_PROGRESS_BG = 4;
+
 type
   TfAtlas = class(TForm)
     NOTE_BG: TImage;
