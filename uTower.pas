@@ -39,8 +39,10 @@ type
     iAuto: TImage;
     Rectangle8: TRectangle;
     lName: TLabel;
+    Timer: TTimer;
     procedure MonsterClick(Sender: TObject);
     procedure Rectangle8Click(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
   private
     { Private declarations }
     data: ISuperObject;
@@ -74,6 +76,11 @@ begin
     else GameDrive.RunAuto('Tower');
 end;
 
+procedure TfTower.TimerTimer(Sender: TObject);
+begin
+    iAuto.RotationAngle := iAuto.RotationAngle + 1;
+end;
+
 procedure TfTower.Update(_data: ISuperObject);
 var
     w: real;
@@ -84,9 +91,15 @@ begin
 
     if not Assigned(data) then exit;
 
-    if data.B['auto']
-    then iAuto.Opacity := 1
-    else iAuto.Opacity := 0.3;
+    if data.B['auto'] then
+    begin
+        iAuto.Opacity := 1;
+        Timer.Enabled := true;
+    end else
+    begin
+        iAuto.Opacity := 0.3;
+        Timer.Enabled := false;
+    end;
 
 
     if   lName.Text <> data.S['name']

@@ -235,6 +235,7 @@ begin
     GameInterface.LinkControl('Screen', layScreen);
     GameInterface.LinkControl('ScreenTower', fTower.layTower);
     GameInterface.LinkControl('ScreenThink', fThink.layThink);
+    GameInterface.LinkControl('ScreenThinkWeb', fThink.WebBrowser);
 
     GameInterface.Init;
 

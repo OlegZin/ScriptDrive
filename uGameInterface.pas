@@ -112,9 +112,13 @@ begin
 
     Controls['ScreenTower'].Parent := nil;
     Controls['ScreenThink'].Parent := nil;
+    Controls['ScreenThinkWeb'].Visible := false;
 
     if LowerCase(name) = 'tower' then Controls['ScreenTower'].Parent := Controls['Screen'];
-    if LowerCase(name) = 'think' then Controls['ScreenThink'].Parent := Controls['Screen'];
+    if LowerCase(name) = 'think' then begin
+        Controls['ScreenThink'].Parent := Controls['Screen'];
+        Controls['ScreenThinkWeb'].Visible := true;
+    end;
 end;
 
 procedure TGameInterface.Update(data: ISuperObject);

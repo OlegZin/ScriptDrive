@@ -97,6 +97,8 @@ type
 
 /// работа с размышлениями
         procedure AllowThink(name: string); // переводит
+        procedure PlayerThink(name: string); /// обработчик для установки текущей активной мысли и увеличения пула мыслей
+        procedure OpenThink(name: string); /// обработчик для установки текущей активной мысли для отображения в дневнике
 
 /// работа с этажами
         procedure SetCurrFloor(val: variant); // установить текущий этаж
@@ -166,6 +168,9 @@ type
         procedure ProcessAttack;     /// оболочка для PlayerMakeAttack, учитываюшая расход автодействий или локального пула
         procedure PlayerMakeAttack;  /// непосредственное проведение атаки со всеми событиями
 
+        procedure ProcessThink;      /// обработка процесса мыслей для вызова в CheckStatus, списывает автодействия или пул
+        function PlayerMakeThink: boolean;   /// непосредственное проведение атаки со всеми событиями
+
         function CompactDigit(val: variant): string;
     end;
 
@@ -184,6 +189,8 @@ var
     loot, items: ISuperObject;
 begin
     l('-> CheckStatus');
+
+    ProcessThink;
 
     /// отыгрываем атоматические эффекты
     SetPlayerAsTarget;
@@ -413,6 +420,11 @@ begin
 end;
 
 
+
+procedure TGameDrive.OpenThink(name: string);
+begin
+    GameData.S['state.CurrBookThink'] := name;
+end;
 
 function TGameDrive.SaveGame: string;
 begin
@@ -668,17 +680,26 @@ begin
 
         //  текущая активная мысль
         data.S['CurrThink'] := GameData.S['state.CurrThink'];
+        data.I['pool'] := GetPool('Think');
+        data.B['auto'] := GetAuto('Think');
+
+        if GameData.S['state.CurrBookThink'] <> ''
+        then data.S['body'] := GameData.S['thinks.' + GameData.S['state.CurrBookThink'] + '.body.'+GetLang]
+        else data.S['body'] := GameData.S['thinks.defaultbody.'+GetLang];
 
         data.O['thinks'] := SO();
+
         /// данные по всем активным мыслям
         for item in GameData['state.thinks'].AsObject do
+        /// если их обдумывание еще не завершено
+        if item.Value.AsInteger > 0 then
         begin
             data.S['thinks.' + item.Name + '.name']    := item.Name;
+            data.S['thinks.' + item.Name + '.compact_value']   := CompactDigit( item.Value.AsInteger );
             data.I['thinks.' + item.Name + '.value']   := item.Value.AsInteger;
             data.I['thinks.' + item.Name + '.max']     := GameData.I['thinks.'+item.Name+'.cost'];
             data.S['thinks.' + item.Name + '.kind']    := GameData.S['thinks.'+item.Name+'.kind'];
             data.S['thinks.' + item.Name + '.caption'] := GameData.S['thinks.'+item.Name+'.caption.'+GetLang];
-            data.S['thinks.' + item.Name + '.body']    := GameData.S['thinks.'+item.Name+'.body.'+GetLang];
         end;
         fThink.Update( data );
     end;
@@ -1055,6 +1076,7 @@ begin
     GameData.I['state.modes.'+name+'.pool'] := GameData.I['state.modes.'+name+'.pool'] + val;
 
     if name = 'tower' then SetModeToUpdate(INT_TOWER);
+    if name = 'think' then SetModeToUpdate(INT_THINK);
 end;
 
 procedure TGameDrive.ChangeVar(name, value: variant);
@@ -1104,6 +1126,7 @@ begin
      GameData.I['state.modes.'+name+'.pool'] := 0;      // сбрасываем накликанное честным трудом
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
+     if name = 'think' then SetModeToUpdate(INT_THINK);
 end;
 
 procedure TGameDrive.ChangeItemCount(name, delta: variant);
@@ -1430,6 +1453,38 @@ end;
 
 
 
+function TGameDrive.PlayerMakeThink: boolean;
+var
+    change : integer;
+begin
+    result := false;
+
+    if GameData.S['state.CurrThink'] <> '' then
+    begin
+        result := true;
+
+        /// списываем значение, согласно всем текущим бонусам и значениям, но не нижке нуля
+        SetPlayerAsTarget;
+        change := StrToInt(GetParam('MIND'));// + GetEffect('');
+
+        GameData.I['state.thinks.' + GameData.S['state.CurrThink'] ] :=
+            Max( GameData.I['state.thinks.' + GameData.S['state.CurrThink'] ] - change, 0);
+
+        /// если обдумывание завершено
+        if GameData.I['state.thinks.' + GameData.S['state.CurrThink'] ] = 0 then
+        begin
+            /// покажем результат в книге
+            OpenThink( GameData.S['state.CurrThink'] );
+
+            /// выполняем завершающий скрипт
+            Script.Exec( GameData.S['thinks.' + GameData.S['state.CurrThink'] + '.script'] );
+
+            /// обнуляем текущую думку
+            GameData.S['state.CurrThink'] := '';
+        end;
+    end;
+end;
+
 procedure TGameDrive.PlayEvent(name: string);
 begin
 ///
@@ -1454,7 +1509,6 @@ begin
             ChangePlayerParam('AutoAction', -1);
         end;
 
-//        if GetPool('Tower') = 0 then uLog.Log.Phrase('attack_pool_empty', GetLang, []);
     end;
 
 end;
@@ -1478,6 +1532,31 @@ begin
     end;
 end;
 
+procedure TGameDrive.ProcessThink;
+begin
+    if GetPool('Think') > 0 then  // если есть действия авто ли пула раздумий
+    if PlayerMakeThink then       // если есть о чем подумать и это получилось (действие совершено)
+    begin
+        SetModeToUpdate( INT_THINK );
+
+        if not GetAuto('Think')
+        then
+            ChangePool('Think', -1)   // если не установлен режим авто, будем снимать с локального пула
+        else                          // если установлен режим авто, будем снимать с автодействий
+        begin
+            SilentChange;
+            ChangePlayerParam('AutoAction', -1);
+        end;
+    end;
+end;
+
+procedure TGameDrive.PlayerThink(name: string);
+begin
+    ChangePool('think', 1);                // мыслишку атаку в пул
+    GameData.S['state.CurrThink'] := name; // запоминаем о чем думаем в данный момент
+    UpdateInterface;
+end;
+
 procedure TGameDrive.ResetTargetState;
 var
     t: string;
@@ -1495,6 +1574,7 @@ begin
      GameData.B['state.modes.'+name+'.auto'] := true;
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
+     if name = 'think' then SetModeToUpdate(INT_THINK);
 end;
 
 

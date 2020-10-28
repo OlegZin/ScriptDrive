@@ -8,10 +8,13 @@ uses
   System.NetEncoding, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts;
 
 const
-    THINK_CAPTION     = 1;
-    THINK_VALUE       = 2;
-    THINK_PROGRESS    = 3;
-    THINK_PROGRESS_BG = 4;
+    /// значени€-идентификаторы в tag шаблона раздумь€.
+    /// значени€ ниже 1000 зан€ты картинками монстров башни
+    THINK_CAPTION     = 1000;
+    THINK_VALUE       = 1001;
+    THINK_PROGRESS    = 1002;
+    THINK_PROGRESS_BG = 1003;
+    THINK_HILIGHTER   = 1004;
 
 type
   TfAtlas = class(TForm)
@@ -180,6 +183,7 @@ type
     Rectangle8: TRectangle;
     Rectangle9: TRectangle;
     Label6: TLabel;
+    BOOK_BG: TImage;
     procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }
