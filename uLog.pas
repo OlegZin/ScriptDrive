@@ -43,8 +43,9 @@ const
               '.change_item{ background-color: #f0f8ff; }'+
               '.change_loot{ background-color: #f5f5dc; }'+
               '.allow{'+
+                  'margin:10px;'+
                   'padding:20px;'+
-                  'background-color: #adff2f;}'+
+                  'background-color: #88d7aa;}'+
 
               '.lvl_up{'+
                 'padding-left: 70px;'+
@@ -66,6 +67,10 @@ const
                 'display: inline;'+
                 'height: 20px;'+
                 'width: 20px;}'+
+              '.large_icon{'+
+                'display: inline;'+
+                'height: 50px;'+
+                'width: 50px;}'+
 
               '.gold, .icon_gold{background:url("data:image/jpeg;base64,#ICON_GOLD#");}'+
               '.ATK,.icon_sword{background:url("data:image/jpeg;base64,#ICON_SWORD#");}'+
@@ -80,7 +85,11 @@ const
               '.icon_unlock{background:url("data:image/jpeg;base64,#ICON_UNLOCK#");}'+
               '.icon_monster{background:url("data:image/jpeg;base64,#ICON_MONSTER#");}'+
               '.icon_knight{background:url("data:image/jpeg;base64,#ICON_KNIGHT#");}'+
+              '.icon_book{background:url("data:image/jpeg;base64,#ICON_BOOK#");}'+
               '.icon_think{background:url("data:image/jpeg;base64,#ICON_THINK#");}'+
+
+              '.image_book{background:url("data:image/jpeg;base64,#IMAGE_BOOK#");}'+
+              '.image_unlock{background:url("data:image/jpeg;base64,#IMAGE_UNLOCK#");}'+
 
               '.wood{background:url("data:image/jpeg;base64,#ICON_WOOD#");}'+
               '.stone{background:url("data:image/jpeg;base64,#ICON_STONE#");}'+
@@ -188,8 +197,16 @@ const
            'ENG:"<div class=\"icon %s\"></div>&emsp;%s&emsp;%s&emsp;( =%d )"},'+
         'allow_think:{'+
             'kind:"allow",'+
-            'RU:"<div class=\"icon icon_unlock\"></div>&emsp;Доступен режим <b>Раздумий</b>!", '+
-           'ENG:"<div class=\"icon icon_unlock\"></div>&emsp;<b>Think</b> mode available!"},'+
+            'RU:"ICON_UNLOCK&emsp;Доступен режим <b>Раздумий</b>!", '+
+           'ENG:"ICON_UNLOCK&emsp;<b>Think</b> mode available!"},'+
+        'ready_think:{'+
+            'kind:"allow",'+
+            'RU:"ICON_BOOK&emsp;Завершено обдумывание:&emsp;<b>%s</b>!", '+
+           'ENG:"ICON_BOOK&emsp;Finished thinking:&emsp;<b>%s</b>!"},'+
+        'open_think:{'+
+            'kind:"allow",'+
+            'RU:"ICON_THINK&emsp;Новая мысль: &emsp;<b>%s</b>", '+
+           'ENG:"ICON_THINK&emsp;The new think: &emsp;<b>%s</b>"},'+
     '},';
 
 type
@@ -239,6 +256,8 @@ uses
 var
     IMAGE_NOTE_BG
    ,IMAGE_LEVEL
+   ,IMAGE_BOOK
+   ,IMAGE_UNLOCK
 
    ,ICON_GOLD
    ,ICON_SWORD
@@ -255,6 +274,8 @@ var
    ,ICON_MONSTER
    ,ICON_KNIGHT
    ,ICON_BRAIN
+   ,ICON_BOOK
+   ,ICON_THINK
 
    ,ICON_WOOD
    ,ICON_STONE
@@ -322,6 +343,8 @@ begin
 
     Doc.SetValue('IMAGE_NOTE_BG', IMAGE_NOTE_BG);
     Doc.SetValue('IMAGE_LEVEL', IMAGE_LEVEL);
+    Doc.SetValue('IMAGE_BOOK', IMAGE_BOOK);
+    Doc.SetValue('IMAGE_UNLOCK', IMAGE_UNLOCK);
 
     Doc.SetValue('ICON_GOLD', ICON_GOLD);
     Doc.SetValue('ICON_SWORD', ICON_SWORD);
@@ -348,6 +371,8 @@ begin
     Doc.SetValue('ICON_SKIN', ICON_SKIN);
     Doc.SetValue('ICON_ORE', ICON_ORE);
     Doc.SetValue('ICON_ESSENCE', ICON_ESSENCE);
+    Doc.SetValue('ICON_BOOK', ICON_BOOK);
+    Doc.SetValue('ICON_THINK', ICON_THINK);
 
     Doc.SetValue('ICON_AUTOACTION', ICON_AUTOACTION);
     Doc.SetValue('ICON_BUFFREG', ICON_BUFFREG);
@@ -380,6 +405,8 @@ begin
     Doc.SetValue('ICON_MONSTER', Format(ICON_TEMPLATE, ['icon icon_monster']), false);
     Doc.SetValue('ICON_KNIGHT', Format(ICON_TEMPLATE, ['icon icon_knight']), false);
     Doc.SetValue('ICON_BRAIN', Format(ICON_TEMPLATE, ['icon icon_brain']), false);
+    Doc.SetValue('ICON_BOOK', Format(ICON_TEMPLATE, ['icon icon_book']), false);
+    Doc.SetValue('ICON_THINK', Format(ICON_TEMPLATE, ['icon icon_think']), false);
 
     Doc.SetValue('ICON_WOOD', Format(ICON_TEMPLATE, ['icon wood']), false);
     Doc.SetValue('ICON_STONE', Format(ICON_TEMPLATE, ['icon stone']), false);
@@ -423,6 +450,8 @@ procedure TLog.GenerateImages;
 begin
     if IMAGE_NOTE_BG = '' then IMAGE_NOTE_BG :=  fAtlas.EncodeToBase64('NOTE_BG');
     if IMAGE_LEVEL = '' then IMAGE_LEVEL :=  fAtlas.EncodeToBase64('IMAGE_LEVEL');
+    if IMAGE_BOOK = '' then IMAGE_BOOK :=  fAtlas.EncodeToBase64('IMAGE_BOOK');
+    if IMAGE_UNLOCK = '' then IMAGE_UNLOCK :=  fAtlas.EncodeToBase64('IMAGE_UNLOCK');
 
     if ICON_GOLD = '' then ICON_GOLD :=  fAtlas.EncodeToBase64('ICON_GOLD');
     if ICON_SWORD = '' then ICON_SWORD :=  fAtlas.EncodeToBase64('ICON_SWORD');
@@ -439,6 +468,8 @@ begin
     if ICON_MONSTER = '' then ICON_MONSTER :=  fAtlas.EncodeToBase64('ICON_MONSTER');
     if ICON_KNIGHT = '' then ICON_KNIGHT :=  fAtlas.EncodeToBase64('ICON_KNIGHT');
     if ICON_BRAIN = '' then ICON_BRAIN :=  fAtlas.EncodeToBase64('ICON_BRAIN');
+    if ICON_BOOK = '' then ICON_BOOK :=  fAtlas.EncodeToBase64('ICON_BOOK');
+    if ICON_THINK = '' then ICON_THINK :=  fAtlas.EncodeToBase64('ICON_THINK');
 
     if ICON_WOOD = '' then ICON_WOOD :=  fAtlas.EncodeToBase64('ICON_WOOD');
     if ICON_STONE = '' then ICON_STONE :=  fAtlas.EncodeToBase64('ICON_STONE');

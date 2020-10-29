@@ -1112,8 +1112,13 @@ procedure TGameDrive.AllowThink(name: string);
 begin
     /// открываем доступ к  раздумию. координаты карточки будут подставлены при апдейте интерфейса
     if assigned( GameData.O['thinks.'+name] ) then
-    GameData.I['state.thinks.'+name] :=
-        GameData.I['thinks.'+name+'.cost'];
+    begin
+        /// кусок с сообщением должен выводиться автоматом при завершении обдумывания
+        uLog.Log.Phrase('open_think', GetLang, [ GameData.S['thinks.' + name + '.caption.' + GetLang ]]);
+
+        GameData.I['state.thinks.'+name] :=
+            GameData.I['thinks.'+name+'.cost'];
+    end;
 
     SetModeToUpdate( INT_THINK );
 end;
@@ -1473,6 +1478,9 @@ begin
         /// если обдумывание завершено
         if GameData.I['state.thinks.' + GameData.S['state.CurrThink'] ] = 0 then
         begin
+            /// кусок с сообщением должен выводиться автоматом при завершении обдумывания
+            uLog.Log.Phrase('ready_think', GetLang, [ GameData.S['thinks.' + GameData.S['state.CurrThink'] + '.caption.' + GetLang ]]);
+
             /// покажем результат в книге
             OpenThink( GameData.S['state.CurrThink'] );
 

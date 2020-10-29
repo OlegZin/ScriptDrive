@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
   FMX.Objects, FMX.Ani, FMX.Controls.Presentation, FMX.StdCtrls,
-  superobject, Generics.Collections, FMX.WebBrowser;
+  superobject, FMX.WebBrowser, Generics.Collections;
 
 type
   TfThink = class(TForm)
@@ -20,6 +20,11 @@ type
     laySticks: TLayout;
     Timer: TTimer;
     WebBrowser: TWebBrowser;
+    layTopStick: TLayout;
+    Layout1: TLayout;
+    Image2: TImage;
+    Image3: TImage;
+    Image4: TImage;
     procedure Rectangle12Click(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
   private
@@ -27,6 +32,8 @@ type
     data: ISuperobject;
 
     LinkData: TDictionary<TComponent,ISuperObject>;
+
+//    Selected: TControl;
 
     procedure onStickClick(Sender: TObject);
   public
@@ -68,8 +75,26 @@ var
 { TfThink }
 
 procedure TfThink.onStickClick(Sender: TObject);
+var
+    i: integer;
 begin
-    (Sender as TControl).BringToFront;
+{    if Assigned(Selected) then
+    begin
+        Selected.Parent := laySticks;
+
+        for I := 0 to Selected.ComponentCount-1 do
+          if Selected.Components[i].Tag = THINK_HILIGHTER then
+          (Selected.Components[i] as TControl).Visible := false;
+    end;
+
+    Selected := Sender as TControl;
+
+    Selected.Parent := layTopStick;
+
+    for I := 0 to Selected.ComponentCount-1 do
+      if Selected.Components[i].Tag = THINK_HILIGHTER then
+      (Selected.Components[i] as TControl).Visible := true;
+}
     /// вызываем метод прокачки раздумья
     GameDrive.PlayerThink( LinkData[sender as TControl].S['name'] );
 end;
@@ -110,17 +135,22 @@ begin
     if Not Assigned( LinkData )
     then LinkData := TDictionary<TComponent,ISuperObject>.Create;
 
-
-
     LinkData.Clear;
 
     for I := laySticks.ControlsCount-1 downto 0 do
     laySticks.Controls[i].Free;
 
+    for I := layTopStick.ControlsCount-1 downto 0 do
+    layTopStick.Controls[i].Free;
+
     for item in _data.O['thinks'] do
     begin
         obj := fAtlas.ThinkShablon.Clone( laySticks ) as TControl;
-        obj.Parent := laySticks;
+
+        if _data.S['CurrThink'] <> item.S['name']
+        then obj.Parent := laySticks
+        else obj.Parent := layTopStick;
+
         obj.OnClick := onStickClick;
 
         LinkData.Add(obj, item);
@@ -161,6 +191,9 @@ begin
 
             if obj.Components[i].Tag = THINK_HILIGHTER then
             (obj.Components[i] as TControl).Visible := _data.S['CurrThink'] = item.S['name'];
+
+            if obj.Components[i].Tag = THINK_KIND_BG then
+            (obj.Components[i] as TImage).MultiResBitmap[0].Bitmap.Assign(  fAtlas.GetBitmapByName('kind_' + item.S['kind']) );
 
         end;
 

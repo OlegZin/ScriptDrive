@@ -1001,8 +1001,6 @@ const
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
 
-             'AllowMode(Think);'+
-             'AllowThink(wakeup);'+
 {
              'ChangePlayerItemCount(restoreHealth, Rand(100000));'+
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+
@@ -1037,6 +1035,7 @@ const
              'Log(normal,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
 
              'AllowMode(Think);'+
+             'AllowThink(wakeup);'+
              'ChangePlayerItemCount(gold, Rand(100000));'+
              'SetNextTarget();'+
         '"},'+
@@ -1162,20 +1161,16 @@ const
         'cost: 10,'+              /// сколько очков обдумывания для получения статуса redy
         'kind: "tower",'+          /// за оформление карточки и раздел в дневнике, где будет отображаться
         'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
-/// кусок с сообщением должен выводиться автоматом при завершении обдумывания
-          'IF(GetLang() = RU, 1);'+
-          'Log(think,\"Завершено обдумывание: Где я?\");'+
-          'IF(GetLang() = ENG, 1);'+
-          'Log(think,\"Finished thinking: Where i am?\");'+
-
           'SetPlayerAsTarget();'+
           'ChangeParam(EXP, 10);'+
-//          'AllowThink(tower);'+
-//          'AllowThink(monsters);'+
-//          'AllowThink(potions);'+
-//          'AllowThink(floors);'+
-//          'AllowThink(darmaster);'+
-//          'AllowThink(old_skills);'+
+
+          'AllowThink(tower);'+
+          'AllowThink(monsters);'+
+          'AllowThink(potions);'+
+          'AllowThink(floors);'+
+          'AllowThink(darkmaster);'+
+          'AllowThink(whoami);'+
+          'AllowThink(calmness);'+
         '",'+
         'caption:{'+               /// текст для отображения на карточке
           'ENG:"Where i am?",'+
@@ -1206,22 +1201,126 @@ const
         '"},'+
       '},'+
 
-      '"":{'+
-        'name: "",'+           /// уникальный идентификатор
-        'cost: 0,'+                /// сколько очков обдумывания для получения статуса redy
-        'kind: "",'+                /// за оформление карточки и раздел в дневнике, где будет отображаться
-        'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
-          '",'+
-        'caption:{'+               /// текст для отображения на карточке
-          'ENG:"",'+
-          'RU:""},'+
-        'body:{'+                  /// текст (возможен html) для отображения в дневнике
+      'tower:{name: "tower", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"The Tower?",'+
+          'RU:"Башня?"},'+
+        'body:{'+
           'ENG:"'+
           '",'+
           'RU:"'+
           '"},'+
       '},'+
 
+      'monsters:{name: "monsters", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Monsters?",'+
+          'RU:"Монстры?"},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'potions:{name: "potions", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Potions?",'+
+          'RU:"Зелья?"},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'floors:{name: "floors", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Floors, endless floors...",'+
+          'RU:"Этажи, бесконечные этажи..."},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'darkmaster:{name: "darkmaster", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"The Dark Master. Seriously?!..",'+
+          'RU:"Темный Мастер. Серьезно?!..."},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'whoami:{name: "whoami", cost: 500, kind: "persone",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 100);'+
+          'AllowThink(old_skills);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Who am I?!",'+
+          'RU:"Кто я?!"},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'calmness:{name: "calmness", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"This is some kind of nonsense! Need to calm down...",'+
+          'RU:"Это какой-то бред! Нужно успокоиться..."},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
+
+      'old_skills:{name: "old_skills", cost: 1000, kind: "persone",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+        '",'+
+        'caption:{'+
+          'ENG:"The old skills",'+
+          'RU:"Старые навыки"},'+
+        'body:{'+
+          'ENG:"'+
+          '",'+
+          'RU:"'+
+          '"},'+
+      '},'+
 
       '"name":{'+
         'name: "name",'+           /// уникальный идентификатор
@@ -1290,22 +1389,4 @@ initialization
     DIR_DATA := ExtractFilePath( paramstr(0) ) + FOLDER_DATA;
 
 end.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

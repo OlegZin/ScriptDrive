@@ -15,6 +15,7 @@ const
     THINK_PROGRESS    = 1002;
     THINK_PROGRESS_BG = 1003;
     THINK_HILIGHTER   = 1004;
+    THINK_KIND_BG     = 1005;
 
 type
   TfAtlas = class(TForm)
@@ -103,11 +104,11 @@ type
     ICON_EXP: TImage;
     Image65: TImage;
     Image67: TImage;
-    Image69: TImage;
+    IMAGE_UNLOCK: TImage;
     ICON_FIGHT: TImage;
     ICON_CHEST: TImage;
     ICON_UNLOCK: TImage;
-    Image71: TImage;
+    IMAGE_MONSTER: TImage;
     ICON_MONSTER: TImage;
     Image73: TImage;
     ICON_KNIGHT: TImage;
@@ -184,6 +185,13 @@ type
     Rectangle9: TRectangle;
     Label6: TLabel;
     BOOK_BG: TImage;
+    IMAGE_BOOK: TImage;
+    ICON_BOOK: TImage;
+    ICON_THINK: TImage;
+    KIND_PERSONE: TImage;
+    Image44: TImage;
+    KIND_TOWER: TImage;
+    KIND_MANUSCRIPT: TImage;
     procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }
