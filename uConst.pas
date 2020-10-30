@@ -20,7 +20,7 @@ const
     /// синонимы имен предметов для единообразия упоминания,
     /// поскольку имена регистрочувствительны в json
     ITEM_GOLD = 'gold';
-
+    ITEM_SPEED_BUFF = 'buffSPEED';
 
     /// синонимы имен
     /// поскольку имена регистрочувствительны в json
@@ -188,6 +188,8 @@ const
         /// например, установленные переменные боя, перед вызовом события onAttack.
         /// так же здесь хранятся мусорные переменные из скриптов
         'vars:{'+
+            'GAME_SPEED: 1000,'+  /// скорость игры. 1000 = 1 секунда на тик. минимум = 100
+            'first_meet: 1,'+  /// сюжетная переменная первой встречи с Темным Мастером
             // переменне, инициализируемые перед вызоваом скриптов на onAttack
             'mc_DMG: 0,'+ // выкинутый монстром урон
             'mc_BLK: 0,'+ // вычисленная величина блока урона от игрока
@@ -456,7 +458,7 @@ const
     /// craft - набор ресурсов для крафта. случайно генерится при старте игры
     /// isCraftAllow - доступен ли для крафта
     /// isUseAllow - доступен ли для использования
-    'itemsCount: 15,'+
+    'itemsCount: 16,'+
     'items:{'+
         'gold:{'+
             'name:"gold",'+
@@ -624,6 +626,17 @@ const
             'script:"'+
                 'SetPlayerAsTarget();'+
                 'AddEffect(PlayerREGBuff, Rand(GetParam(LVL) * 10) + 10);'+
+        '"},'+
+        'buffSPEED:{'+
+            'name:"buffSPEED",'+
+            'caption: {RU:"Билет времени", ENG:"Ticket of Time"},'+
+            'description:{'+
+                'RU:"Временно повышает скорость времени. Эффект 100 + 10 * уровень игрока.",'+
+                'ENG:"Temporarily increases the speed of time. The duration depends on the current level of the player."'+
+            '},'+
+            'script:"'+
+                'SetPlayerAsTarget();'+
+                'AddEffect(BuffSPEED, GetParam(LVL) * 10 + 100);'+
         '"},'+
         'potionAuto:{'+
             'name:"potionAuto",'+
@@ -812,8 +825,8 @@ const
     ///          при этом используется автоматическая переменная LastValue,
     ///          чтобы не входить в бесконечную рекурсию запрашивая текущее значение через GetEffect
     'effects:{'+
-        'PlayerREGBuff:{'+
-            'name:"PlayerREGBuff",'+
+        'platerregbuff:{'+
+            'name:"platerregbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -825,8 +838,8 @@ const
             '},'+
         '},'+
 
-        'PlayerEXPBuff:{'+
-            'name:"PlayerEXPBuff",'+
+        'playerexpbuff:{'+
+            'name:"playerexpbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -838,8 +851,8 @@ const
             '},'+
         '},'+
 
-        'PlayerMDEFBuff:{'+
-            'name:"PlayerMDEFBuff",'+
+        'playermdefbuff:{'+
+            'name:"playermdefbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -851,8 +864,8 @@ const
             '},'+
         '},'+
 
-        'PlayerDEFBuff:{'+
-            'name:"PlayerDEFBuff",'+
+        'playerdefbuff:{'+
+            'name:"playerdefbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -864,8 +877,8 @@ const
             '},'+
         '},'+
 
-        'PlayerATKBuff:{'+
-            'name:"PlayerATKBuff",'+
+        'playeratkbuff:{'+
+            'name:"playeratkbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -877,13 +890,13 @@ const
             '},'+
         '},'+
 
-        'RegenPlayerHP:{'+
-            'name:"RegenPlayerHP",'+
+        'regenplayerhp:{'+
+            'name:"regenplayerhp",'+
             'script:{'+
                 'auto:"'+
                     'SetPlayerAsTarget();'+                                     /// целимся в игрока
-                    'IF(GetEffect(RegenPlayerHP) > 0, 4);'+                     /// если величина остатака регенерации не нулевая
-                        'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                    'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                    'IF(GetEffect(RegenPlayerHP) > 0, 3);'+                     /// если величина остатака регенерации не нулевая
                         'SilentChange();'+
                         'ChangeParam(HP, GetParam(BODY) + GetVar(tmp));'+                /// перекачиваем в здоровье с учетом возможного бафа на реген
                         'ChangeEffect(RegenPlayerHP, -GetParam(BODY) - GetVar(tmp));'+    /// списываем с пула регена здоровья
@@ -894,13 +907,13 @@ const
             '},'+
         '},'+
 
-        'RegenPlayerMP:{'+
-            'name:"RegenPlayerMP",'+
+        'regenplayermp:{'+
+            'name:"regenplayermp",'+
             'script:{'+
                 'auto:"'+
                     'SetPlayerAsTarget();'+                                     /// целимся в игрока
-                    'IF(GetEffect(RegenPlayerMP) > 0, 4);'+                     /// если величина остатака регенерации не нулевая
-                        'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                    'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                    'IF(GetEffect(RegenPlayerMP) > 0, 3);'+                     /// если величина остатака регенерации не нулевая
                         'SilentChange();'+
                         'ChangeParam(MP, GetParam(MIND) + GetVar(tmp));'+                /// перекачиваем в энергию с учетом возможного бафа на реген
                         'ChangeEffect(RegenPlayerMP, -GetParam(MIND) - GetVar(tmp));'+    /// списываем с пула регена энергии
@@ -910,6 +923,24 @@ const
                 'use:"",'+
             '},'+
         '},'+
+
+        'buffspeed:{'+
+            'name:"buffspeed",'+
+            'script:{'+
+                'auto:"'+
+                    'SetPlayerAsTarget();'+
+                    'IF(GetEffect(buffspeed) > 0, 2);'+
+                        'ChangeEffect(buffspeed, -1);'+
+                        'SetVar(GAME_SPEED,100);'+
+                    'IF(GetEffect(buffspeed) <= 0, 2);'+
+                        'SetVar(GAME_SPEED,1000);'+
+                        'RemoveEffect(buffspeed);'+
+                    '",'+
+                'use:"'+
+                '",'+
+            '},'+
+        '},'+
+
     '},'+
 
 
@@ -1020,36 +1051,144 @@ const
         '2:{ floor: 2, next:3, script:"'+
              'BreakAuto(Tower);'+
 
-             'IF(GetLang() = RU, 5);'+
-             'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота. Так же, в сундуке лежит несколько смятых листов:\");'+
-             'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
-             'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки.\");'+
-             'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
-             'Log(normal,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю? Нужно как следует подумать об этом...\");'+
+             /// мастер оставил стража
+             'IF(GetVar(first_meet) = 6, 8);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(32);'+
+                 'SetParam(HP, 5000);'+
+                 'SetParam(ATK, 50);'+
+                 'SetParam(DEF, 30);'+
+                 'SetName(RU,\"Адский Пес\");'+
+                 'SetName(ENG,\"Hell Dog\");'+
+                 'ChangeLootCount(essense,20);'+
 
-             'IF(GetLang() = ENG, 5);'+
-             'Log(normal,\"There was some gold in a rusty chest between floors. Also, there are several crumpled sheets in the chest:\");'+
-             'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+
-             'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that damn Ikki got them going.\");'+
-             'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
-             'Log(normal,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
+             /// пятая встреча с темным мастером
+             'IF(GetVar(first_meet) = 5, 14);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 1);'+
+                     'Log(danger,\"It''s fun, but I don''t have time to mess with you. But don''t be upset! My dog will sit with you. HA-HA-HA!\");' +
+                 'IF(GetLang() = RU, 1);'+
+                     'Log(danger,\"Это весело, но на возню с тобой у меня нет времени. Но ты не расстраивайся! С тобой поседит мой песик. ХА-ХА-ХА!\");' +
+                 'AllowThink(other_path);'+
 
-             'AllowMode(Think);'+
-             'AllowThink(wakeup);'+
-             'ChangePlayerItemCount(gold, Rand(100000));'+
-             'SetNextTarget();'+
+             /// четвертая встреча с темным мастером
+             'IF(GetVar(first_meet) = 4, 13);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 1);'+
+                     'Log(danger,\"Sit where you are told, rat! Now you are my eternal prisoner! HA HA!\");' +
+                 'IF(GetLang() = RU, 1);'+
+                     'Log(danger,\"Сиди там, где тебе сказано, крыса! Теперь ты мой вечный пленник! ХА-ХА!\");' +
+
+
+             // если первой встречи с ТМ еще не произошло
+             'IF(GetVar(first_meet) < 2, 16);'+
+
+                 'IF(GetLang() = RU, 5);'+
+                 'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота. Так же, в сундуке лежит несколько смятых листов:\");'+
+                 'Log(note,\"Темный Мастер охраняет свою башню днем и ночью, бродя по бесконечным этажам. Ни одна живая душа не избегнет его гнева и ярости его чудовищ.\");'+
+                 'Log(note,\"Только я собрался навести порядок на этажах, проклятые монстры разбили сундук с инструментами и растащили их по этажам! Я знаю, что их науськал этот проклятый Икки.\");'+
+                 'Log(note,\"О, горе! Я потерял свой дневник в кучах этого хлама! Годы накопленных знаний пропали! Даже не смотря на то, что он зашифрован, страшно представить каких бед он может принести в плохих руках... О, боги!..\");'+
+                 'Log(normal,\" - Подождите. Какая башня, какой Темный мастер? Что я здесь делаю? Нужно как следует подумать об этом...\");'+
+
+                 'IF(GetLang() = ENG, 5);'+
+                 'Log(normal,\"There was some gold in a rusty chest between floors. Also, there are several crumpled sheets in the chest:\");'+
+                 'Log(note,\"The Dark Master guards his tower day and night, roaming the endless floors. No living soul can escape his wrath and the fury of his monsters.\");'+
+                 'Log(note,\"As soon as I was about to put things in order on the floors, the damn monsters smashed the chest with tools and took them to the floors! I know that damn Ikki got them going.\");'+
+                 'Log(note,\"Oh woe! I lost my diary in a lot of this junk! Years of accumulated knowledge are gone! Even in spite of the fact that it is encrypted, it is scary to imagine what troubles it can bring in bad hands ... Oh, gods! ..\");'+
+                 'Log(normal,\" - Wait. Which tower, which Dark master? What am I doing here? Think about it well...\");'+
+
+                 'AllowMode(Think);'+
+                 'AllowThink(wakeup);'+
+                 'ChangePlayerItemCount(gold, Rand(100000));'+
+                 'SetNextTarget();'+
         '"},'+
         '3:{ floor: 3, next:4, script:"'+
              'BreakAuto(Tower);'+
 
-             'IF(GetLang() = RU, 1);'+
-             'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
+             /// третья встреча с темным мастером
+             'IF(GetVar(first_meet) = 3, 18);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 3);'+
+                     'Log(danger,\"Well then. I was finally convinced that you are here for a reason, since death has departed from you.\");' +
+                     'Log(danger,\"I don''t know who you are and why you are here. Your mind is clear and I see that you yourself do not know this ... A pitiful attempt to deceive me!\");' +
+                     'Log(danger,\"Since you are in my wonderful tower for a long time, rat, this is what rats are supposed to do, I will drive you to the basement forever! HA HA!\");' +
+                 'IF(GetLang() = RU, 3);'+
+                     'Log(danger,\"Ну что же. Я окончательно убедился, что ты здесь не просто так, раз смерть отступилась от тебя.\");' +
+                     'Log(danger,\"Не знаю кто ты и зачем здесь. Твой разум чист и я вижу, что ты сам этого не знаешь... Ха! Жалкая попытка обмануть меня!\");' +
+                     'Log(danger,\"Раз ты надолго в моей чудесной башне, крыса, то как и полагается крысам, я загоню тебя в подвал навечно! ХА-ХА!\");' +
+                 'SetCurrTarget(2);'+
 
-             'IF(GetLang() = ENG, 1);'+
-             'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
+             /// вторая встреча с темным мастером
+             'IF(GetVar(first_meet) = 2, 17);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 3);'+
+                     'Log(danger,\"What? You again? You are insignificant and I swat you like a fly, but are you still here ?!\");' +
+                     'Log(danger,\"HA! It seems that sabotage is brewing here ...\");' +
+                     'Log(danger,\"But it does not matter. You won''t go further, worm!\");' +
+                 'IF(GetLang() = RU, 3);'+
+                     'Log(danger,\"Что? Опять ты? Ты ничтожен и я прихлопнул тебя как муху, но ты все еще здесь?!\");' +
+                     'Log(danger,\"ХА! Кажется, у нас тут назревает диверсия...\");' +
+                     'Log(danger,\"Но это не имеет значения. Дальше ты не пройдешь, червь!\");' +
 
-             'ChangePlayerItemCount(potionAuto, 10);'+
-             'SetNextTarget();'
+             /// первая встреча с темным мастером
+             'IF(GetVar(first_meet) = 1, 16);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 2);'+
+                     'Log(danger,\"What are you doing in my Tower, insignificance!?\");' +
+                     'Log(danger,\"I will DESTROY you!\");' +
+                 'IF(GetLang() = RU, 2);'+
+                     'Log(danger,\"Что ты делаешь в моей Башне, ничтожество!?\");' +
+                     'Log(danger,\"Я УНИЧТОЖУ тебя!\");' +
+                 'AllowThink(darkmaster);'
+
+//             'IF(GetLang() = RU, 1);'+
+//             'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
+
+//             'IF(GetLang() = ENG, 1);'+
+//             'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
+
+//             'ChangePlayerItemCount(potionAuto, 10);'+
+//             'SetNextTarget();'
         +'"},'+
         '4:{ floor: 1, next:5, script:"'+
              'BreakAuto(Tower);'+
@@ -1067,27 +1206,86 @@ const
 
              'SetNextTarget();'
         +'"},'+
-        '5:{ floor: 5, next:7, script:"'+
+        '5:{ floor: 5, next:999, script:"'+
              'BreakAuto(Tower);'+
 
-             'SetCreature('+
-                 '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:9999, ATK:100, DEF:0, MAXHP:9999, MP:0, MDEF:0},'+
-                 '{SpiritBless:1}, );'+
+             /// третья встреча с темным мастером
+             'IF(GetVar(first_meet) = 3, 18);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 3);'+
+                     'Log(danger,\"Well then. I was finally convinced that you are here for a reason, since death has departed from you.\");' +
+                     'Log(danger,\"I don''t know who you are and why you are here. Your mind is clear and I see that you yourself do not know this ... A pitiful attempt to deceive me!\");' +
+                     'Log(danger,\"Since you are in my wonderful tower for a long time, rat, this is what rats are supposed to do, I will drive you to the basement forever! HA HA!\");' +
+                 'IF(GetLang() = RU, 3);'+
+                     'Log(danger,\"Ну что же. Я окончательно убедился, что ты здесь не просто так, раз смерть отступилась от тебя.\");' +
+                     'Log(danger,\"Не знаю кто ты и зачем здесь. Твой разум чист и я вижу, что ты сам этого не знаешь... Ха! Жалкая попытка обмануть меня!\");' +
+                     'Log(danger,\"Раз ты надолго в моей чудесной башне, крыса, то так и полагается крысам, я загоню тебя в подвал навечно! ХА-ХА!\");' +
+                 'SetCurrTarget(2);'+
 
-             'AddEvent(..................);'+
+             /// вторая встреча с темным мастером
+             'IF(GetVar(first_meet) = 2, 17);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 3);'+
+                     'Log(danger,\"What? You again? You are insignificant and I swat you like a fly, but are you still here ?!\");' +
+                     'Log(danger,\"HA! It seems that sabotage is brewing here ...\");' +
+                     'Log(danger,\"But it does not matter. You won''t go further, worm!\");' +
+                 'IF(GetLang() = RU, 3);'+
+                     'Log(danger,\"Что? Опять ты? Ты ничтожен и я прихлопнул тебя как муху, но ты все еще здесь?!\");' +
+                     'Log(danger,\"ХА! Кажется, у нас тут назревает диверсия...\");' +
+                     'Log(danger,\"Но это не имеет значения. Дальше ты не пройдешь, червь!\");' +
 
-             'IF(GetLang() = ENG, 3);'+
-             'AddEvent(\" - YOU WILL NOT PASS!\");' +
-             'AddEvent(\" - What are you doing in my Tower, insignificance!?\");' +
-             'SetCreatureScript(OnDeath,\"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);AddEvent( );AddEvent(    Player got Sword artifact!);AllowTool(Sword);SetNextTarget();\");'+
+             /// первая встреча с темным мастером
+             'IF(GetVar(first_meet) = 1, 16);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 9999);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
+                 'SetName(ENG,\"DARK MASER\");'+
+                 'ChangeLootCount(essense,100);'+
+                 'IF(GetLang() = ENG, 2);'+
+                     'Log(danger,\"What are you doing in my Tower, insignificance!?\");' +
+                     'Log(danger,\"I will DESTROY you!\");' +
+                 'IF(GetLang() = RU, 2);'+
+                     'Log(danger,\"Что ты делаешь в моей Башне, ничтожество!?\");' +
+                     'Log(danger,\"Я УНИЧТОЖУ тебя!\");' +
+                 'AllowThink(darkmaster);'+
 
-             'IF(GetLang() = RU, 3);'+
-             'AddEvent(\" - ТЫ НЕ ПРОЙДЕШЬ!\");' +
-             'AddEvent(\" - Что ты делаешь в моей Башне, ничтожество!?\");' +
-             'SetCreatureScript(OnDeath,\"SetBreak(Tower);AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);AddEvent( );AddEvent(    Игрок получил артефакт Меч!);AllowTool(Sword);SetNextTarget();\");'+
 
-             'AddEvent(..................);'
+
+             // или просто переходим к следующему этажу
+             'IF(GetVar(first_meet) > 3, 6);'+
+                 'IF(GetLang() = ENG, 1);'+
+                     'Log(normal,\"At the place of your meeting with the Dark Master, there is an indelible trace of energy.\");' +
+                 'IF(GetLang() = RU, 1);'+
+                     'Log(normal,\"На месте вашей встречи с Темным Мастером остался неизгладимый энегетический след.\");' +
+                'ChangePlayerLootCount(essence,10);'+
+                'SetNextTarget();'
+
+        +'"},'+
+        '6:{ floor: 6, next:7, script:"'+
+             'BreakAuto(Tower);'+
+
+             'SetNextTarget();'
+
         +'"},'+
         '7:{ floor: 7, next:10, script:"'+
              'SetBreak(Tower);'+
@@ -1137,17 +1335,7 @@ const
         +'"},'+
         '11:{ floor: 11, next:11, script:"'+
              'SetBreak(Tower);'+
-             'AddEvent(..................);'+
-             'IF(GetLang() = ENG, 2);'+
-             'AddEvent(!!! INCREDIBLE !!!);' +
-             'AddEvent(!!! YOU PASS THE GAME !!!);' +
-
-             'IF(GetLang() = RU, 2);'+
-             'AddEvent(!!! НЕВЕРОЯТНО !!!);' +
-             'AddEvent(!!! ТЫ ПРОШЕЛ ИГРУ !!!);' +
-             'AddEvent(..................);'+
-
-             'CurrentLevel(1);InitCreatures();'
+             'CurrentLevel(1);'
         +'"},'+
     '},'+
 
@@ -1158,6 +1346,7 @@ const
       'defaultbody:{ENG:"You don''t have any diary entries yet...", RU:"В вашем дневнике пока нет записей..."},'+
       'wakeup:{'+
         'name: "wakeup",'+         /// уникальный идентификатор
+        'parent: "",'+             /// идентификатор мысли при завершении которой открывается доступ к этой
         'cost: 10,'+              /// сколько очков обдумывания для получения статуса redy
         'kind: "tower",'+          /// за оформление карточки и раздел в дневнике, где будет отображаться
         'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
@@ -1166,11 +1355,7 @@ const
 
           'AllowThink(tower);'+
           'AllowThink(monsters);'+
-          'AllowThink(potions);'+
-          'AllowThink(floors);'+
-          'AllowThink(darkmaster);'+
           'AllowThink(whoami);'+
-          'AllowThink(calmness);'+
         '",'+
         'caption:{'+               /// текст для отображения на карточке
           'ENG:"Where i am?",'+
@@ -1201,85 +1386,125 @@ const
         '"},'+
       '},'+
 
-      'tower:{name: "tower", cost: 200, kind: "tower",'+
-        'script:"'+
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
-        '",'+
-        'caption:{'+
-          'ENG:"The Tower?",'+
-          'RU:"Башня?"},'+
-        'body:{'+
-          'ENG:"'+
-          '",'+
-          'RU:"'+
-          '"},'+
-      '},'+
-
-      'monsters:{name: "monsters", cost: 200, kind: "tower",'+
-        'script:"'+
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
-        '",'+
-        'caption:{'+
-          'ENG:"Monsters?",'+
-          'RU:"Монстры?"},'+
-        'body:{'+
-          'ENG:"'+
-          '",'+
-          'RU:"'+
-          '"},'+
-      '},'+
-
-      'potions:{name: "potions", cost: 200, kind: "tower",'+
-        'script:"'+
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
-        '",'+
-        'caption:{'+
-          'ENG:"Potions?",'+
-          'RU:"Зелья?"},'+
-        'body:{'+
-          'ENG:"'+
-          '",'+
-          'RU:"'+
-          '"},'+
-      '},'+
-
-      'floors:{name: "floors", cost: 200, kind: "tower",'+
-        'script:"'+
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
-        '",'+
-        'caption:{'+
-          'ENG:"Floors, endless floors...",'+
-          'RU:"Этажи, бесконечные этажи..."},'+
-        'body:{'+
-          'ENG:"'+
-          '",'+
-          'RU:"'+
-          '"},'+
-      '},'+
-
       'darkmaster:{name: "darkmaster", cost: 200, kind: "tower",'+
         'script:"'+
           'SetPlayerAsTarget();'+
           'ChangeParam(EXP, 50);'+
         '",'+
         'caption:{'+
-          'ENG:"The Dark Master. Seriously?!..",'+
-          'RU:"Темный Мастер. Серьезно?!..."},'+
+          'ENG:"The Dark Master? Seriously?!..",'+
+          'RU:"Темный Мастер? Серьезно?!..."},'+
         'body:{'+
           'ENG:"'+
+            '<p>What was it? I met some incredibly powerful magician, or whatever he is. Before I had time to look back, he literally destroyed me with several blows. I woke up already in the basement. I don''t know how long I lay unconscious.</p>'+
+            '<p>If this is exactly the person mentioned in the note, he really should be feared and avoided. But how? I''m afraid a new meeting is inevitable ...</p>'+
           '",'+
           'RU:"'+
+            '<p>Что это было? Я встретил какого-то невероятно мощного мага, или кто он там.  Оглянуться не успел, как буквально уничтожил меня несколькими ударами. '+
+               'Очнулся я уже в подвале. Не знаю, сколько пролежал без сознания.</p>'+
+            '<p>Если это именно тот, о ком говорилось в записке, его действительно стоит опасаться и избегать встреч. Но как? Боюсь, новая встреча неизбежна...</p>'+
           '"},'+
       '},'+
 
-      'whoami:{name: "whoami", cost: 500, kind: "persone",'+
+      'tower:{name: "tower", cost: 200, kind: "tower", parent: "",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+          'AllowThink(floors);'+
+        '",'+
+        'caption:{'+
+          'ENG:"The Tower?",'+
+          'RU:"Башня?"},'+
+        'body:{'+
+          'ENG:"'+
+            '<p>The floors of this Tower (?) Are similar to each other, but the higher, the larger they are. It feels like this strange tower is like a pyramid standing on top.</p>'+
+            '<p>Who would think of building something like this? Perhaps this is a false impression.</p>'+
+          '",'+
+          'RU:"'+
+            '<p>Этажи этой Башни(?) похожи друг на друга, но чем выше, тем они обширнее. Ощущение, что эта странная башня похожа на стоящую на вершине пирамиду.</p>'+
+            '<p>Кому в голову придет строить нечто подобное? Возможнро, это ложное впечатление.</p>'+
+          '"},'+
+      '},'+
+
+          'floors:{name: "floors", cost: 200, kind: "tower",'+
+            'script:"'+
+              'SetPlayerAsTarget();'+
+              'ChangeParam(EXP, 50);'+
+              'AllowMode(Floors);'+
+            '",'+
+            'caption:{'+
+              'ENG:"Floors, endless floors...",'+
+              'RU:"Этажи, бесконечные этажи..."},'+
+            'body:{'+
+              'ENG:"'+
+                '<p></p>'+
+                '<p>But the most interesting thing is that each floor is simply littered with various debris. I noticed that if you don''t make too much noise, '+
+                    'the monsters will not react to me and you can study all this stuff. What if you can find a better weapon or some clues?</p>'+
+                '<p>I remember that the note mentioned some kind of diary and tools. Resolved! I need to search all the available floors and find at least something that will help me in my current situation.</p>'+
+              '",'+
+              'RU:"'+
+                '<p></p>'+
+                '<p>Но самое интересное, что каждый этаж просто под завязку завален различным мусором. Я заметил, что если сильно не шуметь, монстры не будут на меня реагировать и '+
+                    'можно будет изучить весь этот хлам. Вдруг получится найти оружие получше или какие-то подсказки?</p>'+
+                '<p>Я помню, что в той записке упоминался какой-то дневник и инструменты. Решено! Нужно обыскать все доступные этажи и найти хоть что-то, что поможет мне в нынешнем положениию</p>'+
+              '"},'+
+          '},'+
+
+      'monsters:{name: "monsters", cost: 200, kind: "tower",'+
+        'script:"'+
+          'SetPlayerAsTarget();'+
+          'ChangeParam(EXP, 50);'+
+          'ChangeParam(ATK, 5);'+
+          'AllowThink(potions);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Monsters?",'+
+          'RU:"Монстры?"},'+
+        'body:{'+
+          'ENG:"'+
+            '<p>This tower is packed to capacity with a variety of creatures. They are all very aggressive. The author of the note did not lie. You can''t hide from them.</p>'+
+            '<p>But at the door to the next floor there is always a much stronger monster. Perhaps this is a sign that the Dark Master, or who is in charge here, does not want anyone to rise higher.</p>'+
+            '<p>Perhaps I would not do this, but I see no other way out. In this stone bag, the only way is up!</p>'+
+            '<p>But these constant battles have their benefits. I became more attentive and began to notice the weak points of these animals. If things continue like this, the monsters will no longer be a serious obstacle to me! Find only better weapons.</p>'+
+          '",'+
+          'RU:"'+
+            '<p>Эта башня под завязку забита разнообразными существами. Все они очень аггресивны. Автор записки не врал. От них не спрятаться.</p>'+
+            '<p>Но у двери на следующий этаж всегда находится гораздо более сильное чудовище. Возможно, это признак того, что Темный Мастер, или кто тут главный, не хочет, чтобы кто-либо поднимался выше.</p>'+
+            '<p>Я, может быть, и не стал бы этого делать, но не вижу другого выхода. В этом каменном мешке единственный путь - наверх!</p>'+
+            '<p>Но эти постоянные сражения имеют свою пользу. Я стал более внимательным и начал подмечать слабые места у этих зверей. Если дело так пойдет и дальше, монстры больше не будут мне серьезной преградой! Найти бы только оружие получше.</p>'+
+          '"},'+
+      '},'+
+
+          'potions:{name: "potions", cost: 200, kind: "tower",'+
+            'script:"'+
+              'SetPlayerAsTarget();'+
+              'ChangeParam(EXP, 50);'+
+            '",'+
+            'caption:{'+
+              'ENG:"Potions?",'+
+              'RU:"Зелья?"},'+
+            'body:{'+
+              'ENG:"'+
+                '<p>Everything would be completely awful, but after killing especially strong monsters, various flasks with multi-colored liquid and various debris are found: branches, stones, skins, and so on.</p>'+
+                '<p>And these potions (let''s call them that) I dared to try. What else do I have to lose?</p>'+
+                '<p>The effect is amazing! Despite not the most pleasant smell and taste, I felt stronger and better!</p>'+
+                '<p>But suddenly I thought that I could try to study their composition. Who knows, maybe you can cook them yourself?</p>'+
+              '",'+
+              'RU:"'+
+                '<p>Все было бы совсем ужасно, но после убийства особо сильных монстров обнаруживаются различные склянки с разноцветной жидкостью и различный мусор: ветки, камни, шкуры и прочее.</p>'+
+                '<p>И эти зелья (назовем их так) я отважился попробовать. Что мне еще терять?</p>'+
+                '<p>Эффект - поразительный! Не смотря на далеко не самый приятный запах и вкус, я почувствтал себя сильнее и лучше!</p>'+
+                '<p>Но внезапно я подумал, что мог бы попробовать изучить их состав. Кто знает, может быть получится приготовить их самостоятельно?</p>'+
+              '"},'+
+          '},'+
+
+
+
+      'whoami:{name: "whoami", cost: 200, kind: "persone",'+
         'script:"'+
           'SetPlayerAsTarget();'+
           'ChangeParam(EXP, 100);'+
+          'AllowThink(calmness);'+
           'AllowThink(old_skills);'+
         '",'+
         'caption:{'+
@@ -1287,38 +1512,84 @@ const
           'RU:"Кто я?!"},'+
         'body:{'+
           'ENG:"'+
+            '<p>No specific memories. From this, panic rolls in waves and nausea rises.</p>'+
+            '<p>No! You can''t rush and despair! Perhaps this is a temporary effect and you just need to calm down.</p>'+
+            '<p>But muscle memory just surprises me! The dagger is in the palm of your hand and the hand knows exactly how to handle it. Not very confident and fast yet, '+
+               'but if you practice a little, you might get better! And this can briefly distract from gloomy thoughts.</p>'+
           '",'+
           'RU:"'+
+            '<p>Никаких конкретных воспоминаний. От этого паника накатывает волнами и поднимается тошнота.</p>'+
+            '<p>Нет! Нельзя торопиться и отчаиваться! Возможно, это временный эффект и нужно просто успокоиться.</p>'+
+            '<p>Но мышечная память меня просто удивляет! Кинжал в ладони как влитой и рука точно знает как им управляться. Пока не очень уверенно и быстро, '+
+               'но если немного потренироваться, возможно, будет получаться лучше! И это сможет ненадолго отвлечь от мрачных мыслей.</p>'+
           '"},'+
       '},'+
 
-      'calmness:{name: "calmness", cost: 200, kind: "tower",'+
-        'script:"'+
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
-        '",'+
-        'caption:{'+
-          'ENG:"This is some kind of nonsense! Need to calm down...",'+
-          'RU:"Это какой-то бред! Нужно успокоиться..."},'+
-        'body:{'+
-          'ENG:"'+
-          '",'+
-          'RU:"'+
-          '"},'+
-      '},'+
+          'calmness:{name: "calmness", cost: 300, kind: "tower",'+
+            'script:"'+
+              'SetPlayerAsTarget();'+
+              'ChangeParam(EXP, 50);'+
+              'ChangeParam(AutoAction, 5000);'+
+            '",'+
+            'caption:{'+
+              'ENG:"This is some kind of nonsense! Need to calm down...",'+
+              'RU:"Это какой-то бред! Нужно успокоиться..."},'+
+            'body:{'+
+              'ENG:"'+
+                '<p>Yes! Now I see that this was the right decision.</p>'+
+                '<p>Thoughts flow calmly. The heart no longer breaks from the chest. The panic subsided.</p>'+
+                '<p>Now I understand that memories are not important. Not important yet. You need to make every effort to figure out what is happening and where I ended up. This can be the key that will allow you to restore the lost.</p>'+
+                '<p>All I need now is confidence and discretion. I''m ready for action!</p>'+
+              '",'+
+              'RU:"'+
+                '<p>Да! Теперь я вижу, что это было верным решением.</p>'+
+                '<p>Мысли текут спокойно. Сердце больше не рвется из груди. Паника отступила.</p>'+
+                '<p>Теперь я понимаю, что не важны воспоминания. Пока не важны. Нужно приложить все силы, чтобы разобраться в том что происходит и где я оказался. Это и может стать тем ключем, который позволит восстановить утерянное.</p>'+
+                '<p>Все, что мне сейчас нужно - уверенность и рассудительность. Я готов к действиям!</p>'+
+              '"},'+
+          '},'+
 
-      'old_skills:{name: "old_skills", cost: 1000, kind: "persone",'+
+          'old_skills:{name: "old_skills", cost: 600, kind: "persone",'+
+            'script:"'+
+              'SetPlayerAsTarget();'+
+              'ChangeParam(EXP, 100);'+
+              'ChangeParam(ATK, 5);'+
+              'ChangeParam(DEF, 10);'+
+            '",'+
+            'caption:{'+
+              'ENG:"The old skills",'+
+              'RU:"Старые навыки"},'+
+            'body:{'+
+              'ENG:"'+
+                '<p>I spent a few hours training and made sure it was not in vain!</p>'+
+                '<p>The hand acquired firmness, and the blow acquired confidence and precision. I like it!</p>'+
+              '",'+
+              'RU:"'+
+                '<p>Я потратил несколько часов на тренировки и убедился, что не зря!</p>'+
+                '<p>Рука приобрела твердость, а удар - уверенность и точность. Это мне нравится!</p>'+
+              '"},'+
+          '},'+
+
+      'other_path:{name: "other_path", cost: 400, kind: "tower",'+
         'script:"'+
           'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 50);'+
+          'ChangeParam(EXP, 150);'+
         '",'+
         'caption:{'+
-          'ENG:"The old skills",'+
-          'RU:"Старые навыки"},'+
+          'ENG:"Deceive the Master!",'+
+          'RU:"Обмануть Мастера!"},'+
         'body:{'+
           'ENG:"'+
+            '<p>Its end! This awful man (?) Locked me in the basement like in a dungeon! The only way out is upstairs, but there another defeat awaits me. And who knows when it will turn into <bold><red>real</red></bold> death !?</p>'+
+            '<p>We must not despair! Surely you can think of something. Deceive the guard, find a loophole, defeat him, in the end!</p>'+
+            '<p>I think we need to clear the floor and examine every inch of the floor and walls. It is possible that there may be secret passages or something like that.</p>'+
+            '<p>Get down to business!</p>'+
           '",'+
           'RU:"'+
+            '<p>Все кончено! Этот ужасный человек(?) запер меня в подвале как в темнице! Единственный выход - наверх, но там меня ожидает очередное поражение. И кто знает, когда это превратится в <bold><red>настоящую</red></bold> смерть!?</p>'+
+            '<p>Нельзя отчаиваться! Наверняка, что-то можно придумать. Обмануть стража, найти лазейку, победить его, в конце-концов!</p>'+
+            '<p>Думаю, необходимо расчистить этаж и изучить каждый сантиметр пола и стен. Не исключено, что тут могут быть тайные ходы или что-то в этом роде.</p>'+
+            '<p>За дело!</p>'+
           '"},'+
       '},'+
 
@@ -1333,8 +1604,10 @@ const
           'RU:""},'+
         'body:{'+                  /// текст (возможен html) для отображения в дневнике
           'ENG:"'+
+            '<p></p>'+
           '",'+
           'RU:"'+
+            '<p></p>'+
           '"},'+
       '},'+
     '},'+

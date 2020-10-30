@@ -206,6 +206,8 @@ begin
     /////////////////////////////////////////
     ///    настройка основного интерфейса
     /////////////////////////////////////////
+    GameInterface.Timer := Timer;
+
     GameInterface.LinkControl('AutoAction', labelAutoAction);
     GameInterface.LinkControl('LVL', labelLVL);
     GameInterface.LinkControl('EXP', labelEXP);

@@ -116,6 +116,7 @@ const
               '.permanentATK{background:url("data:image/jpeg;base64,#ICON_ATKGET#");}'+
               '.restoreHealth{background:url("data:image/jpeg;base64,#ICON_HPGET#");}'+
               '.restoreMana{background:url("data:image/jpeg;base64,#ICON_MPGET#");}'+
+              '.buffSPEED{background:url("data:image/jpeg;base64,#ICON_TICKET#");}'+
 
               '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
             '</style>'+
@@ -302,6 +303,7 @@ var
    ,ICON_ATKGET
    ,ICON_HPGET
    ,ICON_MPGET
+   ,ICON_TICKET
     : string;
 
 procedure TLog.Add(kind, text: string);
@@ -373,6 +375,7 @@ begin
     Doc.SetValue('ICON_ESSENCE', ICON_ESSENCE);
     Doc.SetValue('ICON_BOOK', ICON_BOOK);
     Doc.SetValue('ICON_THINK', ICON_THINK);
+    Doc.SetValue('ICON_TICKET', ICON_TICKET);
 
     Doc.SetValue('ICON_AUTOACTION', ICON_AUTOACTION);
     Doc.SetValue('ICON_BUFFREG', ICON_BUFFREG);
@@ -433,6 +436,7 @@ begin
     Doc.SetValue('ICON_ATKGET', Format(ICON_TEMPLATE, ['icon permanentATK']), false);
     Doc.SetValue('ICON_HPGET', Format(ICON_TEMPLATE, ['icon restoreMana']), false);
     Doc.SetValue('ICON_MPGET', Format(ICON_TEMPLATE, ['icon restoreHealth']), false);
+    Doc.SetValue('ICON_TICKET', Format(ICON_TEMPLATE, ['icon buffSPEED']), false);
 
     Doc.ClearMarks;
 
@@ -496,6 +500,7 @@ begin
     if ICON_ATKGET = '' then ICON_ATKGET :=  fAtlas.EncodeToBase64('ICON_ATKGET');
     if ICON_HPGET = '' then ICON_HPGET :=  fAtlas.EncodeToBase64('ICON_HPGET');
     if ICON_MPGET = '' then ICON_MPGET :=  fAtlas.EncodeToBase64('ICON_MPGET');
+    if ICON_TICKET = '' then ICON_TICKET :=  fAtlas.EncodeToBase64('ICON_TICKET');
 
 end;
 

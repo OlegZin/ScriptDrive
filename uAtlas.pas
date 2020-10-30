@@ -140,7 +140,7 @@ type
     ICON_ATKGET: TImage;
     ICON_HPGET: TImage;
     ICON_MPGET: TImage;
-    IMAGE_TICKET: TImage;
+    ITEM_BUFFSPEED: TImage;
     ICON_TICKET: TImage;
     IMAGE_BOX: TImage;
     ICON_BOX: TImage;
@@ -192,6 +192,9 @@ type
     Image44: TImage;
     KIND_TOWER: TImage;
     KIND_MANUSCRIPT: TImage;
+    Image43: TImage;
+    EFFECT_BUFFSPEED: TImage;
+    Image45: TImage;
     procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }

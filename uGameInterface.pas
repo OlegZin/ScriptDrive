@@ -3,7 +3,7 @@ unit uGameInterface;
 interface
 
 uses
-    Generics.Collections, FMX.Controls, superobject, FMX.StdCtrls, FMX.Objects, SysUtils, Math, FMX.Layouts;
+    Generics.Collections, FMX.Controls, superobject, FMX.StdCtrls, FMX.Objects, SysUtils, Math, FMX.Layouts, FMX.Types;
 
 type
 
@@ -26,6 +26,7 @@ type
         procedure onMouseEnter(sender: TObject);
         procedure onMouseLeave(sender: TObject);
     public
+        Timer: TTimer;
         procedure LinkControl(key: string; control: TControl);
         procedure Update(data: ISuperObject);
         procedure Init;
@@ -132,6 +133,8 @@ begin
 
     /// отображение и наполнение панели имеющихся предметов
     Controls['ItemsPanel'].Visible := fPanelOpened;
+
+    Timer.Interval := data.I['game_speed'];
 
     /// обновляем панель предметов только если есть изменения.
     /// иначе, возможны лаги кликов по предметам при активном регене в игре

@@ -61,7 +61,7 @@ type
 
         procedure ResetTargetState;    /// обнул€ет параметры инвентарь и прочее
         procedure SetName(lang, name: string); // задает им€ цели в указанном €цыке
-        procedure SetImage(index: integer = -1);
+        procedure SetImage(index: variant);
 
         procedure ChangeItemCount(name, delta: variant);  // изменение количества предметов в инвентаре текущей цели
         procedure SetItemCount(name, value: variant);     // установка количества предметов в инвентаре текущей цели
@@ -77,6 +77,7 @@ type
 
         procedure ChangePlayerParam(name, value: variant);
         procedure ChangePlayerItemCount(name, value: variant);
+        procedure ChangePlayerLootCount(name, delta: variant);  // изменение количества предметов в инвентаре текущей цели
 
         procedure Collect(name: string; objects: ISuperObject);
            // добавление в указанный раздел текущей цели всех элементов
@@ -172,6 +173,11 @@ type
         function PlayerMakeThink: boolean;   /// непосредственное проведение атаки со всеми событи€ми
 
         function CompactDigit(val: variant): string;
+
+        //// методы оперируют с перменной, обеспечивающей выполнение скрипта цели один раз при входе на этаж,
+        ///  а не при каждом тике. поскольку скрипты могут быть комплексными и не мен€ть целевой этаж сразу
+        procedure SetFloorScriptExecuted(val: boolean);
+        function GetFloorScriptExecuted: boolean;
     end;
 
 Var
@@ -309,13 +315,18 @@ begin
     if   GameData.S['state.CurrFloor'] = GameData.S['state.CurrTargetFloor'] then
     begin
         l('-> CheckStatus: цель достигнута, выполн€ем скрипт дл€ CurrTargetFloor: '+GameData.S['state.CurrTargetFloor']);
-        Script.Exec(GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor'] + '.script']);
+        if not GetFloorScriptExecuted then
+        begin
+            Script.Exec(GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor'] + '.script']);
+            SetFloorScriptExecuted(true);
+        end;
     end;
 
     // проверка на окончание уровн€
     l('-> CheckStatus: проверка на окончание уровн€');
     if StrToInt(CurrStep) > StrToInt(MaxStep) then
     begin
+        SetFloorScriptExecuted(false);
 
         // переходим на новый уровень подземель€
         l('-> CheckStatus: переходим на новый уровень подземель€');
@@ -378,6 +389,8 @@ var
 begin
     l('-> NewGame');
 
+    level := min(level, 5);  /// отсекаем читеров
+
     result := '';
 
     GameData := SO(GAME_DATA);  // загрузка дефолтных данных
@@ -385,7 +398,6 @@ begin
 
     SetLang(lang);
 
-//    GameData.I['state.player.params.'+PRM_NEEDEXP] := 1;
     GameData.I['state.player.params.'+PRM_NEEDEXP] := StrToInt(NeedExp(1));
                                 // считаем опыт необходимый дл€ левелапа
 
@@ -407,6 +419,7 @@ begin
 
     /// золото
     ChangeItemCount(ITEM_GOLD, 100000 + 10000 * level);
+    ChangeItemCount(ITEM_SPEED_BUFF, 10 * level);
 
     /// инициализируем монстра
     CreateRegularMonster;
@@ -632,12 +645,13 @@ begin
         data.S['params.MP'] := CompactDigit(GameData.I['state.player.params.MP']);
         data.I['params.needexp'] := GameData.I['state.player.params.needexp'];
 
-
         /// текущие временные эффекты на игроке
         data.O['effects'] := GameData.O['state.player.effects'].Clone;
         for elem in data.O['effects'] do
         elem.S['value'] := CompactDigit(elem.S['value']); /// значени€ могут быть впечатл€ющими
 
+        GetEffect('buffSPEED'); // читаем текущее значение, чтобы автоматом списать единичку с оставшегос€ количества
+        data.S['game_speed'] := GetVar('GAME_SPEED');
 
         data.O['modes'] := GameData.O['state.modes'];      /// статус доступа к игровым режимам
         data.S['CurrItem'] := GameData.S['state.CurrItem'];  /// текущий выбранный дл€ быстрого использовани€ предмет
@@ -842,8 +856,14 @@ end;
 
 
 
+procedure TGameDrive.SetFloorScriptExecuted(val: boolean);
+begin
+    GameData.B['state.FloorScriptExecuted'] := val;
+end;
+
 procedure TGameDrive.AddEffect(name, value: variant);
 begin
+    name := LowerCase(name);
     /// создаем или модифицируем текущее значение эффекта на цели
     if assigned( GameData.O[Target+'effects.'+name] )
     then
@@ -859,6 +879,8 @@ end;
 
 function TGameDrive.GetEffect(name: string): string;
 begin
+     name := LowerCase(name);
+
      result := '0';
 
      if assigned( GameData.O[Target+'effects.'+name] ) then
@@ -873,8 +895,15 @@ begin
 
 end;
 
+function TGameDrive.GetFloorScriptExecuted: boolean;
+begin
+    result := GameData.B['state.FloorScriptExecuted']
+end;
+
 procedure TGameDrive.ChangeEffect(name, value: variant);
 begin
+     name := LowerCase(name);
+
      /// модифицируем текущее значение эффекта на цели
      if assigned( GameData.O[Target+'effects.'+name] ) then
      begin
@@ -885,6 +914,8 @@ end;
 
 procedure TGameDrive.RemoveEffect(name: string);
 begin
+     name := LowerCase(name);
+
      if assigned( GameData.O[Target+'effects.'+name] ) then
      begin
          GameData.Delete(Target+'effects.'+name);
@@ -1058,6 +1089,18 @@ begin
     Target := trg;
 end;
 
+procedure TGameDrive.ChangePlayerLootCount(name, delta: variant);
+var
+    trg: String;
+begin
+    trg := Target;
+
+    SetPlayerAsTarget;
+    ChangeLootCount(name, delta);
+
+    Target := trg;
+end;
+
 procedure TGameDrive.ChangePlayerParam(name, value: variant);
 var
     trg: String;
@@ -1159,11 +1202,11 @@ begin
 
     fSilentChange := false;
 end;
-procedure TGameDrive.SetImage(index: integer);
+procedure TGameDrive.SetImage(index: variant);
 begin
-    l('-> SetImage('+IntToStr(index)+')');
+    l('-> SetImage('+String(index)+')');
 
-    if index < 0 then index := Random(MONSTER_IMAGE_COUNT) + 1;
+    if String(index) = '' then index := Random(MONSTER_IMAGE_COUNT) + 1;
     GameData.I[Target + 'image'] := index;
 end;
 
@@ -1276,7 +1319,7 @@ begin
 
     SetCreatureAsTarget;
     ResetTargetState;
-    SetImage;
+    SetImage('');
 
     if StrToInt(CurrStep) < StrToInt(MaxStep) then
     begin
@@ -1536,7 +1579,7 @@ begin
     for item in tmp do
     begin
         if Assigned(item) then
-            Script.Exec( GameData.S['effects.'+item.S['name']+'.script.auto'] );
+            Script.Exec( GameData.S['effects.'+LowerCase(item.S['name'])+'.script.auto'] );
     end;
 end;
 
