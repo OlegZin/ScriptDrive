@@ -89,6 +89,8 @@ const
         'CurrTargetFloor: 1,'+
         'CurrItem: "gold",'+
         'CurrThink: "",'+      /// мыслишка, на которую будут начисляться очки
+        'CurrThinkKind: "",'+  /// если устанвлен, в интерфейс мыслей нужно вернуть список исследованных мыслей этого типа,
+                               /// вместо текущей CurrBookThink
         'CurrBookThink: "",'+      /// исследованная мыслишка, данные которой показать в книге
         'thinks:{'+
 //          'wakeup: 100,'+        /// совпадает с именем из объекта раздумий. наличие означает, что доступно для исследования
@@ -1031,6 +1033,9 @@ const
                  'The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
+
+                 'AllowMode(Think);'+
+                 'AllowThink(wakeup);'+
 
 {
              'ChangePlayerItemCount(restoreHealth, Rand(100000));'+

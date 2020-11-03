@@ -11,8 +11,8 @@ uses
 type
   TfThink = class(TForm)
     layThink: TLayout;
-    Rectangle10: TRectangle;
-    Image1: TImage;
+    rBook: TRectangle;
+    iBook: TImage;
     Rectangle12: TRectangle;
     iAuto: TImage;
     Image65: TImage;
@@ -22,16 +22,22 @@ type
     WebBrowser: TWebBrowser;
     layTopStick: TLayout;
     Layout1: TLayout;
-    Image2: TImage;
-    Image3: TImage;
-    Image4: TImage;
+    bookmarkTower: TImage;
+    bookmarkJurnal: TImage;
+    bookmarkPersone: TImage;
     procedure Rectangle12Click(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
+    procedure bookmarkTowerClick(Sender: TObject);
+    procedure bookmarkPersoneClick(Sender: TObject);
+    procedure bookmarkJurnalClick(Sender: TObject);
+    procedure WebBrowserDidStartLoad(ASender: TObject);
   private
     { Private declarations }
     data: ISuperobject;
 
+    lastHTML : string;
     LinkData: TDictionary<TComponent,ISuperObject>;
+    breakLoad : boolean;
 
 //    Selected: TControl;
 
@@ -59,6 +65,11 @@ const
               'body{margin:0;padding:10px;border:0;}'+
               'body{ scrollbar-base-color: #fff; scrollbar-track-color: #fff; scrollbar-width: thin;}'+
               'body{background:url("data:image/jpeg;base64,#BOOK_BG#");}'+
+              'a:visited, a, h2{'+
+                  'font-weight:bold;'+
+                  'color: #2d4a69;'+
+                  'text-decoration:none;'+
+              '}'+
             '</style>'+
           '</head>'+
         '<body>'+
@@ -74,27 +85,25 @@ var
 
 { TfThink }
 
+procedure TfThink.bookmarkJurnalClick(Sender: TObject);
+begin
+    GameDrive.SelectKind('Jurnal');
+end;
+
+procedure TfThink.bookmarkPersoneClick(Sender: TObject);
+begin
+    GameDrive.SelectKind('Persone');
+end;
+
+procedure TfThink.bookmarkTowerClick(Sender: TObject);
+begin
+    GameDrive.SelectKind('Tower');
+end;
+
 procedure TfThink.onStickClick(Sender: TObject);
 var
     i: integer;
 begin
-{    if Assigned(Selected) then
-    begin
-        Selected.Parent := laySticks;
-
-        for I := 0 to Selected.ComponentCount-1 do
-          if Selected.Components[i].Tag = THINK_HILIGHTER then
-          (Selected.Components[i] as TControl).Visible := false;
-    end;
-
-    Selected := Sender as TControl;
-
-    Selected.Parent := layTopStick;
-
-    for I := 0 to Selected.ComponentCount-1 do
-      if Selected.Components[i].Tag = THINK_HILIGHTER then
-      (Selected.Components[i] as TControl).Visible := true;
-}
     /// вызываем метод прокачки раздумь€
     GameDrive.PlayerThink( LinkData[sender as TControl].S['name'] );
 end;
@@ -117,10 +126,15 @@ var
     i : integer;
     obj : TControl;
     bg_width : real;
+    elem: TSuperAvlEntry;
 begin
 
+    breakLoad := false;
+
+    /// количество локальныхочков автодействий
     lPool.Text := _data.S['pool'];
 
+    /// активность и анимаци€ кнопки автодействий
     if _data.B['auto'] then
     begin
         iAuto.Opacity := 1;
@@ -131,28 +145,33 @@ begin
         Timer.Enabled := false;
     end;
 
-
+    /// обнул€ем список прив€зок объектов каточек и данных
     if Not Assigned( LinkData )
     then LinkData := TDictionary<TComponent,ISuperObject>.Create;
-
     LinkData.Clear;
 
+    /// чистим объекты карточек мыслей
     for I := laySticks.ControlsCount-1 downto 0 do
     laySticks.Controls[i].Free;
 
+    /// чистим объекты активных карточек мыслей
     for I := layTopStick.ControlsCount-1 downto 0 do
     layTopStick.Controls[i].Free;
 
+    ///перебираем все активные мысли и создаем карточки дл€ них
     for item in _data.O['thinks'] do
     begin
+        /// копируем болванку карточки
         obj := fAtlas.ThinkShablon.Clone( laySticks ) as TControl;
 
+        /// определ€ем слой дл€ отображени€
         if _data.S['CurrThink'] <> item.S['name']
         then obj.Parent := laySticks
         else obj.Parent := layTopStick;
 
         obj.OnClick := onStickClick;
 
+        /// прив€зываем данные к объекту карточки
         LinkData.Add(obj, item);
 
         /// если данные по этому объекту приход€т впервые, заполн€ем локальные данные положени€
@@ -162,12 +181,14 @@ begin
           item.I['y'] := Random( Round(laySticks.Height - obj.Height) );
           item.I['rotation'] := Random( 30 ) - 15;
         end else
+        /// иначе берем из предыдущий итерации
         begin
           item.I['x'] := data.I['thinks.'+item.S['name']+'.x'];
           item.I['y'] := data.I['thinks.'+item.S['name']+'.y'];
           item.I['rotation'] := data.I['thinks.'+item.S['name']+'.rotation'];
         end;
 
+        /// позиционируем карточку
         obj.Position.X := item.I['x'];
         obj.Position.Y := item.I['y'];
         (obj as TRectangle).RotationAngle := item.I['rotation'];
@@ -196,8 +217,19 @@ begin
             (obj.Components[i] as TImage).MultiResBitmap[0].Bitmap.Assign(  fAtlas.GetBitmapByName('kind_' + item.S['kind']) );
 
         end;
+    end;
 
+    /// пр€чем все закладки журнала
+    for I := iBook.ControlsCount-1 downto 0 do
+    if not (iBook.Controls[i] is TWebBrowser) then
+    iBook.Controls[i].Visible := false;
 
+    /// показываем закладки
+    for elem in _data.O['kinds'].AsObject do
+    begin
+        if LowerCase(elem.Name) = 'tower' then bookmarkTower.Visible:=true;
+        if LowerCase(elem.Name) = 'persone' then bookmarkPersone.Visible:=true;
+        if LowerCase(elem.Name) = 'jurnal' then bookmarkJurnal.Visible:=true;
     end;
 
 
@@ -215,7 +247,9 @@ begin
         Doc.SetValue('BOOK_BG', BOOK_BG);
         Doc.SetValue('CONTENT', _data.S['body']);
 
-        WebBrowser.LoadFromStrings(Doc.Template.html, '');
+        lastHTML := Doc.Template.html;
+
+        WebBrowser.LoadFromStrings(lastHTML, '');
 
     end;
 
@@ -223,5 +257,17 @@ begin
     data := _data;
 end;
 
+
+procedure TfThink.WebBrowserDidStartLoad(ASender: TObject);
+begin
+//    if breakLoad then exit;
+
+    if Pos('link:', WebBrowser.Url) > 0 then
+//    begin
+//      WebBrowser.LoadFromStrings(lastHTML, '');
+      GameDrive.OpenThink( Copy(WebBrowser.Url, Length('link:')+1, Length(WebBrowser.Url)) );
+//      breakLoad := true;
+//    end;
+end;
 
 end.

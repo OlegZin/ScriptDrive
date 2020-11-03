@@ -100,6 +100,7 @@ type
         procedure AllowThink(name: string); // переводит
         procedure PlayerThink(name: string); /// обработчик для установки текущей активной мысли и увеличения пула мыслей
         procedure OpenThink(name: string); /// обработчик для установки текущей активной мысли для отображения в дневнике
+        procedure SelectKind(name: string); /// метод устанавливает флаг того, что нужно вернуть список "исследованных" тем указанного типа, вместо описания текущей "мысли"
 
 /// работа с этажами
         procedure SetCurrFloor(val: variant); // установить текущий этаж
@@ -437,6 +438,8 @@ end;
 procedure TGameDrive.OpenThink(name: string);
 begin
     GameData.S['state.CurrBookThink'] := name;
+    GameData.s['state.CurrThinkKind'] := ''; /// сбрасываем тип, чтобы не отображать список мыслей
+    SetModeToUpdate( INT_THINK );
 end;
 
 function TGameDrive.SaveGame: string;
@@ -688,6 +691,7 @@ begin
         fTower.Update( data );
     end;
 
+    /// обновление режима РАЗДУМИЙ
     if InterfModes and INT_THINK <> 0 then
     begin
         data := SO();
@@ -697,9 +701,34 @@ begin
         data.I['pool'] := GetPool('Think');
         data.B['auto'] := GetAuto('Think');
 
-        if GameData.S['state.CurrBookThink'] <> ''
-        then data.S['body'] := GameData.S['thinks.' + GameData.S['state.CurrBookThink'] + '.body.'+GetLang]
+        /// описание текущий выбранной мысли
+        if GameData.S['state.CurrBookThink'] <> '' then
+        begin
+            data.S['body'] := '<h2>'+GameData.S['thinks.' + GameData.S['state.CurrBookThink'] + '.caption.'+GetLang]+'</h2>';
+            data.S['body'] := data.S['body'] + GameData.S['thinks.' + GameData.S['state.CurrBookThink'] + '.body.'+GetLang];
+        end
         else data.S['body'] := GameData.S['thinks.defaultbody.'+GetLang];
+
+        /// если нужно вернуть список тем
+        if GameData.S['state.CurrThinkKind'] <> '' then
+        begin
+            data.S['body'] := '';
+            for item in GameData.O['state.thinks'].AsObject do
+            ///  если завершенная мысль принадлежит требуемому типу
+            if ( item.Value.AsInteger = 0 ) and
+               ( LowerCase(GameData.S['thinks.'+item.Name+'.kind']) = LowerCase(GameData.S['state.CurrThinkKind'])) then
+               data.S['body'] := data.S['body'] + '<a href="link:'+item.Name+'">'+ GameData.S['thinks.'+item.Name+'.caption.'+GetLang] +'</a></br>';
+        end;
+
+
+        /// формируем список типов завершенныхмыслей для отображения закладок
+        data.O['kinds'] := SO();
+        for item in GameData.O['state.thinks'].AsObject do
+        /// если обдцмывание завершено(остаток =0)
+        if item.Value.AsInteger=0 then
+        /// добавляем единичку к присутствующем в журнале мыслям этого типа
+        data.I['kinds.'+ GameData.S['thinks.'+item.Name+'.kind']] := data.I['kinds.'+ GameData.S['thinks.'+item.Name+'.kind']] + 1;
+
 
         data.O['thinks'] := SO();
 
@@ -818,6 +847,12 @@ function TGameDrive.GetItems: ISuperObject;
 begin
     l('-> GetItems');
     result := GameData.O[Target + 'items'];
+end;
+
+procedure TGameDrive.SelectKind(name: string);
+begin
+    GameData.S['state.CurrThinkKind'] := name;
+    SetModeToUpdate( INT_THINK );
 end;
 
 procedure TGameDrive.SetCreatureAsTarget;
