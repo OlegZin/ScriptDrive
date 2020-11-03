@@ -825,8 +825,8 @@ const
     ///          при этом используется автоматическая переменная LastValue,
     ///          чтобы не входить в бесконечную рекурсию запрашивая текущее значение через GetEffect
     'effects:{'+
-        'platerregbuff:{'+
-            'name:"platerregbuff",'+
+        'playerregbuff:{'+
+            'name:"playerregbuff",'+
             'script:{'+
                 'auto:"",'+
                 'use:"'+
@@ -1060,7 +1060,7 @@ const
                  'SetParam(DEF, 30);'+
                  'SetName(RU,\"Адский Пес\");'+
                  'SetName(ENG,\"Hell Dog\");'+
-                 'ChangeLootCount(essense,20);'+
+                 'ChangeLootCount(essence,20);'+
 
              /// пятая встреча с темным мастером
              'IF(GetVar(first_meet) = 5, 14);'+
@@ -1070,9 +1070,9 @@ const
                  'SetParam(HP, 9999);'+
                  'SetParam(ATK, 100);'+
                  'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,100);'+
                  'IF(GetLang() = ENG, 1);'+
                      'Log(danger,\"It''s fun, but I don''t have time to mess with you. But don''t be upset! My dog will sit with you. HA-HA-HA!\");' +
                  'IF(GetLang() = RU, 1);'+
@@ -1087,9 +1087,9 @@ const
                  'SetParam(HP, 9999);'+
                  'SetParam(ATK, 100);'+
                  'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,100);'+
                  'IF(GetLang() = ENG, 1);'+
                      'Log(danger,\"Sit where you are told, rat! Now you are my eternal prisoner! HA HA!\");' +
                  'IF(GetLang() = RU, 1);'+
@@ -1129,9 +1129,9 @@ const
                  'SetParam(HP, 9999);'+
                  'SetParam(ATK, 100);'+
                  'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,100);'+
                  'IF(GetLang() = ENG, 3);'+
                      'Log(danger,\"Well then. I was finally convinced that you are here for a reason, since death has departed from you.\");' +
                      'Log(danger,\"I don''t know who you are and why you are here. Your mind is clear and I see that you yourself do not know this ... A pitiful attempt to deceive me!\");' +
@@ -1142,17 +1142,31 @@ const
                      'Log(danger,\"Раз ты надолго в моей чудесной башне, крыса, то как и полагается крысам, я загоню тебя в подвал навечно! ХА-ХА!\");' +
                  'SetCurrTarget(2);'+
 
+
+             'IF(GetVar(first_meet) < 2, 6);'+
+               'IF(GetLang() = RU, 1);'+
+               'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
+
+               'IF(GetLang() = ENG, 1);'+
+               'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
+
+               'ChangePlayerItemCount(potionAuto, 10);'+
+               'SetNextTarget();'
+        +'"},'+
+        '4:{ floor: 4, next:5, script:"'+
+             'BreakAuto(Tower);'+
+
              /// вторая встреча с темным мастером
-             'IF(GetVar(first_meet) = 2, 17);'+
+             'IF(GetVar(first_meet) = 2, 18);'+
                  'ChangeVar(first_meet, 1);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(31);'+
                  'SetParam(HP, 9999);'+
                  'SetParam(ATK, 100);'+
                  'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,100);'+
                  'IF(GetLang() = ENG, 3);'+
                      'Log(danger,\"What? You again? You are insignificant and I swat you like a fly, but are you still here ?!\");' +
                      'Log(danger,\"HA! It seems that sabotage is brewing here ...\");' +
@@ -1161,106 +1175,37 @@ const
                      'Log(danger,\"Что? Опять ты? Ты ничтожен и я прихлопнул тебя как муху, но ты все еще здесь?!\");' +
                      'Log(danger,\"ХА! Кажется, у нас тут назревает диверсия...\");' +
                      'Log(danger,\"Но это не имеет значения. Дальше ты не пройдешь, червь!\");' +
+                 'SetCurrTarget(3);'+
 
-             /// первая встреча с темным мастером
-             'IF(GetVar(first_meet) = 1, 16);'+
-                 'ChangeVar(first_meet, 1);'+
-                 'SetMonsterAsTarget();'+
-                 'SetImage(31);'+
-                 'SetParam(HP, 9999);'+
-                 'SetParam(ATK, 100);'+
-                 'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
-                 'IF(GetLang() = ENG, 2);'+
-                     'Log(danger,\"What are you doing in my Tower, insignificance!?\");' +
-                     'Log(danger,\"I will DESTROY you!\");' +
-                 'IF(GetLang() = RU, 2);'+
-                     'Log(danger,\"Что ты делаешь в моей Башне, ничтожество!?\");' +
-                     'Log(danger,\"Я УНИЧТОЖУ тебя!\");' +
-                 'AllowThink(darkmaster);'
 
-//             'IF(GetLang() = RU, 1);'+
-//             'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
+             'IF(GetVar(first_meet) < 2, 10);'+
+               'If(GetLang() = RU, 1);'+
+               'Log(normal,\"Огромный сундк! Замок поддается не с первого раза...\");'+
+               'If(GetLang() = ENG, 1);'+
+               'Log(normal,\"You have found a huge chest! The lock does not give in the first time ...\");'+
 
-//             'IF(GetLang() = ENG, 1);'+
-//             'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
+               'ChangePlayerItemCount(GetRandItemName(), 1);'+
+               'ChangePlayerItemCount(GetRandItemName(), 1);'+
+               'ChangePlayerItemCount(GetRandItemName(), 1);'+
+               'ChangePlayerItemCount(GetRandItemName(), 1);'+
+               'ChangePlayerItemCount(GetRandItemName(), 1);'+
 
-//             'ChangePlayerItemCount(potionAuto, 10);'+
-//             'SetNextTarget();'
-        +'"},'+
-        '4:{ floor: 1, next:5, script:"'+
-             'BreakAuto(Tower);'+
-
-             'If(GetLang() = RU, 1);'+
-             'Log(normal,\"Огромный сундк! Замок поддается не с первого раза...\");'+
-             'If(GetLang() = ENG, 1);'+
-             'Log(normal,\"You have found a huge chest! The lock does not give in the first time ...\");'+
-
-             'ChangePlayerItemCount(GetRandItemName(), 1);'+
-             'ChangePlayerItemCount(GetRandItemName(), 1);'+
-             'ChangePlayerItemCount(GetRandItemName(), 1);'+
-             'ChangePlayerItemCount(GetRandItemName(), 1);'+
-             'ChangePlayerItemCount(GetRandItemName(), 1);'+
-
-             'SetNextTarget();'
+               'SetNextTarget();'
         +'"},'+
         '5:{ floor: 5, next:999, script:"'+
              'BreakAuto(Tower);'+
 
-             /// третья встреча с темным мастером
-             'IF(GetVar(first_meet) = 3, 18);'+
-                 'ChangeVar(first_meet, 1);'+
-                 'SetMonsterAsTarget();'+
-                 'SetImage(31);'+
-                 'SetParam(HP, 9999);'+
-                 'SetParam(ATK, 100);'+
-                 'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
-                 'IF(GetLang() = ENG, 3);'+
-                     'Log(danger,\"Well then. I was finally convinced that you are here for a reason, since death has departed from you.\");' +
-                     'Log(danger,\"I don''t know who you are and why you are here. Your mind is clear and I see that you yourself do not know this ... A pitiful attempt to deceive me!\");' +
-                     'Log(danger,\"Since you are in my wonderful tower for a long time, rat, this is what rats are supposed to do, I will drive you to the basement forever! HA HA!\");' +
-                 'IF(GetLang() = RU, 3);'+
-                     'Log(danger,\"Ну что же. Я окончательно убедился, что ты здесь не просто так, раз смерть отступилась от тебя.\");' +
-                     'Log(danger,\"Не знаю кто ты и зачем здесь. Твой разум чист и я вижу, что ты сам этого не знаешь... Ха! Жалкая попытка обмануть меня!\");' +
-                     'Log(danger,\"Раз ты надолго в моей чудесной башне, крыса, то так и полагается крысам, я загоню тебя в подвал навечно! ХА-ХА!\");' +
-                 'SetCurrTarget(2);'+
-
-             /// вторая встреча с темным мастером
-             'IF(GetVar(first_meet) = 2, 17);'+
-                 'ChangeVar(first_meet, 1);'+
-                 'SetMonsterAsTarget();'+
-                 'SetImage(31);'+
-                 'SetParam(HP, 9999);'+
-                 'SetParam(ATK, 100);'+
-                 'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
-                 'IF(GetLang() = ENG, 3);'+
-                     'Log(danger,\"What? You again? You are insignificant and I swat you like a fly, but are you still here ?!\");' +
-                     'Log(danger,\"HA! It seems that sabotage is brewing here ...\");' +
-                     'Log(danger,\"But it does not matter. You won''t go further, worm!\");' +
-                 'IF(GetLang() = RU, 3);'+
-                     'Log(danger,\"Что? Опять ты? Ты ничтожен и я прихлопнул тебя как муху, но ты все еще здесь?!\");' +
-                     'Log(danger,\"ХА! Кажется, у нас тут назревает диверсия...\");' +
-                     'Log(danger,\"Но это не имеет значения. Дальше ты не пройдешь, червь!\");' +
-
              /// первая встреча с темным мастером
-             'IF(GetVar(first_meet) = 1, 16);'+
+             'IF(GetVar(first_meet) = 1, 17);'+
                  'ChangeVar(first_meet, 1);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(31);'+
                  'SetParam(HP, 9999);'+
                  'SetParam(ATK, 100);'+
                  'SetParam(DEF, 0);'+
-                 'SetName(RU,\"ТЕМНЫЙ МАСТЕР\");'+
-                 'SetName(ENG,\"DARK MASER\");'+
-                 'ChangeLootCount(essense,100);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,100);'+
                  'IF(GetLang() = ENG, 2);'+
                      'Log(danger,\"What are you doing in my Tower, insignificance!?\");' +
                      'Log(danger,\"I will DESTROY you!\");' +
@@ -1268,7 +1213,7 @@ const
                      'Log(danger,\"Что ты делаешь в моей Башне, ничтожество!?\");' +
                      'Log(danger,\"Я УНИЧТОЖУ тебя!\");' +
                  'AllowThink(darkmaster);'+
-
+                 'SetCurrTarget(4);'+
 
 
              // или просто переходим к следующему этажу
@@ -1284,31 +1229,18 @@ const
         '6:{ floor: 6, next:7, script:"'+
              'BreakAuto(Tower);'+
 
-             'SetNextTarget();'
+             'IF(GetLang() = ENG, 1);'+
+             'Log(normal,\"Congratulations! You''ve reached the end of content! =) Keep the bonus while you wait to continue.\" )'+
+             'IF(GetLang() = RU, 1);'+
+             'Log(normal,\"Поздравляю! Ты достиг конца контента! =) Держи бонус, пока ждешь продолжения.\" )'+
+
+             'ChangePlayerItemCount(GetRandItemName(), 10);'+
+             'SetCurrFloor(1);'
+//             'SetNextTarget();'
 
         +'"},'+
         '7:{ floor: 7, next:10, script:"'+
-             'SetBreak(Tower);'+
-
-             'SetCreature('+
-                 '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:99999, ATK:1000, DEF:0, MAXHP:99999, MP:0, MDEF:0},'+
-                 '{SpiritBless:1}, );'+
-
-             'AddEvent(..................);'+
-
-             'IF(GetLang() = ENG, 3);'+
-             'SetVar(DarkMaster,ANGRY DARK MASTER);'+
-             'AddEvent(\" - This is our last meeting, stranger! You will not leave my Tower!\");' +
-             'SetCreatureScript(OnDeath,\"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);SetNextTarget();\");'+
-
-             'IF(GetLang() = RU, 3);'+
-             'SetVar(DarkMaster,ЗЛОЙ ТЕМНЫЙ МАСТЕР);'+
-             'AddEvent(\" - Это наша последняя встреча, чужак! Ты не выйдешь из моей Башни!\");' +
-             'SetCreatureScript(OnDeath,\"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();\");'+
-
-             'AddEvent(..................);'+
-             'SetNextTarget();'
+             'SetBreak(Tower);'
         +'"},'+
         '10:{ floor: 10, next:11, script:"'+
              'SetBreak(Tower);'+
