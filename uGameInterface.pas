@@ -193,7 +193,7 @@ begin
       then (item.Value as TLabel).Text := data.S['params.'+item.key];
 
     /// обновляем прогресс набора опыта для уровня
-    Controls['rectEXP'].Width := Min(Controls['rectBGEXP'].Width * ( data.I['params.EXP'] / data.I['params.'+PRM_NEEDEXP] ), Controls['rectBGEXP'].Width);
+    Controls['rectEXP'].Width := Min(Controls['rectBGEXP'].Width * data.D['params.percent'], Controls['rectBGEXP'].Width);
 
     /// выставляем видимость вкладок режима
     if Assigned(data.O['modes']) then

@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
-    uGameInterface, uLog, uTower, uThink;
+    uGameInterface, uLog, uTower, uThink, PhrasesDB;
 
 type
 
@@ -156,6 +156,9 @@ type
 /// основные игровые методы
         procedure PlayerAttack;  /// проведение взаимной атаки игрока и монстра в башне
         procedure UseCurrItem;   /// использование текущего выбранного предмета
+
+///
+        function Phrase(name: string): string;
 
     private
         Script : TScriptDrive;
@@ -667,6 +670,7 @@ begin
         data.S['params.HP'] := CompactDigit(GameData.I['state.player.params.HP']);
         data.S['params.MP'] := CompactDigit(GameData.I['state.player.params.MP']);
         data.I['params.needexp'] := GameData.I['state.player.params.needexp'];
+        data.D['params.percent'] := GameData.I['state.player.params.EXP'] / GameData.I['state.player.params.needexp'];
 
         /// текущие временные эффекты на игроке
         data.O['effects'] := GameData.O['state.player.effects'].Clone;
@@ -699,7 +703,11 @@ begin
     if InterfModes and INT_TOWER <> 0 then
     begin
         data := SO();
-        data.O['params']      := GameData.O['state.creature.params'];
+        data.O['params']      := GameData.O['state.creature.params'].Clone;
+
+        for item in data.O['params'].AsObject do
+        data.S['params.'+item.Name] := CompactDigit( data.I['params.'+item.Name] );
+
         data.I['floor']       := GameData.I['state.CurrFloor'];
         data.I['step']        := GameData.I['state.CurrStep'];
         data.S['maxstep']     := MaxStep;
@@ -1456,6 +1464,11 @@ begin
 end;
 
 /// скриптовые команды
+
+function TGameDrive.Phrase(name: string): string;
+begin
+    result := GetPhrase(name,GetLang);
+end;
 
 procedure TGameDrive.PlayerAttack;
 begin

@@ -23,6 +23,7 @@ const
               'body{ scrollbar-base-color: #fff; scrollbar-track-color: #fff; }'+
               '.think{font-style: italic;}'+
               '.danger{color:red; font-weight: bold;}'+
+              '.good{color:green; font-weight: bold;}'+
               '.fight{color:gray;}'+
               '.note{'+
                 'padding:20px;margin:20px;'+

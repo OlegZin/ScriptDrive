@@ -196,6 +196,7 @@ type
     EFFECT_BUFFSPEED: TImage;
     Image45: TImage;
     Image69: TImage;
+    Image70: TImage;
     procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }

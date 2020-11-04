@@ -44,10 +44,10 @@ const
         'effects: {},'+
         'loot: {},'+
         'events: {'+
-            'OnAttack:\"\",'+
-            'onParamChange:\"\",'+
-            'onDeath:\"\",'+
-            'onRestore:\"\",'+
+            'OnAttack:"",'+
+            'onParamChange:"",'+
+            'onDeath:"",'+
+            'onRestore:"",'+
         '},'+
     '},';
 
@@ -115,11 +115,11 @@ const
             'effects: {},'+  // временные эффекты (бафы и дебафы)
             'loot: {},'+     // ресурсы
             'events: {'+
-                'onAttack:\"\",'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
-                'onParamChange:\"\",'+
-                'onDeath:\"\",'+
-                'onRestore:\"\",'+
-                'onLevelUp:\"\",'+
+                'onAttack:"",'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
+                'onParamChange:"",'+
+                'onDeath:"",'+
+                'onRestore:"",'+
+                'onLevelUp:"",'+
 ///                   'default:""'+  с крипт имеет имя и команды. имя используется для идентификации каким эффектом
 ///                                  эффектом он был повешен и при снятии эффекта можно было дропнуть и скрипт
 
@@ -133,11 +133,11 @@ const
             'effects: {},'+
             'loot: {},'+
             'events: {'+
-                'OnAttack:{},'+
-                'onParamChange:{},'+
-                'onDeath:{},'+
-                'onRestore:{},'+
-                'onLevelUp:{},'+
+                'OnAttack:"",'+
+                'onParamChange:"",'+
+                'onDeath:"",'+
+                'onRestore:"",'+
+                'onLevelUp:"",'+
             '},'+
         '},'+
         'items:{'+
@@ -192,6 +192,7 @@ const
         'vars:{'+
             'GAME_SPEED: 1000,'+  /// скорость игры. 1000 = 1 секунда на тик. минимум = 100
             'first_meet: 1,'+  /// сюжетная переменная первой встречи с Темным Мастером
+            'ikki: 0,'+        /// сюжетная переменная общения с Икки
             // переменне, инициализируемые перед вызоваом скриптов на onAttack
             'mc_DMG: 0,'+ // выкинутый монстром урон
             'mc_BLK: 0,'+ // вычисленная величина блока урона от игрока
@@ -238,7 +239,7 @@ const
     'objRaritySumm: 50,'+
     'floorObjects:{'+
         'Diary: {name:"Diary", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'OpenThink(Diary);'+
                 'IF(GetLang() = RU, 2);'+
@@ -249,7 +250,7 @@ const
                 'AddEvent(!!! The player discovered the Diary !!!);'+
         '"},'+
         'Shovel: {name:"Shovel", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'AllowTool(Shovel);' +
                 'IF(GetLang() = RU, 1);'+
@@ -258,7 +259,7 @@ const
                 'AddEvent(!!! The player discovered the Shovel artifact !!!);'+
         '"},'+
         'Pick: {name:"Pick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'AllowTool(Pick);' +
                 'IF(GetLang() = RU, 1);'+
@@ -267,7 +268,7 @@ const
                 'AddEvent(!!! The player discovered the Pick artifact !!!);'+
         '"},'+
         'Axe: {name:"Axe", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'AllowTool(Axe);' +
                 'IF(GetLang() = RU}, 1);'+
@@ -276,7 +277,7 @@ const
                 'AddEvent(!!! The player discovered the Axe artifact !!!);'+
         '"},'+
         'lockpick: {name:"lockpick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'AllowTool(lockpick);' +
                 'IF(GetLang() = RU, 1);'+
@@ -285,7 +286,7 @@ const
                 'AddEvent(!!! The player discovered the Lock pick artifact !!!);'+
         '"},'+
         'TimeSand: {name:"TimeSand", caption:{RU:"Сундук",ENG:"Chest"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 80) + 200",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 80) + 200)",'+
             'script:"'+
                 'AllowTool(TimeSand);'+
                 'If(GetLang() = RU, 1);'+
@@ -294,7 +295,7 @@ const
                 'AddEvent(!!! The player found Sand of Time artifact !!!);'+
         '"},'+
         'leggings: {name:"leggings", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
             'script:"'+
                 'AllowTool(leggings);'+
                 'If(GetLang() = RU, 1);'+
@@ -303,7 +304,7 @@ const
                 'AddEvent(!!! The player found the leggings artifact !!!);'+
         '"},'+
         'LifeAmulet: {name:"LifeAmulet", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Rand(CurrFloor() * 70) + 150",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 70) + 150)",'+
             'script:"'+
                 'AllowTool(LifeAmulet);'+
                 'If(GetLang() = RU, 1);'+
@@ -315,7 +316,7 @@ const
 
 
         'Cache: {name:"Cache", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 70) + 150",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 70) + 150)",'+
             'script:"'+
                 'SetVar(gold, Rand(CurrFloor() * 10000) + 1);'+
                 'ChangePlayerItemCount(Gold, GetVar(gold));'+
@@ -370,7 +371,7 @@ const
                 'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
         '"},'+
         'StoneBlockage: {name:"StoneBlockage", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
             'script:"'+
                 'SetVar(count, Rand(CurrFloor() * 100) + 10]);'+
                 'SetPlayerRes(Stone, GetVar(count));' +
@@ -380,7 +381,7 @@ const
                 'AddEvent(Gained GetVar(count) stone);'+
         '"},'+
         'WoodBlockage: {name:"WoodBlockage", caption:{RU:"Деревянный завал",ENG:"Wood blockage"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 250) + 1000",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
             'script:"'+
                 'SetVar(count, Rand(CurrFloor() * 100) + 10);'+
                 'SetPlayerRes(Wood, GetVar(count));' +
@@ -390,7 +391,7 @@ const
                 'AddEvent(Gained GetVar(count) wood);'+
         '"},'+
         'Chest: {name:"Chest", caption:{RU:"Сундук",ENG:"Chest"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 80) + 200",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 80) + 200)",'+
             'script:"'+
                 'SetVar(iName, GetRandItemName());'+
                 'SetVar(iCount, Rand(CurrFloor()) + 1);'+
@@ -413,7 +414,7 @@ const
                 'AddEvent(Gained GetVar(iCount) GetVar(iName)!);'+
         '"},'+
         'Box: {name:"Box", caption:{RU:"Ящик",ENG:"Box"}, rarity:3, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 60) + 100",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 60) + 100)",'+
             'script:"'+
                 'SetVar(iName, GetRandItemName());'+
                 'ChangePlayerItemCount(GetVar(iName), 1);'+
@@ -442,15 +443,11 @@ const
                 'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
         '"},'+
         'Trash: {name:"Trash", caption:{RU:"Мусор",ENG:"Trash"}, rarity:10, allowCount:-1,'+
-            'hpCalc:"Rand(CurrFloor() * 50) + 50",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
             'script:"'+
                 'SetVar(obj, GetRandResName());'+
                 'SetVar(count, Rand(CurrFloor() * 10) + 1);'+
                 'SetPlayerRes(GetVar(obj), GetVar(count));' +
-                'IF(GetLang() = RU, 1);'+
-                'AddEvent(Игрок обнаружил GetVar(count) GetVar(obj)!);'+
-                'IF(GetLang() = ENG, 1);'+
-                'AddEvent(Player found GetVar(count) GetVar(obj)!);'+
         '"},'+
     '},'+
 
@@ -1034,13 +1031,13 @@ const
              'Log(danger,\"FIGHT!\");'+
              'SetNextTarget();'+
 
-                 'AllowMode(Think);'+
-                 'AllowThink(wakeup);'+
+//                 'AllowMode(Think);'+
+//                 'AllowThink(wakeup);'+
 
-                 'SetMonsterAsTarget();'+
-                 'SetEvent(OnDeath,\"SetPlayerAsTarget();ChangeItemCount(gold,1000);\");'+
+//             'ChangePlayerItemCount(restoreHealth, 100000);'+
+//             'ChangePlayerItemCount(potionexp, 100000);'+
+
 {
-             'ChangePlayerItemCount(restoreHealth, Rand(100000));'+
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+
              'ChangePlayerItemCount(permanentATK, Rand(100000));'+
              'ChangePlayerItemCount(permanentDEF, Rand(100000));'+
@@ -1059,7 +1056,7 @@ const
              'BreakAuto(Tower);'+
 
              /// мастер оставил стража
-             'IF(GetVar(first_meet) = 6, 8);'+
+             'IF(GetVar(first_meet) = 6, 9);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(32);'+
                  'SetParam(HP, 5000);'+
@@ -1068,6 +1065,7 @@ const
                  'SetName(RU,\"Адский Пес\");'+
                  'SetName(ENG,\"Hell Dog\");'+
                  'ChangeLootCount(essence,20);'+
+                 'SetEvent(OnDeath,\"ChangeVar(first_meet, 1);ChangeVar(ikki, 1);SetCurrTarget(3);Log(good,Phrase(dog_is_dead));\");'+
 
              /// пятая встреча с темным мастером
              'IF(GetVar(first_meet) = 5, 14);'+
@@ -1149,8 +1147,33 @@ const
                      'Log(danger,\"Раз ты надолго в моей чудесной башне, крыса, то как и полагается крысам, я загоню тебя в подвал навечно! ХА-ХА!\");' +
                  'SetCurrTarget(2);'+
 
+             /// первая встреча с икки
+             'IF(GetVar(ikki) = 1, 21);'+
+                 'SetCurrTarget(5);'+
+                 'SetVar(ikki, 2);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(33);'+
+                 'SetParam(HP, 1);'+
+                 'SetParam(ATK, 1);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'IF(GetLang() = ENG, 5);'+
+                     'Log(good,\"Hello stranger. Impressive! To go against the will of oneself ... it doesn''t matter ...\");' +
+                     'Log(good,\"But you still need help. And allies in the Tower, as you know, are hard to find.\");' +
+                     'Log(good,\"And if this someone else can help you remember whatever you want ...\");' +
+                     'Log(good,\"Well, do you need friends?\");' +
+                     'Log(good,\"Think about it. See you later, stranger ...\");' +
+                 'IF(GetLang() = RU, 5);'+
+                     'Log(good,\"Приветствую, незнакомец. Впечатляюще! Пойти поперек воли самого... неважно...\");' +
+                     'Log(good,\"Но без помощи тебе все равно не обойтись. А союзников в Башне, как понимаешь, найти трудно.\");' +
+                     'Log(good,\"А если еще этот кто-то может помочь тебе вспомнить все, что ты хочешь...\");' +
+                     'Log(good,\"Ну как, тебе нужны друзья?\");' +
+                     'Log(good,\"Ты пока подумай. Увидимся позднее, незнакомец....\");' +
 
-             'IF(GetVar(first_meet) < 2, 6);'+
+             /// если нет никаких квестовых событий
+             'IF(GetVar(first_meet) < 2, 7);'+
+             'IF(GetVar(ikki) < 1, 6);'+
                'IF(GetLang() = RU, 1);'+
                'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
 
@@ -1199,7 +1222,7 @@ const
 
                'SetNextTarget();'
         +'"},'+
-        '5:{ floor: 5, next:999, script:"'+
+        '5:{ floor: 5, next:6, script:"'+
              'BreakAuto(Tower);'+
 
              /// первая встреча с темным мастером
@@ -1224,56 +1247,111 @@ const
 
 
              // или просто переходим к следующему этажу
-             'IF(GetVar(first_meet) > 3, 6);'+
+             'IF(GetVar(first_meet) = 7, 6);'+
                  'IF(GetLang() = ENG, 1);'+
-                     'Log(normal,\"At the place of your meeting with the Dark Master, there is an indelible trace of energy.\");' +
+                     'Log(normal,\"At the place of your meeting with the sorcerer, an indelible trace of energy remained.\");' +
                  'IF(GetLang() = RU, 1);'+
-                     'Log(normal,\"На месте вашей встречи с Темным Мастером остался неизгладимый энегетический след.\");' +
+                     'Log(normal,\"На месте вашей встречи с кодуном остался неизгладимый энегетический след.\");' +
                 'ChangePlayerLootCount(essence,10);'+
-                'SetNextTarget();'
+                 'SetCurrTarget(6);'
 
         +'"},'+
         '6:{ floor: 6, next:7, script:"'+
              'BreakAuto(Tower);'+
 
-             'IF(GetLang() = ENG, 1);'+
-             'Log(normal,\"Congratulations! You''ve reached the end of content! =) Keep the bonus while you wait to continue.\" )'+
-             'IF(GetLang() = RU, 1);'+
-             'Log(normal,\"Поздравляю! Ты достиг конца контента! =) Держи бонус, пока ждешь продолжения.\" )'+
+             /// вторая встреча с темным мастером
+             'IF(GetVar(first_meet) = 7, 20);'+
+                 'ChangeVar(first_meet, 1);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(31);'+
+                 'SetParam(HP, 99999);'+
+                 'SetParam(ATK, 200);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'ChangeLootCount(essence,200);'+
+                 'IF(GetLang() = ENG, 4);'+
+                     'Log(danger,\"So-so. The rat got out of the basement. You start to ANNOY me!\");' +
+                     'Log(danger,\"The games are over! I don’t know how to get rid of you yet, but I’m quite capable of locking you up here on the lower floors.\");' +
+                     'Log(danger,\"Perhaps, when I am bored, I will come to see you. After all, I now have a new pet.\");' +
+                     'Log(danger,\"See you, rat! HA HA!\");' +
+                 'IF(GetLang() = RU, 4);'+
+                     'Log(danger,\"Так-так. Крыса выбралась из подвала. Ты начинаешь меня РАЗДРАЖАТЬ!\");' +
+                     'Log(danger,\"Игры закончились! Я пока не знаю как от тебя избавиться, но вполне способен запереть тебя здесь, на нижних этажах.\");' +
+                     'Log(danger,\"Возможно, когда мне будет скучно, буду приходить тебя проведать. Ведь у меня теперь есть новый питомец.\");' +
+                     'Log(danger,\"До встречи, крыса! ХА-ХА!\");' +
+                'SetNextTarget();'+
 
-             'ChangePlayerItemCount(GetRandItemName(), 10);'+
-             'SetCurrFloor(1);'
-//             'SetNextTarget();'
-
+             /// вторая встреча с икки
+             'IF(GetVar(ikki) = 3, 21);'+
+                 'SetCurrTarget(7);'+
+                 'SetVar(ikki, 4);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(33);'+
+                 'SetParam(HP, 1);'+
+                 'SetParam(ATK, 1);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+                 'IF(GetLang() = ENG, 5);'+
+                     'Log(good,\"So we met again, stranger.\");' +
+                     'Log(good,\"You got into an argument with ... Hmm ...\");' +
+                     'Log(good,\"The magic barrier is powerful, but when you have friends, many problems are easier to solve.\");' +
+                     'Log(good,\"And since we are friends, I will help you. Go boldly. The next time the barrier will be noticeably weakened, but I can only do this once. Don''t miss this opportunity. Friend.\");' +
+                     'Log(good,\"See you!\");' +
+                 'IF(GetLang() = RU, 5);'+
+                     'Log(good,\"Вот мы и встретились снова, незнакомец.\");' +
+                     'Log(good,\"Ты снова повздорил с... Хм...\");' +
+                     'Log(good,\"Магический барьер - сильная штука, но когда у тебя есть друзья, многие проблемы решаются легче.\");' +
+                     'Log(good,\"А раз уж мы друзья, я помогу тебе. Иди смело. В следующий раз барьер будет заметно ослаблен, но сделать это я смогу только один раз. Не упусти эту возможность. Друг.\");' +
+                     'Log(good,\"До встречи!\");'
         +'"},'+
-        '7:{ floor: 7, next:10, script:"'+
-             'SetBreak(Tower);'
-        +'"},'+
-        '10:{ floor: 10, next:11, script:"'+
-             'SetBreak(Tower);'+
+        '7:{ floor: 7, next:8, script:"'+
+             'BreakAuto(Tower);'+
 
-             'AddEvent(..................);'+
+             'IF(GetVar(first_meet) = 8, 11);'+ // первая встреча с барьером
+                 'SetCurrTarget(6);'+
+                 'SetVar(first_meet, 9);'+
+                 'SetVar(ikki, 3);'+            // продвигаем истрию с Икки, чтобы встретить его еще раз
+                 'SetMonsterAsTarget();'+
+                 'SetImage(34);'+
+                 'SetParam(HP, 5000);'+
+                 'SetParam(ATK, 1000);'+
+                 'SetParam(DEF, 1000);'+
+                 'SetParam(MDEF, 1000);'+
+                 'SetName(RU,\"Магический барьер\");'+
+                 'SetName(ENG,\"Magic barrier\");'+
 
-             'IF(GetLang() = ENG, 3);'+
-             'AddEvent(\" - You broke into my Tower, scared monsters, looted chests. Who are you after that !?\");' +
-             'AddEvent(\" - Now EXACTLY our last meeting!\");' +
-             'SetCreatureScript(OnDeath,\"AddEvent(..................);AddEvent(- You defeated ME!? Can not be! Who are You?!);AddEvent(..................);SetNextTarget();\");'+
+             'IF(GetVar(first_meet) = 10, 8);'+   /// восстановление силы барьера после ослабления от Икки
+                 'SetMonsterAsTarget();'+
+                 'SetImage(34);'+
+                 'SetParam(HP, 5000);'+
+                 'SetParam(ATK, 1000);'+
+                 'SetParam(DEF, 1000);'+
+                 'SetParam(MDEF, 1000);'+
+                 'SetName(RU,\"Магический барьер\");'+
+                 'SetName(ENG,\"Magic barrier\");'+
 
-             'IF(GetLang() = RU, 3);'+
-             'AddEvent(\" - Ты вломился в мою Башню, рапугал монстров, разграбил сундуки. Да кто ты такой после этого!?\");' +
-             'AddEvent(\" - Вот теперь ТОЧНО наша последняя встреча!\");' +
-             'SetCreatureScript(OnDeath,\"AddEvent(..................);AddEvent(- Ты победил МЕНЯ!? Не может быть! Кто ты такой!?);AddEvent(..................);SetNextTarget();\");'+
+             'IF(GetVar(ikki) = 4, 11);'+        // разовая акция от Икки-ослабление барьера
+                 'SetCurrTarget(8);'+
+                 'SetVar(first_meet, 10);'+
+                 'SetVar(ikki, 5);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(34);'+
+                 'SetParam(HP, 3000);'+
+                 'SetParam(ATK, 100);'+
+                 'SetParam(DEF, 0);'+
+                 'SetParam(MDEF, 0);'+
+                 'SetName(RU,\"Магический барьер\");'+
+                 'SetName(ENG,\"Magic barrier\");' +
 
-             'SetCreature('+
-                 '{RUS:ТЕМНЫЙ МАСТЕР, ENG:DARK MASTER},'+
-                 '{HP:999999, ATK:10000, DEF:0, MAXHP:999999, MP:0, MDEF:0},'+
-                 '{SpiritBless:1}, );'+
-
-             'AddEvent(..................);'+
-             'SetNextTarget();'
+         '"},'+
+        '8:{ floor: 10, next:9, script:"'+
+             'BreakAuto(Tower);'+
+             'ChangePlayerItemCount(gold, 1000000);'
         +'"},'+
         '11:{ floor: 11, next:11, script:"'+
-             'SetBreak(Tower);'+
+             'BreakAuto(Tower);'+
              'CurrentLevel(1);'
         +'"},'+
     '},'+

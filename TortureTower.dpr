@@ -18,7 +18,8 @@ uses
   uTower in 'uTower.pas' {fTower},
   uNotes in 'uNotes.pas',
   uAtlas in 'uAtlas.pas' {fAtlas},
-  uThink in 'uThink.pas' {fThink};
+  uThink in 'uThink.pas' {fThink},
+  PhrasesDB in 'PhrasesDB.pas';
 
 {$R *.res}
 

@@ -225,7 +225,7 @@ begin
 
             line := StringReplace(line, match.Value, result, []);
 
-            match := regFunction.Match(line)
+//            match := regFunction.Match(line)
 
         until match.Value = '';
 
@@ -239,7 +239,7 @@ begin
     end;
     prs.Free;
 
-    line := CalcMath(line); /// текуща€ строка может быть математическим выражением без функций
+//    line := CalcMath(line); /// текуща€ строка может быть математическим выражением без функций
 
     result := trim(line);
 
@@ -372,6 +372,8 @@ begin
 
         // получаем выражение без скобок
         toCalc := copy(match.Value, 2, Length(match.Value)-2);
+
+        if toCalc = '' then exit;
 
         repeat
 
@@ -598,8 +600,10 @@ begin
     parser := TStringList.Create;
     parser.StrictDelimiter := true;
 
+//    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]*\s*)*\}|(\w|[а-€ј-я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`])|(\{.*\}))\s*\,*\s*)*\)');
     // functionA (1,2, functionB( 3 ,4 ),functionC(functionD(5, {6 + 54 + 3} ) ), functionE( {jgj+functionF(7)} ))+UseItem(RestoreHeal)
-    regFunction:=TRegEx.Create('\w+\(\s*((\{((\d|\w)\s*[\+\-\*\/\>\<\=]*\s*)*\}|(\w|[а-€ј-я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`])|(\{.*\}))\s*\,*\s*)*\)');
+
+    regFunction:=TRegEx.Create('\w+\(\s*((\"((\d|\w)\s*[\+\-\*\/\>\<\=]*\s*)*|(\w|[а-€ј-я]|[\+\-\*\/\!\?\.\]\[\=\<\>\`]))\s*\,*\s*)*\)');
     regMath := TRegEx.Create('\((\s*(\d|\w)*\s*[\+\-\*\/\>\<\=]?)*\)');
     regNotExec := TRegEx.Create('\"[^\"]*\"');  // все в кавычках, кроме вложенных кавычек
 
