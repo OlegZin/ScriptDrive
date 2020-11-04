@@ -83,7 +83,8 @@ type
            // добавление в указанный раздел текущей цели всех элементов
            // списка objects
 
-        procedure PlayEvent(name: string); /// выполнение скриптов цели, привязанных к указанному событию.
+        procedure SetEvent(event, script: string);
+        procedure PlayEvent(event: string); /// выполнение скриптов цели, привязанных к указанному событию.
                                            /// например, "onAttack"
 
 /// работа с эффектами. ориентированы на текущую цель!
@@ -214,7 +215,7 @@ begin
     begin
         /// отрабатываем событие на гибель игрока
         l('-> CheckStatus: отрабатываем событие на гибель игрока');
-        PlayEvent('onDeath');
+        PlayEvent('OnDeath');
 
         /// если после события хитов все еще мало - возраждаемся
         l('-> CheckStatus: если после события хитов все еще мало - возраждаемся');
@@ -251,7 +252,7 @@ begin
     begin
         /// отрабатываем событие на гибель монстра
         l('-> CheckStatus: отрабатываем событие на гибель монстра');
-        PlayEvent('onDeath');
+        PlayEvent('OnDeath');
 
         /// если после события хитов все еще мало - отрабатываем смерть монстра
         l('-> CheckStatus: если после события хитов все еще мало - отрабатываем смерть монстра');
@@ -617,6 +618,25 @@ begin
     Target := 'state.player.';
 end;
 
+
+procedure TGameDrive.SetEvent(event, script: string);
+begin
+    GameData.S[Target+'events.'+event] := script;
+end;
+
+procedure TGameDrive.PlayEvent(event: string);
+var
+    tmp: string;
+    /// при выполнении скрипта цель может поменяться
+begin
+    tmp := Target;
+
+    if event = 'OnDeath' then
+        Script.Exec( GameData.S[Target+'events.'+event]);
+
+    Target := tmp;
+end;
+
 procedure TGameDrive.SetVar(name, value: variant);
 begin
     l('-> SetVar('+name+','+String(value)+')');
@@ -709,6 +729,7 @@ begin
         end
         else data.S['body'] := GameData.S['thinks.defaultbody.'+GetLang];
 
+
         /// если нужно вернуть список тем
         if GameData.S['state.CurrThinkKind'] <> '' then
         begin
@@ -716,8 +737,9 @@ begin
             for item in GameData.O['state.thinks'].AsObject do
             ///  если завершенная мысль принадлежит требуемому типу
             if ( item.Value.AsInteger = 0 ) and
+            /// добавляем ссылку на нее в текст
                ( LowerCase(GameData.S['thinks.'+item.Name+'.kind']) = LowerCase(GameData.S['state.CurrThinkKind'])) then
-               data.S['body'] := data.S['body'] + '<a href="link:'+item.Name+'">'+ GameData.S['thinks.'+item.Name+'.caption.'+GetLang] +'</a></br>';
+               data.S['body'] := data.S['body'] + '<a href="script:OpenThink('+item.Name+');">'+ GameData.S['thinks.'+item.Name+'.caption.'+GetLang] +'</a></br>';
         end;
 
 
@@ -1571,10 +1593,6 @@ begin
     end;
 end;
 
-procedure TGameDrive.PlayEvent(name: string);
-begin
-///
-end;
 
 procedure TGameDrive.ProcessAttack;
 begin

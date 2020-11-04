@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
   FMX.Objects, FMX.Ani, FMX.Controls.Presentation, FMX.StdCtrls,
-  superobject, FMX.WebBrowser, Generics.Collections;
+  superobject, FMX.WebBrowser, Generics.Collections, uScriptDrive;
 
 type
   TfThink = class(TForm)
@@ -39,7 +39,7 @@ type
     LinkData: TDictionary<TComponent,ISuperObject>;
     breakLoad : boolean;
 
-//    Selected: TControl;
+    Scr : TScriptDrive;
 
     procedure onStickClick(Sender: TObject);
   public
@@ -259,15 +259,27 @@ end;
 
 
 procedure TfThink.WebBrowserDidStartLoad(ASender: TObject);
+/// фишка в том, что при добавлении в <a hreg="link"></a> простой строки, к ней автоматически
+/// приклеивается префикс 'about:', что будет выглядеть в переменной WebBrowser.Url как
+/// 'about:link'. наличие этого префикса и инициализирует переход по ссылке(обновление окна).
+///
+/// НО! если сделать текст ссылки со своим префиксом, к примеру <a hreg="my:link"></a>,
+/// то мрефикс 'about:' не подставляется. WebBrowser.Urlбудет после клика по ссылке содержать
+/// 'my:link', но обновления содержимого не произойдет, посколку префикс не управляющий!
+///
+///  Это крайне полезная фишка, поскольку позволит дополнительно разделить ссылки по типам и
+///  обрабатывать их разными методами!
 begin
-//    if breakLoad then exit;
+    if not Assigned(Scr) then
+    begin
+      Scr := TScriptDrive.Create;
+      Scr.SetClass(TGameDrive, GameDrive);
+    end;
 
-    if Pos('link:', WebBrowser.Url) > 0 then
-//    begin
-//      WebBrowser.LoadFromStrings(lastHTML, '');
-      GameDrive.OpenThink( Copy(WebBrowser.Url, Length('link:')+1, Length(WebBrowser.Url)) );
-//      breakLoad := true;
-//    end;
+    if Pos('script:', WebBrowser.Url) > 0 then
+      Scr.Exec( Copy(WebBrowser.Url, Length('script:')+1, Length(WebBrowser.Url)) );
 end;
+
+
 
 end.

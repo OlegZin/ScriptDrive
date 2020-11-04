@@ -138,7 +138,8 @@ type
     procedure Rectangle9Click(Sender: TObject);
     procedure bUseItemClick(Sender: TObject);
     procedure TowerClick(Sender: TObject);
-    procedure ThinkClick(Sender: TObject);  private
+    procedure ThinkClick(Sender: TObject);
+    procedure wbLogDidStartLoad(ASender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -375,6 +376,12 @@ end;
 procedure TfMain.TowerClick(Sender: TObject);
 begin
     GameInterface.SetMode('Tower');
+end;
+
+procedure TfMain.wbLogDidStartLoad(ASender: TObject);
+begin
+    if Pos('script:', wbLog.Url) > 0 then
+      Script.Exec( Copy(wbLog.Url, Length('script:')+1, Length(wbLog.Url)) );
 end;
 
 end.

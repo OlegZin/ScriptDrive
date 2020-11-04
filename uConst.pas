@@ -44,10 +44,10 @@ const
         'effects: {},'+
         'loot: {},'+
         'events: {'+
-            'OnAttack:{},'+
-            'onParamChange:{},'+
-            'onDeath:{},'+
-            'onRestore:{},'+
+            'OnAttack:\"\",'+
+            'onParamChange:\"\",'+
+            'onDeath:\"\",'+
+            'onRestore:\"\",'+
         '},'+
     '},';
 
@@ -115,11 +115,11 @@ const
             'effects: {},'+  // временные эффекты (бафы и дебафы)
             'loot: {},'+     // ресурсы
             'events: {'+
-                'onAttack:{},'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
-                'onParamChange:{},'+
-                'onDeath:{},'+
-                'onRestore:{},'+
-                'onLevelUp:{},'+
+                'onAttack:\"\",'+  /// набор скриптов, которые будут отработаны на событие атаки игроком монстра в башне
+                'onParamChange:\"\",'+
+                'onDeath:\"\",'+
+                'onRestore:\"\",'+
+                'onLevelUp:\"\",'+
 ///                   'default:""'+  с крипт имеет имя и команды. имя используется для идентификации каким эффектом
 ///                                  эффектом он был повешен и при снятии эффекта можно было дропнуть и скрипт
 
@@ -1037,6 +1037,8 @@ const
                  'AllowMode(Think);'+
                  'AllowThink(wakeup);'+
 
+                 'SetMonsterAsTarget();'+
+                 'SetEvent(OnDeath,\"SetPlayerAsTarget();ChangeItemCount(gold,1000);\");'+
 {
              'ChangePlayerItemCount(restoreHealth, Rand(100000));'+
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+

@@ -224,7 +224,7 @@ type
 
         Doc : TDocCreater;
 
-        phrases: ISuperObject;
+        phrases: ISuperObject;        // основные фразы для чата
         function BuildLine: string;   // по текущим тексту и типу строим запись для лога в HTML формате
         function BuildLog: string;    // формирует полный HTML документ лога
     public
