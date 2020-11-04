@@ -1154,7 +1154,7 @@ const
                  'SetMonsterAsTarget();'+
                  'SetImage(33);'+
                  'SetParam(HP, 1);'+
-                 'SetParam(ATK, 1);'+
+                 'SetParam(ATK, 0);'+
                  'SetParam(DEF, 0);'+
                  'SetName(RU,\"\");'+
                  'SetName(ENG,\"\");'+
@@ -1283,13 +1283,41 @@ const
                 'SetNextTarget();'+
 
              /// вторая встреча с икки
+             'IF(GetVar(ikki) = 4, 23);'+
+                 'SetCurrTarget(7);'+
+                 'SetMonsterAsTarget();'+
+                 'SetImage(33);'+
+                 'SetParam(HP, 1);'+
+                 'SetParam(ATK, 0);'+
+                 'SetParam(DEF, 0);'+
+                 'SetName(RU,\"\");'+
+                 'SetName(ENG,\"\");'+
+
+                 'SetPlayerAsTarget();'+
+                 'IF(GetItemCount(permanentMDEF) < 5, 4);'+
+                 'IF(GetLang() = ENG, 1);'+
+                     'Log(good,\"Nice to see you again! Have you forgotten that I need 5 ICON_MDEFGET?\");' +
+                 'IF(GetLang() = RU, 1);'+
+                     'Log(good,\"Рад снова тебя видеть! Ты не забыл, что мне нужны 5 ICON_MDEFGET?\");' +
+
+                 'IF(GetItemCount(permanentMDEF) >= 5, 6);'+
+                 'ChangeItemCount(permanentMDEF, -5);'+
+                 'SetVar(ikki, 5);'+
+                 'IF(GetLang() = ENG, 1);'+
+                     'Log(good,\"Wonderful! Exactly what is needed. Now I can weaken the magic barrier.\");' +
+                     'Log(good,\"But remember that this only works once. Good luck!\");' +
+                 'IF(GetLang() = RU, 1);'+
+                     'Log(good,\"Замечательно! То, что нужно. Теперь я смогу ослабить магический барьер.\");' +
+                     'Log(good,\"Но помни, что это стработает только один раз. Удачи\");' +
+
+             /// вторая встреча с икки
              'IF(GetVar(ikki) = 3, 21);'+
                  'SetCurrTarget(7);'+
                  'SetVar(ikki, 4);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(33);'+
                  'SetParam(HP, 1);'+
-                 'SetParam(ATK, 1);'+
+                 'SetParam(ATK, 0);'+
                  'SetParam(DEF, 0);'+
                  'SetName(RU,\"\");'+
                  'SetName(ENG,\"\");'+
@@ -1297,13 +1325,13 @@ const
                      'Log(good,\"So we met again, stranger.\");' +
                      'Log(good,\"You got into an argument with ... Hmm ...\");' +
                      'Log(good,\"The magic barrier is powerful, but when you have friends, many problems are easier to solve.\");' +
-                     'Log(good,\"And since we are friends, I will help you. Go boldly. The next time the barrier will be noticeably weakened, but I can only do this once. Don''t miss this opportunity. Friend.\");' +
+                     'Log(good,\"And since we are friends, I will help you. Come back when you have 5 ICON_MDEFGET\");' +
                      'Log(good,\"See you!\");' +
                  'IF(GetLang() = RU, 5);'+
                      'Log(good,\"Вот мы и встретились снова, незнакомец.\");' +
                      'Log(good,\"Ты снова повздорил с... Хм...\");' +
                      'Log(good,\"Магический барьер - сильная штука, но когда у тебя есть друзья, многие проблемы решаются легче.\");' +
-                     'Log(good,\"А раз уж мы друзья, я помогу тебе. Иди смело. В следующий раз барьер будет заметно ослаблен, но сделать это я смогу только один раз. Не упусти эту возможность. Друг.\");' +
+                     'Log(good,\"А раз уж мы друзья, я помогу тебе. Возвращайся, когда у тебя будет 5 ICON_MDEFGET\");' +
                      'Log(good,\"До встречи!\");'
         +'"},'+
         '7:{ floor: 7, next:8, script:"'+
@@ -1332,10 +1360,10 @@ const
                  'SetName(RU,\"Магический барьер\");'+
                  'SetName(ENG,\"Magic barrier\");'+
 
-             'IF(GetVar(ikki) = 4, 11);'+        // разовая акция от Икки-ослабление барьера
+             'IF(GetVar(ikki) = 5, 11);'+        // разовая акция от Икки-ослабление барьера
                  'SetCurrTarget(8);'+
                  'SetVar(first_meet, 10);'+
-                 'SetVar(ikki, 5);'+
+                 'SetVar(ikki, 6);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(34);'+
                  'SetParam(HP, 3000);'+
