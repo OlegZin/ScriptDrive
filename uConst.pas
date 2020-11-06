@@ -34,6 +34,7 @@ const
     INT_LOG   = 2;
     INT_TOWER = 4;
     INT_THINK = 8;
+    INT_FLOOR = 16;
     INT_ALL   = MaxInt;
 
     CREATURE_SHABLON = '{'+
@@ -227,7 +228,7 @@ const
         'herbal: {name:"herbal",  caption:{RU:"Трава",   ENG:"Herbal"},  rarity:  8,  cost:  6},'+
         'wheat:  {name:"wheat",   caption:{RU:"Зерно",   ENG:"Wheat"},   rarity:  6,  cost:  8},'+
         'meat:   {name:"meat",    caption:{RU:"Мясо",    ENG:"Meat"},    rarity:  4,  cost: 13},'+
-        'blood:  {name:"blood",   caption:{RU:"Кровь",   ENG:"Blood"},   rarity:  3,  cost: 17},'+
+        'blood:  {name:"blood",   caption:{RU:"Вода",    ENG:"Water"},   rarity:  3,  cost: 17},'+
         'bone:   {name:"bone",    caption:{RU:"Кость",   ENG:"Bone"},    rarity:  3,  cost: 17},'+
         'skin:   {name:"skin",    caption:{RU:"Шкура",   ENG:"Skin"},    rarity:  3,  cost: 17},'+
         'ore:    {name:"ore",     caption:{RU:"Руда",    ENG:"Ore"},     rarity:  2,  cost: 25},'+
@@ -1034,9 +1035,15 @@ const
 //                 'AllowMode(Think);'+
 //                 'AllowThink(wakeup);'+
 
-//             'ChangePlayerItemCount(restoreHealth, 100000);'+
-//             'ChangePlayerItemCount(potionexp, 100000);'+
+                 'AllowMode(Floor);'+
 
+             'ChangePlayerItemCount(restoreHealth, 1400000);'+
+             'ChangePlayerItemCount(potionexp, 100000);'+
+
+//             'SetVar(first_meet,8);'+
+//             'SetVar(ikki,4);'+
+//             'SetCurrTarget(6);'+
+//             'ChangeItemCount(permanentMDEF, 5);'+
 {
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+
              'ChangePlayerItemCount(permanentATK, Rand(100000));'+
@@ -1294,19 +1301,19 @@ const
                  'SetName(ENG,\"\");'+
 
                  'SetPlayerAsTarget();'+
-                 'IF(GetItemCount(permanentMDEF) < 5, 4);'+
+                 'IF(GetItemCount(permanentMDEF) < 100, 4);'+
                  'IF(GetLang() = ENG, 1);'+
-                     'Log(good,\"Nice to see you again! Have you forgotten that I need 5 ICON_MDEFGET?\");' +
+                     'Log(good,\"Nice to see you again! Have you forgotten that I need 100 ICON_MDEFGET?\");' +
                  'IF(GetLang() = RU, 1);'+
-                     'Log(good,\"Рад снова тебя видеть! Ты не забыл, что мне нужны 5 ICON_MDEFGET?\");' +
+                     'Log(good,\"Рад снова тебя видеть! Ты не забыл, что мне нужны 100 ICON_MDEFGET?\");' +
 
-                 'IF(GetItemCount(permanentMDEF) >= 5, 6);'+
-                 'ChangeItemCount(permanentMDEF, -5);'+
+                 'IF(GetItemCount(permanentMDEF) >= 100, 8);'+
+                 'ChangeItemCount(permanentMDEF, -100);'+
                  'SetVar(ikki, 5);'+
-                 'IF(GetLang() = ENG, 1);'+
+                 'IF(GetLang() = ENG, 2);'+
                      'Log(good,\"Wonderful! Exactly what is needed. Now I can weaken the magic barrier.\");' +
                      'Log(good,\"But remember that this only works once. Good luck!\");' +
-                 'IF(GetLang() = RU, 1);'+
+                 'IF(GetLang() = RU, 2);'+
                      'Log(good,\"Замечательно! То, что нужно. Теперь я смогу ослабить магический барьер.\");' +
                      'Log(good,\"Но помни, что это стработает только один раз. Удачи\");' +
 
@@ -1325,13 +1332,13 @@ const
                      'Log(good,\"So we met again, stranger.\");' +
                      'Log(good,\"You got into an argument with ... Hmm ...\");' +
                      'Log(good,\"The magic barrier is powerful, but when you have friends, many problems are easier to solve.\");' +
-                     'Log(good,\"And since we are friends, I will help you. Come back when you have 5 ICON_MDEFGET\");' +
+                     'Log(good,\"And since we are friends, I will help you. Come back when you have 100 ICON_MDEFGET\");' +
                      'Log(good,\"See you!\");' +
                  'IF(GetLang() = RU, 5);'+
                      'Log(good,\"Вот мы и встретились снова, незнакомец.\");' +
                      'Log(good,\"Ты снова повздорил с... Хм...\");' +
                      'Log(good,\"Магический барьер - сильная штука, но когда у тебя есть друзья, многие проблемы решаются легче.\");' +
-                     'Log(good,\"А раз уж мы друзья, я помогу тебе. Возвращайся, когда у тебя будет 5 ICON_MDEFGET\");' +
+                     'Log(good,\"А раз уж мы друзья, я помогу тебе. Возвращайся, когда у тебя будет 100 ICON_MDEFGET\");' +
                      'Log(good,\"До встречи!\");'
         +'"},'+
         '7:{ floor: 7, next:8, script:"'+
@@ -1339,8 +1346,6 @@ const
 
              'IF(GetVar(first_meet) = 8, 11);'+ // первая встреча с барьером
                  'SetCurrTarget(6);'+
-                 'SetVar(first_meet, 9);'+
-                 'SetVar(ikki, 3);'+            // продвигаем истрию с Икки, чтобы встретить его еще раз
                  'SetMonsterAsTarget();'+
                  'SetImage(34);'+
                  'SetParam(HP, 5000);'+
@@ -1350,19 +1355,11 @@ const
                  'SetName(RU,\"Магический барьер\");'+
                  'SetName(ENG,\"Magic barrier\");'+
 
-             'IF(GetVar(first_meet) = 10, 8);'+   /// восстановление силы барьера после ослабления от Икки
-                 'SetMonsterAsTarget();'+
-                 'SetImage(34);'+
-                 'SetParam(HP, 5000);'+
-                 'SetParam(ATK, 1000);'+
-                 'SetParam(DEF, 1000);'+
-                 'SetParam(MDEF, 1000);'+
-                 'SetName(RU,\"Магический барьер\");'+
-                 'SetName(ENG,\"Magic barrier\");'+
+                 'IF(GetVar(ikki) = 2, 1);'+     // если пришли сюда до встречи с икки
+                 'SetVar(ikki, 3);'+            // продвигаем истрию с Икки, чтобы встретить его еще раз
 
              'IF(GetVar(ikki) = 5, 11);'+        // разовая акция от Икки-ослабление барьера
                  'SetCurrTarget(8);'+
-                 'SetVar(first_meet, 10);'+
                  'SetVar(ikki, 6);'+
                  'SetMonsterAsTarget();'+
                  'SetImage(34);'+
@@ -1376,11 +1373,41 @@ const
          '"},'+
         '8:{ floor: 10, next:9, script:"'+
              'BreakAuto(Tower);'+
-             'ChangePlayerItemCount(gold, 1000000);'
+
+             /// первый входна этаж
+             'IF(GetVar(first_meet, 8), 16);'+
+               'SetCurrTarget(99);'+
+               'SetVar(first_meet, 9);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'ChangePlayerItemCount(gold, 100000);'+
+               'IF(GetLang() = RU, 1);'+
+                 'Log(good,\"Огромные кучи золота на полу!\");'+
+               'IF(GetLang() = ENG, 1);'+
+                 'Log(good,\"Huge piles of gold on the floor!\");'
+
         +'"},'+
-        '11:{ floor: 11, next:11, script:"'+
+        '99:{ floor: 99, next:2, script:"'+
              'BreakAuto(Tower);'+
-             'CurrentLevel(1);'
+             'SetMonsterAsTarget();'+
+             'SetImage(33);'+
+             'SetParam(HP, 1);'+
+             'SetParam(ATK, 0);'+
+             'SetParam(DEF, 0);'+
+             'SetName(RU,\"\");'+
+             'SetName(ENG,\"\");'+
+             'IF(GetLang() = RU, 1);'+
+               'Log(good,\"Это конец, друг!..\");'+
+             'IF(GetLang() = ENG, 1);'+
+               'Log(good,\"This is the end, friend! ..\");'+
+             'SetCurrTarget(2);'
         +'"},'+
     '},'+
 

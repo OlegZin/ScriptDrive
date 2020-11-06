@@ -1355,6 +1355,7 @@ object fMain: TfMain
             Size.Height = 29.000000000000000000
             Size.PlatformDefault = False
             Stroke.Kind = None
+            OnClick = FloorClick
             object Image10: TImage
               MultiResBitmap.Height = 40
               MultiResBitmap.Width = 40

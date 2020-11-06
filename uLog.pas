@@ -201,6 +201,10 @@ const
             'kind:"allow",'+
             'RU:"ICON_UNLOCK&emsp;Доступен режим <b>Раздумий</b>!", '+
            'ENG:"ICON_UNLOCK&emsp;<b>Think</b> mode available!"},'+
+        'allow_floor:{'+
+            'kind:"allow",'+
+            'RU:"ICON_UNLOCK&emsp;Доступен режим <b>Этажа</b>!", '+
+           'ENG:"ICON_UNLOCK&emsp;<b>Floor</b> mode available!"},'+
         'ready_think:{'+
             'kind:"allow",'+
             'RU:"ICON_BOOK&emsp;Завершено обдумывание:&emsp;<b>%s</b>!", '+

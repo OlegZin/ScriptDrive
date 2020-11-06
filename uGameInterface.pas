@@ -111,15 +111,21 @@ begin
       end;
     end;
 
+    /// пр€чем все экранырежимов
     Controls['ScreenTower'].Parent := nil;
     Controls['ScreenThink'].Parent := nil;
     Controls['ScreenThinkWeb'].Visible := false;
+      // небольшой баг не скрывает веббраузер, когда лайер на котором он находитс€ тер€ет Parent
+      // что скрывает все остальные объекты
+    Controls['ScreenFloor'].Parent := nil;
 
+    /// показываем нужный
     if LowerCase(name) = 'tower' then Controls['ScreenTower'].Parent := Controls['Screen'];
     if LowerCase(name) = 'think' then begin
         Controls['ScreenThink'].Parent := Controls['Screen'];
         Controls['ScreenThinkWeb'].Visible := true;
     end;
+    if LowerCase(name) = 'floor' then Controls['ScreenFloor'].Parent := Controls['Screen'];
 end;
 
 procedure TGameInterface.Update(data: ISuperObject);

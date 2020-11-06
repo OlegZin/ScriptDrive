@@ -376,7 +376,7 @@ begin
     except exit;
     end;
 
-    /// если речь о тыс€чах
+    /// если речь о числе больше 10 тыс€ч
     if val div 1000 > 9 then
     begin
         result := IntToStr(val div 1000);
@@ -385,6 +385,17 @@ begin
 
         result := result + 'к';
     end;
+
+    /// если речь о тыс€чах
+    if val > 1000000 then
+    begin
+        result := IntToStr(val div 1000000);
+
+        if val mod 1000000 >= 100000 then result := result + ',' + IntToStr((val mod 1000000) div 100000);
+
+        result := result + 'm';
+    end;
+
 end;
 
 function TGameDrive.NewGame(level: integer; lang: string): string;
@@ -1210,6 +1221,12 @@ begin
      begin
          uLog.Log.Phrase('allow_think', GetLang, []);
          SetModeToUpdate(INT_THINK);
+     end;
+
+     if name = 'floor' then
+     begin
+         uLog.Log.Phrase('allow_floor', GetLang, []);
+         SetModeToUpdate(INT_FLOOR);
      end;
 
      /// выставл€ем флаг, что нужно обновить основную часть интерфейса

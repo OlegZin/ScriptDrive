@@ -139,7 +139,8 @@ type
     procedure bUseItemClick(Sender: TObject);
     procedure TowerClick(Sender: TObject);
     procedure ThinkClick(Sender: TObject);
-    procedure wbLogDidStartLoad(ASender: TObject);  private
+    procedure wbLogDidStartLoad(ASender: TObject);
+    procedure FloorClick(Sender: TObject);  private
     { Private declarations }
   public
     { Public declarations }
@@ -155,7 +156,7 @@ implementation
 
 uses
     uMenu, uConst, uLog, uScriptDrive, uGameDrive, superobject,
-    uGameInterface, uTower, uThink;
+    uGameInterface, uTower, uThink, uFloor;
 
 var
    Script : TScriptDrive;
@@ -239,6 +240,7 @@ begin
     GameInterface.LinkControl('ScreenTower', fTower.layTower);
     GameInterface.LinkControl('ScreenThink', fThink.layThink);
     GameInterface.LinkControl('ScreenThinkWeb', fThink.WebBrowser);
+    GameInterface.LinkControl('ScreenFloor', fFloor.layFloor);
 
     GameInterface.Init;
 
@@ -348,6 +350,11 @@ end;
 procedure TfMain.bUseItemClick(Sender: TObject);
 begin
     GameInterface.OpenItemPanel;
+end;
+
+procedure TfMain.FloorClick(Sender: TObject);
+begin
+    GameInterface.SetMode('Floor');
 end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

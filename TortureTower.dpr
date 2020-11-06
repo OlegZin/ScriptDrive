@@ -19,7 +19,9 @@ uses
   uNotes in 'uNotes.pas',
   uAtlas in 'uAtlas.pas' {fAtlas},
   uThink in 'uThink.pas' {fThink},
-  PhrasesDB in 'PhrasesDB.pas';
+  PhrasesDB in 'PhrasesDB.pas',
+  uFloor in 'uFloor.pas' {fFloor},
+  uFloorAtlas in 'uFloorAtlas.pas' {fFloorAtlas};
 
 {$R *.res}
 
@@ -30,5 +32,7 @@ begin
   Application.CreateForm(TfTower, fTower);
   Application.CreateForm(TfAtlas, fAtlas);
   Application.CreateForm(TfThink, fThink);
+  Application.CreateForm(TfFloor, fFloor);
+  Application.CreateForm(TfFloorAtlas, fFloorAtlas);
   Application.Run;
 end.
