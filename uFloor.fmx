@@ -2,7 +2,7 @@ object fFloor: TfFloor
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 579
+  ClientHeight = 592
   ClientWidth = 890
   FormFactor.Width = 320
   FormFactor.Height = 480
@@ -11,7 +11,7 @@ object fFloor: TfFloor
   object layFloor: TLayout
     Align = Client
     Size.Width = 890.000000000000000000
-    Size.Height = 579.000000000000000000
+    Size.Height = 592.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object Rectangle4: TRectangle
@@ -16257,7 +16257,7 @@ object fFloor: TfFloor
       Fill.Kind = Bitmap
       HitTest = False
       Size.Width = 890.000000000000000000
-      Size.Height = 579.000000000000000000
+      Size.Height = 592.000000000000000000
       Size.PlatformDefault = False
       Stroke.Kind = None
     end
@@ -16425,7 +16425,7 @@ object fFloor: TfFloor
         end>
       Anchors = [akLeft, akBottom]
       Position.X = 64.000000000000000000
-      Position.Y = 531.000000000000000000
+      Position.Y = 544.000000000000000000
       Size.Width = 33.000000000000000000
       Size.Height = 33.000000000000000000
       Size.PlatformDefault = False
@@ -16435,7 +16435,7 @@ object fFloor: TfFloor
       AutoSize = True
       StyledSettings = [Family]
       Position.X = 98.000000000000000000
-      Position.Y = 532.000000000000000000
+      Position.Y = 545.000000000000000000
       Size.Width = 41.000000000000000000
       Size.Height = 27.000000000000000000
       Size.PlatformDefault = False
@@ -16455,7 +16455,7 @@ object fFloor: TfFloor
       Padding.Right = 5.000000000000000000
       Padding.Bottom = 5.000000000000000000
       Position.X = 16.000000000000000000
-      Position.Y = 527.000000000000000000
+      Position.Y = 540.000000000000000000
       Size.Width = 40.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
@@ -16642,6 +16642,46 @@ object fFloor: TfFloor
         Size.Height = 30.000000000000000000
         Size.PlatformDefault = False
       end
+    end
+    object pointRightTop: TSelectionPoint
+      Align = Scale
+      GripSize = 1.000000000000000000
+      Opacity = 0.009999999776482582
+      Position.X = 548.000000000000000000
+      Position.Y = 329.670227050781300000
+      Size.Width = 17.000000000000000000
+      Size.Height = 17.086334228515630000
+      Size.PlatformDefault = False
+    end
+    object pointLeftTop: TSelectionPoint
+      Align = Scale
+      GripSize = 1.000000000000000000
+      Opacity = 0.009999999776482582
+      Position.X = 344.000000000000000000
+      Position.Y = 329.670227050781300000
+      Size.Width = 13.000000000000000000
+      Size.Height = 17.086334228515630000
+      Size.PlatformDefault = False
+    end
+    object pointLeftBottom: TSelectionPoint
+      Anchors = [akLeft, akBottom]
+      GripSize = 1.000000000000000000
+      Opacity = 0.009999999776482582
+      Position.X = 132.000000000000000000
+      Position.Y = 587.000000000000000000
+      Size.Width = 17.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object pointRightBottom: TSelectionPoint
+      Anchors = [akRight, akBottom]
+      GripSize = 1.000000000000000000
+      Opacity = 0.009999999776482582
+      Position.X = 780.000000000000000000
+      Position.Y = 587.000000000000000000
+      Size.Width = 17.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
     end
   end
 end

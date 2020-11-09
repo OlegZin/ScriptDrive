@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts;
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts,
+  superobject;
 
 type
   TfFloor = class(TForm)
@@ -18,10 +19,16 @@ type
     lAttackPool: TLabel;
     Rectangle8: TRectangle;
     iAuto: TImage;
+    pointRightTop: TSelectionPoint;
+    pointLeftTop: TSelectionPoint;
+    pointLeftBottom: TSelectionPoint;
+    pointRightBottom: TSelectionPoint;
   private
     { Private declarations }
+    data : ISuperObject;
   public
     { Public declarations }
+    procedure Update(indata: ISuperObject);
   end;
 
 var
@@ -30,5 +37,12 @@ var
 implementation
 
 {$R *.fmx}
+
+{ TfFloor }
+
+procedure TfFloor.Update(indata: ISuperObject);
+begin
+
+end;
 
 end.

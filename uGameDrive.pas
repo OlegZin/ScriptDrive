@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
-    uGameInterface, uLog, uTower, uThink, PhrasesDB;
+    uGameInterface, uLog, uTower, uThink, PhrasesDB, uFloor;
 
 type
 
@@ -788,6 +788,13 @@ begin
         fThink.Update( data );
     end;
 
+    /// обновление режима РАЗДУМИЙ
+    if InterfModes and INT_THINK <> 0 then
+    begin
+        data := SO();
+        fFloor.Update(data);
+    end;
+
     if InterfModes and INT_LOG <> 0
     then uLog.Log.Update;
 
@@ -826,16 +833,52 @@ end;
 
 
 procedure TGameDrive.InitFloorObjects;
+/// метод генерит полный набор объектов на все этажи.
+/// это необходимо, чтобы корректно раскидать все квестовые объекты.
+/// пример структуры:
+//          1:{                     // номер этажа
+//            count:0,              // количество оставшихся на этаже объектов
+//            loot: [],             // типы предметов из спарвочника items.
+//                                  // хранит все ОСОБЫЕ предметы, которые могут выпасть на этаже.
+//                                  // могут быть получены из скриптов универсальным методом GetFloorItem.
+//                                  // если особые предметы кончились, будет получен обычный объект
+//                                  // хранение отдельно позволяет не запиливать индивидуальные скрипты с конкретным дропом,
+//                                  // а так же, модифицировать их набор на лету.
+//                                  // последний объект на этаже дропает весь оставшийся лут.
+//            1:{                   // id объекта на этаже
+//              id: 1,              // сервисный повтор id
+//              kind: "",           // тип объекта из floorObjects
+//              params: {HP: 0},    // параметры. может быть такой же набор как у существа
+//                                  // поскольку может быть целью способностей и эффектов
+//              script: "",         // персональный скрипт при уничтожении. если нет, будет отработан
+//                                  // дефолтный на основе типа
+//              x: 0,               // положение объекта в интерфейсе этажа
+//              y: 0,               // положение объекта в интерфейсе этажа
+//              percent: 1,         // модификатор параметров объекта. значение от 1 и меньше
+//                                  // чем "дальше" объект от игрока в интерфейсе этажа
+//                                  // тем он меньше в масштабе и темнее в оераске.
+//                                  // данный мараметр отвечает за процент масштаба и затемнения.
+//              object:"",          // идентификатор визуального объекта с FloorAtlas
+//            },
+//          },
 var
     floor, objCount, objCurr, index: integer;
-    objName: string;
+    flr, objName: string;
     obj: ISuperObject;
 begin
     l('-> InitFloorObjects');
 
+    obj := SO();
+
     for floor := 1 to 20 do
     begin
+        flr := IntToStr(floor);
+
         objCount := Max(Random(floor*10), 50);
+
+        obj.I[flr+'.count'] := objCount;
+        obj.I[flr+'.loot'] := SA([]);
+
         for objCurr := 1 to objCount do
         begin
             objName := GetRandObjName;  /// получаем допустимый объект
