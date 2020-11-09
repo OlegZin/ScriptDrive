@@ -21,7 +21,8 @@ uses
   uThink in 'uThink.pas' {fThink},
   PhrasesDB in 'PhrasesDB.pas',
   uFloor in 'uFloor.pas' {fFloor},
-  uFloorAtlas in 'uFloorAtlas.pas' {fFloorAtlas};
+  uFloorAtlas in 'uFloorAtlas.pas' {fFloorAtlas},
+  uFloorTargetsDB in 'uFloorTargetsDB.pas';
 
 {$R *.res}
 

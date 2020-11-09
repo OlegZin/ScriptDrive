@@ -5,7 +5,7 @@ interface
 uses
     uScriptDrive, superobject, uConst,
     System.SysUtils, Generics.Collections, Classes, Math, StrUtils, ShellAPI,
-    uGameInterface, uLog, uTower, uThink, PhrasesDB, uFloor;
+    uGameInterface, uLog, uTower, uThink, PhrasesDB, uFloor, uFloorTargetsDB;
 
 type
 
@@ -111,17 +111,16 @@ type
         function CurrStep: string;        // текущий шаг
         function MaxStep: string;         // максимальный шаг для текущего этажа
 
+/// работа с целями на этажах.
+        function GetCurrTarget: string;
+        procedure SetCurrTarget(val: string);
+
 /// работа с предметами
         function GetRandItemName: string;          // внутреннее имя случайного предмета
         procedure SetCurrItem(name: string);   // устанавливает текущий выбранный предмет по его имени
 
 /// работа с ресурсами
         function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
-
-/// работа с целями на этажах.
-        function GetCurrTarget: string;
-        procedure SetCurrTarget(val: string);
-        procedure SetNextTarget;
 
 /// работа с логом
         procedure Log(kind, text: string);   // добавляет строку указанного типа в лог игры. типы - имена css стилей из EMPTY_HTML из модуля uLog
@@ -315,17 +314,6 @@ begin
         end;
     end;
 
-    /// проверяем достижение цели (целевого этажа). если так - выполняем скрипт
-    l('-> CheckStatus: проверяем достижение цели (целевого этажа)');
-    if   GameData.S['state.CurrFloor'] = GameData.S['state.CurrTargetFloor'] then
-    begin
-        l('-> CheckStatus: цель достигнута, выполняем скрипт для CurrTargetFloor: '+GameData.S['state.CurrTargetFloor']);
-        if not GetFloorScriptExecuted then
-        begin
-            Script.Exec(GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor'] + '.script']);
-            SetFloorScriptExecuted(true);
-        end;
-    end;
 
     // проверка на окончание уровня
     l('-> CheckStatus: проверка на окончание уровня');
@@ -338,6 +326,12 @@ begin
         SetCurrFloor(CurrFloor + 1);
         SetCurrStep(1);
 
+        /// если это первый визит на этаж, запоминаем.
+        /// это используется в разовых скриптах на достижение нового этажа
+        if StrToInt(GetVar('MaxFloor')) < CurrFloor then
+        SetVar( 'MaxFloor', CurrFloor );
+
+
         // генерим новую пачку монстров
         l('-> CheckStatus: генерим нового монстра');
         CreateRegularMonster;
@@ -347,6 +341,17 @@ begin
     end;
 
 
+    /// проверяем достижение цели (целевого этажа). если так - выполняем скрипт
+//    l('-> CheckStatus: проверяем достижение цели (целевого этажа)');
+//    if   GameData.S['state.CurrFloor'] = GameData.S['state.CurrTargetFloor'] then
+    begin
+        l('-> CheckStatus: цель достигнута, выполняем скрипт для CurrTargetFloor: '+GameData.S['state.CurrTargetFloor']);
+        if not GetFloorScriptExecuted then
+        begin
+            Script.Exec( FloorTargets.S[GameData.S['state.CurrFloor']] );
+            SetFloorScriptExecuted(true);
+        end;
+    end;
 end;
 
 
@@ -587,14 +592,6 @@ procedure TGameDrive.SetName(lang, name: string);
 begin
     l('-> SetName('+name+')');
     GameData.S[Target + 'name.'+ lang] := name;
-end;
-
-procedure TGameDrive.SetNextTarget;
-/// метод переключает текущую цель на следующий элемент массива targetFloor
-begin
-    l('-> SetNextTarget');
-    GameData.S['state.CurrTargetFloor'] :=
-        GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.next'];
 end;
 
 procedure TGameDrive.SetParam(name, value: variant);
@@ -877,10 +874,12 @@ begin
         objCount := Max(Random(floor*10), 50);
 
         obj.I[flr+'.count'] := objCount;
-        obj.I[flr+'.loot'] := SA([]);
+        obj.O[flr+'.loot'] := SA([]); // набор уникальных объектов пока пуст
 
+        /// накидываем объекты
         for objCurr := 1 to objCount do
         begin
+
             objName := GetRandObjName;  /// получаем допустимый объект
 
             index := floor * 1000 + objCurr; /// вычисляем уникальный индекс
@@ -914,7 +913,7 @@ end;
 
 function TGameDrive.GetCurrTarget: string;
 begin
-    result := GameData.S['targetFloor.'+GameData.S['state.CurrTargetFloor']+'.floor'];
+    result := FloorTargets.S[GameData.S['state.CurrTargetFloor']+'.floor'];
 end;
 
 

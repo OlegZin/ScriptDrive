@@ -197,6 +197,8 @@ type
     Image45: TImage;
     Image69: TImage;
     Image70: TImage;
+    Image71: TImage;
+    Image72: TImage;
     procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }
