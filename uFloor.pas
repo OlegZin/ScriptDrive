@@ -23,6 +23,22 @@ type
     pointLeftTop: TSelectionPoint;
     pointLeftBottom: TSelectionPoint;
     pointRightBottom: TSelectionPoint;
+    layObjects: TLayout;
+    SKAF2: TLayout;
+    Image5: TImage;
+    Image6: TImage;
+    Label5: TLabel;
+    Rectangle3: TRectangle;
+    Label6: TLabel;
+    Layout7: TLayout;
+    Image23: TImage;
+    Image24: TImage;
+    Layout1: TLayout;
+    Image11: TImage;
+    Image12: TImage;
+    KNIGHT1: TLayout;
+    Image3: TImage;
+    Image4: TImage;
   private
     { Private declarations }
     data : ISuperObject;
