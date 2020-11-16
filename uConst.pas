@@ -252,228 +252,220 @@ const
         'herbal: {name:"herbal",  caption:{RU:"Трава",   ENG:"Herbal"},  rarity:  8,  cost:  6},'+
         'wheat:  {name:"wheat",   caption:{RU:"Зерно",   ENG:"Wheat"},   rarity:  6,  cost:  8},'+
         'meat:   {name:"meat",    caption:{RU:"Мясо",    ENG:"Meat"},    rarity:  4,  cost: 13},'+
-        'blood:  {name:"blood",   caption:{RU:"Вода",    ENG:"Water"},   rarity:  3,  cost: 17},'+
+        'water:  {name:"water",   caption:{RU:"Вода",    ENG:"Water"},   rarity:  3,  cost: 17},'+
         'bone:   {name:"bone",    caption:{RU:"Кость",   ENG:"Bone"},    rarity:  3,  cost: 17},'+
         'skin:   {name:"skin",    caption:{RU:"Шкура",   ENG:"Skin"},    rarity:  3,  cost: 17},'+
         'ore:    {name:"ore",     caption:{RU:"Руда",    ENG:"Ore"},     rarity:  2,  cost: 25},'+
         'essence:{name:"essence", caption:{RU:"Эссенция",ENG:"Essence"}, rarity:  1,  cost: 50}'+
     '},'+
 
-    /// rarity - редкость ресурса. чем меньше, тем реже встречается
-    /// allowCount - количество, доступное для распределения: -1 = без ограничений
-    'objRaritySumm: 50,'+
+    /// набор возможных эффектов при разборе объекта на этаже
+    /// каждый из объектов может иметь любую комбинацию данных эффектов
+    'floorScripts:{'+
+        /// особые эффекты
+        'Diary:         "GetRandomPage();"'+        /// получение случайной еще неполученной страницы
+        'Shovel:        "AllowTool(Shovel);",'+     /// получение артефакта эффективен на Ground объектах
+        'Pick:          "AllowTool(Pick);",'+       /// получение артефакта эффективен на Ore объектах
+        'Axe:           "AllowTool(Axe);",'+        /// получение артефакта эффективен на Wood объектах
+        'Lockpick:      "AllowTool(Lockpick);",'+   /// получение артефакта эффективен на Lock объектах
+        'TimeSand:      "AllowTool(TimeSand);",'+   /// получение артефакта
+        'Leggings:      "AllowTool(Leggings);",'+   /// получение артефакта
+        'LifeAmulet:    "AllowTool(LifeAmulet);",'+ /// получение артефакта
+        'Searcher:      "AllowTool(Searcher);",'+   /// получение артефакта (+к количеству эффектов объекта)
+        'Shard:         "ChangePlayerItemCount(shard, 1);"'+  /// получение осколка воспоминаний
+
+        /// предметы и ресурсы
+        'Cash:          "ChangePlayerItemCount(gold, Rand(CurrFloor() * 10000) + 1);",'+             /// чисто денежный дроп
+        'WoodPack:      "ChangePlayerLootCount(wood, Rand(CurrFloor() * 10) + 10);"},'+              /// получение базового ресурса
+        'StonePack:     "ChangePlayerLootCount(stone, Rand(CurrFloor() * 10) + 10);"},'+             /// получение базового ресурса
+        'OrePack:       "ChangePlayerLootCount(ore, Rand(CurrFloor() * 5) + 5);"},'+                 /// получение базового ресурса
+        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 100) + 10);"},'+ /// большой пак одного типа ресурса
+        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 50) + 10);"},'+  /// средний пак одного типа ресурса
+        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 10) + 10);"},'+  /// малый пак одного типа ресурса
+        'ItemHugePack:  "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);"},'+  /// большой пак одного типа расходных предметов
+        'ItemNormalPack:"ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);"},'+   /// средний пак одного типа расходных предметов
+        'ItemSmallPack: "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 1) + 1);"},'+   /// малый пак одного типа расходных предметов
+
+        /// отравление(постепенное снижение здоровья)
+        'Spider:"'+
+            'SetVar(val, Rand(100));'+  /// шанс на избегание эффекта
+
+            'IF(GetVar(val) > (GetArtLvl(Leggings) * 3), 6);'+
+            'SetPlayerAsTarget();' +
+            'AddEffect(RegenPlayerHP, -Rand(CurrFloor() * 100));'+
+            'If(GetLang() = RU, 1);'+
+            'Log(danger,\"Ядовитый паук укусил тебя!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(danger,\"The poisonous spider bit you!\");'+
+
+            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(good,\"Ядовитый паук пытался укусить, но Поножи спасли от яда!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(good,\"Poisonous spider tried to bite you but Leggings saved you from poison!\");'+
+        '",'+
+
+        /// травма - снижение на постоянку ключевого параметра
+        'Trap:"'+
+            'SetVar(case, Rand(3));'+
+            'IF(GetVar(case) = 0, 1);'+
+            'SetVar(param, ATK);'+
+            'IF(GetVar(case) = 1, 1);'+
+            'SetVar(param, DEF);'+
+            'IF(GetVar(case) = 2, 1);'+
+            'SetVar(param, MDEF);'+
+
+            'SetVar(val, Rand(100));'+  /// шанс на избегание эффекта
+
+            'IF(GetVar(val) > (GetArtLvl(Leggings) * 3), 5);'+
+            'ChangePlayerParam(GetVar(param), -1);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(danger,\"Ловушка нанесла травму!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(danger,\"The trap hurt!\");'+
+
+            'IF(GetVar(val) <= (GetArtLvl(leggings)* 3), 4);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(good,\"Ловушка сработала но эффект был заблокирован Поножами!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(good,\"The trap was triggered but the effect was blocked by Leggins!\");'+
+        '",'+
+
+        /// разовое ранение
+        'Rat:"'+
+            'SetVar(val, Rand(100));'+
+
+            'IF(GetVar(val) > (GetArtLvl(leggings) * 3), 5);'+
+            'ChangePlayerParam(HP, -Rand(CurrFloor() * 25) + 20);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(danger,\"Из кучи мусора выскочила крыса и цапнула за ногу!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(danger,\"A rat jumped out of a heap of garbage and grabbed the leg!\");'+
+
+            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(good,\"Из кучи мусора выскочила крыса но не смогла прокусить Поножи!\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(good,\"A rat jumped out of a pile of garbage but could not bite through the Leggings!\");'+
+        '",'+
+
+        /// постепенное снижение маны
+        'ManaLeak:"'+
+            'SetVar(val, Rand(100));'+
+
+            'IF(GetVar(val) > (GetArtLvl(leggings) * 3), 6);'+
+            'SetPlayerAsTarget();' +
+            'AddEffect(RegenPlayerMP, -Rand(CurrFloor() * 50));'+
+            'If(GetLang() = RU, 1);'+
+            'Log(danger,\"Раздался громкий щелчок и ты чувствуешь, как энергия покидает тело...\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(danger,\"There was a loud click and you feel the energy leaving the body ...\");'+
+
+            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'If(GetLang() = RU, 1);'+
+            'Log(good,\"Ты вовремя замечаешь появившуюся странную искру и отпинываешь ее. Искра отскакивает от поножей и с громким щелчком исчезает...\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(good,\"You notice the strange spark that appears in time and kick it off. The spark bounces off the leggings and disappears with a loud click ...\");'+
+        '",'+
+
+        /// перенос на случайный этаж на -5...+5 от текущего
+        'Portal:"'+
+            'If(GetLang() = RU, 1);'+
+            'Log(danger,\"Внезапно открылся портал и затянул в себя...\");'+
+            'If(GetLang() = ENG, 1);'+
+            'Log(danger,\"Suddenly a portal opened and sucked in ...\");'+
+
+            'IF((GetVar(val) - CurrFloor()) < 1, 1);'+
+            'SetCurrFloor( CALC( CurrFloor() - (5 - Rand(11)) ) );'+/// смещение по этажам от -5 до +5
+        '",'+
+    '},'+
+
     'floorObjects:{'+
-        'Diary: {name:"Diary", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'OpenThink(Diary);'+
-                'IF(GetLang() = RU, 2);'+
-                'AddEvent(\"Похоже, он зашифрован, придется поработать над расшифровкой...\");'+
-                'AddEvent(!!! Обнаружен Дневник !!!);'+
-                'IF(GetLang() = ENG, 2);'+
-                'AddEvent(\"It looks like it is encrypted, we will have to work on decryption ...\");'+
-                'AddEvent(!!! The player discovered the Diary !!!);'+
-        '"},'+
-        'Shovel: {name:"Shovel", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'AllowTool(Shovel);' +
-                'IF(GetLang() = RU, 1);'+
-                'AddEvent(!!! Обнаружен артефакт Лопата !!!);'+
-                'IF(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player discovered the Shovel artifact !!!);'+
-        '"},'+
-        'Pick: {name:"Pick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'AllowTool(Pick);' +
-                'IF(GetLang() = RU, 1);'+
-                'AddEvent(!!! Игрок обнаружил артефакт Кирка !!!);'+
-                'IF(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player discovered the Pick artifact !!!);'+
-        '"},'+
-        'Axe: {name:"Axe", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'AllowTool(Axe);' +
-                'IF(GetLang() = RU}, 1);'+
-                'AddEvent(!!! Игрок обнаружил артефакт Топор !!!);'+
-                'IF(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player discovered the Axe artifact !!!);'+
-        '"},'+
-        'lockpick: {name:"lockpick", caption:{RU:"Мусор",ENG:"Trash"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'AllowTool(lockpick);' +
-                'IF(GetLang() = RU, 1);'+
-                'AddEvent(!!! Игрок обнаружил артифакт Отмычка !!!);'+
-                'IF(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player discovered the Lock pick artifact !!!);'+
-        '"},'+
-        'TimeSand: {name:"TimeSand", caption:{RU:"Сундук",ENG:"Chest"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 80) + 200)",'+
-            'script:"'+
-                'AllowTool(TimeSand);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(!!! Найден артефакт Пески времени !!!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player found Sand of Time artifact !!!);'+
-        '"},'+
-        'leggings: {name:"leggings", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:1, allowCount:1,'+
+        /// шкафы
+        ///  основной источник малых и средних пачек предметов.
+        ///  могут попасться особые объекты
+        'locker1: {name:"locker1", '+  /// имя по которому будем искать визуальный объект
+            'tool:"Axe",'+
+                /// инструмент, который повышает эффективность на взаимодействие с этим объектом
+            'params:{HP:0, count:2},'+
+                /// count - количество срабатываний эффектов, рандомно выбираемых из массива effects
+            'effects:["Spider","Rat","Rat","WoodPack","ItemNormalPack","Portal","Trap"],'+
+                /// все возможные для этого объекта эффекты. имена из объекта floorScripts
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+                /// скрипт для вычисления HP при создании объекта
+        '},'+
+        'locker2: {name:"locker2", '+
+            'tool:"Axe",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Spider","Rat","WoodPack","ItemNormalPack","Trap","ItemHugePack"],'+
+        '},'+
+        'locker3: {name:"locker3", '+
+            'tool:"Axe",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Spider","Rat","WoodPack","ItemNormalPack","Cash","Trap"],'+
+        '},'+
+        'locker4: {name:"locker4", '+
+            'tool:"Axe",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Spider","Rat","WoodPack","ItemHugePack"],'+
+        '},'+
+        'locker5: {name:"locker5", '+
+            'tool:"Axe",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Spider","Rat","WoodPack","ManaLeak","ItemSmallPack"],'+
+        '},'+
+        'locker6: {name:"locker6", '+
+            'tool:"Axe",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Spider","Rat","WoodPack","Portal","ItemSmallPack"],'+
+        '},'+
+        'locker7: {name:"locker7", '+    /// трюмо
+            'tool:"Lockpick",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Shard","Trap","Spider","Cash","ManaLeak","ItemSmallPack"],'+
+        '},'+
+
+        /// стандартная шкатулка
+        'cassette: {name:"cassette", '+
+            'tool:"Lockpick",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 1000)",'+
+            'params:{HP:0, count:1},'+
+            'effects:["Cash","Shard","Trap","ManaLeak","ItemSmallPack","Portal"],'+
+        '},'+
+
+        /// сундуки. бОльшее количество активируемых эффектов, чем в шкафах
+        'chest1: {name:"chest1", '+
+            'tool:"Lockpick",'+
             'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'script:"'+
-                'AllowTool(leggings);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(!!! Найден артефакт Поножи !!!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player found the leggings artifact !!!);'+
-        '"},'+
-        'LifeAmulet: {name:"LifeAmulet", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 70) + 150)",'+
-            'script:"'+
-                'AllowTool(LifeAmulet);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(!!! Найден артефакт Амулет Жизни !!!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(!!! The player found the Amulet of Life artifact !!!);'+
-        '"},'+
-
-
-
-        'Cache: {name:"Cache", caption:{RU:"Тайник",ENG:"Cache"}, rarity:1, allowCount:-1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 70) + 150)",'+
-            'script:"'+
-                'SetVar(gold, Rand(CurrFloor() * 10000) + 1);'+
-                'ChangePlayerItemCount(Gold, GetVar(gold));'+
-
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(gold) золота);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(gold) gold);'+
-        '"},'+
-        'Spider: {name:"Spider", caption:{RU:"Паук",ENG:"Spider"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"1",'+
-            'script:"'+
-                'SetVar(val, Rand(100));'+
-
-                'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
-                'SetPlayerAutoBuff(HP, -Rand(CurrFloor() * 100));'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Ядовитый паук укусил тебя!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(The poisonous spider bit you!);'+
-
-                'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Ядовитый паук пытался укусить, но Поножи спасли от яда!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Poisonous spider tried to bite you but Leggings saved you from poison!);'+
-        '"},'+
-        'Trap: {name:"Trap", caption:{RU:"Ловушка",ENG:"Trap"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"1",'+
-            'script:"'+
-                'SetVar(case, Rand(3));'+
-                'IF(GetVar(case) = 0, 1);'+
-                'SetVar(param, ATK);'+
-                'IF(GetVar(case) = 1, 1);'+
-                'SetVar(param, DEF);'+
-                'IF(GetVar(case) = 2, 1);'+
-                'SetVar(param, MDEF);'+
-
-                'SetVar(val, Rand(100));'+
-
-                'IF(GetVar(val) > GetArtLvl(leggings), 5);'+
-                'ChangePlayerParam(GetVar(param), -1);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Ловушка нанесла травму! Потеряно 1 GetVar(param)!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(The trap hurt! Lost 1 GetVar(param)!);'+
-
-                'IF([GetVar(val) <= GetArtLvl(leggings)], 4);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Ловушка сработала но эффект был заблокирован Поножами!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(The trap was triggered but the effect was blocked by Leggins!);'+
-        '"},'+
-        'StoneBlockage: {name:"StoneBlockage", caption:{RU:"Каменный завал",ENG:"Stone blockage"}, rarity:2, allowCount:-1,'+
+            'params:{HP:0,count:3},'+
+            'effects:["Trap","Spider","Portal","ItemNormalPack","ItemNormalPack","LootSmallPack","LootSmallPack"],'+
+        '},'+
+        'chest2: {name:"chest2", '+
+            'tool:"Lockpick",'+
             'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'script:"'+
-                'SetVar(count, Rand(CurrFloor() * 100) + 10]);'+
-                'SetPlayerRes(Stone, GetVar(count));' +
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(count) камня);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(count) stone);'+
-        '"},'+
-        'WoodBlockage: {name:"WoodBlockage", caption:{RU:"Деревянный завал",ENG:"Wood blockage"}, rarity:2, allowCount:-1,'+
+            'params:{HP:0,count:1},'+
+            'effects:[],'+
+        '},'+
+        'chest3: {name:"chest3", '+
+            'tool:"Lockpick",'+
             'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'script:"'+
-                'SetVar(count, Rand(CurrFloor() * 100) + 10);'+
-                'SetPlayerRes(Wood, GetVar(count));' +
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(count) дерева);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(count) wood);'+
-        '"},'+
-        'Chest: {name:"Chest", caption:{RU:"Сундук",ENG:"Chest"}, rarity:2, allowCount:-1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 80) + 200)",'+
-            'script:"'+
-                'SetVar(iName, GetRandItemName());'+
-                'SetVar(iCount, Rand(CurrFloor()) + 1);'+
-                'ChangePlayerItemCount(GetVar(iName), GetVar(iCount));'+
+            'params:{HP:0,count:1},'+
+            'effects:[],'+
+        '},'+
 
-                'SetVar(lName, GetRandResName());'+
-                'SetVar(lCount, Random(GetCurrFloor() * 2) + 1);'+
-                'SetPlayerRes(GetVar(lName), GetVar(lCount));' +
 
-                'SetVar(gold, Rand(CurrFloor() * 1000) + 1);'+
-                'ChangePlayerItem(gold, GetVar(gold));'+
-
-                'If(GetLang() = RU, 3);'+
-                'AddEvent(Получено GetVar(gold) золота);'+
-                'AddEvent(Получено GetVar(lCount) GetVar(lName)!);'+
-                'AddEvent(Получено GetVar(iCount) GetVar(iName)!);'+
-                'If(GetLang() = ENG, 3);'+
-                'AddEvent(Gained GetVar(gold) Gold!);'+
-                'AddEvent(Gained GetVar(lCount) GetVar(lName)!);'+
-                'AddEvent(Gained GetVar(iCount) GetVar(iName)!);'+
-        '"},'+
-        'Box: {name:"Box", caption:{RU:"Ящик",ENG:"Box"}, rarity:3, allowCount:-1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 60) + 100)",'+
-            'script:"'+
-                'SetVar(iName, GetRandItemName());'+
-                'ChangePlayerItemCount(GetVar(iName), 1);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Получено GetVar(iName));'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(Gained GetVar(iName));'+
-        '"},'+
-        'Rat: {name:"Rat", caption:{RU:"Крыса",ENG:"Rat"}, rarity:5, allowCount:-1,'+
-            'hpCalc:"1",'+
-            'script:"'+
-                'SetVar(val, Rand(100));'+
-
-                'IF(GetVar(val) > GetArtLvl(leggings), 6);'+
-                'SetVar(dmg, Rand(CurrFloor() * 25) + 20);'+
-                'ChangePlayerParam(HP, -GetVar(dmg));'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Из кучи мусора выскочила крыса и укусила на GetVar(dmg) HP!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(A rat jumped out of a pile of garbage and bit you for GetVar(dmg) HP!);'+
-
-                'IF(GetVar(val) <= GetArtLvl(leggings), 4);'+
-                'If(GetLang() = RU, 1);'+
-                'AddEvent(Из кучи мусора выскочила крыса но не смогла прокусить Поножи!);'+
-                'If(GetLang() = ENG, 1);'+
-                'AddEvent(A rat jumped out of a pile of garbage but could not bite through the Leggings!);'+
-        '"},'+
-        'Trash: {name:"Trash", caption:{RU:"Мусор",ENG:"Trash"}, rarity:10, allowCount:-1,'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 50) + 50)",'+
-            'script:"'+
-                'SetVar(obj, GetRandResName());'+
-                'SetVar(count, Rand(CurrFloor() * 10) + 1);'+
-                'SetPlayerRes(GetVar(obj), GetVar(count));' +
-        '"},'+
+        ': {name:"", '+
+            'tool:"",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
+            'params:{HP:0,count:1},'+
+            'effects:[],'+
+        '},'+
     '},'+
 
 

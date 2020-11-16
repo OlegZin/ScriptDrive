@@ -97,7 +97,7 @@ const
               '.herbal{background:url("data:image/jpeg;base64,#ICON_HERBAL#");}'+
               '.wheat{background:url("data:image/jpeg;base64,#ICON_WHEAT#");}'+
               '.meat{background:url("data:image/jpeg;base64,#ICON_MEAT#");}'+
-              '.blood{background:url("data:image/jpeg;base64,#ICON_BLOOD#");}'+
+              '.water{background:url("data:image/jpeg;base64,#ICON_WATER#");}'+
               '.bone{background:url("data:image/jpeg;base64,#ICON_BONE#");}'+
               '.skin{background:url("data:image/jpeg;base64,#ICON_SKIN#");}'+
               '.ore{background:url("data:image/jpeg;base64,#ICON_ORE#");}'+
@@ -288,7 +288,7 @@ var
    ,ICON_HERBAL
    ,ICON_WHEAT
    ,ICON_MEAT
-   ,ICON_BLOOD
+   ,ICON_WATER
    ,ICON_BONE
    ,ICON_SKIN
    ,ICON_ORE
@@ -373,7 +373,7 @@ begin
     Doc.SetValue('ICON_HERBAL', ICON_HERBAL);
     Doc.SetValue('ICON_WHEAT', ICON_WHEAT);
     Doc.SetValue('ICON_MEAT', ICON_MEAT);
-    Doc.SetValue('ICON_BLOOD', ICON_BLOOD);
+    Doc.SetValue('ICON_WATER', ICON_WATER);
     Doc.SetValue('ICON_BONE', ICON_BONE);
     Doc.SetValue('ICON_SKIN', ICON_SKIN);
     Doc.SetValue('ICON_ORE', ICON_ORE);
@@ -421,7 +421,7 @@ begin
     Doc.SetValue('ICON_HERBAL', Format(ICON_TEMPLATE, ['icon herbal']), false);
     Doc.SetValue('ICON_WHEAT', Format(ICON_TEMPLATE, ['icon wheat']), false);
     Doc.SetValue('ICON_MEAT', Format(ICON_TEMPLATE, ['icon meat']), false);
-    Doc.SetValue('ICON_BLOOD', Format(ICON_TEMPLATE, ['icon blood']), false);
+    Doc.SetValue('ICON_WATER', Format(ICON_TEMPLATE, ['icon water']), false);
     Doc.SetValue('ICON_BONE', Format(ICON_TEMPLATE, ['icon bone']), false);
     Doc.SetValue('ICON_SKIN', Format(ICON_TEMPLATE, ['icon skin']), false);
     Doc.SetValue('ICON_ORE', Format(ICON_TEMPLATE, ['icon ore']), false);
@@ -485,7 +485,7 @@ begin
     if ICON_HERBAL = '' then ICON_HERBAL :=  fAtlas.EncodeToBase64('ICON_HERBAL');
     if ICON_WHEAT = '' then ICON_WHEAT :=  fAtlas.EncodeToBase64('ICON_WHEAT');
     if ICON_MEAT = '' then ICON_MEAT :=  fAtlas.EncodeToBase64('ICON_MEAT');
-    if ICON_BLOOD = '' then ICON_BLOOD :=  fAtlas.EncodeToBase64('ICON_BLOOD');
+    if ICON_WATER = '' then ICON_WATER :=  fAtlas.EncodeToBase64('ICON_WATER');
     if ICON_BONE = '' then ICON_BONE :=  fAtlas.EncodeToBase64('ICON_BONE');
     if ICON_SKIN = '' then ICON_SKIN :=  fAtlas.EncodeToBase64('ICON_SKIN');
     if ICON_ORE = '' then ICON_ORE :=  fAtlas.EncodeToBase64('ICON_ORE');

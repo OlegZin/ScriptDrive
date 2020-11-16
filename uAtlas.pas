@@ -151,7 +151,7 @@ type
     IMAGE_HERBAL: TImage;
     IMAGE_WHEAT: TImage;
     IMAGE_MEAT: TImage;
-    IMAGE_BLOOD: TImage;
+    IMAGE_WATER: TImage;
     IMAGE_BONE: TImage;
     IMAGE_SKIN: TImage;
     IMAGE_ORE: TImage;
@@ -159,7 +159,7 @@ type
     ICON_HERBAL: TImage;
     ICON_WHEAT: TImage;
     ICON_MEAT: TImage;
-    ICON_BLOOD: TImage;
+    ICON_WATER: TImage;
     ICON_BONE: TImage;
     ICON_SKIN: TImage;
     ICON_ORE: TImage;
