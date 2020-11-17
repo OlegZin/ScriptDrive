@@ -111,7 +111,7 @@ begin
       end;
     end;
 
-    /// пр€чем все экранырежимов
+    /// пр€чем все экраны режимов
     Controls['ScreenTower'].Parent := nil;
     Controls['ScreenThink'].Parent := nil;
     Controls['ScreenThinkWeb'].Visible := false;

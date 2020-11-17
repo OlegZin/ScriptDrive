@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts,
-  superobject;
+  superobject, Generics.Collections;
 
 type
   TfFloor = class(TForm)
@@ -42,6 +42,7 @@ type
   private
     { Private declarations }
     data : ISuperObject;
+    lincs: TDictionary<TLayout,ISuperobject>;
   public
     { Public declarations }
     procedure Update(indata: ISuperObject);
@@ -57,8 +58,41 @@ implementation
 { TfFloor }
 
 procedure TfFloor.Update(indata: ISuperObject);
+/// входные данные
+/// { floor: X,                // номер этажа
+///   count: Y,                // количество объектов на этаже
+///   Z: {                     // id объекта на этаже
+//      'name: "",'+           // тип объекта. он же - имя объекта с FloorAtlas
+//      'params: {HP: 0, count:0 },'+
+//      'effects: [],'+        // персональный скрипт при уничтожении. если нет, будет отработан
+//      'id: Z,'+              // сервисный повтор id
+///   }
+/// }
+var
+    i :integer;
 begin
 
+    if not Assigned( lincs ) then lincs := TDictionary<TLayout,ISuperobject>.Create;
+
+    /// если этаж сменился, будем перестраивать
+    if (Assigned(data) and (data.I['floor'] <> indata.I['floor'])) or
+       not Assigned(data) then
+    begin
+        /// сбрасываем все данные
+        data := nil;
+
+        /// удаляем все объекты на этаже
+        for I := layObjects.ControlsCount-1 downto 0 do
+           layObjects.Controls[i].Free;
+
+        /// чистим привязки визуальных объектов к данным
+        lincs.Clear;
+    end;
+
+
+    if not Assigned(data) then
+    begin
+    end;
 end;
 
 end.

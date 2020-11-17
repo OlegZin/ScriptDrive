@@ -122,6 +122,7 @@ type
 /// работа с ресурсами
         function GetRandResName: string;   // получение внутреннего имени случайного ресурса с учетом редкости
 
+
 /// работа с логом
         procedure Log(kind, text: string);   // добавляет строку указанного типа в лог игры. типы - имена css стилей из EMPTY_HTML из модуля uLog
         procedure LogAdd(text: string);      // приклеивает текст в конец текущей строки лога
@@ -167,7 +168,11 @@ type
 
         procedure InitItemsCraftCost; /// генерация стоимости предметов в ресурсах. стоимость будет различной в каждой игре, сохраняя интригу
         procedure InitFloorObjects;   /// генерация предметов на этажах
-        function GetRandObjName: string; /// случайный объект, который может находиться на этаже, с учетом редкости и доступного количества
+
+/// работа с объектами этажей
+        function GetRandFloorObjectName: string; // имя сучайного объекта
+        function InitFloorObject( name: string ):IsuperObject;
+
         function NeedExp(lvl: variant): string;
 
         procedure ProcessAttack;     /// оболочка для PlayerMakeAttack, учитываюшая расход автодействий или локального пула
@@ -177,6 +182,7 @@ type
         function PlayerMakeThink: boolean;   /// непосредственное проведение атаки со всеми событиями
 
         function CompactDigit(val: variant): string;
+            /// преобразует число в строку сокращенного вида с приставкой "к"(тысячи) или "m"(миллионы)
 
         //// методы оперируют с перменной, обеспечивающей выполнение скрипта цели один раз при входе на этаж,
         ///  а не при каждом тике. поскольку скрипты могут быть комплексными и не менять целевой этаж сразу
@@ -466,6 +472,7 @@ function TGameDrive.SaveGame: string;
 begin
     l('-> SaveGame');
 
+    if Assigned( GameData ) then
     GameData.O['state'].SaveTo(
         DIR_DATA + FILE_GAME_DATA
 //       ,false // не использовать красивое форматирование
@@ -785,10 +792,12 @@ begin
         fThink.Update( data );
     end;
 
-    /// обновление режима РАЗДУМИЙ
-    if InterfModes and INT_THINK <> 0 then
+    /// обновление режима ЭТАЖА
+    if InterfModes and INT_FLOOR <> 0 then
     begin
         data := SO();
+        data := data.O['state.floors.' + CurrFloor].Clone;   /// передаем данные текущего этажа
+        data.I['floor'] := CurrFloor;                        /// дописываем номер текущего этажа
         fFloor.Update(data);
     end;
 
@@ -827,69 +836,75 @@ end;
 
 { PRIVATE METHODS }
 
-
+function TGameDrive.InitFloorObject( name: string ):IsuperObject;
+begin
+    result := SO();
+    result.S['name'] := GameData.S['floorObjects.'+name+'.name'];
+    result.O['params'] := GameData.O['floorObjects.'+name+'.params'].Clone;
+    result.O['effects'] := GameData.O['floorObjects.'+name+'.effects'].Clone;
+    result.S['params.HP'] := Script.Exec( GameData.S['floorObjects.'+name+'.hpCalc'] );
+end;
 
 procedure TGameDrive.InitFloorObjects;
 /// метод генерит полный набор объектов на все этажи.
 /// это необходимо, чтобы корректно раскидать все квестовые объекты.
 /// пример структуры:
-//          1:{                     // номер этажа
-//            count:0,              // количество оставшихся на этаже объектов
-//            loot: [],             // типы предметов из спарвочника items.
-//                                  // хранит все ОСОБЫЕ предметы, которые могут выпасть на этаже.
-//                                  // могут быть получены из скриптов универсальным методом GetFloorItem.
-//                                  // если особые предметы кончились, будет получен обычный объект
-//                                  // хранение отдельно позволяет не запиливать индивидуальные скрипты с конкретным дропом,
-//                                  // а так же, модифицировать их набор на лету.
-//                                  // последний объект на этаже дропает весь оставшийся лут.
-//            1:{                   // id объекта на этаже
-//              id: 1,              // сервисный повтор id
-//              kind: "",           // тип объекта из floorObjects
-//              params: {HP: 0},    // параметры. может быть такой же набор как у существа
-//                                  // поскольку может быть целью способностей и эффектов
-//              script: "",         // персональный скрипт при уничтожении. если нет, будет отработан
-//                                  // дефолтный на основе типа
-//              x: 0,               // положение объекта в интерфейсе этажа
-//              y: 0,               // положение объекта в интерфейсе этажа
-//              percent: 1,         // модификатор параметров объекта. значение от 1 и меньше
-//                                  // чем "дальше" объект от игрока в интерфейсе этажа
-//                                  // тем он меньше в масштабе и темнее в оераске.
-//                                  // данный мараметр отвечает за процент масштаба и затемнения.
-//              object:"",          // идентификатор визуального объекта с FloorAtlas
+//          1:{                               // номер этажа
+//            1:{                             // id объекта на этаже
+//              'name: "",'+                  // тип объекта, так же соответсвует имени объекта из FloorAtlas
+//              'params: {HP: 0, count:0 },'+ // параметры. может быть такой же набор как у существа
+//                                            // поскольку может быть целью способностей и эффектов
+//              'effects: [],'+               // имена возможных скриптов при уничтожении.
+//              'id: 1,'+                     // сервисный повтор id объекта
 //            },
 //          },
 var
-    floor, objCount, objCurr, index: integer;
+    floor, objCount, objCurr: integer;
     flr, objName: string;
-    obj: ISuperObject;
+    obj, tmpObj: ISuperObject;
+
+    function CreateObj( index: integer ): ISuperObject;
+    begin
+        /// инициализируем
+        obj.O[flr+'.'+IntToStr(index)] := InitFloorObject( GetRandFloorObjectName );
+        obj.I[flr+'.'+IntToStr(index)+'.id'] := index;
+
+        result := obj.O[flr+'.'+IntToStr(index)];
+    end;
+
 begin
     l('-> InitFloorObjects');
 
     obj := SO();
 
-    for floor := 1 to 20 do
+    for floor := 1 to 10 do
     begin
-        flr := IntToStr(floor);
 
-        objCount := Max(Random(floor*10), 50);
+        // создаем объект этажа
+        flr := IntToStr(floor);
+        obj.O[flr] := SO();
+
+        objCount := Min(Random(floor*5)+10, 50);
 
         obj.I[flr+'.count'] := objCount;
-        obj.O[flr+'.loot'] := SA([]); // набор уникальных объектов пока пуст
 
-        /// накидываем объекты
+        /// накидываем стандартные объекты
         for objCurr := 1 to objCount do
+            CreateObj( objCurr );
+
+        /// накидываем особые объекты
+        if floor = 1 then
         begin
-
-            objName := GetRandObjName;  /// получаем допустимый объект
-
-            index := floor * 1000 + objCurr; /// вычисляем уникальный индекс
-
-            obj := SO();
-            obj.S['name'] := objName;
-            obj.S['params.HP'] := Script.Exec( GameData.S['floorObjects.'+objName+'.hpCalc'] );
-
+            /// объект с поножами
+            tmpObj := CreateObj( objCount + 1 );
+            tmpObj.I['params.count'] := 1;
+            tmpObj.O['effects'] := SA(['Leggings']);
+            obj.I[flr+'.count'] := objCount + 1;
         end;
+
     end;
+
+    GameData.O['state.floors'] := obj;
 end;
 
 function TGameDrive.CurrFloor: variant;
@@ -948,6 +963,8 @@ procedure TGameDrive.SetCurrFloor(val: variant);
 begin
     l('-> SetCurrFloor('+String(val)+')');
     GameData.S['state.CurrFloor'] := val;
+
+    SetModeToUpdate(INT_FLOOR);
 end;
 
 
@@ -1047,29 +1064,6 @@ end;
 
 
 
-function TGameDrive.GetRandObjName: string;
-var
-    val: integer;
-    item: ISuperObject;
-begin
-    l('-> GetRandObjName');
-
-    val := Random( GameData.I['objRaritySumm'] + 1);
-
-    /// перебираем объекты, и учитываем только доступные по количеству
-    for item in GameData.O['floorObjects'] do
-    if item.I['allowCount'] <> 0 then
-    begin
-        val := val - item.I['rarity'];
-
-        if val <= 0 then
-        begin
-            result := item.S['name'];
-            item.I['allowCount'] := item.I['allowCount'] - 1; // списываем количество
-            break;
-        end;
-    end;
-end;
 
 function TGameDrive.GetRandItemName: string;
 var
@@ -1111,6 +1105,26 @@ begin
             result := item.S['name'];
             break;
         end;
+    end;
+end;
+
+function TGameDrive.GetRandFloorObjectName: string;
+var
+    count: integer;
+    item: ISuperObject;
+begin
+
+    count := Random( GameData.I['floorObjectCount'] );
+
+    /// перебираем ресурсы и получаем один из них. с учетом редкости!
+    for item in GameData.O['floorObjects'] do
+    begin
+        if count = 0 then
+        begin
+            result := item.S['name'];
+            exit;
+        end;
+        Dec(count);
     end;
 end;
 
@@ -1185,6 +1199,7 @@ begin
     /// отрабатываем случаи эффектов
     if name = 'EXP' then delta := Integer(delta) + StrToInt(GetEffect('PlayerEXPBuff'));
 
+    /// меняем параметр модифицированной дельтой
     GameData.I[Target + 'params.' + name] :=
         GameData.I[Target + 'params.' + name] + StrToIntDef(delta, 0);
 
@@ -1192,10 +1207,12 @@ begin
     if (pos('player', Target) > 0) and not fSilentChange
     then uLog.Log.Phrase('change_param', GetLang, [name, ifthen(delta >= 0, '+','') + String(delta), GameData.I[Target + 'params.' + name]]);
 
+    // сбрасываем флаг тихого изменения
     fSilentChange := false;
 end;
 
 procedure TGameDrive.ChangePlayerItemCount(name, value: variant);
+/// изменение количество предметов
 var
     trg: String;
 begin

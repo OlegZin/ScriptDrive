@@ -121,9 +121,6 @@ const
                 'onDeath:"",'+
                 'onRestore:"",'+
                 'onLevelUp:"",'+
-///                   'default:""'+  с крипт имеет имя и команды. имя используется для идентификации каким эффектом
-///                                  эффектом он был повешен и при снятии эффекта можно было дропнуть и скрипт
-
             '},'+
         '},'+
         'creature: {'+
@@ -185,29 +182,28 @@ const
 
         //// набор объектов на каждом этаже. заполняется при старте новой игры
         'floors:{'+
-          '1:{'+                     // номер этажа
-            'count:0,'+              // количество оставшихся на этаже объектов
-            'loot: [],'+             // типы предметов из спарвочника items.
-                                     // хранит все предметы, которые могут выпасть на этаже.
-                                     // могут быть получены из скриптов универсальным методом GetFloorItem.
-                                     // хранение отдельно позволяет не запиливать индивидуальные скрипты с конкретным дропом,
-                                     // а так же, модифицировать их набор на лету.
-                                     // последний объект на этаже дропает весь оставшийся лут.
-            '1:{'+                   // id объекта на этаже
-              'id: 1,'+              // сервисный повтор id
-              'kind: "",'+           // тип объекта из floorObjects
-              'params: {HP: 0},'+    // параметры. может быть такой же набор как у существа
+//          '1:{'+                     // номер этажа
+//            'count: X,'+             // количество объектов на этаже, пригодится при переборе
+                                       // и распрелеления по "слоям" в интерфейсе
+//            '1:{'+                   // id объекта на этаже
+              /// базовые параметры объекта из шаблона floorObjects
+//              'name: "",'+           // тип объекта
+//              'params: {HP: 0, count:0 },'+
+                                     // параметры. может быть такой же набор как у существа
                                      // поскольку может быть целью способностей и эффектов
-              'script: "",'+         // персональный скрипт при уничтожении. если нет, будет отработан
+//              'effects: [],'+        // персональный скрипт при уничтожении. если нет, будет отработан
                                      // дефолтный на основе типа
-              'x: 0,'+               // положение объекта в интерфейсе этажа
-              'y: 0,'+               // положение объекта в интерфейсе этажа
-              'percent: 1,'+         // модификатор параметров объекта. значение от 1 и меньше
+//              'id: 1,'+              // сервисный повтор id
+
+///            параметры, даваемые и хранящиеся в режиме Этажа
+//              'x: 0,'+               // положение объекта в интерфейсе этажа
+//              'y: 0,'+               // положение объекта в интерфейсе этажа
+//              'percent: 1,'+         // модификатор параметров объекта. значение от 1 и меньше
                                      // чем "дальше" объект от игрока в интерфейсе этажа
                                      // тем он меньше в масштабе и темнее в оераске.
                                      // данный мараметр отвечает за процент масштаба и затемнения.
-            '},'+
-          '},'+
+//            '},'+
+//          '},'+
         '},'+
 
         /// набор глобальных переменных, используемых в рамках скриптов на различные события.
@@ -263,7 +259,7 @@ const
     /// каждый из объектов может иметь любую комбинацию данных эффектов
     'floorScripts:{'+
         /// особые эффекты
-        'Diary:         "GetRandomPage();"'+        /// получение случайной еще неполученной страницы
+        'Diary:         "GetRandomPage();",'+        /// получение случайной еще неполученной страницы
         'Shovel:        "AllowTool(Shovel);",'+     /// получение артефакта эффективен на Ground объектах
         'Pick:          "AllowTool(Pick);",'+       /// получение артефакта эффективен на Ore объектах
         'Axe:           "AllowTool(Axe);",'+        /// получение артефакта эффективен на Wood объектах
@@ -272,19 +268,19 @@ const
         'Leggings:      "AllowTool(Leggings);",'+   /// получение артефакта
         'LifeAmulet:    "AllowTool(LifeAmulet);",'+ /// получение артефакта
         'Searcher:      "AllowTool(Searcher);",'+   /// получение артефакта (+к количеству эффектов объекта)
-        'Shard:         "ChangePlayerItemCount(shard, 1);"'+  /// получение осколка воспоминаний
+        'Shard:         "ChangePlayerItemCount(shard, 1);",'+  /// получение осколка воспоминаний
 
         /// предметы и ресурсы
-        'Cash:          "ChangePlayerItemCount(gold, Rand(CurrFloor() * 10000) + 1);",'+             /// чисто денежный дроп
-        'WoodPack:      "ChangePlayerLootCount(wood, Rand(CurrFloor() * 10) + 10);"},'+              /// получение базового ресурса
-        'StonePack:     "ChangePlayerLootCount(stone, Rand(CurrFloor() * 10) + 10);"},'+             /// получение базового ресурса
-        'OrePack:       "ChangePlayerLootCount(ore, Rand(CurrFloor() * 5) + 5);"},'+                 /// получение базового ресурса
-        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 100) + 10);"},'+ /// большой пак одного типа ресурса
-        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 50) + 10);"},'+  /// средний пак одного типа ресурса
-        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 10) + 10);"},'+  /// малый пак одного типа ресурса
-        'ItemHugePack:  "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);"},'+  /// большой пак одного типа расходных предметов
-        'ItemNormalPack:"ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);"},'+   /// средний пак одного типа расходных предметов
-        'ItemSmallPack: "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 1) + 1);"},'+   /// малый пак одного типа расходных предметов
+        'Cash:          "ChangePlayerItemCount(gold, Rand(CurrFloor() * 10000) + 1);",'+            /// чисто денежный дроп
+        'WoodPack:      "ChangePlayerLootCount(wood, Rand(CurrFloor() * 10) + 10);",'+              /// получение базового ресурса
+        'StonePack:     "ChangePlayerLootCount(stone, Rand(CurrFloor() * 10) + 10);",'+             /// получение базового ресурса
+        'OrePack:       "ChangePlayerLootCount(ore, Rand(CurrFloor() * 5) + 5);",'+                 /// получение базового ресурса
+        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 100) + 10);",'+ /// большой пак одного типа ресурса
+        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 50) + 10);",'+  /// средний пак одного типа ресурса
+        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 10) + 10);",'+  /// малый пак одного типа ресурса
+        'ItemHugePack:  "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);",'+  /// большой пак одного типа расходных предметов
+        'ItemNormalPack:"ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);",'+   /// средний пак одного типа расходных предметов
+        'ItemSmallPack: "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 1) + 1);",'+   /// малый пак одного типа расходных предметов
 
         /// отравление(постепенное снижение здоровья)
         'Spider:"'+
@@ -380,6 +376,7 @@ const
         '",'+
     '},'+
 
+    'floorObjectCount: 11,'+
     'floorObjects:{'+
         /// шкафы
         ///  основной источник малых и средних пачек предметов.
@@ -442,33 +439,32 @@ const
         /// сундуки. бОльшее количество активируемых эффектов, чем в шкафах
         'chest1: {name:"chest1", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
             'params:{HP:0,count:3},'+
             'effects:["Trap","Spider","Portal","ItemNormalPack","ItemNormalPack","LootSmallPack","LootSmallPack"],'+
         '},'+
         'chest2: {name:"chest2", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'params:{HP:0,count:1},'+
-            'effects:[],'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
+            'params:{HP:0,count:3},'+
+            'effects:["Trap","Spider","ItemNormalPack","ItemNormalPack","LootSmallPack"],'+
         '},'+
         'chest3: {name:"chest3", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'params:{HP:0,count:1},'+
-            'effects:[],'+
+            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
+            'params:{HP:0,count:3},'+
+            'effects:["Trap","Spider","ItemNormalPack","LootSmallPack","LootNormalPack"],'+
         '},'+
 
 
-        ': {name:"", '+
-            'tool:"",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
-            'params:{HP:0,count:1},'+
-            'effects:[],'+
-        '},'+
+//        ': {name:"", '+
+//            'tool:"",'+
+//            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
+//            'params:{HP:0,count:1},'+
+//            'effects:[],'+
+//        '},'+
+
     '},'+
-
-
 
     /// cost - стоимость покупки в золоте
     /// craft - набор ресурсов для крафта. случайно генерится при старте игры
