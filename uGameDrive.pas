@@ -796,7 +796,7 @@ begin
     if InterfModes and INT_FLOOR <> 0 then
     begin
         data := SO();
-        data := data.O['state.floors.' + CurrFloor].Clone;   /// передаем данные текущего этажа
+        data := GameData.O['state.floors.' + CurrFloor].Clone;   /// передаем данные текущего этажа
         data.I['floor'] := CurrFloor;                        /// дописываем номер текущего этажа
         fFloor.Update(data);
     end;
@@ -904,7 +904,7 @@ begin
 
     end;
 
-    GameData.O['state.floors'] := obj;
+    GameData.O['state.floors'] := obj.Clone;
 end;
 
 function TGameDrive.CurrFloor: variant;

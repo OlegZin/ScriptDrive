@@ -55,6 +55,8 @@ implementation
 
 {$R *.fmx}
 
+uses uFloorAtlas;
+
 { TfFloor }
 
 procedure TfFloor.Update(indata: ISuperObject);
@@ -69,7 +71,21 @@ procedure TfFloor.Update(indata: ISuperObject);
 ///   }
 /// }
 var
-    i :integer;
+    i, objNumber :integer;
+    elem: ISuperObject;
+
+    lineStep  // переменна€ дл€ расстановки объектов по "планам" относительно зрител€.
+              // дальний план совпадает с координатой Y компонент pointLeftTop или pointRightTop.
+              // ближний план совпадает с координатой Y компонент pointLeftBottom или pointRightBottom.
+              // каждый объект находитс€ на отдельном плане. и данна€ переменна€
+              // содержит величину разницы по координате Y между планами.
+              // зависит от количества объектов на этаже.
+   ,sideStep  // переменна€ сдвига по координате X между pointLeftTop и pointLeftBottom, или pointRightTop и pointRightBottom.
+              // зависит от количества объектов на этаже. используетс€ дл€ определени€
+              // допустимой ширины линии расположени€ объекта на конкретном плане
+            : real;
+
+    shablon: TLayout;
 begin
 
     if not Assigned( lincs ) then lincs := TDictionary<TLayout,ISuperobject>.Create;
@@ -89,9 +105,35 @@ begin
         lincs.Clear;
     end;
 
-
+    /// при пустых текущих данных, принимаем входные данные как исходные
+    /// и обрабатываем - создаем и расставл€ем предметы
+    ///
+    /// фишка в том, что создавать предметы этажа от дальнего плана к ближнему,
+    /// тогда получитс€ корректное перекрытие объектов
+    /// поскольку есть кос€к в FMX, не позвол€ющий мен€ть положение компонент
+    /// по оси Z методами BringToFront и  SendToBack
+    ///
+    /// дл€ реалистичности, местоположение объектов по "нижнему краю" в трапеции
+    /// образуемых 4 точками TSelectionPoint на форме, при этом, чем сама€ дальн€€
+    /// позици€ модифицирует объект на 0.5 от реального масштаба и 0.5 от затемнени€
     if not Assigned(data) then
     begin
+        data := indata;
+
+        lineStep := ABS((pointLeftBottom.Position.Y - pointLeftTop.Position.Y)) / data.I['count'];
+        sideStep := ABS((pointLeftTop.Position.X - pointLeftBottom.Position.X)) / data.I['count'];
+
+        objNumber := data.I['count'];
+
+        for elem in data do
+        begin
+            /// копируем объект из атласа и прив€зываем к слою дл€ отображени€
+            shablon := fFloorAtlas.GetShablonByName( elem.S['name'] ).Clone( layObjects );
+            shablon.parent := layObjects;
+
+            /// настройка масштаба и затемнени€
+            /// самый
+        end;
     end;
 end;
 

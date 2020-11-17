@@ -199,7 +199,6 @@ type
     Image70: TImage;
     Image71: TImage;
     Image72: TImage;
-    procedure ThinkShablonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -267,11 +266,6 @@ begin
     for I := 0 to ComponentCount-1 do
     if UpperCase(Components[i].Name) = UpperCase(name) then
     result := (Components[i] as TImage).Bitmap;
-end;
-
-procedure TfAtlas.ThinkShablonClick(Sender: TObject);
-begin
-    (Sender as TControl).BringToFront;
 end;
 
 end.

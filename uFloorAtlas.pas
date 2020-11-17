@@ -199,6 +199,7 @@ type
     { Private declarations }
   public
     { Public declarations }
+    function GetShablonByName(name: string): TLayout;
   end;
 
 var
@@ -207,5 +208,14 @@ var
 implementation
 
 {$R *.fmx}
+
+function TfFloorAtlas.GetShablonByName(name: string): TLayout;
+var
+    i: integer;
+begin
+    for I := 0 to ComponentCount-1 do
+    if UpperCase(Components[i].Name) = UpperCase(name) then
+    result := Components[i];
+end;
 
 end.
