@@ -35,21 +35,19 @@ data_str =
                  'The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
              'Log(danger,\"FIGHT!\");'+
              'SetCurrTarget(2);'+
+             'SetVar(FirstOnFloor, 2);'+
 
 //                 'AllowMode(Think);'+
 //                 'AllowThink(wakeup);'+
 
-//                 'AllowMode(Floor);'+
+                 'AllowMode(Floor);'+
 
-'ChangePlayerItemCount(shard, 1);'+
-//             'ChangePlayerItemCount(restoreHealth, 1400000);'+
-//             'ChangePlayerItemCount(potionexp, 100000);'+
+             'ChangePlayerItemCount(buffSPEED, 100000);'+
+             'ChangePlayerItemCount(potionAuto, 100000);'+
 
-//             'SetVar(first_meet,8);'+
-//             'SetVar(ikki,4);'+
-//             'SetCurrTarget(6);'+
-//             'ChangeItemCount(permanentMDEF, 5);'+
+
 {
+             'ChangePlayerItemCount(gold, 1000000);'+
              'ChangePlayerItemCount(restoreMana, Rand(100000));'+
              'ChangePlayerItemCount(permanentATK, Rand(100000));'+
              'ChangePlayerItemCount(permanentDEF, Rand(100000));'+
@@ -62,6 +60,7 @@ data_str =
              'ChangePlayerItemCount(buffMDEF, Rand(100000));'+
              'ChangePlayerItemCount(buffEXP, Rand(100000));'+
              'ChangePlayerItemCount(buffREG, Rand(100000));'+
+             'ChangePlayerItemCount(buffSpeed, Rand(100000));'+
              'ChangePlayerItemCount(potionAuto, Rand(100000));'+
 }        '",'+
         '2:"'+
@@ -114,7 +113,7 @@ data_str =
 
 
              // если первый раз пришли на этаж
-             'IF(GetVar(MaxFloor) = 2, 16);'+
+             'IF(GetVar(FirstOnFloor) = 2, 17);'+
 
                  'IF(GetLang() = RU, 5);'+
                  'Log(normal,\"В ржавом сундуке между этажами нашлось немного золота. Так же, в сундуке лежит несколько смятых листов:\");'+
@@ -134,6 +133,7 @@ data_str =
                  'AllowThink(wakeup);'+
                  'ChangePlayerItemCount(gold, Rand(100000));'+
                  'SetCurrTarget(3);'+
+                 'SetVar(FirstOnFloor, 3);'+
         '",'+
         '3:"'+
              'BreakAuto(Tower);'+
@@ -184,7 +184,7 @@ data_str =
                      'Log(good,\"Ты пока подумай. Увидимся позднее, незнакомец....\");' +
 
              /// если первый визит на этаж
-             'IF(GetVar(MaxFloor) = 3, 6);'+
+             'IF(GetVar(FirstOnFloor) = 3, 7);'+
                'IF(GetLang() = RU, 1);'+
                'Log(normal,\"В ржавом сундуке между этажами нашлось немного зелий.\");'+
 
@@ -192,8 +192,9 @@ data_str =
                'Log(normal,\"Some potions were found in a rusty chest between floors.\");'+
 
                'ChangePlayerItemCount(potionAuto, 10);'+
-               'SetCurrTarget(4);'
-        +'",'+
+               'SetCurrTarget(4);'+
+               'SetVar(FirstOnFloor, 4);'+
+        '",'+
         '4:"'+
              'BreakAuto(Tower);'+
 
@@ -219,7 +220,7 @@ data_str =
                  'SetCurrTarget(3);'+
 
 
-             'IF(GetVar(MaxFloor) = 4, 10);'+
+             'IF(GetVar(FirstOnFloor) = 4, 11);'+
                'If(GetLang() = RU, 1);'+
                'Log(normal,\"Огромный сундк! Замок поддается не с первого раза...\");'+
                'If(GetLang() = ENG, 1);'+
@@ -231,8 +232,9 @@ data_str =
                'ChangePlayerItemCount(GetRandItemName(), 1);'+
                'ChangePlayerItemCount(GetRandItemName(), 1);'+
 
-               'SetCurrTarget(5);'
-        +'",'+
+               'SetCurrTarget(5);'+
+               'SetVar(FirstOnFloor, 5);'+
+        '",'+
         '5:"'+
              'BreakAuto(Tower);'+
 
@@ -264,9 +266,9 @@ data_str =
                  'IF(GetLang() = RU, 1);'+
                      'Log(normal,\"На месте вашей встречи с кодуном остался неизгладимый энегетический след.\");' +
                 'ChangePlayerLootCount(essence,10);'+
-                 'SetCurrTarget(6);'
+                 'SetCurrTarget(6);'+
 
-        +'",'+
+        '",'+
         '6:"'+
              'BreakAuto(Tower);'+
 

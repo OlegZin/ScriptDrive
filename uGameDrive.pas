@@ -160,6 +160,9 @@ type
 ///
         function Phrase(name: string): string;
 
+/// работа с воспоминаниями
+        procedure CheckMemory;  /// отработка эффектов в зависимости от текущего значения
+
     private
         Script : TScriptDrive;
 
@@ -200,6 +203,12 @@ implementation
 
 { TData }
 
+
+procedure TGameDrive.CheckMemory;
+begin
+    SetPlayerAsTarget;
+    Script.Exec( GameData.S['memories.' + GetParam('MEMORY') ] );
+end;
 
 procedure TGameDrive.CheckStatus;
 /// пересчет игрового статуса исходя из текущего состояния игроовых объектов
@@ -335,12 +344,6 @@ begin
         l('-> CheckStatus: переходим на новый уровень подземелья');
         SetCurrFloor(CurrFloor + 1);
         SetCurrStep(1);
-
-        /// если это первый визит на этаж, запоминаем.
-        /// это используется в разовых скриптах на достижение нового этажа
-        if StrToInt(GetVar('MaxFloor')) < CurrFloor then
-        SetVar( 'MaxFloor', CurrFloor );
-
 
         // генерим новую пачку монстров
         l('-> CheckStatus: генерим нового монстра');
@@ -1096,10 +1099,15 @@ begin
     for item in GameData.O['items'] do
     begin
         if count = 0 then
+        /// если может быть дропом - выбираем
+        if item.B['drop'] then
         begin
             result := item.S['name'];
             exit;
-        end;
+        end else
+        /// иначе - перебираем еще раз
+            count := Random( GameData.I['itemsCount'] ) + 1;
+
         Dec(count);
     end;
 end;
@@ -1323,6 +1331,7 @@ procedure TGameDrive.AllowThink(name: string);
 begin
     /// открываем доступ к  раздумию. координаты карточки будут подставлены при апдейте интерфейса
     if assigned( GameData.O['thinks.'+name] ) then
+    if not assigned( GameData.O['state.thinks.'+name] ) then
     begin
         /// кусок с сообщением должен выводиться автоматом при завершении обдумывания
         uLog.Log.Phrase('open_think', GetLang, [ GameData.S['thinks.' + name + '.caption.' + GetLang ]]);
@@ -1619,6 +1628,9 @@ begin
 
     delta := -1;
     obj := GameData.O['state.floors.' + CurrFloor + '.' + GameData.S['state.CurrFloorObject']];
+
+    /// объект не найден
+    if not Assigned(obj) then exit;
 
     ///здесь модифицируем дельту исходя из типа объекта, наличия и уровня артефактов
 

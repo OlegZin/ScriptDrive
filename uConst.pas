@@ -290,16 +290,16 @@ const
         'Shard:         "ChangePlayerItemCount(shard, 1);",'+  /// получение осколка воспоминаний
 
         /// предметы и ресурсы
-        'Cash:          "ChangePlayerItemCount(gold,  Rand(CurrFloor() * 10000) + 1);",'+            /// чисто денежный дроп
-        'WoodPack:      "ChangePlayerLootCount(wood,  Rand(CurrFloor() * 10) + 10);",'+              /// получение базового ресурса
-        'StonePack:     "ChangePlayerLootCount(stone, Rand(CurrFloor() * 10) + 10);",'+             /// получение базового ресурса
-        'OrePack:       "ChangePlayerLootCount(ore,   Rand(CurrFloor() * 5) + 5);",'+                 /// получение базового ресурса
-        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 100) + 10);",'+ /// большой пак одного типа ресурса
-        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 50) + 10);",'+  /// средний пак одного типа ресурса
-        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 10) + 10);",'+  /// малый пак одного типа ресурса
-        'ItemHugePack:  "ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);",'+  /// большой пак одного типа расходных предметов
-        'ItemNormalPack:"ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);",'+   /// средний пак одного типа расходных предметов
-        'ItemSmallPack: "ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor());",'+            /// малый пак одного типа расходных предметов
+        'Cash:          "ChangePlayerItemCount(gold,  Calc(Rand(CurrFloor() * 10000) + 1));",'+            /// чисто денежный дроп
+        'WoodPack:      "ChangePlayerLootCount(wood,  Calc(Rand(CurrFloor() * 10) + 10));",'+              /// получение базового ресурса
+        'StonePack:     "ChangePlayerLootCount(stone, Calc(Rand(CurrFloor() * 10) + 10));",'+             /// получение базового ресурса
+        'OrePack:       "ChangePlayerLootCount(ore,   Calc(Rand(CurrFloor() * 5) + 5));",'+                 /// получение базового ресурса
+        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(),  Calc(Rand(CurrFloor() * 100) + 10));",'+ /// большой пак одного типа ресурса
+        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(),  Calc(Rand(CurrFloor() * 50) + 10));",'+  /// средний пак одного типа ресурса
+        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(),  Calc(Rand(CurrFloor() * 10) + 10));",'+  /// малый пак одного типа ресурса
+        'ItemHugePack:  "ChangePlayerItemCount(GetRandItemName(), Calc(Rand(CurrFloor() * 3) + 10));",'+  /// большой пак одного типа расходных предметов
+        'ItemNormalPack:"ChangePlayerItemCount(GetRandItemName(), Calc(Rand(CurrFloor() * 2) + 5));",'+   /// средний пак одного типа расходных предметов
+        'ItemSmallPack: "ChangePlayerItemCount(GetRandItemName(), Calc(Rand(CurrFloor()) + 1));",'+            /// малый пак одного типа расходных предметов
 
         /// отравление(постепенное снижение здоровья)
         'Spider:"'+
@@ -493,9 +493,10 @@ const
     /// craft - набор ресурсов для крафта. случайно генерится при старте игры
     /// isCraftAllow - доступен ли для крафта
     /// isUseAllow - доступен ли для использования
-    'itemsCount: 16,'+ /// количество первых предметов из всего списка, которые попадают в случайный дроп
+    'itemsCount: 16,'+
     'items:{'+
         'gold:{'+
+            'drop: false,'+   /// может ли предмет быть случайным дропом
             'name:"gold",'+
             'caption: {RU:"Золото", ENG:"Gold"},'+
             'description:{'+
@@ -520,6 +521,7 @@ const
                 'ChangeItemCount(GetRandItemName(), 1);'+
         '"},'+
         'restoreHealth:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"restoreHealth",'+
             'caption: {RU:"Зелье здоровья", ENG:"Potion of health"},'+
             'description:{'+
@@ -531,6 +533,7 @@ const
                 'ChangeParam(HP,Rand(GetParam(LVL) * 100));'+
         '"},'+
         'restoreMana:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"restoreMana",'+
             'caption: {RU:"Зелье маны", ENG:"Potion of mana"},'+
             'description:{'+
@@ -542,6 +545,7 @@ const
                 'ChangeParam(MP,Rand(GetParam(LVL) * 50));'+
         '"},'+
         'permanentATK:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"permanentATK",'+
             'caption: {RU:"Зелье атаки", ENG:"Potion of attack"},'+
             'description:{'+
@@ -553,6 +557,7 @@ const
                 'ChangeParam(ATK,1);'+
         '"},'+
         'permanentDEF:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"permanentDEF",'+
             'caption: {RU:"Зелье защиты", ENG:"Potion of defence"},'+
             'description:{'+
@@ -564,6 +569,7 @@ const
                 'ChangeParam(DEF,1);'+
         '"},'+
         'permanentMDEF:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"permanentMDEF",'+
             'caption: {RU:"Зелье магической защиты", ENG:"Potion of magic defence"},'+
             'description:{'+
@@ -575,6 +581,7 @@ const
                 'ChangeParam(MDEF,1);'+
         '"},'+
         'potionexp:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"potionexp",'+
             'caption: {RU:"Зелье опыта", ENG:"Potion of experience"},'+
             'description:{'+
@@ -586,6 +593,7 @@ const
                 'ChangeParam(EXP,Rand(GetParam(LVL) * 100));'+
         '"},'+
         'regenHP:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"regenHP",'+
             'caption: {RU:"Мазь здоровья", ENG:"Ointment of health"},'+
             'description:{'+
@@ -597,6 +605,7 @@ const
                 'AddEffect(RegenPlayerHP, Rand(GetParam(LVL) * 500));'+
         '"},'+
         'regenMP:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"regenMP",'+
             'caption: {RU:"Мазь энергии", ENG:"Ointment of mana"},'+
             'description:{'+
@@ -608,6 +617,7 @@ const
                 'AddEffect(RegenPlayerMP, Rand(GetParam(LVL) * 250));'+
         '"},'+
         'buffATK:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffATK",'+
             'caption: {RU:"Порошок атаки", ENG:"Powder of attack"},'+
             'description:{'+
@@ -619,6 +629,7 @@ const
                 'AddEffect(PlayerATKBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffDEF:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffDEF",'+
             'caption: {RU:"Порошок защиты", ENG:"Powder of defence"},'+
             'description:{'+
@@ -630,6 +641,7 @@ const
                 'AddEffect(PlayerDEFBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffMDEF:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffMDEF",'+
             'caption: {RU:"Порошок магической защиты", ENG:"Powder of magic defence"},'+
             'description:{'+
@@ -641,6 +653,7 @@ const
                 'AddEffect(PlayerMDEFBuff, Rand(GetParam(LVL) * 10) + 1);'+
         '"},'+
         'buffEXP:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffEXP",'+
             'caption: {RU:"Порошок опыта", ENG:"Powder of experience"},'+
             'description:{'+
@@ -652,6 +665,7 @@ const
                 'AddEffect(PlayerEXPBuff, Rand(GetParam(LVL) * 5) + 1);'+
         '"},'+
         'buffREG:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffREG",'+
             'caption: {RU:"Зелье регенерации", ENG:"Potion of regeneration"},'+
             'description:{'+
@@ -663,6 +677,7 @@ const
                 'AddEffect(PlayerREGBuff, Rand(GetParam(LVL) * 10) + 10);'+
         '"},'+
         'buffSPEED:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"buffSPEED",'+
             'caption: {RU:"Билет времени", ENG:"Ticket of Time"},'+
             'description:{'+
@@ -674,6 +689,7 @@ const
                 'AddEffect(BuffSPEED, GetParam(LVL) * 10 + 100);'+
         '"},'+
         'potionAuto:{'+
+            'drop: true,'+   /// может ли предмет быть случайным дропом
             'name:"potionAuto",'+
             'caption: {RU:"Зелье автодействий", ENG:"Potion of autoactions"},'+
             'description:{'+
@@ -685,8 +701,9 @@ const
                 'ChangeParam(AutoAction,Rand(500) + 500);'+
         '"},'+
         'shard:{'+
+            'drop: false,'+   /// может ли предмет быть случайным дропом
             'name:"shard",'+
-            'caption: {RU:"Радужный осколок", ENG:"Prismatic Shard"},'+
+            'caption: {RU:"Радужный осколок", ENG:"Rainbow Shard"},'+
             'description:{'+
                 'RU:"Если присмотреться, в его глубине, среди переливов цвета, можно разглядеть смутные тени и образы, которые кажутся знакомыми...",'+
                 'ENG:"If you look closely, in its depths, among the overflows of color, you can see vague shadows and images that seem familiar ..."'+
@@ -694,6 +711,7 @@ const
             'script:"'+
                 'SetPlayerAsTarget();' +
                 'ChangeParam(MEMORY, 1);'+
+                'CheckMemory();'+
         '"},'+
     '},'+
 
@@ -1312,6 +1330,22 @@ const
           '"},'+
       '},'+
 
+      'shards:{name: "shards", cost: 500, kind: "persone",'+
+        'script:"'+
+          'ChangePlayerParam(EXP, 150);'+
+        '",'+
+        'caption:{'+
+          'ENG:"Strange effect of rainbow shards...",'+
+          'RU:"Странный эффект радужных осколков..."},'+
+        'body:{'+
+          'ENG:"'+
+            '<p></p>'+
+          '",'+
+          'RU:"'+
+            '<p></p>'+
+          '"},'+
+      '},'+
+
       '"name":{'+
         'name: "name",'+           /// уникальный идентификатор
         'cost: 0,'+                /// сколько очков обдумывания для получения статуса redy
@@ -1331,7 +1365,75 @@ const
       '},'+
     '},'+
 
-
+    /// эффекты при различных значениях параметра MEMORY игрока
+    'memories:{'+
+      '1:"'+
+          'IF(GetLang() = RU, 3);'+
+              'Log(normal,\"Внезапно, те образы, которые плавали в глубине кристалла, возникают в твоей голове... Это... Это... Твои воспоминания!\");'+
+              'Log(normal,\"Невозможно разобрать что-то конкретное. Это какие-то смутные образы, звуки, обрывки слов.\");'+
+              'Log(normal,\"Сознание переполняется ими, словно попав под цунами и так же быстро все это исчезает. Но остается стойкое ощущение, что какая-то скрытая часть вашего сознания проснулась. Головная боль становится меньше.\");'+
+          'IF(GetLang() = ENG, 3);'+
+              'Log(normal,\"Suddenly, those images that floated in the depths of the crystal appear in your head ... This ... This ... Your memories!\");'+
+              'Log(normal,\"It is impossible to make out something specific. These are some vague images, sounds, scraps of words.\");'+
+              'Log(normal,\"Consciousness overflows with them, as if being hit by a tsunami and just as quickly it all disappears. But there remains a persistent feeling that some hidden part of your consciousness has awakened. The headache gets less.\");'+
+          'ChangePlayerParam(EXP, 150);'+
+          'AllowThink(shards);'+
+      '",'+
+      '2:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '3:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '4:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '5:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '6:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '7:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '8:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '9:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+      '10:"'+
+          'IF(GetLang() = RU, 1);'+
+              'Log(normal,\"\");'+
+          'IF(GetLang() = ENG, 1);'+
+              'Log(normal,\"\");'+
+      '",'+
+    '},'+
 
     /// имена для монстров
     'names:{'+
