@@ -88,6 +88,7 @@ const
               '.icon_knight{background:url("data:image/jpeg;base64,#ICON_KNIGHT#");}'+
               '.icon_book{background:url("data:image/jpeg;base64,#ICON_BOOK#");}'+
               '.icon_think{background:url("data:image/jpeg;base64,#ICON_THINK#");}'+
+              '.MEMORY, .icon_memory{background:url("data:image/jpeg;base64,#ICON_MEMORY#");}'+
 
               '.image_book{background:url("data:image/jpeg;base64,#IMAGE_BOOK#");}'+
               '.image_unlock{background:url("data:image/jpeg;base64,#IMAGE_UNLOCK#");}'+
@@ -118,6 +119,7 @@ const
               '.restoreHealth{background:url("data:image/jpeg;base64,#ICON_HPGET#");}'+
               '.restoreMana{background:url("data:image/jpeg;base64,#ICON_MPGET#");}'+
               '.buffSPEED{background:url("data:image/jpeg;base64,#ICON_TICKET#");}'+
+              '.shard{background:url("data:image/jpeg;base64,#ICON_SHARD#");}'+
 
               '.icon_chest{background:url("data:image/jpeg;base64,#ICON_CHEST#");}'+
             '</style>'+
@@ -205,6 +207,10 @@ const
             'kind:"allow",'+
             'RU:"ICON_UNLOCK&emsp;Доступен режим <b>Этажа</b>!", '+
            'ENG:"ICON_UNLOCK&emsp;<b>Floor</b> mode available!"},'+
+        'allow_tools:{'+
+            'kind:"allow",'+
+            'RU:"ICON_UNLOCK&emsp;Доступен режим <b>Инструментов</b>!", '+
+           'ENG:"ICON_UNLOCK&emsp;<b>Tools</b> mode available!"},'+
         'ready_think:{'+
             'kind:"allow",'+
             'RU:"ICON_BOOK&emsp;Завершено обдумывание:&emsp;<b>%s</b>!", '+
@@ -213,6 +219,10 @@ const
             'kind:"allow",'+
             'RU:"ICON_THINK&emsp;Новая мысль: &emsp;<b>%s</b>", '+
            'ENG:"ICON_THINK&emsp;The new think: &emsp;<b>%s</b>"},'+
+        'tool_allowed:{'+
+            'kind:"allow",'+
+            'RU:"ICON_UNLOCK&emsp;Найден инструмент&emsp;<b>%s</b>!", '+
+           'ENG:"ICON_UNLOCK&emsp;Found tool&emsp;<b>%s</b>!"},'+
     '},';
 
 type
@@ -309,6 +319,8 @@ var
    ,ICON_HPGET
    ,ICON_MPGET
    ,ICON_TICKET
+   ,ICON_SHARD
+   ,ICON_MEMORY
     : string;
 
 procedure TLog.Add(kind, text: string);
@@ -381,6 +393,8 @@ begin
     Doc.SetValue('ICON_BOOK', ICON_BOOK);
     Doc.SetValue('ICON_THINK', ICON_THINK);
     Doc.SetValue('ICON_TICKET', ICON_TICKET);
+    Doc.SetValue('ICON_SHARD', ICON_SHARD);
+    Doc.SetValue('ICON_MEMORY', ICON_MEMORY);
 
     Doc.SetValue('ICON_AUTOACTION', ICON_AUTOACTION);
     Doc.SetValue('ICON_BUFFREG', ICON_BUFFREG);
@@ -415,6 +429,7 @@ begin
     Doc.SetValue('ICON_BRAIN', Format(ICON_TEMPLATE, ['icon icon_brain']), false);
     Doc.SetValue('ICON_BOOK', Format(ICON_TEMPLATE, ['icon icon_book']), false);
     Doc.SetValue('ICON_THINK', Format(ICON_TEMPLATE, ['icon icon_think']), false);
+    Doc.SetValue('ICON_MEMORY', Format(ICON_TEMPLATE, ['icon icon_memory']), false);
 
     Doc.SetValue('ICON_WOOD', Format(ICON_TEMPLATE, ['icon wood']), false);
     Doc.SetValue('ICON_STONE', Format(ICON_TEMPLATE, ['icon stone']), false);
@@ -442,6 +457,7 @@ begin
     Doc.SetValue('ICON_HPGET', Format(ICON_TEMPLATE, ['icon restoreMana']), false);
     Doc.SetValue('ICON_MPGET', Format(ICON_TEMPLATE, ['icon restoreHealth']), false);
     Doc.SetValue('ICON_TICKET', Format(ICON_TEMPLATE, ['icon buffSPEED']), false);
+    Doc.SetValue('ICON_SHARD', Format(ICON_TEMPLATE, ['icon shard']), false);
 
     Doc.ClearMarks;
 
@@ -479,6 +495,7 @@ begin
     if ICON_BRAIN = '' then ICON_BRAIN :=  fAtlas.EncodeToBase64('ICON_BRAIN');
     if ICON_BOOK = '' then ICON_BOOK :=  fAtlas.EncodeToBase64('ICON_BOOK');
     if ICON_THINK = '' then ICON_THINK :=  fAtlas.EncodeToBase64('ICON_THINK');
+    if ICON_MEMORY = '' then ICON_MEMORY :=  fAtlas.EncodeToBase64('ICON_MEMORY');
 
     if ICON_WOOD = '' then ICON_WOOD :=  fAtlas.EncodeToBase64('ICON_WOOD');
     if ICON_STONE = '' then ICON_STONE :=  fAtlas.EncodeToBase64('ICON_STONE');
@@ -506,6 +523,7 @@ begin
     if ICON_HPGET = '' then ICON_HPGET :=  fAtlas.EncodeToBase64('ICON_HPGET');
     if ICON_MPGET = '' then ICON_MPGET :=  fAtlas.EncodeToBase64('ICON_MPGET');
     if ICON_TICKET = '' then ICON_TICKET :=  fAtlas.EncodeToBase64('ICON_TICKET');
+    if ICON_SHARD = '' then ICON_SHARD :=  fAtlas.EncodeToBase64('ICON_SHARD');
 
 end;
 

@@ -245,7 +245,10 @@ begin
 
             /// отсутствие элемента в новых - признак того, что нужно удалить объект представления в интерфейсе
             if not Assigned( indata.O[elem.S['id']] ) then
-            if Assigned(shablon) then shablon.Free;
+            begin
+                if Assigned(shablon) then shablon.Free;
+                selectedObj := nil; /// сбрасываем текущий выбранный объект
+            end;
 
             /// если элемент присутствует
             if Assigned( indata.O[elem.S['id']] ) then

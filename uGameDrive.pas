@@ -98,7 +98,7 @@ type
         procedure SetLang(lang: string);   // возврат стрки с именем текущего языка ENG|RU
 
 /// работа с размышлениями
-        procedure AllowThink(name: string); // переводит
+        procedure AllowThink(name: string); // включает доступ к режиму раздумий
         procedure PlayerThink(name: string); /// обработчик для установки текущей активной мысли и увеличения пула мыслей
         procedure OpenThink(name: string); /// обработчик для установки текущей активной мысли для отображения в дневнике
         procedure SelectKind(name: string); /// метод устанавливает флаг того, что нужно вернуть список "исследованных" тем указанного типа, вместо описания текущей "мысли"
@@ -146,14 +146,12 @@ type
         procedure RunAuto(name: string);    /// запускает автодействия указанного режима
         function  GetAuto(name: string): boolean;    /// возвращает состояние указанного режима
 
-/// разлокировка различных типов объектов
+/// разблокировка различных типов объектов
         procedure AllowMode(name: string);
 
-{
-        function GetArtLvl(name: string): string;  // возвращает уровень артефакта по его внутреннему имени
+/// работа с инструментами
         procedure AllowTool(name: string);
-        procedure OpenThink(name: string);
-}
+        function GetToolLvl(name: string): string;  // возвращает уровень инструмента по его внутреннему имени
 
 /// основные игровые методы
         procedure PlayerAttack;  /// проведение взаимной атаки игрока и монстра в башне
@@ -932,6 +930,14 @@ begin
     result := GameData.S['state.CurrStep'];
 end;
 
+function TGameDrive.GetToolLvl(name: string): string;
+begin
+    result := '0';
+
+    if   GameData.B['state.tools.'+LowerCase(name)+'.isAllow']
+    then result := GameData.S['state.tools.'+LowerCase(name)+'.lvl'];
+end;
+
 function TGameDrive.GetAuto(name: string): boolean;
 begin
     name := LowerCase(name);
@@ -976,7 +982,7 @@ begin
     l('-> SetCurrFloor('+String(val)+')');
     GameData.S['state.CurrFloor'] := val;
 
-    SetModeToUpdate(INT_FLOOR);
+    SetModeToUpdate(INT_TOWER + INT_FLOOR);
 end;
 
 
@@ -1286,6 +1292,9 @@ procedure TGameDrive.AllowMode(name: string);
 begin
      name := LowerCase(name);
 
+     // выходим, если режим уже доступен
+     if GameData.B['state.modes.'+name+'.allow'] then exit;
+
      GameData.B['state.modes.'+name+'.allow'] := true;
 
      if name = 'think' then
@@ -1298,6 +1307,12 @@ begin
      begin
          uLog.Log.Phrase('allow_floor', GetLang, []);
          SetModeToUpdate(INT_FLOOR);
+     end;
+
+     if name = 'tools' then
+     begin
+         uLog.Log.Phrase('allow_tools', GetLang, []);
+         SetModeToUpdate(INT_TOOLS);
      end;
 
      /// выставляем флаг, что нужно обновить основную часть интерфейса
@@ -1317,6 +1332,21 @@ begin
     end;
 
     SetModeToUpdate( INT_THINK );
+end;
+
+procedure TGameDrive.AllowTool(name: string);
+begin
+    name := LowerCase(name);
+
+    /// инструмент отсутствует
+    if not Assigned( GameData.O['state.tools.'+name]) then exit;
+    /// инструмент уже доступен
+    if GameData.B['state.tools.'+name+'.isAllow'] then exit;
+
+    AllowMode('Tools');
+
+    GameData.B['state.tools.'+name+'.isAllow'] := true;
+    uLog.Log.Phrase('tool_allowed', GetLang, [ GameData.S['tools.'+name+'.caption.'+GetLang] ]);
 end;
 
 procedure TGameDrive.BreakAuto(name: string);

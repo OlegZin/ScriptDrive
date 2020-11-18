@@ -39,10 +39,11 @@ data_str =
 //                 'AllowMode(Think);'+
 //                 'AllowThink(wakeup);'+
 
-                 'AllowMode(Floor);'+
+//                 'AllowMode(Floor);'+
 
-             'ChangePlayerItemCount(restoreHealth, 1400000);'+
-             'ChangePlayerItemCount(potionexp, 100000);'+
+'ChangePlayerItemCount(shard, 1);'+
+//             'ChangePlayerItemCount(restoreHealth, 1400000);'+
+//             'ChangePlayerItemCount(potionexp, 100000);'+
 
 //             'SetVar(first_meet,8);'+
 //             'SetVar(ikki,4);'+

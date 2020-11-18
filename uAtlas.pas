@@ -142,8 +142,8 @@ type
     ICON_MPGET: TImage;
     ITEM_BUFFSPEED: TImage;
     ICON_TICKET: TImage;
-    IMAGE_BOX: TImage;
-    ICON_BOX: TImage;
+    ITEM_SHARD: TImage;
+    ICON_SHARD: TImage;
     IMAGE_WOOD: TImage;
     ICON_WOOD: TImage;
     IMAGE_STONE: TImage;
@@ -170,7 +170,7 @@ type
     Label1: TLabel;
     Rectangle13: TRectangle;
     Label25: TLabel;
-    ICON_POWER: TImage;
+    ICON_MEMORY: TImage;
     EFFECT_PlayerEXPBuff: TImage;
     EFFECT_RegenPlayerHP: TImage;
     EFFECT_RegenPlayerMP: TImage;

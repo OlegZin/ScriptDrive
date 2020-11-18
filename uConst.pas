@@ -38,6 +38,7 @@ const
     INT_TOWER = 4;
     INT_THINK = 8;
     INT_FLOOR = 16;
+    INT_TOOLS = 32;
     INT_ALL   = MaxInt;
 
     CREATURE_SHABLON = '{'+
@@ -116,9 +117,19 @@ const
               'pool: 0,'+
               'auto: false,'+
           '},'+
+          'tools: {'+         /// режим прокачки инструментов
+              'allow: false,'+
+              'pool: 0,'+
+              'auto: false,'+
+          '},'+
         '},'+
         'player: {'+
-            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, needexp:0 },'+
+            'params: {AutoAction: 0, LVL:1, HP:100, MP:20, ATK:5, DEF:0, MDEF:0, BODY:1, MIND:1, ENERGY:1, TECH:1, EXP:0, MEMORY:0, needexp:0 },'+
+                    /// body - модификатор телесных эффектов, например усиление регенерации, минимальное здоровье, бонус к урону
+                    /// mind - модификатор эффектов завязанных на интеллекте, например обучение, мышление
+                    /// energy - модификатор действий связанных с энергией, например усиление эффектов умений, энергетического урона
+                    /// tech - модификатор действий связанных с техникой: ремонт, крафт, строительство...
+                    /// memory - состояние памяти. исходя из текущего значения проявляются различные игровые эффекты и возможности
             'skills: {},'+
             'items: {},'+    // инвентарь
             'effects: {},'+  // временные эффекты (бафы и дебафы)
@@ -279,30 +290,30 @@ const
         'Shard:         "ChangePlayerItemCount(shard, 1);",'+  /// получение осколка воспоминаний
 
         /// предметы и ресурсы
-        'Cash:          "ChangePlayerItemCount(gold, Rand(CurrFloor() * 10000) + 1);",'+            /// чисто денежный дроп
-        'WoodPack:      "ChangePlayerLootCount(wood, Rand(CurrFloor() * 10) + 10);",'+              /// получение базового ресурса
+        'Cash:          "ChangePlayerItemCount(gold,  Rand(CurrFloor() * 10000) + 1);",'+            /// чисто денежный дроп
+        'WoodPack:      "ChangePlayerLootCount(wood,  Rand(CurrFloor() * 10) + 10);",'+              /// получение базового ресурса
         'StonePack:     "ChangePlayerLootCount(stone, Rand(CurrFloor() * 10) + 10);",'+             /// получение базового ресурса
-        'OrePack:       "ChangePlayerLootCount(ore, Rand(CurrFloor() * 5) + 5);",'+                 /// получение базового ресурса
-        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 100) + 10);",'+ /// большой пак одного типа ресурса
-        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 50) + 10);",'+  /// средний пак одного типа ресурса
-        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(), Rand(CurrFloor() * 10) + 10);",'+  /// малый пак одного типа ресурса
-        'ItemHugePack:  "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);",'+  /// большой пак одного типа расходных предметов
-        'ItemNormalPack:"ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);",'+   /// средний пак одного типа расходных предметов
-        'ItemSmallPack: "ChangePlayerLootCount(GetRandItemName(), Rand(CurrFloor() * 1) + 1);",'+   /// малый пак одного типа расходных предметов
+        'OrePack:       "ChangePlayerLootCount(ore,   Rand(CurrFloor() * 5) + 5);",'+                 /// получение базового ресурса
+        'LootHugePack:  "ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 100) + 10);",'+ /// большой пак одного типа ресурса
+        'LootNormalPack:"ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 50) + 10);",'+  /// средний пак одного типа ресурса
+        'LootSmallPack: "ChangePlayerLootCount(GetRandResName(),  Rand(CurrFloor() * 10) + 10);",'+  /// малый пак одного типа ресурса
+        'ItemHugePack:  "ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor() * 3) + 10);",'+  /// большой пак одного типа расходных предметов
+        'ItemNormalPack:"ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor() * 2) + 5);",'+   /// средний пак одного типа расходных предметов
+        'ItemSmallPack: "ChangePlayerItemCount(GetRandItemName(), Rand(CurrFloor());",'+            /// малый пак одного типа расходных предметов
 
         /// отравление(постепенное снижение здоровья)
         'Spider:"'+
             'SetVar(val, Rand(100));'+  /// шанс на избегание эффекта
 
-            'IF(GetVar(val) > (GetArtLvl(Leggings) * 3), 6);'+
+            'IF(GetVar(val) > Calc(GetToolLvl(leggings) * 3), 6);'+
             'SetPlayerAsTarget();' +
-            'AddEffect(RegenPlayerHP, -Rand(CurrFloor() * 100));'+
+            'AddEffect(RegenPlayerHP, -Rand(Calc(CurrFloor() * 100 + 50)));'+
             'If(GetLang() = RU, 1);'+
             'Log(danger,\"Ядовитый паук укусил тебя!\");'+
             'If(GetLang() = ENG, 1);'+
             'Log(danger,\"The poisonous spider bit you!\");'+
 
-            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'IF(GetVar(val) <= Calc(GetToolLvl(leggings) * 3), 4);'+
             'If(GetLang() = RU, 1);'+
             'Log(good,\"Ядовитый паук пытался укусить, но Поножи спасли от яда!\");'+
             'If(GetLang() = ENG, 1);'+
@@ -321,14 +332,14 @@ const
 
             'SetVar(val, Rand(100));'+  /// шанс на избегание эффекта
 
-            'IF(GetVar(val) > (GetArtLvl(Leggings) * 3), 5);'+
-            'ChangePlayerParam(GetVar(param), -1);'+
+            'IF(GetVar(val) > Calc(GetToolLvl(Leggings) * 3), 5);'+
             'If(GetLang() = RU, 1);'+
             'Log(danger,\"Ловушка нанесла травму!\");'+
             'If(GetLang() = ENG, 1);'+
             'Log(danger,\"The trap hurt!\");'+
+            'ChangePlayerParam(GetVar(param), -1);'+
 
-            'IF(GetVar(val) <= (GetArtLvl(leggings)* 3), 4);'+
+            'IF(GetVar(val) <= Calc(GetToolLvl(leggings) * 3), 4);'+
             'If(GetLang() = RU, 1);'+
             'Log(good,\"Ловушка сработала но эффект был заблокирован Поножами!\");'+
             'If(GetLang() = ENG, 1);'+
@@ -339,14 +350,14 @@ const
         'Rat:"'+
             'SetVar(val, Rand(100));'+
 
-            'IF(GetVar(val) > (GetArtLvl(leggings) * 3), 5);'+
-            'ChangePlayerParam(HP, -Rand(CurrFloor() * 25) + 20);'+
+            'IF(GetVar(val) > Calc(GetToolLvl(leggings) * 3), 5);'+
             'If(GetLang() = RU, 1);'+
             'Log(danger,\"Из кучи мусора выскочила крыса и цапнула за ногу!\");'+
             'If(GetLang() = ENG, 1);'+
             'Log(danger,\"A rat jumped out of a heap of garbage and grabbed the leg!\");'+
+            'ChangePlayerParam(HP, -Rand(Calc(CurrFloor() * 25) + 20));'+
 
-            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'IF(GetVar(val) <= Calc(GetToolLvl(leggings) * 3), 4);'+
             'If(GetLang() = RU, 1);'+
             'Log(good,\"Из кучи мусора выскочила крыса но не смогла прокусить Поножи!\");'+
             'If(GetLang() = ENG, 1);'+
@@ -357,15 +368,15 @@ const
         'ManaLeak:"'+
             'SetVar(val, Rand(100));'+
 
-            'IF(GetVar(val) > (GetArtLvl(leggings) * 3), 6);'+
+            'IF(GetVar(val) > Calc(GetToolLvl(leggings) * 3), 6);'+
             'SetPlayerAsTarget();' +
-            'AddEffect(RegenPlayerMP, -Rand(CurrFloor() * 50));'+
+            'AddEffect(RegenPlayerMP, -Rand(Calc(CurrFloor() * 50)));'+
             'If(GetLang() = RU, 1);'+
             'Log(danger,\"Раздался громкий щелчок и ты чувствуешь, как энергия покидает тело...\");'+
             'If(GetLang() = ENG, 1);'+
             'Log(danger,\"There was a loud click and you feel the energy leaving the body ...\");'+
 
-            'IF(GetVar(val) <= (GetArtLvl(leggings) * 3), 4);'+
+            'IF(GetVar(val) <= Calc(GetToolLvl(leggings) * 3), 4);'+
             'If(GetLang() = RU, 1);'+
             'Log(good,\"Ты вовремя замечаешь появившуюся странную искру и отпинываешь ее. Искра отскакивает от поножей и с громким щелчком исчезает...\");'+
             'If(GetLang() = ENG, 1);'+
@@ -379,8 +390,12 @@ const
             'If(GetLang() = ENG, 1);'+
             'Log(danger,\"Suddenly a portal opened and sucked in ...\");'+
 
-            'IF((GetVar(val) - CurrFloor()) < 1, 1);'+
-            'SetCurrFloor( CALC( CurrFloor() - (5 - Rand(11)) ) );'+/// смещение по этажам от -5 до +5
+            'SetVar(val, Calc(Rand(11) - 5));'+
+
+            'IF(Calc(CurrFloor() + GetVar(val)) < 1, 1);'+
+                'SetCurrFloor( 1 );'+/// смещение по этажам от -5 до +5
+            'IF(Calc(GetVar(val) - CurrFloor()) >= 1, 1);'+
+                'SetCurrFloor( Calc( CurrFloor() + GetVar(val) ) );'+/// смещение по этажам от -5 до +5
         '",'+
     '},'+
 
@@ -394,80 +409,80 @@ const
                 /// инструмент, который повышает эффективность на взаимодействие с этим объектом
             'params:{HP:0, count:2},'+
                 /// count - количество срабатываний эффектов, рандомно выбираемых из массива effects
-            'effects:["Spider","Rat","Rat","WoodPack","ItemNormalPack","Portal","Trap"],'+
+            'effects:["Rat","WoodPack","ItemNormalPack","Portal"],'+
                 /// все возможные для этого объекта эффекты. имена из объекта floorScripts
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
                 /// скрипт для вычисления HP при создании объекта
         '},'+
         'locker2: {name:"locker2", '+
             'tool:"Axe",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Spider","Rat","WoodPack","ItemNormalPack","Trap","ItemHugePack"],'+
+            'effects:["Spider","WoodPack","ItemNormalPack","ItemHugePack"],'+
         '},'+
         'locker3: {name:"locker3", '+
             'tool:"Axe",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Spider","Rat","WoodPack","ItemNormalPack","Cash","Trap"],'+
+            'effects:["Rat","WoodPack","ItemNormalPack","Cash"],'+
         '},'+
         'locker4: {name:"locker4", '+
             'tool:"Axe",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Spider","Rat","WoodPack","ItemHugePack"],'+
+            'effects:["Spider","WoodPack","ItemHugePack"],'+
         '},'+
         'locker5: {name:"locker5", '+
             'tool:"Axe",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Spider","Rat","WoodPack","ManaLeak","ItemSmallPack"],'+
+            'effects:["Rat","WoodPack","ManaLeak","ItemSmallPack"],'+
         '},'+
         'locker6: {name:"locker6", '+
             'tool:"Axe",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Spider","Rat","WoodPack","Portal","ItemSmallPack"],'+
+            'effects:["Rat","WoodPack","Portal","ItemSmallPack"],'+
         '},'+
         'locker7: {name:"locker7", '+    /// трюмо
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 100)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 100)",'+
             'params:{HP:0, count:1},'+
-            'effects:["Shard","Trap","Spider","Cash","ManaLeak","ItemSmallPack"],'+
+            'effects:["Shard","Spider","Cash","ManaLeak","ItemSmallPack"],'+
         '},'+
 
         /// стандартная шкатулка
         'cassette: {name:"cassette", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 100) + 1000)",'+
-            'params:{HP:0, count:1},'+
-            'effects:["Cash","Shard","Trap","ManaLeak","ItemSmallPack","Portal"],'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 100)) + 1000)",'+
+            'params:{HP:0, count:3},'+
+            'effects:["Cash","Cash","Shard","Trap","ManaLeak","ItemSmallPack","ItemSmallPack"],'+
         '},'+
 
         /// сундуки. бОльшее количество активируемых эффектов, чем в шкафах
         'chest1: {name:"chest1", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 150)) + 200)",'+
             'params:{HP:0,count:3},'+
-            'effects:["Trap","Spider","Portal","ItemNormalPack","ItemNormalPack","LootSmallPack","LootSmallPack"],'+
+            'effects:["Trap","Portal","ItemNormalPack","ItemNormalPack","LootSmallPack","LootSmallPack"],'+
         '},'+
         'chest2: {name:"chest2", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 150)) + 200)",'+
             'params:{HP:0,count:3},'+
-            'effects:["Trap","Spider","ItemNormalPack","ItemNormalPack","LootSmallPack"],'+
+            'effects:["Trap","ItemNormalPack","ItemNormalPack","LootSmallPack"],'+
         '},'+
         'chest3: {name:"chest3", '+
             'tool:"Lockpick",'+
-            'hpCalc:"Calc(Rand(CurrFloor() * 150) + 200)",'+
+            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 150)) + 200)",'+
             'params:{HP:0,count:3},'+
-            'effects:["Trap","Spider","ItemNormalPack","LootSmallPack","LootNormalPack"],'+
+            'effects:["Trap","ItemNormalPack","LootSmallPack","LootNormalPack"],'+
         '},'+
 
 
 //        ': {name:"", '+
 //            'tool:"",'+
-//            'hpCalc:"Calc(Rand(CurrFloor() * 250) + 1000)",'+
+//            'hpCalc:"Calc(Rand(Calc(CurrFloor() * 250)) + 1000)'+
 //            'params:{HP:0,count:1},'+
 //            'effects:[],'+
 //        '},'+
@@ -478,7 +493,7 @@ const
     /// craft - набор ресурсов для крафта. случайно генерится при старте игры
     /// isCraftAllow - доступен ли для крафта
     /// isUseAllow - доступен ли для использования
-    'itemsCount: 16,'+
+    'itemsCount: 16,'+ /// количество первых предметов из всего списка, которые попадают в случайный дроп
     'items:{'+
         'gold:{'+
             'name:"gold",'+
@@ -668,7 +683,18 @@ const
             'script:"'+
                 'SetPlayerAsTarget();' +
                 'ChangeParam(AutoAction,Rand(500) + 500);'+
-        '"}'+
+        '"},'+
+        'shard:{'+
+            'name:"shard",'+
+            'caption: {RU:"Радужный осколок", ENG:"Prismatic Shard"},'+
+            'description:{'+
+                'RU:"Если присмотреться, в его глубине, среди переливов цвета, можно разглядеть смутные тени и образы, которые кажутся знакомыми...",'+
+                'ENG:"If you look closely, in its depths, among the overflows of color, you can see vague shadows and images that seem familiar ..."'+
+            '},'+
+            'script:"'+
+                'SetPlayerAsTarget();' +
+                'ChangeParam(MEMORY, 1);'+
+        '"},'+
     '},'+
 
 
@@ -915,12 +941,16 @@ const
             'script:{'+
                 'auto:"'+
                     'SetPlayerAsTarget();'+                                     /// целимся в игрока
-                    'SetVar(tmp, GetEffect(PlayerREGBuff));'+               /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
-                    'IF(GetEffect(RegenPlayerHP) > 0, 3);'+                     /// если величина остатака регенерации не нулевая
+                    'SetVar(tmp, GetEffect(PlayerREGBuff));'+                   /// получаем текущий баф на реген, что атоматом снижает его на 1. потому, делаем это только один раз
+                    'IF(GetEffect(RegenPlayerHP) > 0, 3);'+                    /// если величина остатака регенерации не нулевая
                         'SilentChange();'+
                         'ChangeParam(HP, GetParam(BODY) + GetVar(tmp));'+                /// перекачиваем в здоровье с учетом возможного бафа на реген
                         'ChangeEffect(RegenPlayerHP, -GetParam(BODY) - GetVar(tmp));'+    /// списываем с пула регена здоровья
-                    'IF(GetEffect(RegenPlayerHP) <= 0, 1);'+                    /// если величина остатака регенерации нулевая
+                    'IF(GetEffect(RegenPlayerHP) < 0, 3);'+                     /// если величина остатака регенерации отрицательная
+                        'SilentChange();'+
+                        'ChangeParam(HP, -1);'+                                 /// перекачиваем в здоровье с учетом возможного бафа на реген
+                        'ChangeEffect(RegenPlayerHP, 1);'+                      /// списываем с пула регена здоровья
+                    'IF(GetEffect(RegenPlayerHP) = 0, 1);'+                     /// если величина остатака регенерации нулевая
                         'RemoveEffect(RegenPlayerHP);'+                         /// снимаем эффект
                 '",'+
                 'use:"",'+
@@ -937,7 +967,11 @@ const
                         'SilentChange();'+
                         'ChangeParam(MP, GetParam(MIND) + GetVar(tmp));'+                /// перекачиваем в энергию с учетом возможного бафа на реген
                         'ChangeEffect(RegenPlayerMP, -GetParam(MIND) - GetVar(tmp));'+    /// списываем с пула регена энергии
-                    'IF(GetEffect(RegenPlayerMP) <= 0, 1);'+                    /// если величина остатака регенерации нулевая
+                    'IF(GetEffect(RegenPlayerMP) < 0, 3);'+                     /// если величина остатака регенерации не нулевая
+                        'SilentChange();'+
+                        'ChangeParam(MP, -1);'+                                 /// перекачиваем в энергию с учетом возможного бафа на реген
+                        'ChangeEffect(RegenPlayerMP, 1);'+                      /// списываем с пула регена энергии
+                    'IF(GetEffect(RegenPlayerMP) = 0, 1);'+                     /// если величина остатака регенерации нулевая
                         'RemoveEffect(RegenPlayerMP);'+                         /// снимаем эффект
                     '",'+
                 'use:"",'+
@@ -1115,7 +1149,7 @@ const
             'script:"'+
               'SetPlayerAsTarget();'+
               'ChangeParam(EXP, 50);'+
-              'AllowMode(Floors);'+
+              'AllowMode(Floor);'+
             '",'+
             'caption:{'+
               'ENG:"Floors, endless floors...",'+
