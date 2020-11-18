@@ -7,6 +7,11 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts;
 
+const
+    FACE_OBJECT       = 1;  /// объект шаблона с лицевой картинкой
+    DIGIT_OBJECT      = 2;  /// объект шаблона с текстом текущих хитов (скрытый)
+    FACE_DIGIT_OBJECT = 3; /// объект шаблона с текстом текущих хитов (видимый)
+
 type
   TfFloorAtlas = class(TForm)
     locker1: TLayout;
@@ -215,7 +220,6 @@ var
 begin
     for I := 0 to ComponentCount-1 do
     if UpperCase(Components[i].Name) = UpperCase(name) then
-    result := Components[i];
+    result := Components[i] as TLayout;
 end;
-
 end.

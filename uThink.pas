@@ -101,8 +101,6 @@ begin
 end;
 
 procedure TfThink.onStickClick(Sender: TObject);
-var
-    i: integer;
 begin
     /// вызываем метод прокачки раздумья
     GameDrive.PlayerThink( LinkData[sender as TControl].S['name'] );

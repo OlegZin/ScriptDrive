@@ -111,6 +111,8 @@ type
         function CurrStep: string;        // текущий шаг
         function MaxStep: string;         // максимальный шаг дл€ текущего этажа
 
+        procedure PlayerFloor( id: string );
+
 /// работа с цел€ми на этажах.
         function GetCurrTarget: string;
         procedure SetCurrTarget(val: string);
@@ -181,6 +183,9 @@ type
         procedure ProcessThink;      /// обработка процесса мыслей дл€ вызова в CheckStatus, списывает автодействи€ или пул
         function PlayerMakeThink: boolean;   /// непосредственное проведение атаки со всеми событи€ми
 
+        procedure ProcessFloor;      /// обработка процесса мыслей дл€ вызова в CheckStatus, списывает автодействи€ или пул
+        function PlayerMakeFloor: boolean;   /// непосредственное проведение атаки со всеми событи€ми
+
         function CompactDigit(val: variant): string;
             /// преобразует число в строку сокращенного вида с приставкой "к"(тыс€чи) или "m"(миллионы)
 
@@ -207,6 +212,7 @@ begin
     l('-> CheckStatus');
 
     ProcessThink;
+    ProcessFloor;
 
     /// отыгрываем атоматические эффекты
     SetPlayerAsTarget;
@@ -796,8 +802,14 @@ begin
     if InterfModes and INT_FLOOR <> 0 then
     begin
         data := SO();
+
+
         data := GameData.O['state.floors.' + CurrFloor].Clone;   /// передаем данные текущего этажа
+
         data.I['floor'] := CurrFloor;                        /// дописываем номер текущего этажа
+        data.I['pool'] := GetPool('Floor');
+        data.B['auto'] := GetAuto('Floor');
+
         fFloor.Update(data);
     end;
 
@@ -1316,6 +1328,7 @@ begin
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
      if name = 'think' then SetModeToUpdate(INT_THINK);
+     if name = 'floor' then SetModeToUpdate(INT_FLOOR);
 end;
 
 procedure TGameDrive.ChangeItemCount(name, delta: variant);
@@ -1555,6 +1568,59 @@ begin
     UpdateInterface;
 end;
 
+procedure TGameDrive.PlayerFloor(id: string);
+begin
+    ChangePool('floor', 1);                // ковыр€ние объекта в пул
+    GameData.S['state.CurrFloorObject'] := id;
+                                           // запоминаем этаж и id ковыр€емого объекта
+    SetModeToUpdate( INT_FLOOR );
+end;
+
+function TGameDrive.PlayerMakeFloor: boolean;   /// непосредственное проведение атаки со всеми событи€ми
+var
+    delta, i, index: integer;
+    obj: ISuperObject;
+    scriptName: string;
+begin
+    result := false;
+
+    /// если нет текущего выбранного на этаже объекта - выходим
+    if GameData.S['state.CurrFloorObject'] = '' then exit;
+
+    delta := -1;
+    obj := GameData.O['state.floors.' + CurrFloor + '.' + GameData.S['state.CurrFloorObject']];
+
+    ///здесь модифицируем дельту исход€ из типа объекта, наличи€ и уровн€ артефактов
+
+    /// списываем хиты
+    obj.I['params.HP'] := obj.I['params.HP'] + delta;
+
+    /// если все хиты сн€ты
+    if obj.I['params.HP'] <= 0 then
+    begin
+        /// активируем скрипты
+        for i := 1 to obj.I['params.count'] do
+        begin
+            index := Random(obj.A['effects'].Length);               // индекс случайного эффекта
+            scriptName := obj.S['effects['+IntToStr(index)+']'];    // им€ случайного эффекта
+            Script.Exec( GameData.S['floorScripts.'+scriptName] );  // выполнение скрипта эффекта
+        end;
+
+        /// удал€ем объект с этажа
+        GameData.Delete('state.floors.' + CurrFloor + '.' + GameData.S['state.CurrFloorObject']);
+
+        GameData.S['state.CurrFloorObject'] := '';
+
+        /// уменьшаем общее количество объектов этажа
+        GameData.I['state.floors.' + CurrFloor + '.count'] :=
+            GameData.I['state.floors.' + CurrFloor + '.count'] - 1;
+    end;
+
+    SetModeToUpdate( INT_FLOOR );
+
+    result := true;
+end;
+
 procedure TGameDrive.PlayerMakeAttack;
 /// обработка взаимной атаки игрока и монстра в башне
 /// алгоритм:
@@ -1725,6 +1791,24 @@ begin
     end;
 end;
 
+procedure TGameDrive.ProcessFloor;
+begin
+    if GetPool('Floor') > 0 then  // если есть действи€ авто ли пула раздумий
+    if PlayerMakeFloor then       // если есть о чем подумать и это получилось (действие совершено)
+    begin
+        SetModeToUpdate( INT_FLOOR );
+
+        if not GetAuto('Floor')
+        then
+            ChangePool('Floor', -1)   // если не установлен режим авто, будем снимать с локального пула
+        else                          // если установлен режим авто, будем снимать с автодействий
+        begin
+            SilentChange;
+            ChangePlayerParam('AutoAction', -1);
+        end;
+    end;
+end;
+
 procedure TGameDrive.ProcessThink;
 begin
     if GetPool('Think') > 0 then  // если есть действи€ авто ли пула раздумий
@@ -1747,7 +1831,8 @@ procedure TGameDrive.PlayerThink(name: string);
 begin
     ChangePool('think', 1);                // мыслишку атаку в пул
     GameData.S['state.CurrThink'] := name; // запоминаем о чем думаем в данный момент
-    UpdateInterface;
+//    UpdateInterface;
+    SetModeToUpdate( INT_THINK );
 end;
 
 procedure TGameDrive.ResetTargetState;
@@ -1768,6 +1853,7 @@ begin
 
      if name = 'tower' then SetModeToUpdate(INT_TOWER);
      if name = 'think' then SetModeToUpdate(INT_THINK);
+     if name = 'floor' then SetModeToUpdate(INT_FLOOR);
 end;
 
 
