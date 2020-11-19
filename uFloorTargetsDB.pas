@@ -72,11 +72,11 @@ data_str =
                  'SetImage(32);'+
                  'SetParam(HP, 5000);'+
                  'SetParam(ATK, 50);'+
-                 'SetParam(DEF, 30);'+
+                 'SetParam(DEF, 300);'+
                  'SetName(RU,\"Адский Пес\");'+
                  'SetName(ENG,\"Hell Dog\");'+
                  'ChangeLootCount(essence,20);'+
-                 'SetEvent(OnDeath,\"ChangeVar(first_meet, 1);ChangeVar(ikki, 1);SetCurrTarget(3);Log(good,Phrase(dog_is_dead));\");'+
+                 'SetEvent(OnDeath,\"SetVar(first_meet, 7);ChangeVar(ikki, 1);SetCurrTarget(3);Log(good,Phrase(dog_is_dead));\");'+
 
              /// пятая встреча с темным мастером
              'IF(GetVar(first_meet) = 5, 14);'+

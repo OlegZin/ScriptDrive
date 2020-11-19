@@ -1367,18 +1367,7 @@ const
 
     /// эффекты при различных значени€х параметра MEMORY игрока
     'memories:{'+
-      '1:"'+
-          'IF(GetLang() = RU, 3);'+
-              'Log(normal,\"¬незапно, те образы, которые плавали в глубине кристалла, возникают в твоей голове... Ёто... Ёто... “вои воспоминани€!\");'+
-              'Log(normal,\"Ќевозможно разобрать что-то конкретное. Ёто какие-то смутные образы, звуки, обрывки слов.\");'+
-              'Log(normal,\"—ознание переполн€етс€ ими, словно попав под цунами и так же быстро все это исчезает. Ќо остаетс€ стойкое ощущение, что кака€-то скрыта€ часть вашего сознани€ проснулась. √оловна€ боль становитс€ меньше.\");'+
-          'IF(GetLang() = ENG, 3);'+
-              'Log(normal,\"Suddenly, those images that floated in the depths of the crystal appear in your head ... This ... This ... Your memories!\");'+
-              'Log(normal,\"It is impossible to make out something specific. These are some vague images, sounds, scraps of words.\");'+
-              'Log(normal,\"Consciousness overflows with them, as if being hit by a tsunami and just as quickly it all disappears. But there remains a persistent feeling that some hidden part of your consciousness has awakened. The headache gets less.\");'+
-          'ChangePlayerParam(EXP, 150);'+
-          'AllowThink(shards);'+
-      '",'+
+      '1:"AllowThink(shards);",'+
       '2:"'+
           'IF(GetLang() = RU, 1);'+
               'Log(normal,\"\");'+
