@@ -135,6 +135,7 @@ var
     var
         pair: TPair<TLayout,ISuperobject>;
     begin
+        result := nil;
         for pair in lincs do
         if  pair.Value.I['id'] = id
         then result := pair.Key;
@@ -243,25 +244,30 @@ begin
             /// ищем объект представления для данных с текущим id
             shablon := GetObjByID(elem.I['id']);
 
-            /// отсутствие элемента в новых - признак того, что нужно удалить объект представления в интерфейсе
-            if not Assigned( indata.O[elem.S['id']] ) then
+            if Assigned(shablon) then
             begin
-                if Assigned(shablon) then shablon.Free;
-                selectedObj := nil; /// сбрасываем текущий выбранный объект
-            end;
+              /// отсутствие элемента в новых - признак того, что нужно удалить объект представления в интерфейсе
+              if not Assigned( indata.O[elem.S['id']] ) then
+              begin
+                  if Assigned(shablon) then shablon.Free;
+                  selectedObj := nil; /// сбрасываем текущий выбранный объект
+              end else
 
-            /// если элемент присутствует
-            if Assigned( indata.O[elem.S['id']] ) then
-            begin
-                /// и шаблон найден
-                if Assigned(shablon) then
-                for I := 0 to shablon.ComponentCount-1 do
+              /// если элемент присутствует
+//              if Assigned( indata.O[elem.S['id']] ) then
+              begin
+                  /// и шаблон найден
+                  if Assigned(shablon) then
+                  begin
+                    for I := 0 to shablon.ComponentCount-1 do
 
-                /// обновляем количество хитов в лейблах
-                if (shablon.Components[i].Tag = DIGIT_OBJECT) or
-                   (shablon.Components[i].Tag = FACE_DIGIT_OBJECT)
-                then
-                   (shablon.Components[i] as TLabel).Text := indata.S[elem.S['id']+'.params.HP'];
+                    /// обновляем количество хитов в лейблах
+                    if (shablon.Components[i].Tag = DIGIT_OBJECT) or
+                       (shablon.Components[i].Tag = FACE_DIGIT_OBJECT)
+                    then
+                       (shablon.Components[i] as TLabel).Text := indata.S[elem.S['id']+'.params.HP'];
+                  end;
+              end;
             end;
         end;
 

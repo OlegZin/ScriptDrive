@@ -24,9 +24,7 @@ type
     bNew: TRoundRect;
     lNewGame: TLabel;
     bResume: TRoundRect;
-    lResumeGame: TLabel;
     bLang: TRoundRect;
-    lLang: TLabel;
     bExit: TRoundRect;
     lExit: TLabel;
     Label11: TLabel;

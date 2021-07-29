@@ -18,8 +18,10 @@ data_str =
              'Log(normal,\"Немного оглядевшись, ты понимаешь, что находишься в каком-то большом пустом помещении, заваленном различным хламом. Окна отсутствуют. Только факела коптят по стенам. '+
                  'В дальнем углу смутно виднеется лестница наверх к массивной, оббитой железом двери.\");'+
              'Log(normal,\"Практически под рукой обнаруживается увесистый тряпичный мешочек с пришпиленной к нему запиской. В слабом свете факелов ты с трудом разбираешь текст:\");'+
-             'Log(note,\"Тут золото и кое-какие вещи. Это на первое время. Больше ничем помочь не могу. Знаю, что сейчас ты сбит с толку и ничего не помнишь, '+
-                 'но это было необходимо сделать. Позднее сам все поймешь. И что бы не происходило в Башне, помни: нужно найти выход! Сейчас ты в самой дальней от него, но и самой безопасной точке входа. Удачи, мой друг!\");'+
+             'Log(note,\"Тут золото и кое-какие вещи. Это на первое время. Больше ничем помочь не могу. '+
+                        'Знаю, что сейчас ты сбит с толку и ничего не помнишь, но это было необходимо '+
+                        'сделать. Позднее сам все поймешь. Запомни главное - все ответы кроются в мелочах! '+
+                        'И что бы не происходило в Башне, помни: нужно найти истинный Путь! Удачи, мой друг!\");'+
              'Log(normal,\"Несколько раз перечитав послание, ты так и не понял его смысла. Но долго думать об этом тебе не дали. Неподалеку, за кучами мусора, послышалось шевеление и тихое рычание. '+
                  'Рука непроизвольно стиснула рукоять непонятно откуда взявшегося кинжала и выбросила его навстречу летящему на тебя монстру.\");'+
              'Log(danger,\"БОЙ!\");'+
@@ -29,8 +31,8 @@ data_str =
              'Log(normal,\"Looking around a little, you realize that you are in some large empty room littered with various rubbish. '+
                  'There are no windows. Only torches are smoked on the walls. In the far corner, a staircase upstairs to a massive iron-clad door is dimly visible.\");'+
              'Log(normal,\"Almost at hand, a weighty rag bag with a note pinned to it is found. In the faint light of torches, you can hardly make out the text:\");'+
-             'Log(note,\"There is gold and some things. This is for the first time. I can not help you anymore. I know that now you are confused and do not remember anything, '+
-                 'but it was necessary to do it. Later you will understand everything yourself. And whatever happens in the Tower, remember: you need to find a way out! Now you are at the farthest from him, but also the safest entry point. Good luck my friend!\");'+
+             'Log(note,\"There is gold and some things. This is for the first time. I can''t help you anymore. I know that now you are confused and do not remember anything, but it was necessary to do it. Later you will understand everything yourself. Remember the main thing - all the answers are hidden in the little things! '+
+                         'And whatever happens in the Tower, remember: you need to find the true Path! Good luck my friend!\");'+
              'Log(normal,\"After rereading the message several times, you still do not understand its meaning. But you were not allowed to think about it for a long time. Nearby, behind heaps of rubbish, there was a stirring and a low growl. '+
                  'The hand involuntarily gripped the handle of the dagger that had come from nowhere and threw it out towards the monster flying at you.\");'+
              'Log(danger,\"FIGHT!\");'+
@@ -38,9 +40,10 @@ data_str =
              'SetVar(FirstOnFloor, 2);'+
 
 //                 'AllowMode(Think);'+
-//                 'AllowThink(wakeup);'+
+                 'AllowThink(wakeup);'+
+                 'AllowThink(wakeup);'+
 
-                 'AllowMode(Floor);'+
+//                 'AllowMode(Floor);'+
 
              'ChangePlayerItemCount(buffSPEED, 100000);'+
              'ChangePlayerItemCount(potionAuto, 100000);'+
@@ -131,6 +134,8 @@ data_str =
 
                  'AllowMode(Think);'+
                  'AllowThink(wakeup);'+
+                 'AllowThink(WhoamI);'+
+                 'AllowThink(Note);'+
                  'ChangePlayerItemCount(gold, Rand(100000));'+
                  'SetCurrTarget(3);'+
                  'SetVar(FirstOnFloor, 3);'+

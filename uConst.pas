@@ -500,8 +500,8 @@ const
             'name:"gold",'+
             'caption: {RU:"Золото", ENG:"Gold"},'+
             'description:{'+
-                'RU:"Полновесные золотые монеты. За 10 000 монет можно получить случайный предмет. Испытаем удачу?",'+
-                'ENG:"Full-weight gold coins. For 10,000 coins, you can get a random item. Lets try our luck?"'+
+                'RU:"Полновесные золотые монеты.",'+
+                'ENG:"Full-weight gold coins."'+
             '},'+
             'script:"'+
                 'SetPlayerAsTarget();' +
@@ -1081,47 +1081,213 @@ const
     /// размышлялки
     'thinks:{'+
       'defaultbody:{ENG:"You don''t have any diary entries yet...", RU:"В вашем дневнике пока нет записей..."},'+
-      'wakeup:{'+
-        'name: "wakeup",'+         /// уникальный идентификатор
-        'parent: "",'+             /// идентификатор мысли при завершении которой открывается доступ к этой
-        'cost: 10,'+              /// сколько очков обдумывания для получения статуса redy
-        'kind: "tower",'+          /// за оформление карточки и раздел в дневнике, где будет отображаться
-        'script:"'+                /// скрипт выполняемый на момент завершения обдымывания
-          'SetPlayerAsTarget();'+
-          'ChangeParam(EXP, 10);'+
 
-          'AllowThink(tower);'+
-          'AllowThink(monsters);'+
-          'AllowThink(whoami);'+
-        '",'+
-        'caption:{'+               /// текст для отображения на карточке
-          'ENG:"Where i am?",'+
-          'RU:"Где я?"},'+
-        'body:{'+                  /// текст (возможен html) для отображения в дневнике
+      'wakeup:{name: "wakeup",cost: 10,kind: "tower",'+
+          'script:"ChangePlayerParam(EXP, 10);'+
+                   'AllowThink(StrangeKnife);",'+
+          'caption:{ENG:"Where i am?",RU:"Где я?"},'+
+          'body:{'+                  /// текст (возможен html) для отображения в дневнике
+            'ENG:"<p>Not much time has passed since awakening in this terrible place. It is frightening and ridiculous that I do not remember anything about myself at all!</p>'+
+                 '<p>A tower, a strange note, cramped floors packed with monsters, some ridiculous Dark Master ...</p>'+
+                 '<p>This is completely confusing ... And also this headache. However, despite all these troubles, there are also pleasant little things.</p>'+
+                 '<p>As it turned out, I have a good command of melee weapons! Fighting off the monster wasn''t too difficult. This thin graceful dagger is very comfortable and habitually lies in the hand, as if I have been using it for more than a year ...</p>'+
+                 '<p>So many questions!</p>",'+
+            'RU:"<p>Совсем немного времени прошло с момента пробуждения в этом ужасном месте. Пугающе и нелепо, что я соврешенно ничего не помню о себе!</p>'+
+                '<p>Башня, странная записка, тесные этажи забитые монстрами, какой-то нелепый Темный Мастер...</p>'+
+                '<p>Это совершенно сбивает с толку... И еще эта головная боль. Однако, не смотря на все эти беды, есть и приятные мелочи.</p>'+
+                '<p>Как оказалось, я неплохо владею холодным оружием! Отбиться от монстра было не слишком сложно. Этот тонкий изящный кинжал очень удобно и привычно лежит в руке, словно я пользуюсь им уже не первый год...</p>'+
+                '<p>Так много вопросов!</p>"},'+
+      '},'+
+
+          '"StrangeKnife":{name: "StrangeKnife",cost: 150,kind: "tower",'+
+              'script:"ChangePlayerParam(EXP, 10);'+
+                  'AllowThink(LoyalWeapon);'+
+                  'AllowThink(Illusion);",'+
+              'caption:{ENG:"This strange dagger",RU:"Этот странный кинжал"},'+
+              'body:{'+
+                'ENG:"<p>I clearly remember how the dagger appeared out of thin air in my hand when the monster attacked me.</p>'+
+                     '<p>It is practically white and so light that the weight is hardly felt. And if you look closely, you will notice that its outlines vibrate slightly, as if it was not made of metal, as the hand feels it, but from an extremely dense fog or steam ...</p>'+
+                     '<p>Am I going crazy and everything that surrounds me is just a figment of my imagination?</p>",'+
+                'RU:"<p>Я четко помню, как кинжал словно из воздуха возник в руке, когда монстр напал на меня.</p>'+
+                    '<p>Он практический белый и настолько легкий, что вес почти не ощущается. А если хорошо приглядеться, можно заметить, что его очертания слегка вибрируют, словно от сделан не из металла, как ощущают это рука, а из до крайности плотного тумана или пара...</p>'+
+                    '<p>Схожу ли я с ума и все что меня окружает лишь плод моего воображения?</p>"},'+
+          '},'+
+
+              '"LoyalWeapon":{name: "LoyalWeapon",cost: 300,kind: "tower",'+
+                'script:"ChangePlayerParam(EXP, 30); ChangePlayerParam(ATK, 5);",'+
+                'caption:{ENG:"Loyal weapon",RU:"Верное оружие"},'+
+                'body:{'+
+                  'ENG:"<p>Strange affair. The dagger is as if alive. When I am calm, it is like a dense fog with a fuzzy outline. But in a moment of danger, he turns into real steel. Sharp, deadly. With a little practice, I learned to concentrate in combat and this made my weapon even more dangerous.</p>",'+
+                  'RU:"<p>Странное дело. Кинжал словно живой. Когда я спокоен, он словно плотный туман с нечеткими очертаниями. Но в момент опасности он превращается в настоящую сталь. Острую, смертоносную. Немного потренировавшись, я научился концентрироваться в бою и это сделало мое оружие еще более опасным.</p>"},'+
+              '},'+
+
+              '"Illusion":{name: "Illusion",cost: 150,kind: "tower",'+
+                'script:"ChangePlayerParam(EXP, 20);",'+
+                'caption:{ENG:"Illusion?",RU:"Иллюзия?"},'+
+                'body:{'+
+                  'ENG:"'+
+                      '<p>Looking around I see very real things. Walls, trash, torches, monsters of all shapes and colors.</p>'+
+                      '<p>My situation is terrible, but there are no obvious signs of confusion. On the other hand, does not a sleeping person consider everything that happens around him real and logical, not overshadowing the wildness of the environment? You can only recognize deception by looking at the little things.</p>"},'+
+                  'RU:"'+
+                      '<p>Оглядываясь вокруг я вижу вполне реальные вещи. Стены, хлам, факела, чудовища всех форм и расцветок.</p>'+
+                      '<p>Положение мое ужасно, но явных признаков морока не заметно. С другой стороны, разве спящий человек не считает все происходящее вокруг реальным и логичным, не сморя на всю дикость окружения? Распознать обман можно лишь вглядываясь в мелочи.</p>"},'+
+              '},'+
+
+      '"WhoamI":{name: "WhoamI",cost: 20,kind: "persone",'+
+          'script:"ChangePlayerParam(EXP, 10);'+
+              'AllowThink(Calmness);'+
+              'AllowThink(MemoryLoss);",'+
+          'caption:{ENG:"Who am I?",RU:"Кто я?"},'+
+          'body:{'+
+            'ENG:"<p>No hints of the past. No name, no memories, no goals. As if I appeared here a moment ago for no purpose. From this complete unknown, panic rolls over.</p>",'+
+            'RU:"<p>Никаких намеков на прошлое. Ни имени, ни воспоминаний, ни целей. Словно я возник тут мгновение назад безо всякой цели. От этой полной неизвестности накатывает паника.</p>"},'+
+      '},'+
+
+          '"Calmness":{name: "Calmness",cost: 300,kind: "persone",'+
+            'script:"ChangePlayerParam(EXP, 50);'+
+              'ChangePlayerParam(AutoAction, 2000);'+
+              'AllowThink(OldSkills);",'+
+            'caption:{ENG:"Calmness!",RU:"Спокойствие!"},'+
+            'body:{'+
+              'ENG:"<p>Inhale ... Exhale ... Inhale ... Exhale ...</p>'+
+                   '<p>The mind gradually calms down and clarity appears. To make decisions, you need to be calm and focused. Whatever the current situation, only thoughtful decisions and attentiveness can clarify it. I feel strength and determination ...</p>'+
+                   '<p>Hands involuntarily perform strange movements, similar to some kind of gymnastics or martial art. It seems that, having got rid of the control of the mind, the body remembers the skills inherent in it ...</p>",'+
+              'RU:"<p>Вдох... Выдох... Вдох... Выдох...</p>'+
+                   '<p>Разум постепенно успокаивается и появляется ясность. Для принятия решений нужно соблюдать спокойствие и сосредоточенность. Какой бы ни была текущая ситуация, только взешенные решения и внимательность смогут ее прояснить. Я ощущаю силу и решительность...</p>'+
+                   '<p>Руки непроизвольно выполняют странные движения, похожие на какую-то гимнастику или боевое искусство. Похоже, избавившись от контроля разума, тело вспоминает заложенные в него навыки...</p>"},'+
+          '},'+
+
+              '"OldSkills":{name: "OldSkills",cost: 500,kind: "persone",'+
+                'script:"ChangePlayerParam(EXP, 100);'+
+                    'ChangePlayerParam(ATK, 5);'+
+                    'ChangePlayerParam(DEF, 5);'+
+                    'ChangePlayerParam(AutoAction, 3000);'+
+                    'AllowThink(CombatArt);'+
+                    'AllowThink(Learning);'+
+                    'AllowThink(Recuperation);",'+
+                'caption:{ENG:"Old skills",RU:"Старые навыки"},'+
+                'body:{'+
+                  'ENG:"<p>Продолжив эти странные движения и полностью отпустив тело, я ощутил, что реально владею неким боевым искусством. С каждой минутой тело действовало все увереннее, а разум восстанавливал логику этого мастерства.</p>'+
+                       '<p>Нет ничего больше придающего уверенности в себе, чем ощущение силы!</p>",'+
+                  'RU:"<p>Продолжив эти странные движения и полностью отпустив тело, я ощутил, что реально владею неким боевым искусством. С каждой минутой тело действовало все увереннее, а разум восстанавливал логику этого мастерства.</p>'+
+                      '<p>Нет ничего больше придающего уверенности в себе, чем ощущение силы!</p>"},'+
+              '},'+
+
+                  '"CombatArt":{name: "CombatArt",cost: 2000,kind: "persone",'+
+                    'script:"ChangePlayerParam(EXP, 200);'+
+                      'AllowSkill(CombatArt);",'+
+                      'ChangePlayerParam(AutoAction, 5000);",'+
+                    'caption:{ENG:"Forgotten art of combat",RU:"Забытое искусство боя"},'+
+                    'body:{'+
+                      'ENG:"<p>After spending a few more hours in training, I was able to significantly increase my strength.</p>'+
+                           '<p>I think if we continue regular battles, the skill will finally recover.</p>",'+
+                      'RU:"<p>Проведя еще несколько часов в тренировках, мне удалось значительно увеличить свои силы.</p>'+
+                          '<p>Думаю, если продолжить регулярные бои, умение окончательно восстановится.</p>"},'+
+                  '},'+
+
+                  '"Learning":{name: "Learning",cost: 2000,kind: "persone",'+
+                    'script:"ChangePlayerParam(EXP, 200);'+
+                      'AllowSkill(Learning);",'+
+                    'caption:{ENG:"The art of learning",RU:"Искусство обучаемости"},'+
+                    'body:{'+
+                      'ENG:"<p>The training unexpectedly opened up a new level of consciousness. Now I perceive the experience much better, which will undoubtedly allow me to become much stronger.</p>",'+
+                      'RU:"<p>Тренировка неожиданно открыла какой-то новый уровень сознания. Теперь я гораздо лучше воспринимаю получаемый опыт, что несомненно позволит стать гораздо сильнее.</p>"},'+
+                  '},'+
+
+                  '"Recuperation":{name: "Recuperation",cost: 2000,kind: "persone",'+
+                    'script:"ChangePlayerParam(EXP, 200);'+
+                      'AllowSkill(Recuperation);",'+
+                    'caption:{ENG:"The art of recuperation",RU:"Искусство восстановления сил"},'+
+                    'body:{'+
+                      'ENG:"<p>The art of precise and economical movements in battle will allow me not only not to get tired in battle, but also to recover my strength.</p>",'+
+                      'RU:"<p>Искусство точных и экономичных движений в бою позволит мне не только не устовать в бою, но и восстанавливать силы.</p>"},'+
+                  '},'+
+
+          '"MemoryLoss":{name: "MemoryLoss",cost: 50,kind: "persone",'+
+            'script:"ChangePlayerParam(EXP, 20);'+
+              'AllowThink(WhyLoss);",'+
+            'caption:{ENG:"Memory loss",RU:"Потеря памяти"},'+
+            'body:{'+
+              'ENG:"<p>The author of the note mentioned that memory loss is a deliberate step. But whose? Was I a hostage of this "friend"? Or volunteered for it?</p>'+
+                   '<p>The hint that this is reversible is very encouraging. However, it is completely unclear why this had to be done.</p>'+
+                   '<p>At the thought of this, for some reason, an image of flying iridescent fragments appears in front of my eyes ...</p>",'+
+              'RU:"<p>Автор записки упомянул, что потеря памяти - осознанный шаг. Но чей? Не был ли я заложником этого "друга"? Или пошел на это добровольно?</p>'+
+                  '<p>Намек, на то, что это обратимо очень обнадеживает. Однако, совершенно не понятно зачем это нужно было сделать.</p>'+
+                  '<p>При мысли об этом перед глазами почему-то возникает образ разлетающихся радужных осколков...</p>"},'+
+          '},'+
+
+              '"WhyLoss":{name: "WhyLoss",cost: 100,kind: "persone",'+
+                'script:"ChangePlayerParam(EXP, 30);'+
+                    'AllowThink(LittleThings);",'+
+                'caption:{ENG:"What is the point of memory loss?",RU:"В чем смысл потери памяти?"},'+
+                'body:{'+
+                  'ENG:"<p>На мой взгляд, причин может быть огромное количество, но можно ли выделить несколько наиболее вероятных?</p>'+
+                       '<p>В первую очередь, это может быть результат серьезной травмы! Кто знает что этот "друг" сделал со мной или способствовал чему-то ужасному в отношении меня!</p>'+
+                       '<p>Так, что еще?</p>'+
+                       '<p>В записке говорится о поиске некоего Пути. Возможно, воспоминания могут этому как-то помешать? Или, наоборот, помочь?</p>'+
+                       '<p>Там что-то говорилось про мелочи...</p>",'+
+                  'RU:"<p>На мой взгляд, причин может быть огромное количество, но можно ли выделить несколько наиболее вероятных?</p>'+
+                      '<p>В первую очередь, это может быть результат серьезной травмы! Кто знает что этот "друг" сделал со мной или способствовал чему-то ужасному в отношении меня!</p>'+
+                      '<p>Так, что еще?</p>'+
+                      '<p>В записке говорится о поиске некоего Пути. Возможно, воспоминания могут этому как-то помешать? Или, наоборот, помочь?</p>'+
+                      '<p>Там что-то говорилось про мелочи...</p>"},'+
+              '},'+
+
+                  '"LittleThings":{name: "LittleThings",cost: 300,kind: "persone",'+
+                    'script:"ChangePlayerParam(EXP, 50);'+
+                        'ChangePlayerParam(AutoAction, 3000);",'+
+                    'caption:{ENG:"The answers are in the little things?",RU:"Ответы в мелочах?"},'+
+                    'body:{'+
+                      'ENG:"<p>What does it mean? If we add this with the fact of unconsciousness, it turns out that the point is precisely to study this world in detail. Again.</p>'+
+                           '<p>Or ... Or to hide the fact that I am familiar with this world. From whom to hide? What danger do I face?</p>'+
+                           '<p>It seems that I cannot find the answer to these questions now ...</p>"},'+
+                      '",'+
+                      'RU:"<p>Что это значит? Если сложить это с фактом беспамятства, получается, что смысл именно в том, чтобы подробно изучить этот мир. Снова.</p>'+
+                          '<p>Или... Или чтобы скрыть факт того, что я знаком с этим миром. От кого скрыть? Какая опасность мне грозит?</p>'+
+                          '<p>Похоже, на эти вопросы сейчас ответа мне не найти...</p>"},'+
+                  '},'+
+
+      '"Note":{name: "Note",cost: 30,kind: "tower",'+
+        'script:"ChangePlayerParam(EXP, 10);'+
+          'AllowThink(TruthlyWay);'+
+          'AllowThink();'+
+          'AllowThink();",'+
+        'caption:{ENG:"Note",RU:"Записка"},'+
+        'body:{'+
+          'ENG:"<p>Once again I reread this message. Whoever its author, who calls himself a friend, has not clarified anything in my current situation. Smooth and clear handwriting suggests that the note was written in a calm atmosphere and, therefore, its text was well thought out. What can be understood from it?</p>",'+
+          'RU:"<p>В который раз перечитываю это послание. Кто бы ни был ее автор, называющий себя другом, он ничего не прояснил в моем нынешнем положении. Ровный и четкий почерк говорит о том, что записка писалась в спокойной обстановке и, значит, ее текст был хорошо продуман. Что же можно понять из нее?</p>"},'+
+      '},'+
+
+          '"TruthlyWay":{name: "TruthlyWay",cost: 50,kind: "tower",'+
+            'script:"ChangePlayerParam(EXP, 10);'+
+              '",'+
+            'caption:{ENG:"The truthly Way?",RU:"Подлинный Путь?"},'+
+            'body:{'+
+              'ENG:"'+
+                '<p></p>'+
+              '",'+
+              'RU:"'+
+                '<p></p>'+
+              '"},'+
+          '},'+
+
+
+
+
+
+      '"":{name: "",cost: 0,kind: "",'+
+        'script:"ChangePlayerParam(EXP, 50);'+
+          '",'+
+        'caption:{ENG:"",RU:""},'+
+        'body:{'+
           'ENG:"'+
-            '<p>Not much time has passed since waking up in this terrible place. '+
-               'It is frightening and ridiculous that I do not remember anything about myself at all! '+
-               'This Tower, a strange note, cramped floors packed with monsters, some ridiculous Dark Master ...</p>'+
-            '<p>My head is spinning from all this. And also from the fact that from the moment I woke up I was tormented by a wild headache.</p>'+
-            '<p>However, despite all this, there are pleasant little things. I don’t know how and why, but I can imagine quite well how to fight with melee weapons. '+
-               'At the moment of the first inspiration, there was no time to be surprised that this thin graceful dagger, '+
-               'which I have in my hands, appeared practically out of thin air! '+
-               'And how clever and convenient it is for them to chop and stab, as if I had been doing this for more than one year.</p>'+
-            '<p>But the feeling that a different kind of weapon is closer to me does not leave me ... '+
-               'My hands remember something more weighty and much more deadly ... And it certainly was not a sword or a bow ... '+
-               'When trying to remember the pain in my head begins to throb and squeeze consciousness into nothingness.</p>'+
+            '<p></p>'+
           '",'+
           'RU:"'+
-            '<p>Совсем немного времени прошло с момента пробуждения в этом ужасном месте. Пугающе и нелепо, что я соврешенно ничего не помню о себе! '+
-               'Эта Башня, странная записка, тесные этажи забитые монстрами, какой-то нелепый Темный Мастер... </p>'+
-            '<p>Голова идет кругом от всего этого. И еще от того, что с момента пробуждения меня мучает дикая головная боль.</p>'+
-            '<p>Однако, не смотря на все это, есть приятные мелочи. Не знаю как и почему, но я вполне сносно представляю как драться холодным оружием. '+
-               'В момент первого наподения не было времени удивляться тому, что этот тонкий изящный кинжал, '+
-               'который у меня в руках, появился практически из воздуха! И как же ловко и удобно им рубить и колоть, словно я занимался этим уже не один год.</p>'+
-            '<p>Но меня не покидает ощущение, что мне ближе оружие иного рода... Руки помнят что-то более увесистое и гораздо более смертоносное... '+
-               'И это точно не было мечом или луком... При попытках вспомнить боль в голове начинает пульсировать и выдавливать сознание в небытие.</p>'+
-        '"},'+
+            '<p></p>'+
+          '"},'+
       '},'+
+
 
       'darkmaster:{name: "darkmaster", cost: 200, kind: "tower",'+
         'script:"'+

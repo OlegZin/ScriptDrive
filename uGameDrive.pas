@@ -1092,24 +1092,22 @@ var
     item: ISuperObject;
 begin
     l('-> GetRandItemName');
+    result := '';
 
-    count := Random( GameData.I['itemsCount'] );
+    repeat
 
-    /// перебираем ресурсы и получаем один из них. с учетом редкости!
-    for item in GameData.O['items'] do
-    begin
-        if count = 0 then
-        /// если может быть дропом - выбираем
-        if item.B['drop'] then
-        begin
-            result := item.S['name'];
-            exit;
-        end else
-        /// иначе - перебираем еще раз
-            count := Random( GameData.I['itemsCount'] ) + 1;
+      count := Random( GameData.I['itemsCount'] );
 
-        Dec(count);
-    end;
+      /// перебираем ресурсы и получаем один из них. с учетом редкости!
+      for item in GameData.O['items'] do
+      begin
+          /// если может быть дропом - выбираем
+          if (count = 0) and item.B['drop'] then result := item.S['name'];
+
+          Dec(count);
+      end;
+
+    until result <> '';
 end;
 
 function TGameDrive.GetRandResName: string;
@@ -1329,16 +1327,14 @@ end;
 
 procedure TGameDrive.AllowThink(name: string);
 begin
-    /// открываем доступ к  раздумию. координаты карточки будут подставлены при апдейте интерфейса
-    if assigned( GameData.O['thinks.'+name] ) then
-    if not assigned( GameData.O['state.thinks.'+name] ) then
-    begin
-        /// кусок с сообщением должен выводиться автоматом при завершении обдумывания
-        uLog.Log.Phrase('open_think', GetLang, [ GameData.S['thinks.' + name + '.caption.' + GetLang ]]);
 
-        GameData.I['state.thinks.'+name] :=
-            GameData.I['thinks.'+name+'.cost'];
-    end;
+    if assigned( GameData.O['state.thinks.'+name] ) then exit;
+
+    /// открываем доступ к  раздумию.
+    GameData.I['state.thinks.'+name] := GameData.I['thinks.'+name+'.cost'];
+
+    /// сообщение об открытии раздумья
+    uLog.Log.Phrase('open_think', GetLang, [ GameData.S['thinks.' + name + '.caption.' + GetLang ]]);
 
     SetModeToUpdate( INT_THINK );
 end;
